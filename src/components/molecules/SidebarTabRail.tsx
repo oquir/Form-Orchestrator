@@ -44,7 +44,7 @@ export function SidebarTabRail({
         onClick={onToggleDarkMode}
         title={isDarkMode ? "Activar modo claro" : "Activar modo oscuro"}
         aria-label={isDarkMode ? "Activar modo claro" : "Activar modo oscuro"}
-        className="mt-auto flex h-10 w-10 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800"
+        className="mt-auto flex h-10 w-10 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800 hover:cursor-pointer"
       >
         {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
       </button>
