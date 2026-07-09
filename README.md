@@ -1,75 +1,79 @@
-# React + TypeScript + Vite
+# Form Orchestrator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Constructor visual de formularios paso a paso ("step-by-step form builder") con drag-and-drop, que compila toda su configuración a un único documento JSON estructurado.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** + **TypeScript** + **Vite**
+- **Zustand** para el estado global (canvas, steps, campos)
+- **@dnd-kit** para drag-and-drop (paleta → fila, Almacén de Partes → fila)
+- **react-hook-form** + **zod** para la validación de los campos generados (los schemas Zod se generan dinámicamente por campo y se guardan como string, ej. `"z.number().min(0)"`)
+- **Tailwind v4** (vía `@tailwindcss/vite`) para todo el estilado — sin CSS-in-JS
+- **uuid** para generar ids de campos/filas/steps
+- **Biome** como linter/formatter (2 espacios, comillas dobles, semicolons, 100 cols, organiza imports)
 
-## React Compiler
+Package manager: **bun**. No usar npm/yarn/pnpm.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Comandos
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+bun install       # instalar dependencias
+bun run dev       # servidor de desarrollo (Vite)
+bun run build     # typecheck (tsc -b) + build de producción
+bun run lint      # Biome check (lint + format check)
+bun run lint:fix  # Biome check con auto-fix
+bun run format    # Biome format --write
+bun run preview   # preview del build de producción
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+No hay test runner configurado todavía.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Arquitectura
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Estado
 
-```
+Un único store de Zustand, `src/store/formStore.ts` (`useFormStore`). Contiene:
+
+- `formSteps`: los steps del formulario principal, cada uno con `stepId`, `title` (obligatorio), `subtitle` (opcional) y `rows` (grid de 12 columnas).
+- `introModal.steps`: steps de un modal introductorio opcional, con la misma forma (`title` obligatorio, `subtitle` opcional).
+- `activeCanvas`: qué canvas se está editando (`{ type: "formStep", stepId }` o `{ type: "introStep", stepId }`).
+- `selectedFieldId`, `savedComponents` (Almacén de Partes), `setupConfig`, `isSidebarOpen`, `sidebarTab`, `isDarkMode`.
+
+Las mutaciones de campos/filas (`addFieldToRow`, `updateField`, `updateFieldValidations/Styles/Logic`, `toggleFieldDependency`, `addRowToActiveCanvas`, `removeRow`, `addFormStep`/`addIntroModalStep`, etc.) se aplican de forma uniforme sobre cualquier canvas que contenga el id objetivo vía `mapRowEverywhere`/`mapFieldEverywhere`, así el mismo código edita tanto el formulario principal como los steps del intro modal.
+
+### Componentes — Atomic Design (3 capas)
+
+`src/components/` sigue una organización de Atomic Design con **atoms → molecules → organisms** (sin capas `templates`/`pages`; `App.tsx` es el punto de entrada que compone todo).
+
+- **`atoms/`** — primitivas de UI sin lógica de negocio: `Button` (variantes primary/secondary/ghost), `Input`, `Textarea`, `Label`, `Checkbox`, `FieldTypeBadge`, `IconButton`, `CodeBlock`.
+- **`molecules/`** — combinaciones reutilizables de átomos: `LabeledInput`, `LabeledTextarea`, `LabeledRangeSlider`, `TwoColumnFieldGroup`, `ColorPickerField`, `SaveFieldForm` (form "guardar como componente", compartido entre Canvas y el Almacén), `SavedComponentListItem`, `DependencyCheckboxRow`, `GeneratedSchemaPreview`, `SelectableOptionCard`, `BinaryChoiceToggle`, `WizardFooterActions`, `ModalActions`, `ModalShell`, `PanelHeader`, `SidebarTabRail`, `StepTabChip`, `DashedAddButton`, `TabButtonGroup`, `SaveButton`, `CanvasFieldChip`, `PaletteChip`.
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasTabs`, `FieldContextMenu`, `FieldPalette`, `Sidebar`, `DraftRecoveryModal`, `SetupWizardModal`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `LibraryPanel`) — estos últimos son neutrales respecto a "sidebar" y los reutilizan tanto `Sidebar` como el `FieldContextMenu` del Canvas.
+- **`layout/AppLayout.tsx`** — shell de dos columnas (sidebar colapsable + canvas), fuera de la jerarquía atómica porque es el layout raíz, no un componente de UI reutilizable.
+
+### Layout de dos columnas
+
+- **Sidebar izquierdo** (`organisms/Sidebar.tsx`): un rail vertical de íconos (`SidebarTabRail`) para elegir tab (Campos/Atributos/Validaciones/Estilos/Lógica/Almacén) más el panel correspondiente. No hay botón dedicado para mostrar/ocultar el panel: al hacer clic en un ícono se abre esa sección, y al hacer clic de nuevo sobre la sección ya activa y abierta, el panel se cierra (toggle). El rail (ancho fijo) siempre queda visible aunque el panel esté colapsado.
+- **Canvas derecho** (`organisms/Canvas.tsx`): grid de 12 columnas por fila (`@dnd-kit` `useDroppable`), tabs para cambiar entre steps del formulario y del intro modal (`CanvasTabs`), editor de título/subtítulo del step activo, controles para agregar/quitar filas y steps, y un menú contextual (`FieldContextMenu`) para editar un campo sin perder el foco del canvas.
+
+El wiring de drag-and-drop (paleta → fila, Almacén → fila) vive en el `DndContext`/`handleDragEnd` de `App.tsx`.
+
+### Persistencia
+
+`src/hooks/useAutosave.ts` + `src/lib/persistence.ts`: autoguarda el store en `localStorage` cada 5 minutos una vez completado el setup. `DraftRecoveryModal` ofrece restaurar o descartar un borrador guardado al iniciar.
+
+### Setup inicial
+
+`organisms/SetupWizardModal.tsx`: modal de 2 pasos mostrado cuando `setupConfig.isComplete` es `false`. Paso 1 elige el `FormType` (`industria_comercio` carga una plantilla base desde `src/lib/baseTemplate.ts`; los otros tipos arrancan con una fila vacía). Paso 2 pregunta si hace falta un modal introductorio y, de ser así, cuántos steps tiene.
+
+### Exportación
+
+`src/lib/exportForm.ts` (`downloadFormExport`/`buildFormExport`) serializa `projectMeta`, `setupConfig.introModal` y `formSchema.steps[].rows[].fields[]` (con `colSpan`, `styles`, `validations.zodSchema` generado por `src/lib/zodSchema.ts`, y `logic`) en un único JSON descargable. Cada step (formulario e intro modal) exporta `title` y, si existe, `subtitle`.
+
+## Gaps conocidos / no implementado
+
+- No hay editor de código estilo Monaco para la tab de Lógica — `LogicPanel` edita `logic.typeScript` como string plano, y las dependencias (`toggleFieldDependency`) son toggles simples de field-id, no expresiones condicionales.
+- No hay menú flotante para cambiar la cantidad de columnas base de una fila (`CanvasRow.columns` siempre se crea en `12` y no es editable).
+- No hay drag-resize del `colSpan` de un campo arrastrando sus bordes — sólo es editable desde el panel de Atributos.
+- No hay test runner configurado.
+
+`docs/Project.md` (en español) es la especificación de producto original — sigue siendo la referencia para la forma del JSON destino y cualquier detalle no implementado; conviene revisarla antes de agregar features para que la estructura coincida con el modelo de datos previsto.
