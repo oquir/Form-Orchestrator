@@ -1,0 +1,35 @@
+import type { MouseEvent } from "react";
+import type { CanvasField } from "../../store/formStore";
+import { FieldTypeBadge } from "../atoms/FieldTypeBadge";
+
+interface CanvasFieldChipProps {
+  field: CanvasField;
+  selected: boolean;
+  onClick: () => void;
+  onContextMenu: (event: MouseEvent<HTMLButtonElement>) => void;
+}
+
+export function CanvasFieldChip({ field, selected, onClick, onContextMenu }: CanvasFieldChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+      style={{
+        gridColumn: `span ${field.colSpan} / span ${field.colSpan}`,
+        marginTop: field.styles.marginTop,
+        marginBottom: field.styles.marginBottom,
+        backgroundColor: field.styles.backgroundColor,
+        color: field.styles.textColor,
+      }}
+      className={`rounded-md border bg-white px-3 py-2 text-left text-sm text-slate-700 shadow-sm transition-colors dark:bg-slate-800 dark:text-slate-200 ${
+        selected
+          ? "border-slate-900 ring-1 ring-slate-900 dark:border-slate-100 dark:ring-slate-100"
+          : "border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600"
+      } ${field.styles.customClasses ?? ""}`}
+    >
+      <FieldTypeBadge type={field.type} />
+      <p>{field.label}</p>
+    </button>
+  );
+}

@@ -1,0 +1,57 @@
+import { useState } from "react";
+import { useFormStore } from "../../store/formStore";
+import { Button } from "../atoms/Button";
+
+interface SaveFieldFormProps {
+  fieldId: string;
+  label: string;
+  containerClassName?: string;
+  showSuccessMessage?: boolean;
+}
+
+export function SaveFieldForm({
+  fieldId,
+  label,
+  containerClassName = "",
+  showSuccessMessage = false,
+}: SaveFieldFormProps) {
+  const saveFieldAsComponent = useFormStore((state) => state.saveFieldAsComponent);
+  const [name, setName] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  function handleSave() {
+    if (!name.trim()) return;
+    saveFieldAsComponent(fieldId, name.trim());
+    setName("");
+    setSaved(true);
+  }
+
+  return (
+    <div className={containerClassName}>
+      <p className="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      <div className="flex gap-2">
+        <input
+          value={name}
+          onChange={(event) => {
+            setName(event.target.value);
+            setSaved(false);
+          }}
+          placeholder="Nombre del componente"
+          className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-sm text-slate-700 focus:border-slate-400 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-slate-500"
+        />
+        <Button
+          onClick={handleSave}
+          disabled={!name.trim()}
+          className="shrink-0 px-3 py-1.5 text-xs"
+        >
+          Guardar
+        </Button>
+      </div>
+      {showSuccessMessage && saved && (
+        <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+          Guardado en el Almacén.
+        </p>
+      )}
+    </div>
+  );
+}
