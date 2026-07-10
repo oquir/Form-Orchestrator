@@ -8,11 +8,11 @@ import { DraftRecoveryModal } from "./components/organisms/DraftRecoveryModal";
 import { SetupWizardModal } from "./components/organisms/SetupWizardModal";
 import { Sidebar } from "./components/organisms/Sidebar";
 import { useAutosave } from "./hooks/useAutosave";
-import type { FieldTypeDef } from "./lib/fieldTypes";
 import type { DraftPayload } from "./lib/persistence";
 import { clearDraft, loadDraft } from "./lib/persistence";
 import type { SavedComponent } from "./store/formStore";
 import { useFormStore } from "./store/formStore";
+import type { FieldTypeDef } from "./types/fieldTypes";
 
 type ActiveDrag =
   | { source: "palette"; fieldType: FieldTypeDef }

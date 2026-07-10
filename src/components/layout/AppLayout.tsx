@@ -21,7 +21,9 @@ export function AppLayout({ sidebar, canvas }: AppLayoutProps) {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto bg-slate-100 relative dark:bg-neutral-950">{canvas}</main>
+      <main className="flex-1 overflow-auto bg-slate-100 relative dark:bg-neutral-950">
+        {canvas}
+      </main>
     </div>
   );
 }

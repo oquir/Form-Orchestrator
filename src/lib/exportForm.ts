@@ -1,4 +1,4 @@
-import type { CanvasRow, FormStep, IntroModalStep, SetupConfig } from "../store/formStore";
+import type { CanvasRow, FormStep, IntroModalStep, SetupConfig } from "../types/storeTypes";
 import { buildZodSchema } from "./zodSchema";
 
 function mapRows(rows: CanvasRow[]) {

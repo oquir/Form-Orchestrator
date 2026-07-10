@@ -1,4 +1,4 @@
-import type { CanvasRow } from "../store/formStore";
+import type { CanvasRow } from "../types/storeTypes";
 
 export function getIndustriaComercioTemplate(): CanvasRow[] {
   return [

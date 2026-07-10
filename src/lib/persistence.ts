@@ -1,14 +1,6 @@
-import type { FormStep, IntroModalState, SavedComponent, SetupConfig } from "../store/formStore";
+import type { DraftPayload } from "../types/persistenceTypes";
 
 const DRAFT_KEY = "form-orchestrator-draft";
-
-export interface DraftPayload {
-  formSteps: FormStep[];
-  introModal: IntroModalState;
-  savedComponents: SavedComponent[];
-  setupConfig: SetupConfig;
-  savedAt: string;
-}
 
 export function saveDraft(payload: Omit<DraftPayload, "savedAt">): void {
   const draft: DraftPayload = { ...payload, savedAt: new Date().toISOString() };

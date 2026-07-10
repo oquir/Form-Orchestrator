@@ -1,90 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
 import { getIndustriaComercioTemplate } from "../lib/baseTemplate";
-import type { FieldTypeDef } from "../lib/fieldTypes";
-
-export type FormType = "industria_comercio" | "retencion_industria_comercio" | "autorretencion";
-
-export interface SetupConfig {
-  isComplete: boolean;
-  formType: FormType | null;
-  hasIntroModal: boolean;
-  introModalSteps: number;
-}
-
-export interface FieldValidations {
-  required?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-  pattern?: string;
-  message?: string;
-}
-
-export interface FieldStyles {
-  customClasses?: string;
-  marginTop?: string;
-  marginBottom?: string;
-  backgroundColor?: string;
-  textColor?: string;
-}
-
-export interface FieldLogic {
-  dependencies: string[];
-  typeScript: string;
-}
-
-export interface CanvasField {
-  id: string;
-  type: string;
-  label: string;
-  colSpan: number;
-  validations: FieldValidations;
-  styles: FieldStyles;
-  logic: FieldLogic;
-}
-
-export interface CanvasRow {
-  id: string;
-  columns: number;
-  fields: CanvasField[];
-}
-
-export interface FormStep {
-  stepId: string;
-  title: string;
-  subtitle?: string;
-  rows: CanvasRow[];
-}
-
-export interface IntroModalStep {
-  stepId: string;
-  title: string;
-  subtitle?: string;
-  rows: CanvasRow[];
-}
-
-export interface IntroModalState {
-  steps: IntroModalStep[];
-}
-
-export interface SavedComponent {
-  id: string;
-  name: string;
-  type: string;
-  label: string;
-  colSpan: number;
-  validations: FieldValidations;
-  styles: FieldStyles;
-  logic: FieldLogic;
-}
-
-export type CanvasTarget =
-  | { type: "formStep"; stepId: string }
-  | { type: "introStep"; stepId: string };
-
-export type SidebarTab = "fields" | "attributes" | "validations" | "styles" | "logic" | "library";
+import type { FormState } from "../types/formStoreTypes";
+import type {
+  CanvasField,
+  CanvasRow,
+  CanvasTarget,
+  FormStep,
+  FormType,
+  IntroModalState,
+  IntroModalStep,
+  SavedComponent,
+  StateSlice,
+} from "../types/storeTypes";
 
 function createEmptyRow(): CanvasRow {
   return { id: uuidv4(), columns: 12, fields: [] };
@@ -100,11 +28,6 @@ function createEmptyField(type: string, label: string): CanvasField {
     styles: {},
     logic: { dependencies: [], typeScript: "" },
   };
-}
-
-interface StateSlice {
-  formSteps: FormStep[];
-  introModal: IntroModalState;
 }
 
 function mapRowEverywhere(
@@ -149,56 +72,6 @@ function mapFieldEverywhere(
       })),
     },
   };
-}
-
-interface FormState {
-  formSteps: FormStep[];
-  introModal: IntroModalState;
-  activeCanvas: CanvasTarget;
-  selectedFieldId: string | null;
-  savedComponents: SavedComponent[];
-  setupConfig: SetupConfig;
-  isSidebarOpen: boolean;
-  sidebarTab: SidebarTab;
-  isDarkMode: boolean;
-  lastSavedAt: string | null;
-  setSidebarOpen: (open: boolean) => void;
-  setSidebarTab: (tab: SidebarTab) => void;
-  toggleDarkMode: () => void;
-  markSaved: () => void;
-  selectFieldAndEdit: (fieldId: string, tab: SidebarTab) => void;
-  completeSetup: (config: {
-    formType: FormType;
-    hasIntroModal: boolean;
-    introModalSteps: number;
-  }) => void;
-  setActiveCanvas: (target: CanvasTarget) => void;
-  updateFormStepTitle: (stepId: string, title: string) => void;
-  updateFormStepSubtitle: (stepId: string, subtitle: string) => void;
-  addFormStep: () => void;
-  removeFormStep: (stepId: string) => void;
-  updateIntroModalStepTitle: (stepId: string, title: string) => void;
-  updateIntroModalStepSubtitle: (stepId: string, subtitle: string) => void;
-  addIntroModalStep: () => void;
-  removeIntroModalStep: (stepId: string) => void;
-  addRowToActiveCanvas: () => void;
-  removeRow: (rowId: string) => void;
-  addFieldToRow: (rowId: string, fieldType: FieldTypeDef) => void;
-  selectField: (fieldId: string | null) => void;
-  updateField: (fieldId: string, updates: Partial<Pick<CanvasField, "label" | "colSpan">>) => void;
-  updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
-  updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
-  updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
-  toggleFieldDependency: (fieldId: string, dependsOnFieldId: string) => void;
-  saveFieldAsComponent: (fieldId: string, name: string) => void;
-  removeSavedComponent: (componentId: string) => void;
-  addSavedComponentToRow: (rowId: string, componentId: string) => void;
-  restoreDraft: (draft: {
-    formSteps: FormStep[];
-    introModal: IntroModalState;
-    savedComponents: SavedComponent[];
-    setupConfig: SetupConfig;
-  }) => void;
 }
 
 function buildInitialFormSteps(formType: FormType): FormStep[] {
