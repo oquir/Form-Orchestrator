@@ -3,20 +3,17 @@ import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@
 import { useEffect, useState } from "react";
 import "./index.css";
 import { AppLayout } from "./components/layout/AppLayout";
-import { Canvas } from "./components/organisms/Canvas";
-import { DraftRecoveryModal } from "./components/organisms/DraftRecoveryModal";
-import { SetupWizardModal } from "./components/organisms/SetupWizardModal";
-import { Sidebar } from "./components/organisms/Sidebar";
+import { Canvas } from "./components/organisms/Canvas/Canvas";
+import { DraftRecoveryModal } from "./components/organisms/DraftRecoveryModal/DraftRecoveryModal";
+import { SetupWizardModal } from "./components/organisms/SetupWizardModal/SetupWizardModal";
+import { Sidebar } from "./components/organisms/Sidebar/Sidebar";
 import { useAutosave } from "./hooks/useAutosave";
-import type { DraftPayload } from "./lib/persistence";
 import { clearDraft, loadDraft } from "./lib/persistence";
-import type { SavedComponent } from "./store/formStore";
 import { useFormStore } from "./store/formStore";
+import type { ActiveDrag } from "./types/activeDrag";
 import type { FieldTypeDef } from "./types/fieldTypes";
-
-type ActiveDrag =
-  | { source: "palette"; fieldType: FieldTypeDef }
-  | { source: "library"; component: SavedComponent };
+import type { DraftPayload } from "./types/persistenceTypes";
+import type { SavedComponent } from "./types/storeTypes";
 
 function App() {
   const addFieldToRow = useFormStore((state) => state.addFieldToRow);
