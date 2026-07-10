@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
-import { getIndustriaComercioTemplate } from "../lib/baseTemplate";
+import { getIndustriaComercioTemplate } from "../lib/baseTemplate/baseTemplate";
 import type { FormState } from "../types/formStoreTypes";
 import type {
   CanvasField,

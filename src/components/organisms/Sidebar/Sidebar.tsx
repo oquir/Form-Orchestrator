@@ -1,7 +1,4 @@
-﻿import type { IconComponent } from "reicon-react";
-import { Archive, CheckCircle, Code, Layers, Palette, Sliders } from "reicon-react";
-import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
-import type { SidebarTab } from "../../../types/storeTypes";
+﻿import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
 import { PanelHeader } from "../../molecules/PanelHeader/PanelHeader";
 import { SidebarTabRail } from "../../molecules/SidebarTabRail/SidebarTabRail";
 import { FieldPalette } from "../FieldPalette/FieldPalette";
@@ -10,15 +7,7 @@ import { LibraryPanel } from "../panels/LibraryPanel/LibraryPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
-
-const TABS: { id: SidebarTab; label: string; icon: IconComponent }[] = [
-  { id: "fields", label: "Campos", icon: Layers },
-  { id: "attributes", label: "Atributos", icon: Sliders },
-  { id: "validations", label: "Validaciones", icon: CheckCircle },
-  { id: "styles", label: "Estilos", icon: Palette },
-  { id: "logic", label: "Lógica", icon: Code },
-  { id: "library", label: "Almacén", icon: Archive },
-];
+import { TABS } from "./Sidebar.constants";
 
 export function Sidebar() {
   const activeTab = useFormStore((state) => state.sidebarTab);

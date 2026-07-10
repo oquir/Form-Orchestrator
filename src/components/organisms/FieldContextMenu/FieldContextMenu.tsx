@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from "react";
+import { Xmark } from "reicon-react";
 import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { SidebarTab } from "../../../types/storeTypes";
 import { IconButton } from "../../atoms/IconButton/IconButton";
@@ -8,14 +9,8 @@ import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
+import { CONTEXT_MENU_TABS } from "./FieldContextMenu.constans";
 import type { FieldContextMenuState } from "./FieldContextMenu.types";
-
-const CONTEXT_MENU_TABS: { tab: SidebarTab; label: string }[] = [
-  { tab: "styles", label: "Estilos" },
-  { tab: "attributes", label: "Atributos" },
-  { tab: "validations", label: "Validaciones" },
-  { tab: "logic", label: "Lógica" },
-];
 
 export function FieldContextMenu({
   menu,
@@ -60,10 +55,10 @@ export function FieldContextMenu({
         </p>
         <IconButton
           onClick={onClose}
-          className="shrink-0 text-slate-300 hover:text-slate-600 dark:text-neutral-600 dark:hover:text-neutral-300"
+          className="shrink-0 text-slate-300 hover:text-slate-600 dark:text-neutral-600 dark:hover:text-neutral-300 hover:cursor-pointer"
           aria-label="Cerrar"
         >
-          ×
+          <Xmark size={18} weight="Filled" />
         </IconButton>
       </div>
 

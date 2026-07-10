@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { saveDraft } from "../lib/persistence";
-import { useFormStore } from "../store/formStore";
-
-const AUTOSAVE_INTERVAL_MS = 5 * 60 * 1000;
+import { saveDraft } from "../../lib/persistence/persistence";
+import { useFormStore } from "../../store/formStore";
+import { AUTOSAVE_INTERVAL_MS } from "./useAutosave.constants";
 
 export function useAutosave() {
   useEffect(() => {

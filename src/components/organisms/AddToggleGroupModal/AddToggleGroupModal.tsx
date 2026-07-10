@@ -3,11 +3,7 @@ import { Button } from "../../atoms/Button/Button";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
 import { ModalActions } from "../../molecules/ModalActions/ModalActions";
 import { ModalShell } from "../../molecules/ModalShell/ModalShell";
-
-interface AddToggleGroupModalProps {
-  onConfirm: (config: { title?: string; optionCount: number }) => void;
-  onCancel: () => void;
-}
+import type { AddToggleGroupModalProps } from "./AddToggleGroupModal.types";
 
 export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModalProps) {
   const [title, setTitle] = useState("");

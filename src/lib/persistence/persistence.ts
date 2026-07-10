@@ -1,6 +1,5 @@
-import type { DraftPayload } from "../types/persistenceTypes";
-
-const DRAFT_KEY = "form-orchestrator-draft";
+import type { DraftPayload } from "../../types/persistenceTypes";
+import { DRAFT_KEY } from "./persistence.constants";
 
 export function saveDraft(payload: Omit<DraftPayload, "savedAt">): void {
   const draft: DraftPayload = { ...payload, savedAt: new Date().toISOString() };

@@ -1,10 +1,8 @@
 import { ArrowDown2, Calculator } from "reicon-react";
 import type { CanvasField } from "../../../types/storeTypes";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
+import { MOCK_CONTROL_CLASSES } from "./CanvasFieldChip.constants";
 import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
-
-const MOCK_CONTROL_CLASSES =
-  "flex items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-500";
 
 function FieldPreviewControl({ field }: { field: CanvasField }) {
   switch (field.type) {

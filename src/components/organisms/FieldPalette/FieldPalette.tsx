@@ -1,8 +1,5 @@
-import { FIELD_TYPES } from "../../../types/fieldTypes";
 import { PaletteChip } from "../../molecules/PaletteChip/PaletteChip";
-
-const BASIC_FIELD_TYPES = FIELD_TYPES.filter((fieldType) => fieldType.category === "basico");
-const COMPLEX_FIELD_TYPES = FIELD_TYPES.filter((fieldType) => fieldType.category === "complejo");
+import { BASIC_FIELD_TYPES, COMPLEX_FIELD_TYPES } from "./FieldPalette.constants";
 
 export function FieldPalette() {
   return (

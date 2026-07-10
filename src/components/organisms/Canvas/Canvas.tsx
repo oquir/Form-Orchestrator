@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { Plus } from "reicon-react";
-import { downloadFormExport } from "../../../lib/exportForm";
+import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveRows, useFormStore } from "../../../store/formStore";
 import { DashedAddButton } from "../../molecules/DashedAddButton/DashedAddButton";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";

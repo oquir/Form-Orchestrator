@@ -1,4 +1,4 @@
-﻿import { buildZodSchema } from "../../../../lib/zodSchema";
+﻿import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/storeTypes";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
