@@ -1,4 +1,4 @@
-import { Xmark } from "reicon-react";
+﻿import { Xmark } from "reicon-react";
 
 interface StepTabChipProps {
   label: string;
@@ -24,7 +24,7 @@ export function StepTabChip({
       className={`group flex items-center gap-1 rounded-md pl-2.5 py-1.5 text-xs font-medium transition-colors ${
         active
           ? "bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-500 dark:text-white dark:hover:bg-orange-400"
-          : "text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700"
+          : "text-slate-500 hover:bg-slate-200 dark:text-neutral-400 dark:hover:bg-neutral-700"
       } ${className}`}
     >
       <button type="button" onClick={onSelect} className="select-none hover:cursor-pointer">

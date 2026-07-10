@@ -1,4 +1,4 @@
-import type { DraftPayload } from "../../lib/persistence";
+﻿import type { DraftPayload } from "../../lib/persistence";
 import { Button } from "../atoms/Button";
 import { ModalActions } from "../molecules/ModalActions";
 import { ModalShell } from "../molecules/ModalShell";
@@ -14,10 +14,10 @@ export function DraftRecoveryModal({ draft, onRestore, onDiscard }: DraftRecover
 
   return (
     <ModalShell maxWidthClassName="max-w-md">
-      <h2 className="mb-2 text-lg font-semibold text-slate-800 dark:text-slate-100">
+      <h2 className="mb-2 text-lg font-semibold text-slate-800 dark:text-neutral-100">
         Se encontró un borrador
       </h2>
-      <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-4 text-sm text-slate-500 dark:text-neutral-400">
         Hay un proyecto guardado automáticamente el {savedAtLabel}. ¿Quieres restaurarlo o empezar
         de nuevo?
       </p>

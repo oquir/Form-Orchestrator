@@ -1,4 +1,4 @@
-import type { CanvasField } from "../../../store/formStore";
+﻿import type { CanvasField } from "../../../store/formStore";
 import { getAllFields, useFormStore } from "../../../store/formStore";
 import { DependencyCheckboxRow } from "../../molecules/DependencyCheckboxRow";
 import { LabeledTextarea } from "../../molecules/LabeledTextarea";
@@ -15,12 +15,12 @@ export function LogicPanel({ field }: { field: CanvasField }) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h3 className="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">Depende de</h3>
-        <p className="mb-2 text-xs text-slate-400 dark:text-slate-500">
+        <h3 className="mb-1 text-xs font-medium text-slate-500 dark:text-neutral-400">Depende de</h3>
+        <p className="mb-2 text-xs text-slate-400 dark:text-neutral-500">
           Marca los campos cuyo valor afecta a este campo (ej. mostrarlo solo si X = Y).
         </p>
         {otherFields.length === 0 ? (
-          <p className="text-xs text-slate-300 dark:text-slate-600">
+          <p className="text-xs text-slate-300 dark:text-neutral-600">
             No hay otros campos en el lienzo todavía.
           </p>
         ) : (

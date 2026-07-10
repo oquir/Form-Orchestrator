@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import type { SidebarTab } from "../../store/formStore";
 import { findFieldById, getActiveRows, useFormStore } from "../../store/formStore";
 import { IconButton } from "../atoms/IconButton";
@@ -56,16 +56,16 @@ export function FieldContextMenu({
   return (
     <div
       style={{ left: Math.max(8, left), top: Math.max(8, top), width: menuWidth }}
-      className="fixed z-50 flex max-h-[80vh] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900"
+      className="fixed z-50 flex max-h-[80vh] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2 dark:border-slate-800">
-        <p className="truncate text-xs font-semibold text-slate-700 dark:text-slate-200">
+      <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2 dark:border-neutral-800">
+        <p className="truncate text-xs font-semibold text-slate-700 dark:text-neutral-200">
           {field.label}
         </p>
         <IconButton
           onClick={onClose}
-          className="shrink-0 text-slate-300 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-300"
+          className="shrink-0 text-slate-300 hover:text-slate-600 dark:text-neutral-600 dark:hover:text-neutral-300"
           aria-label="Cerrar"
         >
           ×
@@ -84,7 +84,7 @@ export function FieldContextMenu({
       <SaveFieldForm
         fieldId={field.id}
         label="Guardar en el Almacén de Partes"
-        containerClassName="border-t border-slate-100 p-3 dark:border-slate-800"
+        containerClassName="border-t border-slate-100 p-3 dark:border-neutral-800"
         showSuccessMessage
       />
     </div>

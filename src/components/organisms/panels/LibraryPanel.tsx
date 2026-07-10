@@ -1,4 +1,4 @@
-import type { CanvasField } from "../../../store/formStore";
+﻿import type { CanvasField } from "../../../store/formStore";
 import { useFormStore } from "../../../store/formStore";
 import { SavedComponentListItem } from "../../molecules/SavedComponentListItem";
 import { SaveFieldForm } from "../../molecules/SaveFieldForm";
@@ -12,16 +12,16 @@ export function LibraryPanel({ selectedField }: { selectedField: CanvasField | n
         <SaveFieldForm
           fieldId={selectedField.id}
           label={`Guardar "${selectedField.label}" como componente reutilizable`}
-          containerClassName="rounded-md border border-slate-200 p-3 dark:border-slate-700"
+          containerClassName="rounded-md border border-slate-200 p-3 dark:border-neutral-700"
         />
       )}
 
       <div>
-        <h3 className="mb-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <h3 className="mb-2 text-xs font-semibold text-slate-500 dark:text-neutral-400">
           Componentes guardados
         </h3>
         {savedComponents.length === 0 ? (
-          <p className="text-xs text-slate-300 dark:text-slate-600">
+          <p className="text-xs text-slate-300 dark:text-neutral-600">
             No hay componentes guardados aún.
           </p>
         ) : (

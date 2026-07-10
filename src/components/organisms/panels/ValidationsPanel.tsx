@@ -1,4 +1,4 @@
-import { buildZodSchema } from "../../../lib/zodSchema";
+﻿import { buildZodSchema } from "../../../lib/zodSchema";
 import type { CanvasField } from "../../../store/formStore";
 import { useFormStore } from "../../../store/formStore";
 import { Checkbox } from "../../atoms/Checkbox";
@@ -20,7 +20,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
     <div className="flex flex-col gap-4">
       {field.type !== "checkbox" && (
         // biome-ignore lint/a11y/noLabelWithoutControl: Checkbox renders a nested <input type="checkbox">
-        <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+        <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-neutral-200">
           <Checkbox
             checked={v.required ?? false}
             onChange={(event) =>

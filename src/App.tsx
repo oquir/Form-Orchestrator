@@ -1,4 +1,4 @@
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+﻿import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { useEffect, useState } from "react";
 import "./index.css";
@@ -91,7 +91,7 @@ function App() {
       <AppLayout sidebar={<Sidebar />} canvas={<Canvas />} />
       <DragOverlay>
         {activeDrag ? (
-          <div className="rounded-md border border-orange-500 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-lg dark:bg-slate-800 dark:text-slate-200">
+          <div className="rounded-md border border-orange-500 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-lg dark:bg-neutral-800 dark:text-neutral-200">
             {activeDrag.source === "palette"
               ? activeDrag.fieldType.label
               : activeDrag.component.name}

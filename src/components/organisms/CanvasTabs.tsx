@@ -1,4 +1,4 @@
-import { Plus } from "reicon-react";
+﻿import { Plus } from "reicon-react";
 import { useFormStore } from "../../store/formStore";
 import { DashedAddButton } from "../molecules/DashedAddButton";
 import { StepTabChip } from "../molecules/StepTabChip";
@@ -15,9 +15,9 @@ export function CanvasTabs() {
   const removeIntroModalStep = useFormStore((state) => state.removeIntroModalStep);
 
   return (
-    <div className="mb-4 flex flex-col gap-2 border-b border-slate-200 pb-3 dark:border-slate-800">
+    <div className="mb-4 flex flex-col gap-2 border-b border-slate-200 pb-3 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-1">
-        <span className="mr-1 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">
+        <span className="mr-1 text-[10px] font-semibold uppercase text-slate-400 dark:text-neutral-500">
           Steps del formulario
         </span>
         {formSteps.map((step) => (
@@ -35,7 +35,7 @@ export function CanvasTabs() {
         <DashedAddButton
           onClick={addFormStep}
           title="Agregar step al formulario"
-          className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-200"
+          className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-600 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-200"
         >
           <Plus size={12} weight="Filled" />
           Step
@@ -44,7 +44,7 @@ export function CanvasTabs() {
 
       {hasIntroModal && (
         <div className="flex flex-wrap items-center gap-1">
-          <span className="mr-1 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">
+          <span className="mr-1 text-[10px] font-semibold uppercase text-slate-400 dark:text-neutral-500">
             Modal de entrada
           </span>
           {introSteps.map((step) => (
@@ -62,7 +62,7 @@ export function CanvasTabs() {
           <DashedAddButton
             onClick={addIntroModalStep}
             title="Agregar paso al modal introductorio"
-            className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-200"
+            className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-600 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-200"
           >
             <Plus size={12} weight="Filled" /> Paso del modal
           </DashedAddButton>

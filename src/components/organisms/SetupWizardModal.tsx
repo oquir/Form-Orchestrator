@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import type { FormType } from "../../store/formStore";
 import { useFormStore } from "../../store/formStore";
 import { Button } from "../atoms/Button";
@@ -44,10 +44,10 @@ export function SetupWizardModal() {
 
   return (
     <ModalShell maxWidthClassName="max-w-lg">
-      <p className="mb-1 text-xs font-medium text-slate-400 dark:text-slate-500">
+      <p className="mb-1 text-xs font-medium text-slate-400 dark:text-neutral-500">
         Paso {step} de 2
       </p>
-      <h2 className="mb-4 text-lg font-semibold text-slate-800 dark:text-slate-100">
+      <h2 className="mb-4 text-lg font-semibold text-slate-800 dark:text-neutral-100">
         {step === 1 ? "Tipo de formulario" : "Modal de entrada"}
       </h2>
 
@@ -78,7 +78,7 @@ export function SetupWizardModal() {
 
       {step === 2 && (
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm text-slate-600 dark:text-neutral-300">
             ¿El formulario compilado requerirá un modal introductorio para el usuario final?
           </p>
           <BinaryChoiceToggle value={hasIntroModal} onChange={setHasIntroModal} />

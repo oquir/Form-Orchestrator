@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useFormStore } from "../../store/formStore";
 import { Button } from "../atoms/Button";
 
@@ -28,7 +28,7 @@ export function SaveFieldForm({
 
   return (
     <div className={containerClassName}>
-      <p className="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mb-2 text-xs font-medium text-slate-500 dark:text-neutral-400">{label}</p>
       <div className="flex gap-2">
         <input
           value={name}
@@ -37,7 +37,7 @@ export function SaveFieldForm({
             setSaved(false);
           }}
           placeholder="Nombre del componente"
-          className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-sm text-slate-700 focus:border-orange-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400"
+          className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-sm text-slate-700 focus:border-orange-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:focus:border-orange-400"
         />
         <Button
           onClick={handleSave}

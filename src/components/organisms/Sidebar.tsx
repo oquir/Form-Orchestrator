@@ -1,4 +1,4 @@
-import type { IconComponent } from "reicon-react";
+﻿import type { IconComponent } from "reicon-react";
 import { Archive, CheckCircle, Code, Layers, Palette, Sliders } from "reicon-react";
 import type { SidebarTab } from "../../store/formStore";
 import { findFieldById, getActiveRows, useFormStore } from "../../store/formStore";
@@ -59,7 +59,7 @@ export function Sidebar() {
           }
         />
 
-        <div className="flex-1 overflow-y-auto p-4 text-sm text-slate-400 dark:text-slate-500">
+        <div className="flex-1 overflow-y-auto p-4 text-sm text-slate-400 dark:text-neutral-500">
           {activeTab === "fields" && <FieldPalette />}
           {activeTab !== "fields" && activeTab !== "library" && !selectedField && (
             <p>Sin campo seleccionado.</p>

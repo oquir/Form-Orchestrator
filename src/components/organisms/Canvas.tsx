@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Plus } from "reicon-react";
 import { downloadFormExport } from "../../lib/exportForm";
 import { getActiveRows, useFormStore } from "../../store/formStore";
@@ -67,10 +67,10 @@ export function Canvas() {
     <div className="mx-auto max-w-5xl px-6 py-8">
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+          <h1 className="text-lg font-semibold text-slate-800 dark:text-neutral-100">
             Lienzo de trabajo
           </h1>
-          <p className="text-sm text-slate-400 dark:text-slate-500">
+          <p className="text-sm text-slate-400 dark:text-neutral-500">
             Arrastra campos aquí para construir el formulario
           </p>
         </div>
@@ -89,7 +89,7 @@ export function Canvas() {
       <CanvasTabs />
       <StepTitleEditor />
 
-      <div className="grid min-h-[60vh] grid-cols-12 content-start gap-3 rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+      <div className="grid min-h-[60vh] grid-cols-12 content-start gap-3 rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
         {activeRows.map((row) => (
           <CanvasRow
             key={row.id}
@@ -101,7 +101,7 @@ export function Canvas() {
 
       <DashedAddButton
         onClick={addRowToActiveCanvas}
-        className="mt-3 flex w-full items-center justify-center gap-1.5 border-slate-300 py-2 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-200"
+        className="mt-3 flex w-full items-center justify-center gap-1.5 border-slate-300 py-2 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-200"
       >
         <Plus size={12} weight="Filled" /> Agregar fila
       </DashedAddButton>

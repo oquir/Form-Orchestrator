@@ -1,4 +1,4 @@
-import { Label } from "../atoms/Label";
+﻿import { Label } from "../atoms/Label";
 
 interface ColorPickerFieldProps {
   id: string;
@@ -26,13 +26,13 @@ export function ColorPickerField({
           type="color"
           value={value || defaultColor}
           onChange={(event) => onChange(event.target.value)}
-          className="h-8 w-10 rounded border border-slate-200 dark:border-slate-700"
+          className="h-8 w-10 rounded border border-slate-200 dark:border-neutral-700"
         />
         <input
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 font-mono text-sm text-slate-700 focus:border-orange-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400"
+          className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 font-mono text-sm text-slate-700 focus:border-orange-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:focus:border-orange-400"
         />
       </div>
     </div>
