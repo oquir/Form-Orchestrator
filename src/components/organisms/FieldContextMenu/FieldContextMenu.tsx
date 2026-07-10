@@ -9,7 +9,7 @@ import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
-import { CONTEXT_MENU_TABS } from "./FieldContextMenu.constans";
+import { CONTEXT_MENU_TABS } from "./FieldContextMenu.constants";
 import type { FieldContextMenuState } from "./FieldContextMenu.types";
 
 export function FieldContextMenu({

@@ -1,4 +1,4 @@
-import type { DraftPayload } from "../../lib/persistence";
+import type { DraftPayload } from "../../../types/persistenceTypes";
 
 export interface DraftRecoveryModalProps {
   draft: DraftPayload;
