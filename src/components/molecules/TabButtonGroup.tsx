@@ -16,7 +16,7 @@ export function TabButtonGroup({ tabs, activeTab, onSelect }: TabButtonGroupProp
           onClick={() => onSelect(item.tab)}
           className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
             activeTab === item.tab
-              ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+              ? "bg-orange-600 text-white dark:bg-orange-500 dark:text-white"
               : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
           }`}
         >

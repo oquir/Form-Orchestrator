@@ -79,7 +79,7 @@ export function Canvas() {
           <button
             type="button"
             onClick={() => downloadFormExport(formSteps, setupConfig, introSteps)}
-            className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600"
+            className="rounded-md bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400"
           >
             Exportar JSON
           </button>

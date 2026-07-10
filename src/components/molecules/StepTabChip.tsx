@@ -23,7 +23,7 @@ export function StepTabChip({
     <div
       className={`group flex items-center gap-1 rounded-md pl-2.5 py-1.5 text-xs font-medium transition-colors ${
         active
-          ? "bg-slate-900 text-white hover:bg-slate-950 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+          ? "bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-500 dark:text-white dark:hover:bg-orange-400"
           : "text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700"
       } ${className}`}
     >

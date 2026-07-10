@@ -32,7 +32,7 @@ export function ColorPickerField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 font-mono text-sm text-slate-700 focus:border-slate-400 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-slate-500"
+          className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 font-mono text-sm text-slate-700 focus:border-orange-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-orange-400"
         />
       </div>
     </div>

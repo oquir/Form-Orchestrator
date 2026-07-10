@@ -24,7 +24,7 @@ export function CanvasFieldChip({ field, selected, onClick, onContextMenu }: Can
       }}
       className={`rounded-md border bg-white px-3 py-2 text-left text-sm text-slate-700 shadow-sm transition-colors dark:bg-slate-800 dark:text-slate-200 ${
         selected
-          ? "border-slate-900 ring-1 ring-slate-900 dark:border-slate-100 dark:ring-slate-100"
+          ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
           : "border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600"
       } ${field.styles.customClasses ?? ""}`}
     >

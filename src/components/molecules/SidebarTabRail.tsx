@@ -30,7 +30,7 @@ export function SidebarTabRail({
             aria-label={tab.label}
             className={`flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:cursor-pointer ${
               activeTab === tab.id
-                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                ? "bg-orange-600 text-white dark:bg-orange-500 dark:text-white"
                 : "text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800"
             }`}
           >
