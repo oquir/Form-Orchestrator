@@ -13,6 +13,11 @@ import type {
   SidebarTab,
 } from "./storeTypes";
 
+export interface AddFieldExtra {
+  title?: string;
+  optionCount?: number;
+}
+
 export interface FormState {
   formSteps: FormStep[];
   introModal: IntroModalState;
@@ -45,13 +50,19 @@ export interface FormState {
   removeIntroModalStep: (stepId: string) => void;
   addRowToActiveCanvas: () => void;
   removeRow: (rowId: string) => void;
-  addFieldToRow: (rowId: string, fieldType: FieldTypeDef) => void;
+  addFieldToRow: (rowId: string, fieldType: FieldTypeDef, extra?: AddFieldExtra) => void;
   selectField: (fieldId: string | null) => void;
-  updateField: (fieldId: string, updates: Partial<Pick<CanvasField, "label" | "colSpan">>) => void;
+  updateField: (
+    fieldId: string,
+    updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title">>,
+  ) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
   toggleFieldDependency: (fieldId: string, dependsOnFieldId: string) => void;
+  addFieldOption: (fieldId: string) => void;
+  removeFieldOption: (fieldId: string, optionId: string) => void;
+  updateFieldOptionLabel: (fieldId: string, optionId: string, label: string) => void;
   saveFieldAsComponent: (fieldId: string, name: string) => void;
   removeSavedComponent: (componentId: string) => void;
   addSavedComponentToRow: (rowId: string, componentId: string) => void;

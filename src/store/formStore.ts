@@ -18,8 +18,12 @@ function createEmptyRow(): CanvasRow {
   return { id: uuidv4(), columns: 12, fields: [] };
 }
 
-function createEmptyField(type: string, label: string): CanvasField {
-  return {
+function createEmptyField(
+  type: string,
+  label: string,
+  extra?: { title?: string; optionCount?: number },
+): CanvasField {
+  const field: CanvasField = {
     id: uuidv4(),
     type,
     label,
@@ -28,6 +32,17 @@ function createEmptyField(type: string, label: string): CanvasField {
     styles: {},
     logic: { dependencies: [], typeScript: "" },
   };
+
+  if (type === "toggle_group") {
+    const optionCount = Math.max(2, extra?.optionCount ?? 2);
+    field.title = extra?.title?.trim() || undefined;
+    field.options = Array.from({ length: optionCount }, (_, index) => ({
+      id: uuidv4(),
+      label: `Opción ${index + 1}`,
+    }));
+  }
+
+  return field;
 }
 
 function mapRowEverywhere(
@@ -270,9 +285,9 @@ export const useFormStore = create<FormState>((set, get) => ({
         })),
       },
     })),
-  addFieldToRow: (rowId, fieldType) =>
+  addFieldToRow: (rowId, fieldType, extra) =>
     set((state) => {
-      const newField = createEmptyField(fieldType.type, fieldType.label);
+      const newField = createEmptyField(fieldType.type, fieldType.label, extra);
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({
           ...row,
@@ -320,6 +335,32 @@ export const useFormStore = create<FormState>((set, get) => ({
         };
       }),
     ),
+  addFieldOption: (fieldId) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        options: [
+          ...(field.options ?? []),
+          { id: uuidv4(), label: `Opción ${(field.options?.length ?? 0) + 1}` },
+        ],
+      })),
+    ),
+  removeFieldOption: (fieldId, optionId) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        options: (field.options ?? []).filter((option) => option.id !== optionId),
+      })),
+    ),
+  updateFieldOptionLabel: (fieldId, optionId, label) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        options: (field.options ?? []).map((option) =>
+          option.id === optionId ? { ...option, label } : option,
+        ),
+      })),
+    ),
   saveFieldAsComponent: (fieldId, name) => {
     const state = get();
     const field = findAnyField(state, fieldId);
@@ -333,6 +374,8 @@ export const useFormStore = create<FormState>((set, get) => ({
       validations: field.validations,
       styles: field.styles,
       logic: field.logic,
+      title: field.title,
+      options: field.options,
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -352,6 +395,8 @@ export const useFormStore = create<FormState>((set, get) => ({
         validations: component.validations,
         styles: component.styles,
         logic: component.logic,
+        title: component.title,
+        options: component.options?.map((option) => ({ ...option, id: uuidv4() })),
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

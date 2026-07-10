@@ -3,6 +3,7 @@ import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@
 import { useEffect, useState } from "react";
 import "./index.css";
 import { AppLayout } from "./components/layout/AppLayout";
+import { AddToggleGroupModal } from "./components/organisms/AddToggleGroupModal/AddToggleGroupModal";
 import { Canvas } from "./components/organisms/Canvas/Canvas";
 import { DraftRecoveryModal } from "./components/organisms/DraftRecoveryModal/DraftRecoveryModal";
 import { SetupWizardModal } from "./components/organisms/SetupWizardModal/SetupWizardModal";
@@ -22,6 +23,10 @@ function App() {
   const isSetupComplete = useFormStore((state) => state.setupConfig.isComplete);
   const [activeDrag, setActiveDrag] = useState<ActiveDrag | null>(null);
   const [pendingDraft, setPendingDraft] = useState<DraftPayload | null | undefined>(undefined);
+  const [pendingToggleGroup, setPendingToggleGroup] = useState<{
+    rowId: string;
+    fieldType: FieldTypeDef;
+  } | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   const isDarkMode = useFormStore((state) => state.isDarkMode);
@@ -76,7 +81,12 @@ function App() {
 
     const data = active.data.current;
     if (data?.source === "palette") {
-      addFieldToRow(over.id as string, data.fieldType as FieldTypeDef);
+      const fieldType = data.fieldType as FieldTypeDef;
+      if (fieldType.type === "toggle_group") {
+        setPendingToggleGroup({ rowId: over.id as string, fieldType });
+      } else {
+        addFieldToRow(over.id as string, fieldType);
+      }
     } else if (data?.source === "library") {
       const component = data.component as SavedComponent;
       addSavedComponentToRow(over.id as string, component.id);
@@ -86,6 +96,18 @@ function App() {
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <AppLayout sidebar={<Sidebar />} canvas={<Canvas />} />
+      {pendingToggleGroup && (
+        <AddToggleGroupModal
+          onCancel={() => setPendingToggleGroup(null)}
+          onConfirm={({ title, optionCount }) => {
+            addFieldToRow(pendingToggleGroup.rowId, pendingToggleGroup.fieldType, {
+              title,
+              optionCount,
+            });
+            setPendingToggleGroup(null);
+          }}
+        />
+      )}
       <DragOverlay>
         {activeDrag ? (
           <div className="rounded-md border border-orange-500 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-lg dark:bg-neutral-800 dark:text-neutral-200">

@@ -13,6 +13,8 @@ function mapRows(rows: CanvasRow[]) {
       styles: field.styles,
       validations: { zodSchema: buildZodSchema(field) },
       logic: field.logic,
+      title: field.title,
+      options: field.options,
     })),
   }));
 }

@@ -30,6 +30,11 @@ export interface FieldLogic {
   typeScript: string;
 }
 
+export interface FieldOption {
+  id: string;
+  label: string;
+}
+
 export interface CanvasField {
   id: string;
   type: string;
@@ -38,6 +43,8 @@ export interface CanvasField {
   validations: FieldValidations;
   styles: FieldStyles;
   logic: FieldLogic;
+  title?: string;
+  options?: FieldOption[];
 }
 
 export interface CanvasRow {
@@ -73,6 +80,8 @@ export interface SavedComponent {
   validations: FieldValidations;
   styles: FieldStyles;
   logic: FieldLogic;
+  title?: string;
+  options?: FieldOption[];
 }
 
 export type CanvasTarget =
