@@ -1,7 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { Xmark } from "reicon-react";
 import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
-import type { SidebarTab } from "../../../types/storeTypes";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { SaveFieldForm } from "../../molecules/SaveFieldForm/SaveFieldForm";
 import { TabButtonGroup } from "../../molecules/TabButtonGroup/TabButtonGroup";
@@ -9,7 +8,7 @@ import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
-import { CONTEXT_MENU_TABS } from "./FieldContextMenu.constants";
+import { CONTEXT_MENU_TABS, type ContextMenuTab } from "./FieldContextMenu.constants";
 import type { FieldContextMenuState } from "./FieldContextMenu.types";
 
 export function FieldContextMenu({
@@ -19,9 +18,19 @@ export function FieldContextMenu({
   menu: FieldContextMenuState;
   onClose: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<SidebarTab>("styles");
+  const [activeTab, setActiveTab] = useState<ContextMenuTab>("attributes");
   const activeRows = useFormStore(getActiveRows);
+  const removeField = useFormStore((state) => state.removeField);
   const field = findFieldById(activeRows, menu.fieldId);
+
+  function handleSelectTab(tab: ContextMenuTab) {
+    if (tab === "delete") {
+      removeField(menu.fieldId);
+      onClose();
+      return;
+    }
+    setActiveTab(tab);
+  }
 
   useEffect(() => {
     const handlePointerDown = () => onClose();
@@ -62,7 +71,7 @@ export function FieldContextMenu({
         </IconButton>
       </div>
 
-      <TabButtonGroup tabs={CONTEXT_MENU_TABS} activeTab={activeTab} onSelect={setActiveTab} />
+      <TabButtonGroup tabs={CONTEXT_MENU_TABS} activeTab={activeTab} onSelect={handleSelectTab} />
 
       <div className="overflow-y-auto p-3">
         {activeTab === "attributes" && <AttributesPanel field={field} />}

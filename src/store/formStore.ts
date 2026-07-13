@@ -308,6 +308,21 @@ export const useFormStore = create<FormState>((set, get) => ({
         selectedFieldId: newField.id,
       };
     }),
+  removeField: (fieldId) =>
+    set((state) => {
+      const applyTo = (rows: CanvasRow[]) =>
+        rows.map((row) => ({
+          ...row,
+          fields: row.fields.filter((field) => field.id !== fieldId),
+        }));
+      return {
+        formSteps: state.formSteps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+        introModal: {
+          steps: state.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+        },
+        selectedFieldId: state.selectedFieldId === fieldId ? null : state.selectedFieldId,
+      };
+    }),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>
     set((state) => mapFieldEverywhere(state, fieldId, (field) => ({ ...field, ...updates }))),

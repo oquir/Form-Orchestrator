@@ -1,7 +1,11 @@
-import type { SidebarTab } from "../../../types/storeTypes";
+export interface TabButtonGroupItem<T extends string> {
+  tab: T;
+  label: string;
+  variant?: "default" | "danger";
+}
 
-export interface TabButtonGroupProps {
-  tabs: { tab: SidebarTab; label: string }[];
-  activeTab: SidebarTab;
-  onSelect: (tab: SidebarTab) => void;
+export interface TabButtonGroupProps<T extends string> {
+  tabs: TabButtonGroupItem<T>[];
+  activeTab: T;
+  onSelect: (tab: T) => void;
 }

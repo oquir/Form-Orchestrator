@@ -52,6 +52,7 @@ export interface FormState {
   removeRow: (rowId: string) => void;
   updateRowColumns: (rowId: string, columns: number) => void;
   addFieldToRow: (rowId: string, fieldType: FieldTypeDef, extra?: AddFieldExtra) => void;
+  removeField: (fieldId: string) => void;
   selectField: (fieldId: string | null) => void;
   updateField: (
     fieldId: string,
