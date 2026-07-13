@@ -135,9 +135,7 @@ function FileOptionsEditor({ field }: { field: CanvasField }) {
 
         <div className="flex flex-wrap gap-1.5">
           {FILE_FORMAT_PRESETS.map((preset) => {
-            const isActive = preset.tokens.every((token) =>
-              config.acceptedFormats.includes(token),
-            );
+            const isActive = preset.tokens.every((token) => config.acceptedFormats.includes(token));
             return (
               <button
                 key={preset.id}
