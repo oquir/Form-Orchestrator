@@ -40,6 +40,22 @@ export interface FieldFileConfig {
   maxSizeMB: number;
 }
 
+export type EnableOperator =
+  | "equals"
+  | "notEquals"
+  | "greaterThan"
+  | "lessThan"
+  | "isEmpty"
+  | "isNotEmpty"
+  | "isTruthy"
+  | "isFalsy";
+
+export interface EnableCondition {
+  fieldId: string;
+  operator: EnableOperator;
+  value?: string | number | boolean;
+}
+
 export interface CanvasField {
   id: string;
   type: string;
@@ -51,6 +67,8 @@ export interface CanvasField {
   title?: string;
   options?: FieldOption[];
   fileConfig?: FieldFileConfig;
+  alwaysDisabled?: boolean;
+  enableWhen?: EnableCondition;
 }
 
 export interface CanvasRow {
@@ -89,6 +107,8 @@ export interface SavedComponent {
   title?: string;
   options?: FieldOption[];
   fileConfig?: FieldFileConfig;
+  alwaysDisabled?: boolean;
+  enableWhen?: EnableCondition;
 }
 
 export type CanvasTarget =

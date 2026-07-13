@@ -317,7 +317,11 @@ export const useFormStore = create<FormState>((set, get) => ({
       const applyTo = (rows: CanvasRow[]) =>
         rows.map((row) => ({
           ...row,
-          fields: row.fields.filter((field) => field.id !== fieldId),
+          fields: row.fields
+            .filter((field) => field.id !== fieldId)
+            .map((field) =>
+              field.enableWhen?.fieldId === fieldId ? { ...field, enableWhen: undefined } : field,
+            ),
         }));
       return {
         formSteps: state.formSteps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
@@ -327,6 +331,13 @@ export const useFormStore = create<FormState>((set, get) => ({
         selectedFieldId: state.selectedFieldId === fieldId ? null : state.selectedFieldId,
       };
     }),
+  setFieldEnableWhen: (fieldId, condition) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        enableWhen: condition ?? undefined,
+      })),
+    ),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>
     set((state) => mapFieldEverywhere(state, fieldId, (field) => ({ ...field, ...updates }))),
@@ -419,6 +430,8 @@ export const useFormStore = create<FormState>((set, get) => ({
       title: field.title,
       options: field.options,
       fileConfig: field.fileConfig,
+      alwaysDisabled: field.alwaysDisabled,
+      enableWhen: field.enableWhen,
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -443,6 +456,8 @@ export const useFormStore = create<FormState>((set, get) => ({
         fileConfig: component.fileConfig
           ? { ...component.fileConfig, acceptedFormats: [...component.fileConfig.acceptedFormats] }
           : undefined,
+        alwaysDisabled: component.alwaysDisabled,
+        enableWhen: component.enableWhen ? { ...component.enableWhen } : undefined,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

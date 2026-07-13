@@ -16,6 +16,8 @@ function mapRows(rows: CanvasRow[]) {
       title: field.title,
       options: field.options,
       fileConfig: field.fileConfig,
+      alwaysDisabled: field.alwaysDisabled,
+      enableWhen: field.enableWhen,
     })),
   }));
 }

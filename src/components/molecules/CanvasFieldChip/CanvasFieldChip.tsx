@@ -82,7 +82,7 @@ function FieldPreviewControl({ field }: { field: CanvasField }) {
             <span>Seleccionar archivo…</span>
             <Import size={14} weight="Filled" />
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 overflow-x-hidden">
             <span className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
               {formatsLabel}
             </span>
@@ -174,9 +174,27 @@ export function CanvasFieldChip({
             : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
         } ${field.styles.customClasses ?? ""}`}
       >
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 overflow-x-hidden">
           <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{field.label}</p>
-          <FieldTypeBadge type={field.type} />
+          <div className="flex items-center gap-1">
+            {field.alwaysDisabled && (
+              <span
+                title="Siempre deshabilitado (solo lectura)"
+                className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[9px] font-medium text-slate-600 dark:bg-neutral-700 dark:text-neutral-300"
+              >
+                RO
+              </span>
+            )}
+            {!field.alwaysDisabled && field.enableWhen && (
+              <span
+                title="Habilitación condicional"
+                className="rounded-full bg-orange-100 px-1.5 py-0.5 text-[9px] font-medium text-orange-700 dark:bg-orange-500/20 dark:text-orange-300"
+              >
+                IF
+              </span>
+            )}
+            <FieldTypeBadge type={field.type} />
+          </div>
         </div>
         <FieldPreviewControl field={field} />
       </button>

@@ -2,6 +2,7 @@ import type { FieldTypeDef } from "./fieldTypes";
 import type {
   CanvasField,
   CanvasTarget,
+  EnableCondition,
   FieldFileConfig,
   FieldLogic,
   FieldStyles,
@@ -57,8 +58,9 @@ export interface FormState {
   selectField: (fieldId: string | null) => void;
   updateField: (
     fieldId: string,
-    updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title">>,
+    updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title" | "alwaysDisabled">>,
   ) => void;
+  setFieldEnableWhen: (fieldId: string, condition: EnableCondition | null) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
