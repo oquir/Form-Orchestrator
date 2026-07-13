@@ -9,6 +9,7 @@ import { DraftRecoveryModal } from "./components/organisms/DraftRecoveryModal/Dr
 import { SetupWizardModal } from "./components/organisms/SetupWizardModal/SetupWizardModal";
 import { Sidebar } from "./components/organisms/Sidebar/Sidebar";
 import { useAutosave } from "./hooks/useAutosave/useAutosave";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts/useKeyboardShortcuts";
 import { clearDraft, loadDraft } from "./lib/persistence/persistence";
 import { useFormStore } from "./store/formStore";
 import type { ActiveDrag } from "./types/activeDrag";
@@ -32,6 +33,7 @@ function App() {
   const isDarkMode = useFormStore((state) => state.isDarkMode);
 
   useAutosave();
+  useKeyboardShortcuts();
 
   useEffect(() => {
     setPendingDraft(loadDraft());
