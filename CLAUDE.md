@@ -8,9 +8,18 @@ The core builder described below is implemented. `docs/Project.md` (in Spanish) 
 
 Not yet implemented / known gaps:
 - No Monaco-style code editor for the Logic tab — `LogicPanel` currently edits `logic.typeScript` as a plain string, and dependencies (`toggleFieldDependency`) are simple field-id toggles, not conditional expressions.
-- No floating action menu to change a row's base column count (`CanvasRow.columns` is always created as `12` and never edited); row/step add-remove controls exist but per-row column count does not.
-- No column-span drag-resizing — `colSpan` is only editable from the Attributes panel, not by dragging field edges.
-- No test runner configured.
+- No test runner configured, and none will be added: the user considers the project too volatile to justify tests right now.
+- `logic.typeScript` is exported as a raw string; the consumer will need `new Function()`/`eval` to execute it. The user builds the consumer too, so this is a coordinated decision — not a public API constraint.
+- No draft schema versioning in `persistence.ts`; if the store shape changes, old localStorage drafts can silently break.
+
+## Commit conventions
+
+- Write commit messages **in Spanish**, present tense, imperative ("Agrega X", "Corrige Y", "Amplía Z") — matches the existing history style (`git log`).
+- Keep the subject line under ~72 chars and specific ("Agrega campo Archivo con presets de formatos" beats "Nuevo campo").
+- When the change is non-trivial, include a body (`git commit -m "subject" -m "body"`) explaining **the why and the touch points** — which files/actions/store shape changed, and any decisions that would be non-obvious from the diff. Someone reading `git show <sha>` should not need to re-read the code to understand the intent.
+- Do **not** add `Co-Authored-By: Claude` or similar trailers unless the user explicitly asks — the existing history doesn't use them.
+- Prefer one commit per cohesive feature/decision. Split only when the parts are genuinely independent; don't split a single feature just because it touches many files.
+- Line-ending noise: `.gitattributes` normalizes to LF, so `git status` should stay clean on Windows. If it doesn't, run `git add --renormalize .` once — don't stage random `M` lines as part of feature commits.
 
 ## Commands
 
