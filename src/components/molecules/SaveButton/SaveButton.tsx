@@ -8,15 +8,22 @@ export function SaveButton() {
   const lastSavedAt = useFormStore((state) => state.lastSavedAt);
   const [justSaved, setJustSaved] = useState(false);
   const timeoutRef = useRef<number | null>(null);
+  const previousSavedAtRef = useRef<string | null>(lastSavedAt);
 
   function handleSave() {
     const { formSteps, introModal, savedComponents, setupConfig } = useFormStore.getState();
     saveDraft({ formSteps, introModal, savedComponents, setupConfig });
     markSaved();
+  }
+
+  useEffect(() => {
+    if (lastSavedAt === previousSavedAtRef.current) return;
+    previousSavedAtRef.current = lastSavedAt;
+    if (!lastSavedAt) return;
     setJustSaved(true);
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
     timeoutRef.current = window.setTimeout(() => setJustSaved(false), 2000);
-  }
+  }, [lastSavedAt]);
 
   useEffect(() => {
     return () => {
