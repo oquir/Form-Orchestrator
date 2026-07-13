@@ -15,6 +15,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
   return (
     <div
       ref={setNodeRef}
+      data-canvas-row=""
       style={{ gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))` }}
       className={`relative col-span-16 grid gap-3 rounded-md border-2 border-dashed p-3 transition-colors ${
         isOver
@@ -43,6 +44,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
         <CanvasFieldChip
           key={field.id}
           field={field}
+          rowColumns={row.columns}
           selected={selectedFieldId === field.id}
           onClick={() => selectField(field.id)}
           onContextMenu={(event) => {

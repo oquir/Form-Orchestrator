@@ -1,7 +1,9 @@
+import { type PointerEvent as ReactPointerEvent, useState } from "react";
 import { ArrowDown2, Calculator } from "reicon-react";
+import { useFormStore } from "../../../store/formStore";
 import type { CanvasField } from "../../../types/storeTypes";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
-import { MOCK_CONTROL_CLASSES } from "./CanvasFieldChip.constants";
+import { GRID_GAP_PX, MOCK_CONTROL_CLASSES } from "./CanvasFieldChip.constants";
 import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
 
 function FieldPreviewControl({ field }: { field: CanvasField }) {
@@ -79,30 +81,94 @@ function FieldPreviewControl({ field }: { field: CanvasField }) {
   }
 }
 
-export function CanvasFieldChip({ field, selected, onClick, onContextMenu }: CanvasFieldChipProps) {
+export function CanvasFieldChip({
+  field,
+  rowColumns,
+  selected,
+  onClick,
+  onContextMenu,
+}: CanvasFieldChipProps) {
+  const updateField = useFormStore((state) => state.updateField);
+  const [isResizing, setIsResizing] = useState(false);
+
+  function handleResizePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const rowElement = event.currentTarget.closest<HTMLElement>("[data-canvas-row]");
+    if (!rowElement) return;
+
+    const rowRect = rowElement.getBoundingClientRect();
+    const rowStyles = window.getComputedStyle(rowElement);
+    const paddingLeft = Number.parseFloat(rowStyles.paddingLeft) || 0;
+    const paddingRight = Number.parseFloat(rowStyles.paddingRight) || 0;
+    const usableWidth = rowRect.width - paddingLeft - paddingRight;
+    const perColumn = (usableWidth - (rowColumns - 1) * GRID_GAP_PX) / rowColumns;
+    if (perColumn <= 0) return;
+
+    const startX = event.clientX;
+    const startColSpan = field.colSpan;
+    let lastApplied = startColSpan;
+
+    setIsResizing(true);
+
+    function handlePointerMove(moveEvent: PointerEvent) {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaCols = Math.round(deltaX / (perColumn + GRID_GAP_PX));
+      const next = Math.max(1, Math.min(rowColumns, startColSpan + deltaCols));
+      if (next !== lastApplied) {
+        lastApplied = next;
+        updateField(field.id, { colSpan: next });
+      }
+    }
+
+    function handlePointerUp() {
+      document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerup", handlePointerUp);
+      setIsResizing(false);
+    }
+
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+  }
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      onContextMenu={onContextMenu}
-      style={{
-        gridColumn: `span ${field.colSpan} / span ${field.colSpan}`,
-        marginTop: field.styles.marginTop,
-        marginBottom: field.styles.marginBottom,
-        backgroundColor: field.styles.backgroundColor,
-        color: field.styles.textColor,
-      }}
-      className={`flex flex-col gap-1.5 rounded-md border bg-white p-3 text-left shadow-sm transition-colors dark:bg-neutral-800 ${
-        selected
-          ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
-          : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
-      } ${field.styles.customClasses ?? ""}`}
+    <div
+      style={{ gridColumn: `span ${field.colSpan} / span ${field.colSpan}` }}
+      className="group relative"
     >
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{field.label}</p>
-        <FieldTypeBadge type={field.type} />
-      </div>
-      <FieldPreviewControl field={field} />
-    </button>
+      <button
+        type="button"
+        onClick={onClick}
+        onContextMenu={onContextMenu}
+        style={{
+          marginTop: field.styles.marginTop,
+          marginBottom: field.styles.marginBottom,
+          backgroundColor: field.styles.backgroundColor,
+          color: field.styles.textColor,
+        }}
+        className={`flex w-full flex-col gap-1.5 rounded-md border bg-white p-3 text-left shadow-sm transition-colors dark:bg-neutral-800 ${
+          selected
+            ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
+            : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
+        } ${field.styles.customClasses ?? ""}`}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{field.label}</p>
+          <FieldTypeBadge type={field.type} />
+        </div>
+        <FieldPreviewControl field={field} />
+      </button>
+      <div
+        onPointerDown={handleResizePointerDown}
+        title={`Redimensionar (${field.colSpan}/${rowColumns})`}
+        className={`absolute -right-1 top-1/2 h-8 w-1.5 -translate-y-1/2 cursor-col-resize rounded-full transition-colors ${
+          isResizing
+            ? "bg-orange-500"
+            : "bg-slate-200 opacity-0 hover:bg-orange-400 group-hover:opacity-100 dark:bg-neutral-600"
+        }`}
+        style={{ opacity: isResizing ? 1 : undefined }}
+      />
+    </div>
   );
 }
