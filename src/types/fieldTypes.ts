@@ -14,4 +14,5 @@ export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "checkbox", label: "Checkbox", category: "basico" },
   { type: "calculated", label: "Calculado", category: "basico" },
   { type: "toggle_group", label: "Toggle Buttons", category: "complejo" },
+  { type: "file", label: "Archivo", category: "complejo" },
 ];

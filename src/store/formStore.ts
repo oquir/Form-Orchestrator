@@ -42,6 +42,10 @@ function createEmptyField(
     }));
   }
 
+  if (type === "file") {
+    field.fileConfig = { acceptedFormats: [], maxSizeMB: 10 };
+  }
+
   return field;
 }
 
@@ -362,6 +366,17 @@ export const useFormStore = create<FormState>((set, get) => ({
         };
       }),
     ),
+  updateFieldFileConfig: (fieldId, updates) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        fileConfig: {
+          acceptedFormats: field.fileConfig?.acceptedFormats ?? [],
+          maxSizeMB: field.fileConfig?.maxSizeMB ?? 10,
+          ...updates,
+        },
+      })),
+    ),
   addFieldOption: (fieldId) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
@@ -403,6 +418,7 @@ export const useFormStore = create<FormState>((set, get) => ({
       logic: field.logic,
       title: field.title,
       options: field.options,
+      fileConfig: field.fileConfig,
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -424,6 +440,9 @@ export const useFormStore = create<FormState>((set, get) => ({
         logic: component.logic,
         title: component.title,
         options: component.options?.map((option) => ({ ...option, id: uuidv4() })),
+        fileConfig: component.fileConfig
+          ? { ...component.fileConfig, acceptedFormats: [...component.fileConfig.acceptedFormats] }
+          : undefined,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

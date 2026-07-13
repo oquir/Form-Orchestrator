@@ -35,6 +35,11 @@ export interface FieldOption {
   label: string;
 }
 
+export interface FieldFileConfig {
+  acceptedFormats: string[];
+  maxSizeMB: number;
+}
+
 export interface CanvasField {
   id: string;
   type: string;
@@ -45,6 +50,7 @@ export interface CanvasField {
   logic: FieldLogic;
   title?: string;
   options?: FieldOption[];
+  fileConfig?: FieldFileConfig;
 }
 
 export interface CanvasRow {
@@ -82,6 +88,7 @@ export interface SavedComponent {
   logic: FieldLogic;
   title?: string;
   options?: FieldOption[];
+  fileConfig?: FieldFileConfig;
 }
 
 export type CanvasTarget =

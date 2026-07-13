@@ -2,6 +2,7 @@ import type { FieldTypeDef } from "./fieldTypes";
 import type {
   CanvasField,
   CanvasTarget,
+  FieldFileConfig,
   FieldLogic,
   FieldStyles,
   FieldValidations,
@@ -61,6 +62,7 @@ export interface FormState {
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
+  updateFieldFileConfig: (fieldId: string, updates: Partial<FieldFileConfig>) => void;
   toggleFieldDependency: (fieldId: string, dependsOnFieldId: string) => void;
   addFieldOption: (fieldId: string) => void;
   removeFieldOption: (fieldId: string, optionId: string) => void;

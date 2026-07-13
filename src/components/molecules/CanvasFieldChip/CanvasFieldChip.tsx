@@ -1,5 +1,5 @@
 import { type PointerEvent as ReactPointerEvent, useState } from "react";
-import { ArrowDown2, Calculator } from "reicon-react";
+import { ArrowDown2, Calculator, Import } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
 import type { CanvasField } from "../../../types/storeTypes";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
@@ -72,6 +72,27 @@ function FieldPreviewControl({ field }: { field: CanvasField }) {
           <span>0</span>
         </div>
       );
+    case "file": {
+      const config = field.fileConfig ?? { acceptedFormats: [], maxSizeMB: 10 };
+      const formatsLabel =
+        config.acceptedFormats.length > 0 ? config.acceptedFormats.join(", ") : "Cualquier formato";
+      return (
+        <div className="flex flex-col gap-1.5">
+          <div className={MOCK_CONTROL_CLASSES}>
+            <span>Seleccionar archivo…</span>
+            <Import size={14} weight="Filled" />
+          </div>
+          <div className="flex flex-wrap gap-1">
+            <span className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+              {formatsLabel}
+            </span>
+            <span className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+              Máx {config.maxSizeMB}MB
+            </span>
+          </div>
+        </div>
+      );
+    }
     default:
       return (
         <div className={MOCK_CONTROL_CLASSES}>

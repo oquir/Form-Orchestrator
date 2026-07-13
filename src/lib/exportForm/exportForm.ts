@@ -15,6 +15,7 @@ function mapRows(rows: CanvasRow[]) {
       logic: field.logic,
       title: field.title,
       options: field.options,
+      fileConfig: field.fileConfig,
     })),
   }));
 }
