@@ -15,7 +15,7 @@ import type {
 } from "../types/storeTypes";
 
 function createEmptyRow(): CanvasRow {
-  return { id: uuidv4(), columns: 12, fields: [] };
+  return { id: uuidv4(), columns: 16, fields: [] };
 }
 
 function createEmptyField(
@@ -27,7 +27,7 @@ function createEmptyField(
     id: uuidv4(),
     type,
     label,
-    colSpan: 12,
+    colSpan: 16,
     validations: {},
     styles: {},
     logic: { dependencies: [], typeScript: "" },
@@ -114,7 +114,7 @@ export const useFormStore = create<FormState>((set, get) => ({
     {
       stepId: "step-1",
       title: "Paso 1",
-      rows: [{ id: "row-1", columns: 12, fields: [] }],
+      rows: [{ id: "row-1", columns: 16, fields: [] }],
     },
   ],
   introModal: { steps: [] },
@@ -271,6 +271,18 @@ export const useFormStore = create<FormState>((set, get) => ({
           ),
         },
       };
+    }),
+  updateRowColumns: (rowId, columns) =>
+    set((state) => {
+      const nextColumns = Math.max(1, Math.min(24, Math.round(columns)));
+      return mapRowEverywhere(state, rowId, (row) => ({
+        ...row,
+        columns: nextColumns,
+        fields: row.fields.map((field) => ({
+          ...field,
+          colSpan: Math.min(field.colSpan, nextColumns),
+        })),
+      }));
     }),
   removeRow: (rowId) =>
     set((state) => ({
@@ -454,4 +466,22 @@ function findAnyField(state: StateSlice, fieldId: string): CanvasField | null {
 
 export function getAllFields(rows: CanvasRow[]): CanvasField[] {
   return rows.flatMap((row) => row.fields);
+}
+
+export function findRowContainingField(
+  state: { formSteps: FormStep[]; introModal: IntroModalState },
+  fieldId: string | null,
+): CanvasRow | null {
+  if (!fieldId) return null;
+  for (const step of state.formSteps) {
+    for (const row of step.rows) {
+      if (row.fields.some((f) => f.id === fieldId)) return row;
+    }
+  }
+  for (const step of state.introModal.steps) {
+    for (const row of step.rows) {
+      if (row.fields.some((f) => f.id === fieldId)) return row;
+    }
+  }
+  return null;
 }

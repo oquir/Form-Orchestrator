@@ -1,8 +1,9 @@
-﻿import { useDroppable } from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { CanvasFieldChip } from "../../molecules/CanvasFieldChip/CanvasFieldChip";
+import { RowColumnsMenu } from "../../molecules/RowColumnsMenu/RowColumnsMenu";
 import type { CanvasRowProps } from "./CanvasRow.types";
 
 export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
@@ -14,12 +15,15 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`relative col-span-12 grid grid-cols-12 gap-3 rounded-md border-2 border-dashed p-3 transition-colors ${
+      style={{ gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))` }}
+      className={`relative col-span-16 grid gap-3 rounded-md border-2 border-dashed p-3 transition-colors ${
         isOver
           ? "border-slate-400 bg-slate-50 dark:border-neutral-500 dark:bg-neutral-800/60"
           : "border-slate-200 dark:border-neutral-700"
       }`}
     >
+      <RowColumnsMenu rowId={row.id} columns={row.columns} />
+
       <IconButton
         onClick={() => removeRow(row.id)}
         title="Eliminar fila"
@@ -28,7 +32,10 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
         <Xmark size={12} weight="Filled" />
       </IconButton>
       {row.fields.length === 0 && (
-        <div className="col-span-12 flex h-24 items-center justify-center text-sm text-slate-300 dark:text-neutral-600">
+        <div
+          style={{ gridColumn: `span ${row.columns} / span ${row.columns}` }}
+          className="flex h-24 items-center justify-center text-sm text-slate-300 dark:text-neutral-600"
+        >
           Suelta un campo aquí
         </div>
       )}

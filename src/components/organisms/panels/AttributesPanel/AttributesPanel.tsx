@@ -1,5 +1,5 @@
 import { Xmark } from "reicon-react";
-import { useFormStore } from "../../../../store/formStore";
+import { findRowContainingField, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/storeTypes";
 import { IconButton } from "../../../atoms/IconButton/IconButton";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
@@ -70,6 +70,9 @@ function ToggleGroupOptionsEditor({ field }: { field: CanvasField }) {
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
+  const rowColumns = useFormStore(
+    (state) => findRowContainingField(state, field.id)?.columns ?? 16,
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -84,9 +87,9 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
 
       <LabeledRangeSlider
         id="field-colspan"
-        label={`Columnas (${field.colSpan}/12)`}
+        label={`Columnas (${field.colSpan}/${rowColumns})`}
         min={1}
-        max={12}
+        max={rowColumns}
         value={field.colSpan}
         onChange={(value) => updateField(field.id, { colSpan: value })}
       />

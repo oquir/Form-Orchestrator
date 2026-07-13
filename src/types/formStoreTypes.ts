@@ -50,6 +50,7 @@ export interface FormState {
   removeIntroModalStep: (stepId: string) => void;
   addRowToActiveCanvas: () => void;
   removeRow: (rowId: string) => void;
+  updateRowColumns: (rowId: string, columns: number) => void;
   addFieldToRow: (rowId: string, fieldType: FieldTypeDef, extra?: AddFieldExtra) => void;
   selectField: (fieldId: string | null) => void;
   updateField: (

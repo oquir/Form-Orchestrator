@@ -89,7 +89,7 @@ export function Canvas() {
       <CanvasTabs />
       <StepTitleEditor />
 
-      <div className="grid min-h-[60vh] grid-cols-12 content-start gap-3 rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="grid min-h-[60vh] grid-cols-16 content-start gap-3 rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
         {activeRows.map((row) => (
           <CanvasRow
             key={row.id}

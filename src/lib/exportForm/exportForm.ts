@@ -45,7 +45,7 @@ export function buildFormExport(
         : undefined,
     },
     formSchema: {
-      gridBaseColumns: 12,
+      gridBaseColumns: 16,
       steps: formSteps.map((step) => ({
         stepId: step.stepId,
         title: step.title,

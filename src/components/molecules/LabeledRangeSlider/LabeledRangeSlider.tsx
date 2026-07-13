@@ -19,7 +19,7 @@ export function LabeledRangeSlider({
         max={max}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full"
+        className="w-full cursor-grab active:cursor-grabbing"
       />
     </div>
   );

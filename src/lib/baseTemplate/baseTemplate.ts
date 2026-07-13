@@ -4,13 +4,13 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
   return [
     {
       id: "r1",
-      columns: 12,
+      columns: 16,
       fields: [
         {
           id: "ingresos_ordinarios",
           type: "number",
           label: "Ingresos Ordinarios",
-          colSpan: 6,
+          colSpan: 8,
           validations: { required: true, min: 0, message: "No puede ser negativo" },
           styles: { customClasses: "font-bold text-right", marginTop: "10px" },
           logic: { dependencies: [], typeScript: "" },
@@ -19,7 +19,7 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
           id: "ingresos_fuera_municipio",
           type: "number",
           label: "Ingresos Fuera del Municipio",
-          colSpan: 6,
+          colSpan: 8,
           validations: { required: true, min: 0 },
           styles: {},
           logic: {
@@ -32,13 +32,13 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
     },
     {
       id: "r2",
-      columns: 12,
+      columns: 16,
       fields: [
         {
           id: "total_ingresos",
           type: "calculated",
           label: "Total Ingresos Netos",
-          colSpan: 12,
+          colSpan: 16,
           validations: {},
           styles: { backgroundColor: "#f3f4f6" },
           logic: {
