@@ -1,5 +1,5 @@
 import type { IconComponent } from "reicon-react";
-import type { SidebarTab } from "../../store/formStore";
+import type { SidebarTab } from "../../../types/storeTypes";
 
 export interface SidebarTabRailProps {
   tabs: { id: SidebarTab; label: string; icon: IconComponent }[];
