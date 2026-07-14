@@ -55,6 +55,7 @@ export interface FormState {
   updateRowColumns: (rowId: string, columns: number) => void;
   addFieldToRow: (rowId: string, fieldType: FieldTypeDef, extra?: AddFieldExtra) => void;
   removeField: (fieldId: string) => void;
+  moveField: (fieldId: string, targetRowId: string, beforeFieldId?: string) => void;
   selectField: (fieldId: string | null) => void;
   updateField: (
     fieldId: string,

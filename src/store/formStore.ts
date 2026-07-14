@@ -331,6 +331,55 @@ export const useFormStore = create<FormState>((set, get) => ({
         selectedFieldId: state.selectedFieldId === fieldId ? null : state.selectedFieldId,
       };
     }),
+  moveField: (fieldId, targetRowId, beforeFieldId) =>
+    set((state) => {
+      if (fieldId === beforeFieldId) return state;
+
+      let movedField: CanvasField | null = null;
+      const extractFromRows = (rows: CanvasRow[]): CanvasRow[] =>
+        rows.map((row) => {
+          const index = row.fields.findIndex((f) => f.id === fieldId);
+          if (index === -1) return row;
+          movedField = row.fields[index];
+          return { ...row, fields: row.fields.filter((f) => f.id !== fieldId) };
+        });
+
+      const formStepsAfterRemoval = state.formSteps.map((step) => ({
+        ...step,
+        rows: extractFromRows(step.rows),
+      }));
+      const introStepsAfterRemoval = state.introModal.steps.map((step) => ({
+        ...step,
+        rows: extractFromRows(step.rows),
+      }));
+
+      if (!movedField) return state;
+      const fieldToPlace: CanvasField = movedField;
+
+      let inserted = false;
+      const insertIntoRows = (rows: CanvasRow[]): CanvasRow[] =>
+        rows.map((row) => {
+          if (row.id !== targetRowId) return row;
+          inserted = true;
+          const placed = { ...fieldToPlace, colSpan: Math.min(fieldToPlace.colSpan, row.columns) };
+          const insertAt = beforeFieldId ? row.fields.findIndex((f) => f.id === beforeFieldId) : -1;
+          const nextFields = [...row.fields];
+          nextFields.splice(insertAt === -1 ? nextFields.length : insertAt, 0, placed);
+          return { ...row, fields: nextFields };
+        });
+
+      const formSteps = formStepsAfterRemoval.map((step) => ({
+        ...step,
+        rows: insertIntoRows(step.rows),
+      }));
+      const introSteps = introStepsAfterRemoval.map((step) => ({
+        ...step,
+        rows: insertIntoRows(step.rows),
+      }));
+
+      if (!inserted) return state;
+      return { formSteps, introModal: { steps: introSteps } };
+    }),
   setFieldEnableWhen: (fieldId, condition) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({

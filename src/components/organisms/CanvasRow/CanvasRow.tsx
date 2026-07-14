@@ -44,6 +44,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
         <CanvasFieldChip
           key={field.id}
           field={field}
+          rowId={row.id}
           rowColumns={row.columns}
           selected={selectedFieldId === field.id}
           onClick={() => selectField(field.id)}

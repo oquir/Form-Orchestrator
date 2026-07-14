@@ -1,3 +1,4 @@
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { type PointerEvent as ReactPointerEvent, useState } from "react";
 import { useFormStore } from "../../../store/formStore";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
@@ -7,6 +8,7 @@ import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
 
 export function CanvasFieldChip({
   field,
+  rowId,
   rowColumns,
   selected,
   onClick,
@@ -14,6 +16,24 @@ export function CanvasFieldChip({
 }: CanvasFieldChipProps) {
   const updateField = useFormStore((state) => state.updateField);
   const [isResizing, setIsResizing] = useState(false);
+
+  const {
+    listeners,
+    setNodeRef: setDragRef,
+    isDragging,
+  } = useDraggable({
+    id: field.id,
+    data: { source: "canvas-field", field, rowId },
+  });
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: field.id,
+    data: { rowId, fieldId: field.id },
+  });
+
+  function setRefs(node: HTMLDivElement | null) {
+    setDragRef(node);
+    setDropRef(node);
+  }
 
   function handleResizePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     event.preventDefault();
@@ -58,8 +78,12 @@ export function CanvasFieldChip({
 
   return (
     <div
+      ref={setRefs}
+      {...listeners}
       style={{ gridColumn: `span ${field.colSpan} / span ${field.colSpan}` }}
-      className="group relative"
+      className={`group relative cursor-grab active:cursor-grabbing ${isDragging ? "opacity-40" : ""} ${
+        isOver ? "rounded-md outline outline-2 outline-orange-400 dark:outline-orange-500" : ""
+      }`}
     >
       <button
         type="button"

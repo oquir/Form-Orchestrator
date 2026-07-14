@@ -3,6 +3,7 @@ import type { CanvasField } from "../../../types/storeTypes";
 
 export interface CanvasFieldChipProps {
   field: CanvasField;
+  rowId: string;
   rowColumns: number;
   selected: boolean;
   onClick: () => void;
