@@ -3,7 +3,7 @@ import { type PointerEvent as ReactPointerEvent, useState } from "react";
 import { useFormStore } from "../../../store/formStore";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { FieldPreviewControl } from "../FieldPreviewControl/FieldPreviewControl";
-import { GRID_GAP_PX } from "./CanvasFieldChip.constants";
+import { GRID_GAP_PX, GRIP_DOT_KEYS } from "./CanvasFieldChip.constants";
 import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
 
 export function CanvasFieldChip({
@@ -79,12 +79,25 @@ export function CanvasFieldChip({
   return (
     <div
       ref={setRefs}
-      {...listeners}
       style={{ gridColumn: `span ${field.colSpan} / span ${field.colSpan}` }}
-      className={`group relative cursor-grab active:cursor-grabbing ${isDragging ? "opacity-40" : ""} ${
-        isOver ? "rounded-md outline outline-2 outline-orange-400 dark:outline-orange-500" : ""
+      className={`group relative ${isDragging ? "opacity-40" : ""} ${
+        isOver ? "rounded-md outline-2 outline-orange-400 dark:outline-orange-500" : ""
       }`}
     >
+      <div
+        {...listeners}
+        title="Arrastrar para mover"
+        className="absolute -left-1.5 top-1/2 z-9 flex h-8 w-4 -translate-y-1/2 cursor-grab items-center justify-center rounded-full bg-white shadow-sm transition-colors active:cursor-grabbing dark:bg-neutral-800"
+      >
+        <span className="grid grid-cols-2 gap-0.75 opacity-50 group-hover:opacity-100">
+          {GRIP_DOT_KEYS.map((key) => (
+            <span
+              key={key}
+              className="h-0.75 w-0.75 rounded-full bg-slate-400 dark:bg-neutral-500"
+            />
+          ))}
+        </span>
+      </div>
       <button
         type="button"
         onClick={onClick}
@@ -95,7 +108,7 @@ export function CanvasFieldChip({
           backgroundColor: field.styles.backgroundColor,
           color: field.styles.textColor,
         }}
-        className={`flex w-full flex-col gap-1.5 rounded-md border bg-white p-3 text-left shadow-sm transition-colors dark:bg-neutral-800 ${
+        className={`flex w-full flex-col gap-1.5 rounded-md border bg-white py-3 pl-4 pr-3 text-left shadow-sm transition-colors dark:bg-neutral-800 ${
           selected
             ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
             : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
