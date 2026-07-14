@@ -47,7 +47,7 @@ export function FieldContextMenu({
 
   if (!field) return null;
 
-  const menuWidth = 320;
+  const menuWidth = 338;
   const menuHeight = 460;
   const left = Math.min(menu.x, window.innerWidth - menuWidth - 8);
   const top = Math.min(menu.y, window.innerHeight - menuHeight - 8);
