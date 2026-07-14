@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { Xmark } from "reicon-react";
 import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
+import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { SaveFieldForm } from "../../molecules/SaveFieldForm/SaveFieldForm";
 import { TabButtonGroup } from "../../molecules/TabButtonGroup/TabButtonGroup";
@@ -9,7 +10,6 @@ import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
 import { CONTEXT_MENU_TABS, type ContextMenuTab } from "./FieldContextMenu.constants";
-import type { FieldContextMenuState } from "./FieldContextMenu.types";
 
 export function FieldContextMenu({
   menu,

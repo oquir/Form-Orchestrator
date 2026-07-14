@@ -2,12 +2,12 @@
 import { Plus } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveRows, useFormStore } from "../../../store/formStore";
+import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
 import { DashedAddButton } from "../../molecules/DashedAddButton/DashedAddButton";
 import { SaveButton } from "../../molecules/SaveButton/SaveButton";
 import { CanvasRow } from "../CanvasRow/CanvasRow";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
-import type { FieldContextMenuState } from "../FieldContextMenu/FieldContextMenu.types";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
 
 export function Canvas() {

@@ -1,4 +1,4 @@
-import type { TabButtonGroupItem } from "../../molecules/TabButtonGroup/TabButtonGroup.types";
+import type { TabButtonGroupItem } from "../../../types/tabButtonGroup";
 
 export type ContextMenuTab = "attributes" | "styles" | "validations" | "logic" | "delete";
 

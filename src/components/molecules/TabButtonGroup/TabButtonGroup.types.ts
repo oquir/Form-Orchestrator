@@ -1,8 +1,4 @@
-export interface TabButtonGroupItem<T extends string> {
-  tab: T;
-  label: string;
-  variant?: "default" | "danger";
-}
+import type { TabButtonGroupItem } from "../../../types/tabButtonGroup";
 
 export interface TabButtonGroupProps<T extends string> {
   tabs: TabButtonGroupItem<T>[];
