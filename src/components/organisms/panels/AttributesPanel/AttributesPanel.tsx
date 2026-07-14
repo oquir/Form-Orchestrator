@@ -4,6 +4,7 @@ import type { CanvasField } from "../../../../types/storeTypes";
 import { IconButton } from "../../../atoms/IconButton/IconButton";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
+import { FILE_FORMAT_PRESETS } from "./AttributesPanel.constants";
 
 function ToggleGroupOptionsEditor({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
@@ -99,17 +100,6 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
     </div>
   );
 }
-
-const FILE_FORMAT_PRESETS: { id: string; label: string; tokens: string[] }[] = [
-  { id: "images", label: "Imágenes", tokens: ["image/*"] },
-  { id: "pdf", label: "PDF", tokens: [".pdf"] },
-  { id: "excel", label: "Excel", tokens: [".xls", ".xlsx"] },
-  { id: "word", label: "Word", tokens: [".doc", ".docx"] },
-  { id: "csv", label: "CSV", tokens: [".csv"] },
-  { id: "xml", label: "XML", tokens: [".xml"] },
-  { id: "zip", label: "ZIP/RAR", tokens: [".zip", ".rar"] },
-  { id: "txt", label: "Texto", tokens: [".txt"] },
-];
 
 function togglePreset(current: string[], tokens: string[]): string[] {
   const isActive = tokens.every((token) => current.includes(token));

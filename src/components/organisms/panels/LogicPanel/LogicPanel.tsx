@@ -2,19 +2,7 @@ import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField, EnableCondition, EnableOperator } from "../../../../types/storeTypes";
 import { DependencyCheckboxRow } from "../../../molecules/DependencyCheckboxRow/DependencyCheckboxRow";
 import { LabeledTextarea } from "../../../molecules/LabeledTextarea/LabeledTextarea";
-
-const OPERATOR_LABELS: Record<EnableOperator, string> = {
-  equals: "es igual a",
-  notEquals: "es distinto de",
-  greaterThan: "es mayor que",
-  lessThan: "es menor que",
-  isEmpty: "está vacío",
-  isNotEmpty: "tiene un valor",
-  isTruthy: "está marcado / es verdadero",
-  isFalsy: "no está marcado / es falso",
-};
-
-const OPERATORS_WITHOUT_VALUE: EnableOperator[] = ["isEmpty", "isNotEmpty", "isTruthy", "isFalsy"];
+import { OPERATOR_LABELS, OPERATORS_WITHOUT_VALUE } from "./LogicPanel.constants";
 
 function operatorsForFieldType(type: string): EnableOperator[] {
   switch (type) {
