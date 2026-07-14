@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Plus } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
-import { DashedAddButton } from "../../molecules/DashedAddButton/DashedAddButton";
 import { SaveButton } from "../../molecules/SaveButton/SaveButton";
-import { CanvasRow } from "../CanvasRow/CanvasRow";
+import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
+import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
@@ -15,32 +14,19 @@ export function Canvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
-  const addRowToActiveCanvas = useFormStore((state) => state.addRowToActiveCanvas);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
 
   const isIntro = activeCanvas.type === "introStep";
 
   const rowsGrid = (
-    <div className="grid grid-cols-16 content-start gap-3">
-      {activeRows.map((row) => (
-        <CanvasRow
-          key={row.id}
-          row={row}
-          onFieldContextMenu={(fieldId, x, y) => setContextMenu({ fieldId, x, y })}
-        />
-      ))}
-    </div>
+    <CanvasRowsGrid
+      rows={activeRows}
+      onFieldContextMenu={(fieldId, x, y) => setContextMenu({ fieldId, x, y })}
+    />
   );
 
-  const addRowButton = (
-    <DashedAddButton
-      onClick={addRowToActiveCanvas}
-      className="mt-3 flex w-full items-center justify-center gap-1.5 border-slate-300 py-2 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-200"
-    >
-      <Plus size={12} weight="Filled" /> Agregar fila
-    </DashedAddButton>
-  );
+  const addRowButton = <CanvasAddRowButton />;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
@@ -106,7 +92,7 @@ export function Canvas() {
           />
 
           {/* Modal real y editable: más chico y cuadrado que el lienzo de fondo */}
-          <div className="relative z-10 flex min-h-[27.5rem] w-full max-w-[35rem] flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900">
+          <div className="relative z-10 flex min-h-110 w-full max-w-140 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900">
             <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-neutral-800">
               <span className="h-2.5 w-2.5 rounded-full bg-orange-400" />
               <span className="text-xs font-semibold text-slate-500 dark:text-neutral-400">
