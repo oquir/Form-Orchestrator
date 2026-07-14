@@ -1,10 +1,5 @@
-﻿import type { ReactNode } from "react";
-import { useFormStore } from "../../store/formStore";
-
-interface AppLayoutProps {
-  sidebar: ReactNode;
-  canvas: ReactNode;
-}
+﻿import { useFormStore } from "../../store/formStore";
+import type { AppLayoutProps } from "./AppLayout.types";
 
 export function AppLayout({ sidebar, canvas }: AppLayoutProps) {
   const isSidebarOpen = useFormStore((state) => state.isSidebarOpen);
