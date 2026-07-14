@@ -1,13 +1,7 @@
 import { useFormStore } from "../../../../store/formStore";
 import { FILE_FORMAT_PRESETS } from "./FileOptionsEditor.constants";
 import type { FileOptionsEditorProps } from "./FileOptionsEditor.types";
-
-function togglePreset(current: string[], tokens: string[]): string[] {
-  const isActive = tokens.every((token) => current.includes(token));
-  if (isActive) return current.filter((token) => !tokens.includes(token));
-  const missing = tokens.filter((token) => !current.includes(token));
-  return [...current, ...missing];
-}
+import { togglePreset } from "./FileOptionsEditor.utils";
 
 export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
   const updateFieldFileConfig = useFormStore((state) => state.updateFieldFileConfig);

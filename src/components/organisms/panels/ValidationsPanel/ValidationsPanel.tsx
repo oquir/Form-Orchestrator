@@ -5,10 +5,7 @@ import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPreview/GeneratedSchemaPreview";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { TwoColumnFieldGroup } from "../../../molecules/TwoColumnFieldGroup/TwoColumnFieldGroup";
-
-function toNumberOrUndefined(value: string): number | undefined {
-  return value === "" ? undefined : Number(value);
-}
+import { toNumberOrUndefined } from "./ValidationsPanel.utils";
 
 export function ValidationsPanel({ field }: { field: CanvasField }) {
   const updateFieldValidations = useFormStore((state) => state.updateFieldValidations);
