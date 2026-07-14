@@ -1,5 +1,9 @@
 import { useFormStore } from "../../../../store/formStore";
 import type { EnableCondition, EnableOperator } from "../../../../types/storeTypes";
+import { ConditionActivationToggle } from "../../../molecules/ConditionActivationToggle/ConditionActivationToggle";
+import { ConditionFieldSelect } from "../../../molecules/ConditionFieldSelect/ConditionFieldSelect";
+import { ConditionOperatorSelect } from "../../../molecules/ConditionOperatorSelect/ConditionOperatorSelect";
+import { ConditionValueInput } from "../../../molecules/ConditionValueInput/ConditionValueInput";
 import { OPERATOR_LABELS, OPERATORS_WITHOUT_VALUE } from "./ConditionEditor.constants";
 import type { ConditionEditorProps } from "./ConditionEditor.types";
 import { operatorsForFieldType, wouldCreateCycle } from "./ConditionEditor.utils";
@@ -19,36 +23,49 @@ export function ConditionEditor({ field, otherFields }: ConditionEditorProps) {
     setFieldEnableWhen(field.id, { ...condition, ...next });
   }
 
+  function setConditionOnField(targetFieldId: string) {
+    const nextField = otherFields.find((f) => f.id === targetFieldId);
+    if (!nextField) return;
+    const ops = operatorsForFieldType(nextField.type);
+    setFieldEnableWhen(field.id, {
+      fieldId: nextField.id,
+      operator: ops[0],
+      value: OPERATORS_WITHOUT_VALUE.includes(ops[0]) ? undefined : "",
+    });
+  }
+
+  function handleActivationChange(checked: boolean) {
+    if (!checked) {
+      setFieldEnableWhen(field.id, null);
+      return;
+    }
+    const firstCandidate = otherFields[0];
+    if (!firstCandidate) return;
+    setConditionOnField(firstCandidate.id);
+  }
+
+  function handleObservedFieldChange(nextFieldId: string) {
+    if (wouldCreateCycle(field.id, nextFieldId, otherFields)) {
+      window.alert("Esa condición generaría un ciclo entre campos.");
+      return;
+    }
+    setConditionOnField(nextFieldId);
+  }
+
+  function handleOperatorChange(nextOp: EnableOperator) {
+    updateCondition({
+      operator: nextOp,
+      value: OPERATORS_WITHOUT_VALUE.includes(nextOp) ? undefined : condition?.value,
+    });
+  }
+
   return (
     <div className="flex flex-col gap-2 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-slate-600 dark:text-neutral-300">
-          Habilitación condicional
-        </span>
-        <label className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-neutral-400">
-          <input
-            type="checkbox"
-            checked={Boolean(condition)}
-            onChange={(event) => {
-              if (event.target.checked) {
-                const firstCandidate = otherFields[0];
-                if (!firstCandidate) return;
-                const ops = operatorsForFieldType(firstCandidate.type);
-                setFieldEnableWhen(field.id, {
-                  fieldId: firstCandidate.id,
-                  operator: ops[0],
-                  value: OPERATORS_WITHOUT_VALUE.includes(ops[0]) ? undefined : "",
-                });
-              } else {
-                setFieldEnableWhen(field.id, null);
-              }
-            }}
-            disabled={otherFields.length === 0}
-            className="accent-orange-500"
-          />
-          Activar
-        </label>
-      </div>
+      <ConditionActivationToggle
+        checked={Boolean(condition)}
+        disabled={otherFields.length === 0}
+        onChange={handleActivationChange}
+      />
 
       {otherFields.length === 0 && !condition && (
         <p className="text-[11px] text-slate-400 dark:text-neutral-500">
@@ -58,95 +75,26 @@ export function ConditionEditor({ field, otherFields }: ConditionEditorProps) {
 
       {condition && (
         <>
-          <div className="flex flex-col gap-1">
-            <span className="text-[11px] text-slate-500 dark:text-neutral-400">
-              Se habilita cuando el campo…
-            </span>
-            <select
-              value={condition.fieldId}
-              onChange={(event) => {
-                const nextField = otherFields.find((f) => f.id === event.target.value);
-                if (!nextField) return;
-                if (wouldCreateCycle(field.id, nextField.id, otherFields)) {
-                  window.alert("Esa condición generaría un ciclo entre campos.");
-                  return;
-                }
-                const ops = operatorsForFieldType(nextField.type);
-                setFieldEnableWhen(field.id, {
-                  fieldId: nextField.id,
-                  operator: ops[0],
-                  value: OPERATORS_WITHOUT_VALUE.includes(ops[0]) ? undefined : "",
-                });
-              }}
-              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-            >
-              {observedIsDead && condition && (
-                <option value={condition.fieldId}>(Campo eliminado — reasignar)</option>
-              )}
-              {otherFields.map((candidate) => (
-                <option key={candidate.id} value={candidate.id}>
-                  {candidate.label} ({candidate.type})
-                </option>
-              ))}
-            </select>
-          </div>
+          <ConditionFieldSelect
+            condition={condition}
+            otherFields={otherFields}
+            observedIsDead={observedIsDead}
+            onChange={handleObservedFieldChange}
+          />
 
-          <div className="flex flex-col gap-1">
-            <span className="text-[11px] text-slate-500 dark:text-neutral-400">…y el valor</span>
-            <select
-              value={condition.operator}
-              onChange={(event) => {
-                const nextOp = event.target.value as EnableOperator;
-                updateCondition({
-                  operator: nextOp,
-                  value: OPERATORS_WITHOUT_VALUE.includes(nextOp) ? undefined : condition.value,
-                });
-              }}
-              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-            >
-              {availableOperators.map((op) => (
-                <option key={op} value={op}>
-                  {OPERATOR_LABELS[op]}
-                </option>
-              ))}
-            </select>
-          </div>
+          <ConditionOperatorSelect
+            operator={condition.operator}
+            availableOperators={availableOperators}
+            operatorLabels={OPERATOR_LABELS}
+            onChange={handleOperatorChange}
+          />
 
           {needsValue && (
-            <div className="flex flex-col gap-1">
-              <span className="text-[11px] text-slate-500 dark:text-neutral-400">Valor</span>
-              {observed?.options && observed.options.length > 0 ? (
-                <select
-                  value={String(condition.value ?? "")}
-                  onChange={(event) => updateCondition({ value: event.target.value })}
-                  className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-                >
-                  <option value="">— Elegir —</option>
-                  {observed.options.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              ) : observed?.type === "number" || observed?.type === "calculated" ? (
-                <input
-                  type="number"
-                  value={condition.value === undefined ? "" : String(condition.value)}
-                  onChange={(event) => {
-                    const parsed = Number.parseFloat(event.target.value);
-                    updateCondition({ value: Number.isNaN(parsed) ? "" : parsed });
-                  }}
-                  className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-                />
-              ) : (
-                <input
-                  type="text"
-                  value={condition.value === undefined ? "" : String(condition.value)}
-                  onChange={(event) => updateCondition({ value: event.target.value })}
-                  className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-                />
-              )}
-            </div>
+            <ConditionValueInput
+              condition={condition}
+              observedField={observed}
+              onChange={(value) => updateCondition({ value })}
+            />
           )}
 
           {observedIsDead && (
