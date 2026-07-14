@@ -3,6 +3,7 @@ import { useFormStore } from "../../../store/formStore";
 import type { SavedComponent } from "../../../types/storeTypes";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { IconButton } from "../../atoms/IconButton/IconButton";
+import { Xmark } from "reicon-react";
 
 export function SavedComponentListItem({ component }: { component: SavedComponent }) {
   const removeSavedComponent = useFormStore((state) => state.removeSavedComponent);
@@ -29,10 +30,10 @@ export function SavedComponentListItem({ component }: { component: SavedComponen
       <IconButton
         onPointerDown={(event) => event.stopPropagation()}
         onClick={() => removeSavedComponent(component.id)}
-        className="shrink-0 text-slate-300 hover:text-slate-600 dark:text-neutral-600 dark:hover:text-neutral-300"
+        className="shrink-0 text-slate-300 hover:text-slate-600 dark:text-neutral-600 dark:hover:text-neutral-300 hover:cursor-pointer"
         aria-label={`Eliminar ${component.name}`}
       >
-        Ã—
+        <Xmark size={16} weight="Filled" />
       </IconButton>
     </div>
   );
