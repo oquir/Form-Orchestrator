@@ -1,9 +1,9 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { type PointerEvent as ReactPointerEvent, useState } from "react";
 import { useFormStore } from "../../../store/formStore";
+import { FieldDragHandle } from "../../atoms/FieldDragHandle/FieldDragHandle";
+import { FieldResizeHandle } from "../../atoms/FieldResizeHandle/FieldResizeHandle";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { FieldPreviewControl } from "../FieldPreviewControl/FieldPreviewControl";
-import { GRID_GAP_PX, GRIP_DOT_KEYS } from "./CanvasFieldChip.constants";
 import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
 
 export function CanvasFieldChip({
@@ -15,10 +15,10 @@ export function CanvasFieldChip({
   onContextMenu,
 }: CanvasFieldChipProps) {
   const updateField = useFormStore((state) => state.updateField);
-  const [isResizing, setIsResizing] = useState(false);
 
   const {
     listeners,
+    attributes,
     setNodeRef: setDragRef,
     isDragging,
   } = useDraggable({
@@ -35,47 +35,6 @@ export function CanvasFieldChip({
     setDropRef(node);
   }
 
-  function handleResizePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const rowElement = event.currentTarget.closest<HTMLElement>("[data-canvas-row]");
-    if (!rowElement) return;
-
-    const rowRect = rowElement.getBoundingClientRect();
-    const rowStyles = window.getComputedStyle(rowElement);
-    const paddingLeft = Number.parseFloat(rowStyles.paddingLeft) || 0;
-    const paddingRight = Number.parseFloat(rowStyles.paddingRight) || 0;
-    const usableWidth = rowRect.width - paddingLeft - paddingRight;
-    const perColumn = (usableWidth - (rowColumns - 1) * GRID_GAP_PX) / rowColumns;
-    if (perColumn <= 0) return;
-
-    const startX = event.clientX;
-    const startColSpan = field.colSpan;
-    let lastApplied = startColSpan;
-
-    setIsResizing(true);
-
-    function handlePointerMove(moveEvent: PointerEvent) {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaCols = Math.round(deltaX / (perColumn + GRID_GAP_PX));
-      const next = Math.max(1, Math.min(rowColumns, startColSpan + deltaCols));
-      if (next !== lastApplied) {
-        lastApplied = next;
-        updateField(field.id, { colSpan: next });
-      }
-    }
-
-    function handlePointerUp() {
-      document.removeEventListener("pointermove", handlePointerMove);
-      document.removeEventListener("pointerup", handlePointerUp);
-      setIsResizing(false);
-    }
-
-    document.addEventListener("pointermove", handlePointerMove);
-    document.addEventListener("pointerup", handlePointerUp);
-  }
-
   return (
     <div
       ref={setRefs}
@@ -84,20 +43,7 @@ export function CanvasFieldChip({
         isOver ? "rounded-md outline-2 outline-orange-400 dark:outline-orange-500" : ""
       }`}
     >
-      <div
-        {...listeners}
-        title="Arrastrar para mover"
-        className="absolute -left-1.5 top-1/2 z-9 flex h-8 w-4 -translate-y-1/2 cursor-grab items-center justify-center rounded-full bg-white shadow-sm transition-colors active:cursor-grabbing dark:bg-neutral-800"
-      >
-        <span className="grid grid-cols-2 gap-0.75 opacity-50 group-hover:opacity-100">
-          {GRIP_DOT_KEYS.map((key) => (
-            <span
-              key={key}
-              className="h-0.75 w-0.75 rounded-full bg-slate-400 dark:bg-neutral-500"
-            />
-          ))}
-        </span>
-      </div>
+      <FieldDragHandle listeners={listeners} attributes={attributes} />
       <button
         type="button"
         onClick={onClick}
@@ -138,15 +84,10 @@ export function CanvasFieldChip({
         </div>
         <FieldPreviewControl field={field} />
       </button>
-      <div
-        onPointerDown={handleResizePointerDown}
-        title={`Redimensionar (${field.colSpan}/${rowColumns})`}
-        className={`absolute -right-1 top-1/2 h-8 w-1.5 -translate-y-1/2 cursor-col-resize rounded-full transition-colors ${
-          isResizing
-            ? "bg-orange-500"
-            : "bg-slate-200 opacity-0 hover:bg-orange-400 group-hover:opacity-100 dark:bg-neutral-600"
-        }`}
-        style={{ opacity: isResizing ? 1 : undefined }}
+      <FieldResizeHandle
+        colSpan={field.colSpan}
+        rowColumns={rowColumns}
+        onResize={(next) => updateField(field.id, { colSpan: next })}
       />
     </div>
   );
