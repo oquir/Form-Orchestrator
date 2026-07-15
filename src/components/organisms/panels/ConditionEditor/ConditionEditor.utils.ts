@@ -15,7 +15,7 @@ export function operatorsForFieldType(type: string): EnableOperator[] {
     default:
       return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
   }
-};
+}
 
 export function wouldCreateCycle(
   currentFieldId: string,
@@ -34,4 +34,4 @@ export function wouldCreateCycle(
     if (next) stack.push(next);
   }
   return false;
-};
+}

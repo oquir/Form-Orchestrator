@@ -1,9 +1,9 @@
 ﻿import { useDraggable } from "@dnd-kit/core";
+import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
 import type { SavedComponent } from "../../../types/storeTypes";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { IconButton } from "../../atoms/IconButton/IconButton";
-import { Xmark } from "reicon-react";
 
 export function SavedComponentListItem({ component }: { component: SavedComponent }) {
   const removeSavedComponent = useFormStore((state) => state.removeSavedComponent);
