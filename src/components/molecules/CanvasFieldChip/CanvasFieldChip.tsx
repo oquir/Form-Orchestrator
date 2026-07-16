@@ -6,6 +6,12 @@ import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { FieldPreviewControl } from "../FieldPreviewControl/FieldPreviewControl";
 import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
 
+function getChipPaddingClasses(isCompact: boolean, isUltraCompact: boolean): string {
+  if (isUltraCompact) return "pl-1 pr-1";
+  if (isCompact) return "pl-6 pr-5";
+  return "pl-8 pr-8";
+}
+
 export function CanvasFieldChip({
   field,
   rowId,
@@ -35,6 +41,10 @@ export function CanvasFieldChip({
     setDropRef(node);
   }
 
+  const isUltraCompact = field.colSpan === 1 && rowColumns >= 16;
+  const isCompact = rowColumns >= 13 && field.colSpan === 1;
+  const isopacityapply = field.colSpan === 1 && rowColumns >= 14;
+
   return (
     <div
       ref={setRefs}
@@ -43,7 +53,12 @@ export function CanvasFieldChip({
         isOver ? "rounded-md outline-2 outline-orange-400 dark:outline-orange-500" : ""
       }`}
     >
-      <FieldDragHandle listeners={listeners} attributes={attributes} />
+      <FieldDragHandle
+        listeners={listeners}
+        attributes={attributes}
+        colSpan={field.colSpan}
+        rowColumns={rowColumns}
+      />
       <button
         type="button"
         onClick={onClick}
@@ -54,13 +69,18 @@ export function CanvasFieldChip({
           backgroundColor: field.styles.backgroundColor,
           color: field.styles.textColor,
         }}
-        className={`flex w-full flex-col gap-1.5 rounded-md border bg-white py-3 pl-8 pr-8 text-left shadow-sm transition-colors dark:bg-neutral-800 ${
+        className={`flex w-full flex-col gap-1.5 rounded-md border bg-white py-3 text-left shadow-sm transition-colors dark:bg-neutral-800 ${getChipPaddingClasses(
+          isCompact,
+          isUltraCompact,
+        )} ${
           selected
             ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
             : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
         } ${field.styles.customClasses ?? ""}`}
       >
-        <div className="flex items-center justify-between gap-2 overflow-x-hidden">
+        <div
+          className={`flex items-center justify-between gap-2 overflow-x-hidden ${isopacityapply ? "opacity-0" : ""}`}
+        >
           <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">{field.label}</p>
           <div className="flex items-center gap-1">
             {field.alwaysDisabled && (
@@ -82,7 +102,9 @@ export function CanvasFieldChip({
             <FieldTypeBadge type={field.type} />
           </div>
         </div>
-        <FieldPreviewControl field={field} />
+        <div className={isopacityapply ? "opacity-0" : ""}>
+          <FieldPreviewControl field={field} />
+        </div>
       </button>
       <FieldResizeHandle
         colSpan={field.colSpan}
