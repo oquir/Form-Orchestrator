@@ -7,6 +7,6 @@ export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "textarea", label: "Área de texto", category: "basico" },
   { type: "checkbox", label: "Checkbox", category: "basico" },
   { type: "calculated", label: "Calculado", category: "basico" },
+  { type: "file", label: "Archivo", category: "basico" },
   { type: "toggle_group", label: "Toggle Buttons", category: "complejo" },
-  { type: "file", label: "Archivo", category: "complejo" },
 ];
