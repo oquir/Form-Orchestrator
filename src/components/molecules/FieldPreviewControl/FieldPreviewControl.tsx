@@ -17,7 +17,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
             {options.map((option, index) => (
               <span
                 key={option.id}
-                className={`rounded-md border px-2.5 py-1 text-xs ${
+                className={`rounded-md border px-2.5 py-1 text-xs overflow-x-hidden ${
                   index === 0
                     ? "border-orange-500 bg-orange-50 text-orange-700 dark:border-orange-500 dark:bg-orange-500/10 dark:text-orange-400"
                     : "border-slate-200 bg-slate-50 text-slate-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400"
@@ -28,7 +28,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
             ))}
           </div>
           {!field.validations.required && (
-            <p className="text-[11px] text-slate-400 underline decoration-dotted dark:text-neutral-500">
+            <p className="text-[11px] text-slate-400 overflow-x-hidden underline decoration-dotted dark:text-neutral-500">
               Limpiar selección
             </p>
           )}

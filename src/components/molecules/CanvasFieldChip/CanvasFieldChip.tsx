@@ -54,7 +54,7 @@ export function CanvasFieldChip({
           backgroundColor: field.styles.backgroundColor,
           color: field.styles.textColor,
         }}
-        className={`flex w-full flex-col gap-1.5 rounded-md border bg-white py-3 pl-4 pr-3 text-left shadow-sm transition-colors dark:bg-neutral-800 ${
+        className={`flex w-full flex-col gap-1.5 rounded-md border bg-white py-3 pl-8 pr-8 text-left shadow-sm transition-colors dark:bg-neutral-800 ${
           selected
             ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
             : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
