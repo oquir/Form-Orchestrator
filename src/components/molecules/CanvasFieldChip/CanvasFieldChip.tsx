@@ -39,7 +39,7 @@ export function CanvasFieldChip({
     <div
       ref={setRefs}
       style={{ gridColumn: `span ${field.colSpan} / span ${field.colSpan}` }}
-      className={`group relative ${isDragging ? "opacity-40" : ""} ${
+      className={`group relative min-w-0 ${isDragging ? "opacity-40" : ""} ${
         isOver ? "rounded-md outline-2 outline-orange-400 dark:outline-orange-500" : ""
       }`}
     >
