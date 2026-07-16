@@ -30,7 +30,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
 
       {isTextLike && (
         <>
-          <TwoColumnFieldGroup>
+          <TwoColumnFieldGroup legend="Longitud">
             <LabeledInput
               id="min-length"
               label="Longitud mín."
@@ -77,7 +77,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
       )}
 
       {isNumeric && (
-        <TwoColumnFieldGroup>
+        <TwoColumnFieldGroup legend="Rango de valores">
           <LabeledInput
             id="min-value"
             label="Valor mín."

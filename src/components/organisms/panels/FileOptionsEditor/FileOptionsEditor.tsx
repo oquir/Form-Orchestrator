@@ -18,30 +18,31 @@ export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
           Formatos permitidos
         </label>
 
-        <div className="flex flex-wrap gap-1.5">
+        <ul className="flex list-none flex-wrap gap-1.5">
           {FILE_FORMAT_PRESETS.map((preset) => {
             const isActive = preset.tokens.every((token) => config.acceptedFormats.includes(token));
             return (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() =>
-                  updateFieldFileConfig(field.id, {
-                    acceptedFormats: togglePreset(config.acceptedFormats, preset.tokens),
-                  })
-                }
-                title={preset.tokens.join(", ")}
-                className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors hover:cursor-pointer ${
-                  isActive
-                    ? "border-orange-500 bg-orange-50 text-orange-700 dark:border-orange-500 dark:bg-orange-500/10 dark:text-orange-400"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-600"
-                }`}
-              >
-                {preset.label}
-              </button>
+              <li key={preset.id}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateFieldFileConfig(field.id, {
+                      acceptedFormats: togglePreset(config.acceptedFormats, preset.tokens),
+                    })
+                  }
+                  title={preset.tokens.join(", ")}
+                  className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors hover:cursor-pointer ${
+                    isActive
+                      ? "border-orange-500 bg-orange-50 text-orange-700 dark:border-orange-500 dark:bg-orange-500/10 dark:text-orange-400"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-600"
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
         <input
           id="field-file-formats"

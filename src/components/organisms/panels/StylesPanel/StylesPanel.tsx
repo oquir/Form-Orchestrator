@@ -19,7 +19,7 @@ export function StylesPanel({ field }: { field: CanvasField }) {
         className="font-mono"
       />
 
-      <TwoColumnFieldGroup>
+      <TwoColumnFieldGroup legend="Márgenes">
         <LabeledInput
           id="margin-top"
           label="Margen superior"
@@ -36,7 +36,7 @@ export function StylesPanel({ field }: { field: CanvasField }) {
         />
       </TwoColumnFieldGroup>
 
-      <TwoColumnFieldGroup>
+      <TwoColumnFieldGroup legend="Colores">
         <ColorPickerField
           id="background-color"
           label="Color de fondo"

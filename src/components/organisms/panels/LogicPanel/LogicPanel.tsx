@@ -34,8 +34,11 @@ export function LogicPanel({ field }: { field: CanvasField }) {
 
       {!isAlwaysDisabled && <ConditionEditor field={field} otherFields={otherFields} />}
 
-      <div>
-        <h3 className="mb-1 text-xs font-medium text-slate-500 dark:text-neutral-400">
+      <section aria-labelledby="logic-dependencies-heading">
+        <h3
+          id="logic-dependencies-heading"
+          className="mb-1 text-xs font-medium text-slate-500 dark:text-neutral-400"
+        >
           Depende de (para el script)
         </h3>
         <p className="mb-2 text-xs text-slate-400 dark:text-neutral-500">
@@ -47,19 +50,20 @@ export function LogicPanel({ field }: { field: CanvasField }) {
             No hay otros campos en el lienzo todavía.
           </p>
         ) : (
-          <div className="flex flex-col gap-1.5">
+          <ul className="flex list-none flex-col gap-1.5">
             {otherFields.map((candidate) => (
-              <DependencyCheckboxRow
-                key={candidate.id}
-                label={candidate.label}
-                type={candidate.type}
-                checked={field.logic.dependencies.includes(candidate.id)}
-                onChange={() => toggleFieldDependency(field.id, candidate.id)}
-              />
+              <li key={candidate.id}>
+                <DependencyCheckboxRow
+                  label={candidate.label}
+                  type={candidate.type}
+                  checked={field.logic.dependencies.includes(candidate.id)}
+                  onChange={() => toggleFieldDependency(field.id, candidate.id)}
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </div>
+      </section>
 
       <LabeledTextarea
         id="logic-typescript"

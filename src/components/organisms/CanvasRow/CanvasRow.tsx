@@ -13,7 +13,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
   const removeRow = useFormStore((state) => state.removeRow);
 
   return (
-    <div
+    <li
       ref={setNodeRef}
       data-canvas-row=""
       style={{ gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))` }}
@@ -55,6 +55,6 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
           }}
         />
       ))}
-    </div>
+    </li>
   );
 }

@@ -20,12 +20,18 @@ export function ToggleGroupOptionsEditor({ field }: ToggleGroupOptionsEditorProp
         onChange={(event) => updateField(field.id, { title: event.target.value })}
       />
 
-      <div>
-        <p className="mb-2 text-sm font-medium text-slate-700 dark:text-neutral-200">Opciones</p>
-        <div className="flex flex-col gap-2">
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="mb-2 p-0 text-sm font-medium text-slate-700 dark:text-neutral-200">
+          Opciones
+        </legend>
+        <ul className="flex list-none flex-col gap-2">
           {options.map((option, index) => (
-            <div key={option.id} className="flex items-center gap-2">
+            <li key={option.id} className="flex items-center gap-2">
+              <label className="sr-only" htmlFor={`toggle-option-${option.id}`}>
+                Opción {index + 1}
+              </label>
               <input
+                id={`toggle-option-${option.id}`}
                 type="text"
                 value={option.label}
                 onChange={(event) =>
@@ -45,9 +51,9 @@ export function ToggleGroupOptionsEditor({ field }: ToggleGroupOptionsEditorProp
               >
                 <Xmark size={12} weight="Filled" />
               </IconButton>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <button
           type="button"
@@ -56,7 +62,7 @@ export function ToggleGroupOptionsEditor({ field }: ToggleGroupOptionsEditorProp
         >
           + Agregar opción
         </button>
-      </div>
+      </fieldset>
 
       <p className="text-xs text-slate-400 dark:text-neutral-500">
         {field.validations.required

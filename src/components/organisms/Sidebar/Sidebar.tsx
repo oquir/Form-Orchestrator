@@ -38,7 +38,10 @@ export function Sidebar() {
         onToggleDarkMode={toggleDarkMode}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <section
+        aria-label={activeTabDef?.label ?? "Panel de edición"}
+        className="flex min-w-0 flex-1 flex-col"
+      >
         <PanelHeader
           title={activeTabDef?.label ?? ""}
           subtitle={
@@ -61,7 +64,7 @@ export function Sidebar() {
           {selectedField && activeTab === "logic" && <LogicPanel field={selectedField} />}
           {activeTab === "library" && <LibraryPanel selectedField={selectedField} />}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

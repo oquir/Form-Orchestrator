@@ -16,57 +16,67 @@ export function CanvasTabs() {
 
   return (
     <div className="mb-4 flex flex-col gap-2 border-b border-slate-200 pb-3 dark:border-neutral-800">
-      <div className="flex flex-wrap items-center gap-1">
+      <nav aria-label="Steps del formulario" className="flex flex-wrap items-center gap-1">
         <span className="mr-1 text-[10px] font-semibold uppercase text-slate-400 dark:text-neutral-500">
           Steps del formulario
         </span>
-        {formSteps.map((step) => (
-          <StepTabChip
-            key={step.stepId}
-            label={step.title}
-            active={activeCanvas.type === "formStep" && activeCanvas.stepId === step.stepId}
-            onSelect={() => setActiveCanvas({ type: "formStep", stepId: step.stepId })}
-            onRemove={formSteps.length > 1 ? () => removeFormStep(step.stepId) : undefined}
-            removeTitle="Eliminar step"
-            removeIconSize={12}
-            className="pr-2.5"
-          />
-        ))}
-        <DashedAddButton
-          onClick={addFormStep}
-          title="Agregar step al formulario"
-          className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-600 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-200"
-        >
-          <Plus size={12} weight="Filled" />
-          Step
-        </DashedAddButton>
-      </div>
+        <ul className="flex list-none flex-wrap items-center gap-1">
+          {formSteps.map((step) => (
+            <li key={step.stepId}>
+              <StepTabChip
+                label={step.title}
+                active={activeCanvas.type === "formStep" && activeCanvas.stepId === step.stepId}
+                onSelect={() => setActiveCanvas({ type: "formStep", stepId: step.stepId })}
+                onRemove={formSteps.length > 1 ? () => removeFormStep(step.stepId) : undefined}
+                removeTitle="Eliminar step"
+                removeIconSize={12}
+                className="pr-2.5"
+              />
+            </li>
+          ))}
+          <li>
+            <DashedAddButton
+              onClick={addFormStep}
+              title="Agregar step al formulario"
+              className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-600 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-200"
+            >
+              <Plus size={12} weight="Filled" />
+              Step
+            </DashedAddButton>
+          </li>
+        </ul>
+      </nav>
 
       {hasIntroModal && (
-        <div className="flex flex-wrap items-center gap-1">
+        <nav aria-label="Steps del modal de entrada" className="flex flex-wrap items-center gap-1">
           <span className="mr-1 text-[10px] font-semibold uppercase text-slate-400 dark:text-neutral-500">
             Modal de entrada
           </span>
-          {introSteps.map((step) => (
-            <StepTabChip
-              key={step.stepId}
-              label={step.title}
-              active={activeCanvas.type === "introStep" && activeCanvas.stepId === step.stepId}
-              onSelect={() => setActiveCanvas({ type: "introStep", stepId: step.stepId })}
-              onRemove={() => removeIntroModalStep(step.stepId)}
-              removeTitle="Eliminar paso"
-              removeIconSize={12}
-              className="pr-1"
-            />
-          ))}
-          <DashedAddButton
-            onClick={addIntroModalStep}
-            title="Agregar paso al modal introductorio"
-            className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-600 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-200"
-          >
-            <Plus size={12} weight="Filled" /> Paso del modal
-          </DashedAddButton>
-        </div>
+          <ul className="flex list-none flex-wrap items-center gap-1">
+            {introSteps.map((step) => (
+              <li key={step.stepId}>
+                <StepTabChip
+                  label={step.title}
+                  active={activeCanvas.type === "introStep" && activeCanvas.stepId === step.stepId}
+                  onSelect={() => setActiveCanvas({ type: "introStep", stepId: step.stepId })}
+                  onRemove={() => removeIntroModalStep(step.stepId)}
+                  removeTitle="Eliminar paso"
+                  removeIconSize={12}
+                  className="pr-1"
+                />
+              </li>
+            ))}
+            <li>
+              <DashedAddButton
+                onClick={addIntroModalStep}
+                title="Agregar paso al modal introductorio"
+                className="flex items-center border-slate-300 px-2.5 py-1.5 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-neutral-600 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-200"
+              >
+                <Plus size={12} weight="Filled" /> Paso del modal
+              </DashedAddButton>
+            </li>
+          </ul>
+        </nav>
       )}
     </div>
   );

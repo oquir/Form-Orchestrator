@@ -16,8 +16,11 @@ export function LibraryPanel({ selectedField }: { selectedField: CanvasField | n
         />
       )}
 
-      <div>
-        <h3 className="mb-2 text-xs font-semibold text-slate-500 dark:text-neutral-400">
+      <section aria-labelledby="saved-components-heading">
+        <h3
+          id="saved-components-heading"
+          className="mb-2 text-xs font-semibold text-slate-500 dark:text-neutral-400"
+        >
           Componentes guardados
         </h3>
         {savedComponents.length === 0 ? (
@@ -25,13 +28,15 @@ export function LibraryPanel({ selectedField }: { selectedField: CanvasField | n
             No hay componentes guardados aún.
           </p>
         ) : (
-          <div className="flex flex-col gap-1.5">
+          <ul className="flex list-none flex-col gap-1.5">
             {savedComponents.map((component) => (
-              <SavedComponentListItem key={component.id} component={component} />
+              <li key={component.id}>
+                <SavedComponentListItem component={component} />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </div>
+      </section>
     </div>
   );
 }
