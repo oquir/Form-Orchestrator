@@ -5,4 +5,6 @@ type DraggableHandle = ReturnType<typeof useDraggable>;
 export interface FieldDragHandleProps {
   listeners?: DraggableHandle["listeners"];
   attributes?: DraggableHandle["attributes"];
+  colSpan: number;
+  rowColumns: number;
 }
