@@ -1,4 +1,5 @@
 export interface StepTabChipProps {
+  index: number;
   label: string;
   active: boolean;
   onSelect: () => void;
