@@ -1,10 +1,10 @@
 ﻿import { useFormStore } from "../../../../store/formStore";
-import type { CanvasField } from "../../../../types/storeTypes";
+import type { CanvasField, SavedComponent } from "../../../../types/storeTypes";
 import { SavedComponentListItem } from "../../../molecules/SavedComponentListItem/SavedComponentListItem";
 import { SaveFieldForm } from "../../../molecules/SaveFieldForm/SaveFieldForm";
 
 export function LibraryPanel({ selectedField }: { selectedField: CanvasField | null }) {
-  const savedComponents = useFormStore((state) => state.savedComponents);
+  const savedComponents: SavedComponent[] = useFormStore((state) => state.savedComponents);
 
   return (
     <div className="flex flex-col gap-4">

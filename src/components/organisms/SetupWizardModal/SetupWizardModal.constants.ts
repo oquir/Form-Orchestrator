@@ -1,6 +1,6 @@
-import type { FormType } from "../../../types/storeTypes";
+import type { FormTypeOption } from "./SetupWizardModal.types";
 
-export const FORM_TYPES: { value: FormType; label: string; description: string }[] = [
+export const FORM_TYPES: FormTypeOption[] = [
   {
     value: "industria_comercio",
     label: "Industria y Comercio",

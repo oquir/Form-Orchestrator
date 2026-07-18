@@ -7,7 +7,7 @@ import { ToggleGroupOptionsEditor } from "../ToggleGroupOptionsEditor/ToggleGrou
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
-  const rowColumns = useFormStore(
+  const rowColumns: number = useFormStore(
     (state) => findRowContainingField(state, field.id)?.columns ?? 16,
   );
 

@@ -14,9 +14,9 @@ export function SetupWizardModal() {
   const [step, setStep] = useState<1 | 2>(1);
   const [formType, setFormType] = useState<FormType | null>(null);
   const [hasIntroModal, setHasIntroModal] = useState<boolean | null>(null);
-  const [introModalSteps, setIntroModalSteps] = useState(1);
+  const [introModalSteps, setIntroModalSteps] = useState<number>(1);
 
-  function handleFinish() {
+  function handleFinish(): void {
     if (!formType || hasIntroModal === null) return;
     completeSetup({
       formType,

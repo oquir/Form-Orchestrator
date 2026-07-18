@@ -1,1 +1,1 @@
-export const GRID_GAP_PX = 12;
+export const GRID_GAP_PX: number = 12;

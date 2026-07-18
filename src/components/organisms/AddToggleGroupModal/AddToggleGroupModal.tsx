@@ -6,9 +6,8 @@ import { ModalShell } from "../../molecules/ModalShell/ModalShell";
 import type { AddToggleGroupModalProps } from "./AddToggleGroupModal.types";
 
 export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModalProps) {
-  const [title, setTitle] = useState("");
-  const [optionCount, setOptionCount] = useState(2);
-
+  const [title, setTitle] = useState<string>("");
+  const [optionCount, setOptionCount] = useState<number>(2);
   const isValid = optionCount >= 2;
 
   return (

@@ -1,6 +1,6 @@
 ﻿import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
 import { useFormStore } from "../../../../store/formStore";
-import type { CanvasField } from "../../../../types/storeTypes";
+import type { CanvasField, FieldValidations } from "../../../../types/storeTypes";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPreview/GeneratedSchemaPreview";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
@@ -9,9 +9,10 @@ import { toNumberOrUndefined } from "./ValidationsPanel.utils";
 
 export function ValidationsPanel({ field }: { field: CanvasField }) {
   const updateFieldValidations = useFormStore((state) => state.updateFieldValidations);
-  const v = field.validations;
-  const isNumeric = field.type === "number" || field.type === "calculated";
-  const isTextLike = field.type === "text" || field.type === "textarea" || field.type === "select";
+  const v: FieldValidations = field.validations;
+  const isNumeric: boolean = field.type === "number" || field.type === "calculated";
+  const isTextLike: boolean =
+    field.type === "text" || field.type === "textarea" || field.type === "select";
 
   return (
     <div className="flex flex-col gap-4">

@@ -1,1 +1,1 @@
-export const DRAFT_KEY = "form-orchestrator-draft";
+export const DRAFT_KEY: string = "form-orchestrator-draft";

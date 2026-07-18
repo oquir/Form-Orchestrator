@@ -1,6 +1,5 @@
 import type { TabButtonGroupItem } from "../../../types/tabButtonGroup";
-
-export type ContextMenuTab = "attributes" | "styles" | "validations" | "logic" | "delete";
+import type { ContextMenuTab } from "./FieldContextMenu.types";
 
 export const CONTEXT_MENU_TABS: TabButtonGroupItem<ContextMenuTab>[] = [
   { tab: "attributes", label: "Atributos" },

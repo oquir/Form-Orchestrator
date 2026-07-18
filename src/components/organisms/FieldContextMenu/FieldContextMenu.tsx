@@ -9,7 +9,8 @@ import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
-import { CONTEXT_MENU_TABS, type ContextMenuTab } from "./FieldContextMenu.constants";
+import { CONTEXT_MENU_TABS } from "./FieldContextMenu.constants";
+import type { ContextMenuTab } from "./FieldContextMenu.types";
 
 export function FieldContextMenu({
   menu,
@@ -23,7 +24,7 @@ export function FieldContextMenu({
   const removeField = useFormStore((state) => state.removeField);
   const field = findFieldById(activeRows, menu.fieldId);
 
-  function handleSelectTab(tab: ContextMenuTab) {
+  function handleSelectTab(tab: ContextMenuTab): void {
     if (tab === "delete") {
       removeField(menu.fieldId);
       onClose();
@@ -34,7 +35,7 @@ export function FieldContextMenu({
 
   useEffect(() => {
     const handlePointerDown = () => onClose();
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
       if (event.key === "Escape") onClose();
     };
     window.addEventListener("pointerdown", handlePointerDown);
@@ -47,10 +48,10 @@ export function FieldContextMenu({
 
   if (!field) return null;
 
-  const menuWidth = 338;
-  const menuHeight = 460;
-  const left = Math.min(menu.x, window.innerWidth - menuWidth - 8);
-  const top = Math.min(menu.y, window.innerHeight - menuHeight - 8);
+  const menuWidth: number = 338;
+  const menuHeight: number = 460;
+  const left: number = Math.min(menu.x, window.innerWidth - menuWidth - 8);
+  const top: number = Math.min(menu.y, window.innerHeight - menuHeight - 8);
 
   return (
     <div

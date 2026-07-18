@@ -1,5 +1,6 @@
 import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../../store/formStore";
+import type { FieldOption } from "../../../../types/storeTypes";
 import { IconButton } from "../../../atoms/IconButton/IconButton";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import type { ToggleGroupOptionsEditorProps } from "./ToggleGroupOptionsEditor.types";
@@ -9,7 +10,7 @@ export function ToggleGroupOptionsEditor({ field }: ToggleGroupOptionsEditorProp
   const addFieldOption = useFormStore((state) => state.addFieldOption);
   const removeFieldOption = useFormStore((state) => state.removeFieldOption);
   const updateFieldOptionLabel = useFormStore((state) => state.updateFieldOptionLabel);
-  const options = field.options ?? [];
+  const options: FieldOption[] = field.options ?? [];
 
   return (
     <div className="flex flex-col gap-4 border-t border-slate-200 pt-4 dark:border-neutral-700">

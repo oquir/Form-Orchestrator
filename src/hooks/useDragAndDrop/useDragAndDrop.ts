@@ -18,7 +18,7 @@ export function useDragAndDrop() {
     useSensor(PointerSensor, { activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE_PX } }),
   );
 
-  function handleDragStart(event: DragStartEvent) {
+  function handleDragStart(event: DragStartEvent): void {
     const data = event.active.data.current;
     if (data?.source === "palette") {
       setActiveDrag({ source: "palette", fieldType: data.fieldType as FieldTypeDef });
@@ -29,7 +29,7 @@ export function useDragAndDrop() {
     }
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  function handleDragEnd(event: DragEndEvent): void {
     setActiveDrag(null);
     const { active, over } = event;
     if (!over) return;
@@ -56,13 +56,13 @@ export function useDragAndDrop() {
     }
   }
 
-  function confirmToggleGroup(config: { title?: string; optionCount: number }) {
+  function confirmToggleGroup(config: { title?: string; optionCount: number }): void {
     if (!pendingToggleGroup) return;
     addFieldToRow(pendingToggleGroup.rowId, pendingToggleGroup.fieldType, config);
     setPendingToggleGroup(null);
   }
 
-  function cancelToggleGroup() {
+  function cancelToggleGroup(): void {
     setPendingToggleGroup(null);
   }
 

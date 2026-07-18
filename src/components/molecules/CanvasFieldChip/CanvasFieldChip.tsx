@@ -5,12 +5,7 @@ import { FieldResizeHandle } from "../../atoms/FieldResizeHandle/FieldResizeHand
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { FieldPreviewControl } from "../FieldPreviewControl/FieldPreviewControl";
 import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
-
-function getChipPaddingClasses(isCompact: boolean, isUltraCompact: boolean): string {
-  if (isUltraCompact) return "pl-1 pr-1";
-  if (isCompact) return "pl-6 pr-5";
-  return "pl-8 pr-8";
-}
+import { getChipPaddingClasses } from "./CanvasFieldChip.utils";
 
 export function CanvasFieldChip({
   field,
@@ -31,19 +26,20 @@ export function CanvasFieldChip({
     id: field.id,
     data: { source: "canvas-field", field, rowId },
   });
+
   const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: field.id,
     data: { rowId, fieldId: field.id },
   });
 
-  function setRefs(node: HTMLDivElement | null) {
+  function setRefs(node: HTMLDivElement | null): void {
     setDragRef(node);
     setDropRef(node);
   }
 
-  const isUltraCompact = field.colSpan === 1 && rowColumns >= 16;
-  const isCompact = rowColumns >= 13 && field.colSpan === 1;
-  const isopacityapply = field.colSpan === 1 && rowColumns >= 14;
+  const isUltraCompact: boolean = field.colSpan === 1 && rowColumns >= 16;
+  const isCompact: boolean = rowColumns >= 13 && field.colSpan === 1;
+  const isopacityapply: boolean = field.colSpan === 1 && rowColumns >= 14;
 
   return (
     <div

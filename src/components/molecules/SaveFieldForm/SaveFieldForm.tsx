@@ -10,10 +10,10 @@ export function SaveFieldForm({
   showSuccessMessage = false,
 }: SaveFieldFormProps) {
   const saveFieldAsComponent = useFormStore((state) => state.saveFieldAsComponent);
-  const [name, setName] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [name, setName] = useState<string>("");
+  const [saved, setSaved] = useState<boolean>(false);
 
-  function handleSave() {
+  function handleSave(): void {
     if (!name.trim()) return;
     saveFieldAsComponent(fieldId, name.trim());
     setName("");

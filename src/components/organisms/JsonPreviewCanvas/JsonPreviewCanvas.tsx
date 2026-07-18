@@ -8,11 +8,11 @@ export function JsonPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<boolean>(false);
 
   const data = buildFormExport(formSteps, setupConfig, introSteps);
 
-  const handleCopy = async () => {
+  const handleCopy = async (): Promise<void> => {
     await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { create } from "zustand";
+import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { getIndustriaComercioTemplate } from "../lib/baseTemplate/baseTemplate";
 import type { FormState } from "../types/formStoreTypes";
 import type {
@@ -103,7 +103,7 @@ function buildInitialFormSteps(formType: FormType): FormStep[] {
   ];
 }
 
-const THEME_STORAGE_KEY = "form-orchestrator-theme";
+const THEME_STORAGE_KEY: string = "form-orchestrator-theme";
 
 function getInitialDarkMode(): boolean {
   if (typeof window === "undefined") return false;
@@ -113,7 +113,7 @@ function getInitialDarkMode(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-export const useFormStore = create<FormState>((set, get) => ({
+export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState>((set, get) => ({
   formSteps: [
     {
       stepId: "step-1",

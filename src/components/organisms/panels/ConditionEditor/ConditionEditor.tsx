@@ -18,12 +18,12 @@ export function ConditionEditor({ field, otherFields }: ConditionEditorProps) {
     : (["equals", "notEquals", "isEmpty", "isNotEmpty"] as EnableOperator[]);
   const needsValue = condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator);
 
-  function updateCondition(next: Partial<EnableCondition>) {
+  function updateCondition(next: Partial<EnableCondition>): void {
     if (!condition) return;
     setFieldEnableWhen(field.id, { ...condition, ...next });
   }
 
-  function setConditionOnField(targetFieldId: string) {
+  function setConditionOnField(targetFieldId: string): void {
     const nextField = otherFields.find((f) => f.id === targetFieldId);
     if (!nextField) return;
     const ops = operatorsForFieldType(nextField.type);
@@ -34,7 +34,7 @@ export function ConditionEditor({ field, otherFields }: ConditionEditorProps) {
     });
   }
 
-  function handleActivationChange(checked: boolean) {
+  function handleActivationChange(checked: boolean): void {
     if (!checked) {
       setFieldEnableWhen(field.id, null);
       return;
@@ -44,7 +44,7 @@ export function ConditionEditor({ field, otherFields }: ConditionEditorProps) {
     setConditionOnField(firstCandidate.id);
   }
 
-  function handleObservedFieldChange(nextFieldId: string) {
+  function handleObservedFieldChange(nextFieldId: string): void {
     if (wouldCreateCycle(field.id, nextFieldId, otherFields)) {
       window.alert("Esa condición generaría un ciclo entre campos.");
       return;
@@ -52,7 +52,7 @@ export function ConditionEditor({ field, otherFields }: ConditionEditorProps) {
     setConditionOnField(nextFieldId);
   }
 
-  function handleOperatorChange(nextOp: EnableOperator) {
+  function handleOperatorChange(nextOp: EnableOperator): void {
     updateCondition({
       operator: nextOp,
       value: OPERATORS_WITHOUT_VALUE.includes(nextOp) ? undefined : condition?.value,

@@ -1,12 +1,12 @@
 import { useFormStore } from "../../../../store/formStore";
-import type { CanvasField } from "../../../../types/storeTypes";
+import type { CanvasField, FieldStyles } from "../../../../types/storeTypes";
 import { ColorPickerField } from "../../../molecules/ColorPickerField/ColorPickerField";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { TwoColumnFieldGroup } from "../../../molecules/TwoColumnFieldGroup/TwoColumnFieldGroup";
 
 export function StylesPanel({ field }: { field: CanvasField }) {
   const updateFieldStyles = useFormStore((state) => state.updateFieldStyles);
-  const s = field.styles;
+  const s: FieldStyles = field.styles;
 
   return (
     <div className="flex flex-col gap-4">

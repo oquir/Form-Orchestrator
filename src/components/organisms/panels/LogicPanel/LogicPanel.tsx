@@ -10,9 +10,9 @@ export function LogicPanel({ field }: { field: CanvasField }) {
   const updateFieldLogic = useFormStore((state) => state.updateFieldLogic);
   const updateField = useFormStore((state) => state.updateField);
 
-  const allFields = getAllFields(formSteps.flatMap((step) => step.rows));
-  const otherFields = allFields.filter((candidate) => candidate.id !== field.id);
-  const isAlwaysDisabled = Boolean(field.alwaysDisabled);
+  const allFields: CanvasField[] = getAllFields(formSteps.flatMap((step) => step.rows));
+  const otherFields: CanvasField[] = allFields.filter((candidate) => candidate.id !== field.id);
+  const isAlwaysDisabled: boolean = Boolean(field.alwaysDisabled);
 
   return (
     <div className="flex flex-col gap-4">

@@ -6,11 +6,11 @@ import { useFormStore } from "../../../store/formStore";
 export function SaveButton() {
   const markSaved = useFormStore((state) => state.markSaved);
   const lastSavedAt = useFormStore((state) => state.lastSavedAt);
-  const [justSaved, setJustSaved] = useState(false);
+  const [justSaved, setJustSaved] = useState<boolean>(false);
   const timeoutRef = useRef<number | null>(null);
   const previousSavedAtRef = useRef<string | null>(lastSavedAt);
 
-  function handleSave() {
+  function handleSave(): void {
     const { formSteps, introModal, savedComponents, setupConfig } = useFormStore.getState();
     saveDraft({ formSteps, introModal, savedComponents, setupConfig });
     markSaved();

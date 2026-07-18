@@ -4,7 +4,7 @@ import { useFormStore } from "../../store/formStore";
 
 export function useKeyboardShortcuts() {
   useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
+    function handleKeyDown(event: KeyboardEvent): void {
       const isMod = event.ctrlKey || event.metaKey;
       if (!isMod) return;
 

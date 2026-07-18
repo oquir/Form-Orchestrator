@@ -7,7 +7,7 @@ export function FieldResizeHandle({ colSpan, rowColumns, onResize }: FieldResize
   const [isResizing, setIsResizing] = useState(false);
   const isCompact = rowColumns / colSpan >= 8;
 
-  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -38,7 +38,7 @@ export function FieldResizeHandle({ colSpan, rowColumns, onResize }: FieldResize
       }
     }
 
-    function handlePointerUp() {
+    function handlePointerUp(): void {
       document.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("pointerup", handlePointerUp);
       setIsResizing(false);

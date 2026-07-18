@@ -1,8 +1,7 @@
-import type { IconComponent } from "reicon-react";
 import { Archive, CheckCircle, Code, Layers, Palette, Sliders } from "reicon-react";
-import type { SidebarTab } from "../../../types/storeTypes";
+import type { SidebarTabItem } from "./Sidebar.types";
 
-export const TABS: { id: SidebarTab; label: string; icon: IconComponent }[] = [
+export const TABS: SidebarTabItem[] = [
   { id: "fields", label: "Campos", icon: Layers },
   { id: "attributes", label: "Atributos", icon: Sliders },
   { id: "validations", label: "Validaciones", icon: CheckCircle },

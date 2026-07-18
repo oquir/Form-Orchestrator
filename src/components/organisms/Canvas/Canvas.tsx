@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { Code, TerminalSquare } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
@@ -18,18 +19,18 @@ export function Canvas() {
   const introSteps = useFormStore((state) => state.introModal.steps);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
-  const [isJsonView, setIsJsonView] = useState(false);
+  const [isJsonView, setIsJsonView] = useState<boolean>(false);
 
-  const isIntro = activeCanvas.type === "introStep";
+  const isIntro: boolean = activeCanvas.type === "introStep";
 
-  const rowsGrid = (
+  const rowsGrid: ReactNode = (
     <CanvasRowsGrid
       rows={activeRows}
       onFieldContextMenu={(fieldId, x, y) => setContextMenu({ fieldId, x, y })}
     />
   );
 
-  const addRowButton = <CanvasAddRowButton />;
+  const addRowButton: ReactNode = <CanvasAddRowButton />;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">

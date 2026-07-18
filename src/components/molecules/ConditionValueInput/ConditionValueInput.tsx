@@ -1,14 +1,12 @@
+import { FIELD_CLASSES } from "./ConditionValueInput.constants";
 import type { ConditionValueInputProps } from "./ConditionValueInput.types";
-
-const FIELD_CLASSES =
-  "rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200";
 
 export function ConditionValueInput({
   condition,
   observedField,
   onChange,
 }: ConditionValueInputProps) {
-  const stringValue = condition.value === undefined ? "" : String(condition.value);
+  const stringValue: string = condition.value === undefined ? "" : String(condition.value);
 
   return (
     <div className="flex flex-col gap-1">

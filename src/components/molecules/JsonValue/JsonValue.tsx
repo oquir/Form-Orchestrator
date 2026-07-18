@@ -11,8 +11,8 @@ export function JsonValue({
   indent: number;
   nodeKey: string;
 }) {
-  const pad = "  ".repeat(indent);
-  const closePad = "  ".repeat(indent - 1);
+  const pad: string = "  ".repeat(indent);
+  const closePad: string = "  ".repeat(indent - 1);
 
   if (Array.isArray(value)) {
     if (value.length === 0) return <JsonPunctuation>[]</JsonPunctuation>;

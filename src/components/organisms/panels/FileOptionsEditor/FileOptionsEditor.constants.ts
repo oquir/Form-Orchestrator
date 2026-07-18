@@ -1,4 +1,6 @@
-export const FILE_FORMAT_PRESETS: { id: string; label: string; tokens: string[] }[] = [
+import type { FileFormatPreset } from "./FileOptionsEditor.types";
+
+export const FILE_FORMAT_PRESETS: FileFormatPreset[] = [
   { id: "images", label: "Imágenes", tokens: ["image/*"] },
   { id: "pdf", label: "PDF", tokens: [".pdf"] },
   { id: "excel", label: "Excel", tokens: [".xls", ".xlsx"] },

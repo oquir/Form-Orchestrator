@@ -5,12 +5,12 @@ import type { RowColumnsMenuProps } from "./RowColumnsMenu.types";
 
 export function RowColumnsMenu({ rowId, columns }: RowColumnsMenuProps) {
   const updateRowColumns = useFormStore((state) => state.updateRowColumns);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent): void {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
