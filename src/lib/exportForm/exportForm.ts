@@ -1,7 +1,8 @@
 import type { CanvasRow, FormStep, IntroModalStep, SetupConfig } from "../../types/storeTypes";
 import { buildZodSchema } from "../zodSchema/zodSchema";
+import type { ExportedRow, FormExport } from "./exportForm.types";
 
-function mapRows(rows: CanvasRow[]) {
+function mapRows(rows: CanvasRow[]): ExportedRow[] {
   return rows.map((row) => ({
     rowId: row.id,
     columns: row.columns,
@@ -26,7 +27,7 @@ export function buildFormExport(
   formSteps: FormStep[],
   setupConfig: SetupConfig,
   introModalSteps: IntroModalStep[],
-) {
+): FormExport {
   return {
     projectMeta: {
       formId: `frm_${Date.now()}`,
@@ -63,7 +64,7 @@ export function downloadFormExport(
   formSteps: FormStep[],
   setupConfig: SetupConfig,
   introModalSteps: IntroModalStep[],
-) {
+): void {
   const data = buildFormExport(formSteps, setupConfig, introModalSteps);
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);

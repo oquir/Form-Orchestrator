@@ -1,16 +1,9 @@
 import { JsonKey } from "../../atoms/JsonKey/JsonKey";
 import { JsonPrimitiveValue } from "../../atoms/JsonPrimitiveValue/JsonPrimitiveValue";
 import { JsonPunctuation } from "../../atoms/JsonPunctuation/JsonPunctuation";
+import type { JsonValueProps } from "./JsonValue.types";
 
-export function JsonValue({
-  value,
-  indent,
-  nodeKey,
-}: {
-  value: unknown;
-  indent: number;
-  nodeKey: string;
-}) {
+export function JsonValue({ value, indent, nodeKey }: JsonValueProps) {
   const pad: string = "  ".repeat(indent);
   const closePad: string = "  ".repeat(indent - 1);
 
@@ -54,5 +47,5 @@ export function JsonValue({
     );
   }
 
-  return <JsonPrimitiveValue value={value as string | number | boolean | null} />;
+  return <JsonPrimitiveValue value={value} />;
 }

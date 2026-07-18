@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
 import { buildFormExport } from "../../../lib/exportForm/exportForm";
+import type { FormExport } from "../../../lib/exportForm/exportForm.types";
 import { useFormStore } from "../../../store/formStore";
 import { JsonValue } from "../../molecules/JsonValue/JsonValue";
+import type { JsonNode } from "../../molecules/JsonValue/JsonValue.types";
 
 export function JsonPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
@@ -10,7 +12,7 @@ export function JsonPreviewCanvas() {
   const introSteps = useFormStore((state) => state.introModal.steps);
   const [copied, setCopied] = useState<boolean>(false);
 
-  const data = buildFormExport(formSteps, setupConfig, introSteps);
+  const data: FormExport = buildFormExport(formSteps, setupConfig, introSteps);
 
   const handleCopy = async (): Promise<void> => {
     await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
@@ -45,7 +47,9 @@ export function JsonPreviewCanvas() {
 
       <pre className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
         <code>
-          <JsonValue value={data} indent={1} nodeKey="root" />
+          {/* FormExport es una interface, no lleva index signature implícita: se
+              entrega al renderizador JSON estructural como JsonNode. */}
+          <JsonValue value={data as unknown as JsonNode} indent={1} nodeKey="root" />
         </code>
       </pre>
     </div>

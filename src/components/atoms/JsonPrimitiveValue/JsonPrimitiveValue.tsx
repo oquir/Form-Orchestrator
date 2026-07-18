@@ -1,6 +1,7 @@
 import { JSON_PRIMITIVE_COLOR } from "./JsonPrimitiveValue.constants";
+import type { JsonPrimitiveValueProps } from "./JsonPrimitiveValue.types";
 
-export function JsonPrimitiveValue({ value }: { value: string | number | boolean | null }) {
+export function JsonPrimitiveValue({ value }: JsonPrimitiveValueProps) {
   if (typeof value === "string") {
     return (
       <span
