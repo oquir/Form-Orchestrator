@@ -1,6 +1,4 @@
-﻿import { useState } from "react";
-import { useFormStore } from "../../../store/formStore";
-import type { FormType } from "../../../types/storeTypes";
+﻿import { useSetupWizard } from "../../../hooks/useSetupWizard/useSetupWizard";
 import { Button } from "../../atoms/Button/Button";
 import { BinaryChoiceToggle } from "../../molecules/BinaryChoiceToggle/BinaryChoiceToggle";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
@@ -10,20 +8,20 @@ import { WizardFooterActions } from "../../molecules/WizardFooterActions/WizardF
 import { FORM_TYPES } from "./SetupWizardModal.constants";
 
 export function SetupWizardModal() {
-  const completeSetup = useFormStore((state) => state.completeSetup);
-  const [step, setStep] = useState<1 | 2>(1);
-  const [formType, setFormType] = useState<FormType | null>(null);
-  const [hasIntroModal, setHasIntroModal] = useState<boolean | null>(null);
-  const [introModalSteps, setIntroModalSteps] = useState<number>(1);
-
-  function handleFinish(): void {
-    if (!formType || hasIntroModal === null) return;
-    completeSetup({
-      formType,
-      hasIntroModal,
-      introModalSteps: hasIntroModal ? introModalSteps : 0,
-    });
-  }
+  const {
+    step,
+    formType,
+    hasIntroModal,
+    introModalSteps,
+    canProceed,
+    canFinish,
+    setFormType,
+    setHasIntroModal,
+    setIntroModalSteps,
+    goNext,
+    goBack,
+    handleFinish,
+  } = useSetupWizard();
 
   return (
     <ModalShell maxWidthClassName="max-w-lg">
@@ -49,8 +47,8 @@ export function SetupWizardModal() {
           <WizardFooterActions justify="end">
             <Button
               variant="primary"
-              disabled={!formType}
-              onClick={() => setStep(2)}
+              disabled={!canProceed}
+              onClick={goNext}
               className="mt-4 px-4 py-1.5 text-sm hover:cursor-pointer"
             >
               Siguiente
@@ -80,14 +78,14 @@ export function SetupWizardModal() {
           <WizardFooterActions justify="between" className="mt-2">
             <Button
               variant="ghost"
-              onClick={() => setStep(1)}
+              onClick={goBack}
               className="px-4 py-1.5 text-sm hover:cursor-pointer"
             >
               Atrás
             </Button>
             <Button
               variant="primary"
-              disabled={hasIntroModal === null}
+              disabled={!canFinish}
               onClick={handleFinish}
               className="px-4 py-1.5 text-sm hover:cursor-pointer"
             >

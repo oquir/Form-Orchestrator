@@ -15,8 +15,12 @@ export function useConditionEditor({
   const condition = field.enableWhen;
   const observed = condition ? (otherFields.find((f) => f.id === condition.fieldId) ?? null) : null;
   const observedIsDead: boolean = Boolean(condition && !observed);
-  const availableOperators: EnableOperator[] = observed ? operatorsForFieldType(observed.type) : DEFAULT_OPERATORS;
-  const needsValue: boolean = Boolean(condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator));
+  const availableOperators: EnableOperator[] = observed
+    ? operatorsForFieldType(observed.type)
+    : DEFAULT_OPERATORS;
+  const needsValue: boolean = Boolean(
+    condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator),
+  );
 
   function updateCondition(next: Partial<EnableCondition>): void {
     if (!condition) return;
