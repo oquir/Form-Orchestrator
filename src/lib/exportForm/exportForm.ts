@@ -1,3 +1,4 @@
+import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type { CanvasRow, FormStep, IntroModalStep, SetupConfig } from "../../types/storeTypes";
 import { buildZodSchema } from "../zodSchema/zodSchema";
 import type { ExportedRow, FormExport } from "./exportForm.types";
@@ -49,7 +50,7 @@ export function buildFormExport(
         : undefined,
     },
     formSchema: {
-      gridBaseColumns: 16,
+      gridBaseColumns: GRID_BASE_COLUMNS,
       steps: formSteps.map((step) => ({
         stepId: step.stepId,
         title: step.title,

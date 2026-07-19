@@ -1,10 +1,11 @@
+import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type { CanvasRow } from "../../types/storeTypes";
 
 export function getIndustriaComercioTemplate(): CanvasRow[] {
   return [
     {
       id: "r1",
-      columns: 16,
+      columns: GRID_BASE_COLUMNS,
       fields: [
         {
           id: "ingresos_ordinarios",
@@ -32,13 +33,13 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
     },
     {
       id: "r2",
-      columns: 16,
+      columns: GRID_BASE_COLUMNS,
       fields: [
         {
           id: "total_ingresos",
           type: "calculated",
           label: "Total Ingresos Netos",
-          colSpan: 16,
+          colSpan: GRID_BASE_COLUMNS,
           validations: {},
           styles: { backgroundColor: "#f3f4f6" },
           logic: {

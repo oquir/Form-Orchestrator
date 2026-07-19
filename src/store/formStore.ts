@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
+import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
 import { getIndustriaComercioTemplate } from "../lib/baseTemplate/baseTemplate";
 import type { FormState } from "../types/formStoreTypes";
 import type {
@@ -15,7 +16,7 @@ import type {
 } from "../types/storeTypes";
 
 function createEmptyRow(): CanvasRow {
-  return { id: uuidv4(), columns: 16, fields: [] };
+  return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields: [] };
 }
 
 function createEmptyField(
@@ -27,7 +28,7 @@ function createEmptyField(
     id: uuidv4(),
     type,
     label,
-    colSpan: 16,
+    colSpan: GRID_BASE_COLUMNS,
     validations: {},
     styles: {},
     logic: { dependencies: [], typeScript: "" },
@@ -118,7 +119,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     {
       stepId: "step-1",
       title: "Paso 1",
-      rows: [{ id: "row-1", columns: 16, fields: [] }],
+      rows: [{ id: "row-1", columns: GRID_BASE_COLUMNS, fields: [] }],
     },
   ],
   introModal: { steps: [] },
@@ -278,7 +279,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     }),
   updateRowColumns: (rowId, columns) =>
     set((state) => {
-      const nextColumns = Math.max(1, Math.min(24, Math.round(columns)));
+      const nextColumns = Math.max(MIN_ROW_COLUMNS, Math.min(MAX_ROW_COLUMNS, Math.round(columns)));
       return mapRowEverywhere(state, rowId, (row) => ({
         ...row,
         columns: nextColumns,

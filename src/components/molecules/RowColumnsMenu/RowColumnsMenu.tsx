@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../../../constants/grid";
 import { useFormStore } from "../../../store/formStore";
-import { MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "./RowColumnsMenu.constants";
 import type { RowColumnsMenuProps } from "./RowColumnsMenu.types";
 
 export function RowColumnsMenu({ rowId, columns }: RowColumnsMenuProps) {

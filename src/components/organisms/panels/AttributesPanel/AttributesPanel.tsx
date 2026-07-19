@@ -1,3 +1,4 @@
+import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
 import { findRowContainingField, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/storeTypes";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
@@ -8,7 +9,7 @@ import { ToggleGroupOptionsEditor } from "../ToggleGroupOptionsEditor/ToggleGrou
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
   const rowColumns: number = useFormStore(
-    (state) => findRowContainingField(state, field.id)?.columns ?? 16,
+    (state) => findRowContainingField(state, field.id)?.columns ?? GRID_BASE_COLUMNS,
   );
 
   return (

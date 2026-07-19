@@ -1,4 +1,5 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { GRID_BASE_COLUMNS } from "../../../constants/grid";
 import { useFormStore } from "../../../store/formStore";
 import { FieldDragHandle } from "../../atoms/FieldDragHandle/FieldDragHandle";
 import { FieldResizeHandle } from "../../atoms/FieldResizeHandle/FieldResizeHandle";
@@ -37,7 +38,7 @@ export function CanvasFieldChip({
     setDropRef(node);
   }
 
-  const isUltraCompact: boolean = field.colSpan === 1 && rowColumns >= 16;
+  const isUltraCompact: boolean = field.colSpan === 1 && rowColumns >= GRID_BASE_COLUMNS;
   const isCompact: boolean = rowColumns >= 13 && field.colSpan === 1;
   const isopacityapply: boolean = field.colSpan === 1 && rowColumns >= 14;
 
