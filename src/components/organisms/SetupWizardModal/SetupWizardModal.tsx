@@ -1,10 +1,10 @@
 ﻿import { useSetupWizard } from "../../../hooks/useSetupWizard/useSetupWizard";
 import { Button } from "../../atoms/Button/Button";
+import { ModalShell } from "../../atoms/ModalShell/ModalShell";
+import { WizardFooterActions } from "../../atoms/WizardFooterActions/WizardFooterActions";
 import { BinaryChoiceToggle } from "../../molecules/BinaryChoiceToggle/BinaryChoiceToggle";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
-import { ModalShell } from "../../molecules/ModalShell/ModalShell";
 import { SelectableOptionCard } from "../../molecules/SelectableOptionCard/SelectableOptionCard";
-import { WizardFooterActions } from "../../molecules/WizardFooterActions/WizardFooterActions";
 import { FORM_TYPES } from "./SetupWizardModal.constants";
 
 export function SetupWizardModal() {

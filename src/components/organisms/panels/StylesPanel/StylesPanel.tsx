@@ -1,8 +1,8 @@
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldStyles } from "../../../../types/storeTypes";
+import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { ColorPickerField } from "../../../molecules/ColorPickerField/ColorPickerField";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
-import { TwoColumnFieldGroup } from "../../../molecules/TwoColumnFieldGroup/TwoColumnFieldGroup";
 
 export function StylesPanel({ field }: { field: CanvasField }) {
   const updateFieldStyles = useFormStore((state) => state.updateFieldStyles);

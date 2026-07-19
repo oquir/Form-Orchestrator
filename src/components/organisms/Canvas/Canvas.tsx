@@ -3,7 +3,7 @@ import { Code, TerminalSquare } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
-import { SaveButton } from "../../molecules/SaveButton/SaveButton";
+import { SaveButton } from "../../organisms/SaveButton/SaveButton";
 import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";

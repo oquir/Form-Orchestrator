@@ -3,7 +3,7 @@ import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { CanvasFieldChip } from "../../molecules/CanvasFieldChip/CanvasFieldChip";
-import { RowColumnsMenu } from "../../molecules/RowColumnsMenu/RowColumnsMenu";
+import { RowColumnsMenu } from "../../organisms/RowColumnsMenu/RowColumnsMenu";
 import type { CanvasRowProps } from "./CanvasRow.types";
 
 export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {

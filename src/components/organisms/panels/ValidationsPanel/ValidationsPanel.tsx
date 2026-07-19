@@ -2,9 +2,9 @@
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldValidations } from "../../../../types/storeTypes";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
+import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPreview/GeneratedSchemaPreview";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
-import { TwoColumnFieldGroup } from "../../../molecules/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { toNumberOrUndefined } from "./ValidationsPanel.utils";
 
 export function ValidationsPanel({ field }: { field: CanvasField }) {

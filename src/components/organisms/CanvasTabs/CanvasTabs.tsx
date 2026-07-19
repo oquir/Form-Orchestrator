@@ -1,6 +1,6 @@
 ﻿import { Plus } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
-import { DashedAddButton } from "../../molecules/DashedAddButton/DashedAddButton";
+import { DashedAddButton } from "../../atoms/DashedAddButton/DashedAddButton";
 import { StepTabChip } from "../../molecules/StepTabChip/StepTabChip";
 
 export function CanvasTabs() {

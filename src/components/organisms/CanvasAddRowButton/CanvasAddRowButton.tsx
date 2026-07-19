@@ -1,6 +1,6 @@
 import { Plus } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
-import { DashedAddButton } from "../../molecules/DashedAddButton/DashedAddButton";
+import { DashedAddButton } from "../../atoms/DashedAddButton/DashedAddButton";
 
 export function CanvasAddRowButton() {
   const addRowToActiveCanvas = useFormStore((state) => state.addRowToActiveCanvas);

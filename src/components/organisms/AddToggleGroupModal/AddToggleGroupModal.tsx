@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "../../atoms/Button/Button";
+import { ModalActions } from "../../atoms/ModalActions/ModalActions";
+import { ModalShell } from "../../atoms/ModalShell/ModalShell";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
-import { ModalActions } from "../../molecules/ModalActions/ModalActions";
-import { ModalShell } from "../../molecules/ModalShell/ModalShell";
 import type { AddToggleGroupModalProps } from "./AddToggleGroupModal.types";
 
 export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModalProps) {

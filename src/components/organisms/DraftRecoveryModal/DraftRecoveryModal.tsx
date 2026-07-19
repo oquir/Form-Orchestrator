@@ -1,6 +1,6 @@
 ﻿import { Button } from "../../atoms/Button/Button";
-import { ModalActions } from "../../molecules/ModalActions/ModalActions";
-import { ModalShell } from "../../molecules/ModalShell/ModalShell";
+import { ModalActions } from "../../atoms/ModalActions/ModalActions";
+import { ModalShell } from "../../atoms/ModalShell/ModalShell";
 import type { DraftRecoveryModalProps } from "./DraftRecoveryModal.types";
 
 export function DraftRecoveryModal({ draft, onRestore, onDiscard }: DraftRecoveryModalProps) {
