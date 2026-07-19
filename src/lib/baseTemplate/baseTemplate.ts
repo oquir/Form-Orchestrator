@@ -13,7 +13,7 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
           label: "Ingresos Ordinarios",
           colSpan: 8,
           validations: { required: true, min: 0, message: "No puede ser negativo" },
-          styles: { customClasses: "font-bold text-right", marginTop: "10px" },
+          styles: {},
           logic: { dependencies: [], typeScript: "" },
         },
         {
@@ -41,7 +41,7 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
           label: "Total Ingresos Netos",
           colSpan: GRID_BASE_COLUMNS,
           validations: {},
-          styles: { backgroundColor: "#f3f4f6" },
+          styles: {},
           logic: {
             dependencies: ["ingresos_ordinarios", "ingresos_fuera_municipio"],
             typeScript:
