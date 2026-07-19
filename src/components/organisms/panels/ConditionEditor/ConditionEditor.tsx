@@ -1,63 +1,23 @@
-import { useFormStore } from "../../../../store/formStore";
-import type { EnableCondition, EnableOperator } from "../../../../types/storeTypes";
+import { useConditionEditor } from "../../../../hooks/useConditionEditor/useConditionEditor";
 import { ConditionActivationToggle } from "../../../molecules/ConditionActivationToggle/ConditionActivationToggle";
 import { ConditionFieldSelect } from "../../../molecules/ConditionFieldSelect/ConditionFieldSelect";
 import { ConditionOperatorSelect } from "../../../molecules/ConditionOperatorSelect/ConditionOperatorSelect";
 import { ConditionValueInput } from "../../../molecules/ConditionValueInput/ConditionValueInput";
-import { OPERATOR_LABELS, OPERATORS_WITHOUT_VALUE } from "./ConditionEditor.constants";
+import { OPERATOR_LABELS } from "./ConditionEditor.constants";
 import type { ConditionEditorProps } from "./ConditionEditor.types";
-import { operatorsForFieldType, wouldCreateCycle } from "./ConditionEditor.utils";
 
 export function ConditionEditor({ field, otherFields }: ConditionEditorProps) {
-  const setFieldEnableWhen = useFormStore((state) => state.setFieldEnableWhen);
-  const condition = field.enableWhen;
-  const observed = condition ? otherFields.find((f) => f.id === condition.fieldId) : null;
-  const observedIsDead = Boolean(condition && !observed);
-  const availableOperators = observed
-    ? operatorsForFieldType(observed.type)
-    : (["equals", "notEquals", "isEmpty", "isNotEmpty"] as EnableOperator[]);
-  const needsValue = condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator);
-
-  function updateCondition(next: Partial<EnableCondition>): void {
-    if (!condition) return;
-    setFieldEnableWhen(field.id, { ...condition, ...next });
-  }
-
-  function setConditionOnField(targetFieldId: string): void {
-    const nextField = otherFields.find((f) => f.id === targetFieldId);
-    if (!nextField) return;
-    const ops = operatorsForFieldType(nextField.type);
-    setFieldEnableWhen(field.id, {
-      fieldId: nextField.id,
-      operator: ops[0],
-      value: OPERATORS_WITHOUT_VALUE.includes(ops[0]) ? undefined : "",
-    });
-  }
-
-  function handleActivationChange(checked: boolean): void {
-    if (!checked) {
-      setFieldEnableWhen(field.id, null);
-      return;
-    }
-    const firstCandidate = otherFields[0];
-    if (!firstCandidate) return;
-    setConditionOnField(firstCandidate.id);
-  }
-
-  function handleObservedFieldChange(nextFieldId: string): void {
-    if (wouldCreateCycle(field.id, nextFieldId, otherFields)) {
-      window.alert("Esa condición generaría un ciclo entre campos.");
-      return;
-    }
-    setConditionOnField(nextFieldId);
-  }
-
-  function handleOperatorChange(nextOp: EnableOperator): void {
-    updateCondition({
-      operator: nextOp,
-      value: OPERATORS_WITHOUT_VALUE.includes(nextOp) ? undefined : condition?.value,
-    });
-  }
+  const {
+    condition,
+    observed,
+    observedIsDead,
+    availableOperators,
+    needsValue,
+    updateCondition,
+    handleActivationChange,
+    handleObservedFieldChange,
+    handleOperatorChange,
+  } = useConditionEditor({ field, otherFields });
 
   return (
     <div className="flex flex-col gap-2 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">

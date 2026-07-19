@@ -10,10 +10,3 @@ export const OPERATOR_LABELS: Record<EnableOperator, string> = {
   isTruthy: "está marcado / es verdadero",
   isFalsy: "no está marcado / es falso",
 };
-
-export const OPERATORS_WITHOUT_VALUE: EnableOperator[] = [
-  "isEmpty",
-  "isNotEmpty",
-  "isTruthy",
-  "isFalsy",
-];
