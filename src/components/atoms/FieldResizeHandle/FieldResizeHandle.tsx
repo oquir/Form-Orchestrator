@@ -1,52 +1,10 @@
-import { type PointerEvent as ReactPointerEvent, useState } from "react";
 import { SortH } from "reicon-react";
-import { GRID_GAP_PX } from "./FieldResizeHandle.constants";
+import { useFieldResize } from "../../../hooks/useFieldResize/useFieldResize";
 import type { FieldResizeHandleProps } from "./FieldResizeHandle.types";
 
 export function FieldResizeHandle({ colSpan, rowColumns, onResize }: FieldResizeHandleProps) {
-  const [isResizing, setIsResizing] = useState(false);
-  const isCompact = rowColumns / colSpan >= 8;
-
-  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>): void {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const rowElement = event.currentTarget.closest<HTMLElement>("[data-canvas-row]");
-    if (!rowElement) return;
-
-    const rowRect = rowElement.getBoundingClientRect();
-    const rowStyles = window.getComputedStyle(rowElement);
-    const paddingLeft = Number.parseFloat(rowStyles.paddingLeft) || 0;
-    const paddingRight = Number.parseFloat(rowStyles.paddingRight) || 0;
-    const usableWidth = rowRect.width - paddingLeft - paddingRight;
-    const perColumn = (usableWidth - (rowColumns - 1) * GRID_GAP_PX) / rowColumns;
-    if (perColumn <= 0) return;
-
-    const startX = event.clientX;
-    const startColSpan = colSpan;
-    let lastApplied = startColSpan;
-
-    setIsResizing(true);
-
-    function handlePointerMove(moveEvent: PointerEvent) {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaCols = Math.round(deltaX / (perColumn + GRID_GAP_PX));
-      const next = Math.max(1, Math.min(rowColumns, startColSpan + deltaCols));
-      if (next !== lastApplied) {
-        lastApplied = next;
-        onResize(next);
-      }
-    }
-
-    function handlePointerUp(): void {
-      document.removeEventListener("pointermove", handlePointerMove);
-      document.removeEventListener("pointerup", handlePointerUp);
-      setIsResizing(false);
-    }
-
-    document.addEventListener("pointermove", handlePointerMove);
-    document.addEventListener("pointerup", handlePointerUp);
-  }
+  const { isResizing, handlePointerDown } = useFieldResize({ colSpan, rowColumns, onResize });
+  const isCompact: boolean = rowColumns / colSpan >= 8;
 
   if (isCompact) {
     return (

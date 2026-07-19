@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../../../constants/grid";
+import { useClickOutside } from "../../../hooks/useClickOutside/useClickOutside";
 import { useFormStore } from "../../../store/formStore";
 import type { RowColumnsMenuProps } from "./RowColumnsMenu.types";
 
@@ -8,16 +9,7 @@ export function RowColumnsMenu({ rowId, columns }: RowColumnsMenuProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    function handleClickOutside(event: MouseEvent): void {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  useClickOutside(containerRef, () => setIsOpen(false), isOpen);
 
   return (
     <div ref={containerRef} className="absolute -left-2 -top-2 z-10">
