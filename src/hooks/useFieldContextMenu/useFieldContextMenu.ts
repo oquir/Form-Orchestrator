@@ -7,11 +7,6 @@ import type {
   UseFieldContextMenuResult,
 } from "./useFieldContextMenu.types";
 
-/**
- * Resuelve el campo apuntado por el menú contextual, gestiona la pestaña activa (incluyendo
- * el caso "delete" que elimina el campo y cierra), cierra el menú ante un pointerdown externo
- * o la tecla Escape, y calcula la posición fija acotada al viewport.
- */
 export function useFieldContextMenu({
   menu,
   onClose,

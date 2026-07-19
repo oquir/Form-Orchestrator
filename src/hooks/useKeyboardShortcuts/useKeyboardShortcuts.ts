@@ -1,18 +1,19 @@
 import { useEffect } from "react";
 import { saveDraft } from "../../lib/persistence/persistence";
 import { useFormStore } from "../../store/formStore";
+import type { FormState } from "../../types/formStoreTypes";
 
 export function useKeyboardShortcuts() {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent): void {
-      const isMod = event.ctrlKey || event.metaKey;
+      const isMod: boolean = event.ctrlKey || event.metaKey;
       if (!isMod) return;
 
-      const key = event.key.toLowerCase();
+      const key: string = event.key.toLowerCase();
 
       if (key === "s") {
         event.preventDefault();
-        const state = useFormStore.getState();
+        const state: FormState = useFormStore.getState();
         if (!state.setupConfig.isComplete) return;
         saveDraft({
           formSteps: state.formSteps,

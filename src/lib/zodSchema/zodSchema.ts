@@ -1,7 +1,7 @@
-import type { CanvasField } from "../../types/storeTypes";
+import type { CanvasField, FieldValidations } from "../../types/storeTypes";
 
 export function buildZodSchema(field: CanvasField): string {
-  const v = field.validations;
+  const v: FieldValidations = field.validations;
   let schema: string;
 
   switch (field.type) {
