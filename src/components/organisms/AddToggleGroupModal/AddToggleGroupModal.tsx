@@ -8,7 +8,7 @@ import type { AddToggleGroupModalProps } from "./AddToggleGroupModal.types";
 export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModalProps) {
   const [title, setTitle] = useState<string>("");
   const [optionCount, setOptionCount] = useState<number>(2);
-  const isValid = optionCount >= 2;
+  const isValid: boolean = optionCount >= 2;
 
   return (
     <ModalShell>

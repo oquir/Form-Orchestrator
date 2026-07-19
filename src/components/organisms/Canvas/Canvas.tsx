@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { useState } from "react";
 import { Code, TerminalSquare } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
@@ -22,15 +21,6 @@ export function Canvas() {
   const [isJsonView, setIsJsonView] = useState<boolean>(false);
 
   const isIntro: boolean = activeCanvas.type === "introStep";
-
-  const rowsGrid: ReactNode = (
-    <CanvasRowsGrid
-      rows={activeRows}
-      onFieldContextMenu={(fieldId, x, y) => setContextMenu({ fieldId, x, y })}
-    />
-  );
-
-  const addRowButton: ReactNode = <CanvasAddRowButton />;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
@@ -126,16 +116,22 @@ export function Canvas() {
                   Modal de entrada
                 </span>
               </div>
-              {rowsGrid}
-              {addRowButton}
+              <CanvasRowsGrid
+                rows={activeRows}
+                onFieldContextMenu={(fieldId, x, y) => setContextMenu({ fieldId, x, y })}
+              />
+              <CanvasAddRowButton />
             </div>
           </div>
         ) : (
           <>
             <div className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
-              {rowsGrid}
+              <CanvasRowsGrid
+                rows={activeRows}
+                onFieldContextMenu={(fieldId, x, y) => setContextMenu({ fieldId, x, y })}
+              />
             </div>
-            {addRowButton}
+            <CanvasAddRowButton />
           </>
         ))}
 

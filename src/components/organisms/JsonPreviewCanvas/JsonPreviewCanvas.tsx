@@ -47,8 +47,6 @@ export function JsonPreviewCanvas() {
 
       <pre className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
         <code>
-          {/* FormExport es una interface, no lleva index signature implícita: se
-              entrega al renderizador JSON estructural como JsonNode. */}
           <JsonValue value={data as unknown as JsonNode} indent={1} nodeKey="root" />
         </code>
       </pre>
