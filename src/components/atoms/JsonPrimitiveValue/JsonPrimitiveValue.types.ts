@@ -1,3 +1,5 @@
+import type { JsonPrimitive } from "../../../types/jsonTree";
+
 export interface JsonPrimitiveColor {
   string: string;
   emptyString: string;
@@ -5,9 +7,6 @@ export interface JsonPrimitiveColor {
   boolean: string;
   null: string;
 }
-
-/** Hoja primitiva de un árbol JSON. */
-export type JsonPrimitive = string | number | boolean | null;
 
 export interface JsonPrimitiveValueProps {
   value: JsonPrimitive;

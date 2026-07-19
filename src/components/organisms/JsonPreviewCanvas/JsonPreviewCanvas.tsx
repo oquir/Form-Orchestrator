@@ -3,8 +3,8 @@ import { CheckCircle, Copy } from "reicon-react";
 import { buildFormExport } from "../../../lib/exportForm/exportForm";
 import type { FormExport } from "../../../lib/exportForm/exportForm.types";
 import { useFormStore } from "../../../store/formStore";
+import type { JsonNode } from "../../../types/jsonTree";
 import { JsonValue } from "../../molecules/JsonValue/JsonValue";
-import type { JsonNode } from "../../molecules/JsonValue/JsonValue.types";
 
 export function JsonPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
