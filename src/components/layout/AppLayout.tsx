@@ -2,7 +2,7 @@
 import type { AppLayoutProps } from "./AppLayout.types";
 
 export function AppLayout({ sidebar, canvas }: AppLayoutProps) {
-  const isSidebarOpen = useFormStore((state) => state.isSidebarOpen);
+  const isSidebarOpen: boolean = useFormStore((state) => state.isSidebarOpen);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-neutral-950 dark:text-neutral-100">
