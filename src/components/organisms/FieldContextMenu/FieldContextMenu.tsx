@@ -1,6 +1,5 @@
-﻿import { useEffect, useState } from "react";
-import { Xmark } from "reicon-react";
-import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
+﻿import { Xmark } from "reicon-react";
+import { useFieldContextMenu } from "../../../hooks/useFieldContextMenu/useFieldContextMenu";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { SaveFieldForm } from "../../molecules/SaveFieldForm/SaveFieldForm";
@@ -10,7 +9,6 @@ import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
 import { CONTEXT_MENU_TABS } from "./FieldContextMenu.constants";
-import type { ContextMenuTab } from "./FieldContextMenu.types";
 
 export function FieldContextMenu({
   menu,
@@ -19,43 +17,13 @@ export function FieldContextMenu({
   menu: FieldContextMenuState;
   onClose: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<ContextMenuTab>("attributes");
-  const activeRows = useFormStore(getActiveRows);
-  const removeField = useFormStore((state) => state.removeField);
-  const field = findFieldById(activeRows, menu.fieldId);
-
-  function handleSelectTab(tab: ContextMenuTab): void {
-    if (tab === "delete") {
-      removeField(menu.fieldId);
-      onClose();
-      return;
-    }
-    setActiveTab(tab);
-  }
-
-  useEffect(() => {
-    const handlePointerDown = () => onClose();
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("pointerdown", handlePointerDown);
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
+  const { field, activeTab, handleSelectTab, position } = useFieldContextMenu({ menu, onClose });
 
   if (!field) return null;
 
-  const menuWidth: number = 338;
-  const menuHeight: number = 460;
-  const left: number = Math.min(menu.x, window.innerWidth - menuWidth - 8);
-  const top: number = Math.min(menu.y, window.innerHeight - menuHeight - 8);
-
   return (
     <div
-      style={{ left: Math.max(8, left), top: Math.max(8, top), width: menuWidth }}
+      style={{ left: position.left, top: position.top, width: position.width }}
       className="fixed z-50 flex max-h-[80vh] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
       onPointerDown={(event) => event.stopPropagation()}
     >
