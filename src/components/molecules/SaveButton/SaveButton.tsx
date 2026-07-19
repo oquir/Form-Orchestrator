@@ -1,35 +1,8 @@
-﻿import { useEffect, useRef, useState } from "react";
-import { Check, Save22 } from "reicon-react";
-import { saveDraft } from "../../../lib/persistence/persistence";
-import { useFormStore } from "../../../store/formStore";
+﻿import { Check, Save22 } from "reicon-react";
+import { useSaveButton } from "../../../hooks/useSaveButton/useSaveButton";
 
 export function SaveButton() {
-  const markSaved = useFormStore((state) => state.markSaved);
-  const lastSavedAt = useFormStore((state) => state.lastSavedAt);
-  const [justSaved, setJustSaved] = useState<boolean>(false);
-  const timeoutRef = useRef<number | null>(null);
-  const previousSavedAtRef = useRef<string | null>(lastSavedAt);
-
-  function handleSave(): void {
-    const { formSteps, introModal, savedComponents, setupConfig } = useFormStore.getState();
-    saveDraft({ formSteps, introModal, savedComponents, setupConfig });
-    markSaved();
-  }
-
-  useEffect(() => {
-    if (lastSavedAt === previousSavedAtRef.current) return;
-    previousSavedAtRef.current = lastSavedAt;
-    if (!lastSavedAt) return;
-    setJustSaved(true);
-    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    timeoutRef.current = window.setTimeout(() => setJustSaved(false), 2000);
-  }, [lastSavedAt]);
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    };
-  }, []);
+  const { lastSavedAt, justSaved, handleSave } = useSaveButton();
 
   return (
     <div className="flex items-center gap-2">
