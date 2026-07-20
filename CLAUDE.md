@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The core builder described below is implemented. `docs/Project.md` (in Spanish) is the original product spec — still the reference for the target JSON schema shape and any unimplemented details; check it before adding features so structure matches the intended data model.
 
 Not yet implemented / known gaps:
-- No Monaco-style code editor for the Logic tab — `LogicPanel` currently edits `logic.typeScript` as a plain string, and dependencies (`toggleFieldDependency`) are simple field-id toggles, not conditional expressions.
+- No Monaco-style code editor for the Logic tab — `LogicPanel` edits `logic.typeScript` as a plain string. (Conditional enabling *is* implemented separately via `enableWhen` + `ConditionEditor`; `logic.dependencies` remains a plain field-id toggle list.)
 - No test runner configured, and none will be added: the user considers the project too volatile to justify tests right now.
 - `logic.typeScript` is exported as a raw string; the consumer will need `new Function()`/`eval` to execute it. The user builds the consumer too, so this is a coordinated decision — not a public API constraint.
 - No draft schema versioning in `persistence.ts`; if the store shape changes, old localStorage drafts can silently break.
@@ -38,19 +38,41 @@ There is no test runner configured yet. **Biome is the enforced linter/formatter
 
 The app is a visual, drag-and-drop **step-by-step form builder** ("Form Orchestrator") that compiles its entire configuration down to a single structured JSON document.
 
-- **Setup wizard** (`src/components/setup/SetupWizard.tsx`): 2-step modal shown when `setupConfig.isComplete` is false. Step 1 picks `FormType` — `industria_comercio` loads `getIndustriaComercioTemplate()` (`src/lib/baseTemplate.ts`) as the initial `rows`; the other two types start from a single blank row. Step 2 asks whether an intro modal is needed and, if so, how many steps — this seeds `introModal.steps` in the store. `DraftRecoveryPrompt` (`src/components/setup/DraftRecoveryPrompt.tsx`) runs before the wizard on mount if `loadDraft()` finds a saved draft.
-- **State** — single Zustand store, `src/store/formStore.ts` (`useFormStore`). Holds `rows` (main form canvas), `introModal.steps[]` (each with its own `rows`), `activeCanvas` (`{type: "main"}` or `{type: "introStep", stepId}` — which canvas is currently being edited), `selectedFieldId`, `savedComponents` ("Almacén de Partes"), and `setupConfig`. `getActiveRows`/`findFieldById`/`getAllFields` are selector helpers exported alongside the store. Field/row mutations (`addFieldToRow`, `updateField`, `updateFieldValidations/Styles/Logic`, `toggleFieldDependency`, `addRowToActiveCanvas`, `removeRow`, `addIntroModalStep`, `removeIntroModalStep`) apply uniformly across whichever canvas contains the target id via `mapRowEverywhere`/`mapFieldEverywhere`, so the same code path edits both the main form and intro-modal steps.
+### File layout conventions
+
+Components follow **atomic design**: `src/components/atoms|molecules|organisms/`, plus `src/components/layout/`. Panels live under `organisms/panels/`. Each component and hook gets its **own folder** with co-located files — `X/X.tsx`, `X/X.types.ts`, `X/X.constants.ts`, `X/X.utils.ts` (only the ones it needs). Hooks follow the same pattern in `src/hooks/useX/useX.ts`. Shared types live in `src/types/`, shared constants in `src/constants/`, and libs in `src/lib/<name>/<name>.ts`. When adding anything, match this shape rather than dropping a loose file in a shared folder.
+
+### Pieces
+
+- **Setup wizard** (`src/components/organisms/SetupWizardModal/`, logic in `src/hooks/useSetupWizard/`): 2-step modal shown when `setupConfig.isComplete` is false. Step 1 picks `FormType` — `industria_comercio` loads `getIndustriaComercioTemplate()` (`src/lib/baseTemplate/baseTemplate.ts`) as the first step's rows; the other two types start from a single blank row. Step 2 asks whether an intro modal is needed and, if so, how many steps — this seeds `introModal.steps`. `DraftRecoveryModal` (`src/components/organisms/DraftRecoveryModal/`) runs before the wizard on mount if `loadDraft()` finds a saved draft.
+- **State** — single Zustand store, `src/store/formStore.ts` (`useFormStore`), typed by `src/types/formStoreTypes.ts` + `src/types/storeTypes.ts`. Holds:
+  - `formSteps[]` — the main form is **multi-step**; each `FormStep` has `stepId`, `title`, optional `subtitle`, and its own `rows`.
+  - `introModal.steps[]` — same shape, for the intro modal.
+  - `activeCanvas`: `{type: "formStep" | "introStep", stepId}` — which canvas is being edited.
+  - UI state: `selectedFieldId`, `isSidebarOpen`, `sidebarTab`, `isDarkMode` (persisted to `localStorage` under `form-orchestrator-theme`), `lastSavedAt`.
+  - `savedComponents` ("Almacén de Partes") and `setupConfig`.
+  - Selector helpers exported alongside: `getActiveRows`, `findFieldById`, `getAllFields`, `findRowContainingField`.
+  - Row/field mutations apply uniformly to whichever canvas holds the target id via `mapRowEverywhere`/`mapFieldEverywhere`, so one code path edits both form steps and intro-modal steps. Notable actions: `addFieldToRow`, `moveField` (reorder/move across rows, honoring a `beforeFieldId` insertion point), `removeField` (also clears any `enableWhen` pointing at it), `updateField`, `updateFieldValidations/Styles/Logic/FileConfig`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`, `toggleFieldDependency`, `addRowToActiveCanvas`, `updateRowColumns`, `removeRow`, `addFormStep`/`removeFormStep`/`updateFormStepTitle`/`updateFormStepSubtitle` (and the `IntroModalStep` equivalents), `saveFieldAsComponent`/`addSavedComponentToRow`/`removeSavedComponent`, `restoreDraft`.
+- **Field model** (`CanvasField` in `src/types/storeTypes.ts`): `type`, `label`, `colSpan`, `validations`, `styles`, `logic`, plus optional `title`, `options[]` (toggle groups), `fileConfig`, `alwaysDisabled`, and `enableWhen` — a `{fieldId, operator, value}` condition with operators `equals | notEquals | greaterThan | lessThan | isEmpty | isNotEmpty | isTruthy | isFalsy`. Field types come from `FIELD_TYPES` in `src/constants/fieldTypes.ts` (text, number, select, textarea, checkbox, calculated, file, toggle_group).
+- **Grid**: `src/constants/grid.ts` — `GRID_BASE_COLUMNS = 16` is the default per-row column count; rows carry their own `columns` (clamped to `MIN_ROW_COLUMNS`…`MAX_ROW_COLUMNS`, 1–24) and shrinking a row clamps each field's `colSpan` to fit.
 - **Two-column layout** (`src/components/layout/AppLayout.tsx`):
-  - Left sidebar (`src/components/sidebar/Sidebar.tsx`): field palette (`FieldPalette.tsx`, draggable `FIELD_TYPES` from `src/lib/fieldTypes.ts`) plus a tabbed panel for the selected field — Attributes, Validations, Styles, Logic, Almacén (`AttributesPanel`/`ValidationsPanel`/`StylesPanel`/`LogicPanel`/`LibraryPanel`). Logic tab currently edits `logic.typeScript` as plain text and dependencies as field-id toggles (no Monaco editor yet).
-  - Right canvas (`src/components/canvas/Canvas.tsx`): 12-column grid drop targets (`@dnd-kit` `useDroppable` per row, one row = one 12-col grid). `CanvasTabs` switches `activeCanvas` between "Formulario" and each intro-modal step, with controls to add/remove steps; each row has a remove button and there's an "+ Agregar fila" control. Row column-count (`CanvasRow.columns`) and per-field drag-resize of `colSpan` are not implemented — `colSpan` is only settable via the Attributes panel.
-  - Drag-and-drop wiring (palette → row, library component → row) lives in `App.tsx`'s `DndContext`/`handleDragEnd`.
-- **Persistence** (`src/hooks/useAutosave.ts`, `src/lib/persistence.ts`): autosaves the store to `localStorage` every 5 minutes once setup is complete; `loadDraft`/`clearDraft` back the recovery prompt.
-- **Output** (`src/lib/exportForm.ts`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, and `formSchema.steps[0].rows[].fields[]` (with `colSpan`, `styles`, `validations.zodSchema` generated per-field by `src/lib/zodSchema.ts`, and `logic`) into one downloadable JSON file, matching the shape documented in `docs/Project.md`.
+  - Left sidebar (`organisms/Sidebar/`): an icon rail (`SidebarTabRail`, includes the dark-mode toggle; clicking the active tab collapses the panel) over a tabbed panel — Campos, Atributos, Validaciones, Estilos, Lógica, Almacén (`FieldPalette` + `panels/AttributesPanel|ValidationsPanel|StylesPanel|LogicPanel|LibraryPanel`). `ConditionEditor` (driven by `src/hooks/useConditionEditor/`) edits `enableWhen`; `FileOptionsEditor` and `ToggleGroupOptionsEditor` handle type-specific config.
+  - Right canvas (`organisms/Canvas/Canvas.tsx`): grid drop targets (`@dnd-kit` `useDroppable` per row, one row = one grid). `CanvasTabs` switches `activeCanvas` across form steps and intro-modal steps with add/remove controls; `StepTitleEditor` edits the active step's title/subtitle; `RowColumnsMenu` changes a row's column count and `FieldResizeHandle` + `src/hooks/useFieldResize/` drag-resizes `colSpan`; `FieldContextMenu` (right-click, via `src/hooks/useFieldContextMenu/`) offers per-field actions. The header carries `SaveButton`, a "Ver JSON" toggle rendering `JsonPreviewCanvas` (live export preview, built from the `atoms/Json*` primitives), and "Exportar JSON". The intro-modal canvas renders inside a decorative fake-modal frame.
+  - Drag-and-drop wiring (palette → row, library component → row, canvas field → row) lives in `src/hooks/useDragAndDrop/`; `App.tsx` only wires `DndContext`/`DragOverlay`. Dropping a `toggle_group` from the palette opens `AddToggleGroupModal` first to ask for title/option count.
+- **Persistence** (`src/hooks/useAutosave/`, `src/lib/persistence/persistence.ts`): autosaves to `localStorage` on an interval once setup is complete; `src/hooks/useKeyboardShortcuts/` binds Ctrl/Cmd+S to the same save. `loadDraft`/`clearDraft` back the recovery modal.
+- **Output** (`src/lib/exportForm/exportForm.ts`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, and `formSchema.steps[].rows[].fields[]` (with `colSpan`, `styles`, `validations.zodSchema` generated per-field by `src/lib/zodSchema/zodSchema.ts`, `logic`, `options`, `fileConfig`, `alwaysDisabled`, `enableWhen`) plus `formSchema.gridBaseColumns`, into one downloadable JSON file — the shape documented in `docs/Project.md`.
 
 ### Prescribed stack (from spec, already in package.json)
 
 - `@dnd-kit/core` + `@dnd-kit/sortable` for drag-and-drop (not react-dnd)
 - `react-hook-form` + `@hookform/resolvers` + `zod` for building/validating generated form fields (Zod schemas are authored dynamically per-field and stored as part of the field config, e.g. `"z.number().min(0)"`)
 - `zustand` for the canvas/builder state tree
-- Tailwind v4 (via `@tailwindcss/vite`) for all styling — no CSS-in-JS
+- Tailwind v4 (via `@tailwindcss/vite`) for all styling — no CSS-in-JS; dark mode is class-based (`document.documentElement.classList.toggle("dark", …)` in `App.tsx`), so every new surface needs its `dark:` variants
 - `uuid` for generating field/row/step ids
+- `reicon-react` for icons (not lucide/heroicons)
+
+### Code style
+
+- **No JSDoc / doc-comments.** Explain the why in the commit message, not above the function.
+- **Explicit type annotations** on local declarations (`const isIntro: boolean = …`), matching the existing files.
+- Biome conventions win over `eslint.config.js` (which isn't wired into a script).
