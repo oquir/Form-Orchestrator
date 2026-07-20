@@ -25,6 +25,7 @@ function App() {
     activeDrag,
     pendingToggleGroup,
     handleDragStart,
+    handleDragMove,
     handleDragEnd,
     confirmToggleGroup,
     cancelToggleGroup,
@@ -66,7 +67,12 @@ function App() {
   }
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
+      onDragEnd={handleDragEnd}
+    >
       <AppLayout sidebar={<Sidebar />} canvas={<Canvas />} />
       {pendingToggleGroup && (
         <AddToggleGroupModal onCancel={cancelToggleGroup} onConfirm={confirmToggleGroup} />

@@ -2,11 +2,19 @@ import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
 import { getIndustriaComercioTemplate } from "../lib/baseTemplate/baseTemplate";
+import {
+  getFreeRuns,
+  getMaxSpanAt,
+  repackRow,
+  resolvePlacement,
+  sortByColumn,
+} from "../lib/rowLayout/rowLayout";
 import type { FormState } from "../types/formStoreTypes";
 import type {
   CanvasField,
   CanvasRow,
   CanvasTarget,
+  FieldPlacement,
   FormStep,
   FormType,
   IntroModalState,
@@ -22,13 +30,15 @@ function createEmptyRow(): CanvasRow {
 function createEmptyField(
   type: string,
   label: string,
+  placement: FieldPlacement,
   extra?: { title?: string; optionCount?: number },
 ): CanvasField {
   const field: CanvasField = {
     id: uuidv4(),
     type,
     label,
-    colSpan: GRID_BASE_COLUMNS,
+    colStart: placement.colStart,
+    colSpan: placement.colSpan,
     validations: {},
     styles: {},
     logic: { dependencies: [], typeScript: "" },
@@ -94,6 +104,18 @@ function mapFieldEverywhere(
   };
 }
 
+export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null {
+  for (const step of slice.formSteps) {
+    const row = step.rows.find((r) => r.id === rowId);
+    if (row) return row;
+  }
+  for (const step of slice.introModal.steps) {
+    const row = step.rows.find((r) => r.id === rowId);
+    if (row) return row;
+  }
+  return null;
+}
+
 function buildInitialFormSteps(formType: FormType): FormStep[] {
   return [
     {
@@ -134,8 +156,10 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   },
   isSidebarOpen: true,
   sidebarTab: "fields",
+  dragPlacement: null,
   isDarkMode: getInitialDarkMode(),
   lastSavedAt: null,
+  setDragPlacement: (placement) => set({ dragPlacement: placement }),
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
   markSaved: () => set({ lastSavedAt: new Date().toISOString() }),
@@ -279,15 +303,14 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     }),
   updateRowColumns: (rowId, columns) =>
     set((state) => {
-      const nextColumns = Math.max(MIN_ROW_COLUMNS, Math.min(MAX_ROW_COLUMNS, Math.round(columns)));
-      return mapRowEverywhere(state, rowId, (row) => ({
-        ...row,
-        columns: nextColumns,
-        fields: row.fields.map((field) => ({
-          ...field,
-          colSpan: Math.min(field.colSpan, nextColumns),
-        })),
-      }));
+      const row = findRowById(state, rowId);
+      if (!row) return state;
+      const nextColumns = Math.max(
+        MIN_ROW_COLUMNS,
+        Math.min(MAX_ROW_COLUMNS, Math.round(columns)),
+        row.fields.length,
+      );
+      return mapRowEverywhere(state, rowId, (current) => repackRow(current, nextColumns));
     }),
   removeRow: (rowId) =>
     set((state) => ({
@@ -302,13 +325,17 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         })),
       },
     })),
-  addFieldToRow: (rowId, fieldType, extra) =>
+  addFieldToRow: (rowId, fieldType, extra, requested) =>
     set((state) => {
-      const newField = createEmptyField(fieldType.type, fieldType.label, extra);
+      const row = findRowById(state, rowId);
+      if (!row) return state;
+      const placement = resolvePlacement(row, GRID_BASE_COLUMNS, requested);
+      if (!placement) return state;
+      const newField = createEmptyField(fieldType.type, fieldType.label, placement, extra);
       return {
-        ...mapRowEverywhere(state, rowId, (row) => ({
-          ...row,
-          fields: [...row.fields, newField],
+        ...mapRowEverywhere(state, rowId, (current) => ({
+          ...current,
+          fields: [...current.fields, newField],
         })),
         selectedFieldId: newField.id,
       };
@@ -332,54 +359,33 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         selectedFieldId: state.selectedFieldId === fieldId ? null : state.selectedFieldId,
       };
     }),
-  moveField: (fieldId, targetRowId, beforeFieldId) =>
+  moveField: (fieldId, targetRowId, requested) =>
     set((state) => {
-      if (fieldId === beforeFieldId) return state;
+      const movedField = findAnyField(state, fieldId);
+      const targetRow = findRowById(state, targetRowId);
+      if (!movedField || !targetRow) return state;
 
-      let movedField: CanvasField | null = null;
-      const extractFromRows = (rows: CanvasRow[]): CanvasRow[] =>
+      const placement = resolvePlacement(targetRow, movedField.colSpan, requested, fieldId);
+      if (!placement) return state;
+
+      const placed: CanvasField = { ...movedField, ...placement };
+      const applyTo = (rows: CanvasRow[]): CanvasRow[] =>
         rows.map((row) => {
-          const index = row.fields.findIndex((f) => f.id === fieldId);
-          if (index === -1) return row;
-          movedField = row.fields[index];
-          return { ...row, fields: row.fields.filter((f) => f.id !== fieldId) };
+          const withoutField = row.fields.filter((f) => f.id !== fieldId);
+          if (row.id !== targetRowId) {
+            return withoutField.length === row.fields.length
+              ? row
+              : { ...row, fields: withoutField };
+          }
+          return { ...row, fields: sortByColumn([...withoutField, placed]) };
         });
 
-      const formStepsAfterRemoval = state.formSteps.map((step) => ({
-        ...step,
-        rows: extractFromRows(step.rows),
-      }));
-      const introStepsAfterRemoval = state.introModal.steps.map((step) => ({
-        ...step,
-        rows: extractFromRows(step.rows),
-      }));
-
-      if (!movedField) return state;
-      const fieldToPlace: CanvasField = movedField;
-
-      let inserted = false;
-      const insertIntoRows = (rows: CanvasRow[]): CanvasRow[] =>
-        rows.map((row) => {
-          if (row.id !== targetRowId) return row;
-          inserted = true;
-          const placed = { ...fieldToPlace, colSpan: Math.min(fieldToPlace.colSpan, row.columns) };
-          const insertAt = beforeFieldId ? row.fields.findIndex((f) => f.id === beforeFieldId) : -1;
-          const nextFields = [...row.fields];
-          nextFields.splice(insertAt === -1 ? nextFields.length : insertAt, 0, placed);
-          return { ...row, fields: nextFields };
-        });
-
-      const formSteps = formStepsAfterRemoval.map((step) => ({
-        ...step,
-        rows: insertIntoRows(step.rows),
-      }));
-      const introSteps = introStepsAfterRemoval.map((step) => ({
-        ...step,
-        rows: insertIntoRows(step.rows),
-      }));
-
-      if (!inserted) return state;
-      return { formSteps, introModal: { steps: introSteps } };
+      return {
+        formSteps: state.formSteps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+        introModal: {
+          steps: state.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+        },
+      };
     }),
   setFieldEnableWhen: (fieldId, condition) =>
     set((state) =>
@@ -390,7 +396,22 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     ),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>
-    set((state) => mapFieldEverywhere(state, fieldId, (field) => ({ ...field, ...updates }))),
+    set((state) => {
+      if (updates.colSpan === undefined) {
+        return mapFieldEverywhere(state, fieldId, (field) => ({ ...field, ...updates }));
+      }
+      const row = findRowContainingField(state, fieldId);
+      if (!row) return state;
+      const maxSpan = getMaxSpanAt(
+        getFreeRuns(row.fields, row.columns, fieldId),
+        row.fields.find((f) => f.id === fieldId)?.colStart ?? 1,
+      );
+      return mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        ...updates,
+        colSpan: Math.max(1, Math.min(updates.colSpan ?? field.colSpan, maxSpan)),
+      }));
+    }),
   updateFieldValidations: (fieldId, updates) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
@@ -489,15 +510,19 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     set((state) => ({
       savedComponents: state.savedComponents.filter((component) => component.id !== componentId),
     })),
-  addSavedComponentToRow: (rowId, componentId) =>
+  addSavedComponentToRow: (rowId, componentId, requested) =>
     set((state) => {
       const component = state.savedComponents.find((c) => c.id === componentId);
-      if (!component) return state;
+      const row = findRowById(state, rowId);
+      if (!component || !row) return state;
+      const placement = resolvePlacement(row, component.colSpan, requested);
+      if (!placement) return state;
       const newField: CanvasField = {
         id: uuidv4(),
         type: component.type,
         label: component.label,
-        colSpan: component.colSpan,
+        colStart: placement.colStart,
+        colSpan: placement.colSpan,
         validations: component.validations,
         styles: component.styles,
         logic: component.logic,

@@ -2,8 +2,18 @@ import { SortH } from "reicon-react";
 import { useFieldResize } from "../../../hooks/useFieldResize/useFieldResize";
 import type { FieldResizeHandleProps } from "./FieldResizeHandle.types";
 
-export function FieldResizeHandle({ colSpan, rowColumns, onResize }: FieldResizeHandleProps) {
-  const { isResizing, handlePointerDown } = useFieldResize({ colSpan, rowColumns, onResize });
+export function FieldResizeHandle({
+  colSpan,
+  rowColumns,
+  maxSpan,
+  onResize,
+}: FieldResizeHandleProps) {
+  const { isResizing, handlePointerDown } = useFieldResize({
+    colSpan,
+    rowColumns,
+    maxSpan,
+    onResize,
+  });
   const isCompact: boolean = rowColumns / colSpan >= 8;
 
   if (isCompact) {
