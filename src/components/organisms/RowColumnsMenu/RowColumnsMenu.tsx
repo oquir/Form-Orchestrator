@@ -12,7 +12,7 @@ export function RowColumnsMenu({ rowId, columns }: RowColumnsMenuProps) {
   useClickOutside(containerRef, () => setIsOpen(false), isOpen);
 
   return (
-    <div ref={containerRef} className="absolute -left-2 -top-2 z-10">
+    <div ref={containerRef} className="absolute -left-3 -top-3 z-10">
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
