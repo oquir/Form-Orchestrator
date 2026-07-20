@@ -3,6 +3,7 @@ import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { CanvasFieldChip } from "../../molecules/CanvasFieldChip/CanvasFieldChip";
+import { RowZoneOverlay } from "../../molecules/RowZoneOverlay/RowZoneOverlay";
 import { RowColumnsMenu } from "../../organisms/RowColumnsMenu/RowColumnsMenu";
 import type { CanvasRowProps } from "./CanvasRow.types";
 
@@ -11,11 +12,14 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
   const selectedFieldId = useFormStore((state) => state.selectedFieldId);
   const selectField = useFormStore((state) => state.selectField);
   const removeRow = useFormStore((state) => state.removeRow);
+  const dragPlacement = useFormStore((state) => state.dragPlacement);
+  const zonePlacement = dragPlacement?.rowId === row.id ? dragPlacement : null;
 
   return (
     <li
       ref={setNodeRef}
       data-canvas-row=""
+      data-row-id={row.id}
       style={{ gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))` }}
       className={`relative col-span-16 grid gap-3 rounded-md border-2 border-dashed p-3 transition-colors ${
         isOver
@@ -46,6 +50,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
           field={field}
           rowId={row.id}
           rowColumns={row.columns}
+          rowFields={row.fields}
           selected={selectedFieldId === field.id}
           onClick={() => selectField(field.id)}
           onContextMenu={(event) => {
@@ -55,6 +60,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
           }}
         />
       ))}
+      {zonePlacement && <RowZoneOverlay columns={row.columns} placement={zonePlacement} />}
     </li>
   );
 }

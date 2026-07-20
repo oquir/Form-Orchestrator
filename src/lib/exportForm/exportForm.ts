@@ -11,6 +11,7 @@ function mapRows(rows: CanvasRow[]): ExportedRow[] {
       fieldId: field.id,
       type: field.type,
       label: field.label,
+      colStart: field.colStart,
       colSpan: field.colSpan,
       styles: field.styles,
       validations: { zodSchema: buildZodSchema(field) },

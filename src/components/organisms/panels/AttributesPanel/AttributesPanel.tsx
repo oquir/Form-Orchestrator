@@ -1,4 +1,5 @@
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
+import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
 import { findRowContainingField, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/storeTypes";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
@@ -8,9 +9,11 @@ import { ToggleGroupOptionsEditor } from "../ToggleGroupOptionsEditor/ToggleGrou
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
-  const rowColumns: number = useFormStore(
-    (state) => findRowContainingField(state, field.id)?.columns ?? GRID_BASE_COLUMNS,
-  );
+  const row = useFormStore((state) => findRowContainingField(state, field.id));
+  const rowColumns: number = row?.columns ?? GRID_BASE_COLUMNS;
+  const maxSpan: number = row
+    ? getMaxSpanAt(getFreeRuns(row.fields, row.columns, field.id), field.colStart)
+    : rowColumns;
 
   return (
     <div className="flex flex-col gap-4">
@@ -25,9 +28,9 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
 
       <LabeledRangeSlider
         id="field-colspan"
-        label={`Columnas (${field.colSpan}/${rowColumns})`}
+        label={`Columnas (${field.colSpan}/${rowColumns}) · desde col ${field.colStart}`}
         min={1}
-        max={rowColumns}
+        max={maxSpan}
         value={field.colSpan}
         onChange={(value) => updateField(field.id, { colSpan: value })}
       />

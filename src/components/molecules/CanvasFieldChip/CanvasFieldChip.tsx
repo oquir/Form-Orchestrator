@@ -1,5 +1,6 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { GRID_BASE_COLUMNS } from "../../../constants/grid";
+import { getFreeRuns, getMaxSpanAt } from "../../../lib/rowLayout/rowLayout";
 import { useFormStore } from "../../../store/formStore";
 import { FieldDragHandle } from "../../atoms/FieldDragHandle/FieldDragHandle";
 import { FieldResizeHandle } from "../../atoms/FieldResizeHandle/FieldResizeHandle";
@@ -12,11 +13,16 @@ export function CanvasFieldChip({
   field,
   rowId,
   rowColumns,
+  rowFields,
   selected,
   onClick,
   onContextMenu,
 }: CanvasFieldChipProps) {
   const updateField = useFormStore((state) => state.updateField);
+  const maxSpan: number = getMaxSpanAt(
+    getFreeRuns(rowFields, rowColumns, field.id),
+    field.colStart,
+  );
 
   const {
     listeners,
@@ -45,7 +51,7 @@ export function CanvasFieldChip({
   return (
     <div
       ref={setRefs}
-      style={{ gridColumn: `span ${field.colSpan} / span ${field.colSpan}` }}
+      style={{ gridColumn: `${field.colStart} / span ${field.colSpan}` }}
       className={`group relative min-w-0 ${isDragging ? "opacity-40" : ""}`}
     >
       <div
@@ -110,6 +116,7 @@ export function CanvasFieldChip({
         <FieldResizeHandle
           colSpan={field.colSpan}
           rowColumns={rowColumns}
+          maxSpan={maxSpan}
           onResize={(next) => updateField(field.id, { colSpan: next })}
         />
       </div>

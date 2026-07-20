@@ -11,6 +11,7 @@ export interface ExportedField {
   fieldId: string;
   type: string;
   label: string;
+  colStart: number;
   colSpan: number;
   styles: FieldStyles;
   validations: { zodSchema: string };

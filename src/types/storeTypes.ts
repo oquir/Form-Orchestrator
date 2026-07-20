@@ -60,6 +60,7 @@ export interface CanvasField {
   id: string;
   type: string;
   label: string;
+  colStart: number;
   colSpan: number;
   validations: FieldValidations;
   styles: FieldStyles;
@@ -114,6 +115,19 @@ export interface SavedComponent {
 export type CanvasTarget =
   | { type: "formStep"; stepId: string }
   | { type: "introStep"; stepId: string };
+
+export type PlacementMode = "move" | "resize";
+
+export interface FieldPlacement {
+  colStart: number;
+  colSpan: number;
+}
+
+export interface DragPlacement extends FieldPlacement {
+  rowId: string;
+  mode: PlacementMode;
+  isValid: boolean;
+}
 
 export type SidebarTab = "fields" | "attributes" | "validations" | "styles" | "logic" | "library";
 

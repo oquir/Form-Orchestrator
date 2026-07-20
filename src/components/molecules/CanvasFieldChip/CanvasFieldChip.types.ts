@@ -5,6 +5,7 @@ export interface CanvasFieldChipProps {
   field: CanvasField;
   rowId: string;
   rowColumns: number;
+  rowFields: CanvasField[];
   selected: boolean;
   onClick: () => void;
   onContextMenu: (event: MouseEvent<HTMLButtonElement>) => void;

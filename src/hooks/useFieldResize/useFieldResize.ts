@@ -5,6 +5,7 @@ import type { UseFieldResizeParams, UseFieldResizeResult } from "./useFieldResiz
 export function useFieldResize({
   colSpan,
   rowColumns,
+  maxSpan,
   onResize,
 }: UseFieldResizeParams): UseFieldResizeResult {
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -33,7 +34,7 @@ export function useFieldResize({
     function handlePointerMove(moveEvent: PointerEvent): void {
       const deltaX: number = moveEvent.clientX - startX;
       const deltaCols: number = Math.round(deltaX / (perColumn + GRID_GAP_PX));
-      const next: number = Math.max(1, Math.min(rowColumns, startColSpan + deltaCols));
+      const next: number = Math.max(1, Math.min(maxSpan, startColSpan + deltaCols));
       if (next !== lastApplied) {
         lastApplied = next;
         onResize(next);

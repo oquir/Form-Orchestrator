@@ -2,9 +2,11 @@ import type { FieldTypeDef } from "./fieldTypes";
 import type {
   CanvasField,
   CanvasTarget,
+  DragPlacement,
   EnableCondition,
   FieldFileConfig,
   FieldLogic,
+  FieldPlacement,
   FieldStyles,
   FieldValidations,
   FormStep,
@@ -31,6 +33,8 @@ export interface FormState {
   sidebarTab: SidebarTab;
   isDarkMode: boolean;
   lastSavedAt: string | null;
+  dragPlacement: DragPlacement | null;
+  setDragPlacement: (placement: DragPlacement | null) => void;
   setSidebarOpen: (open: boolean) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   toggleDarkMode: () => void;
@@ -53,9 +57,14 @@ export interface FormState {
   addRowToActiveCanvas: () => void;
   removeRow: (rowId: string) => void;
   updateRowColumns: (rowId: string, columns: number) => void;
-  addFieldToRow: (rowId: string, fieldType: FieldTypeDef, extra?: AddFieldExtra) => void;
+  addFieldToRow: (
+    rowId: string,
+    fieldType: FieldTypeDef,
+    extra?: AddFieldExtra,
+    requested?: FieldPlacement,
+  ) => void;
   removeField: (fieldId: string) => void;
-  moveField: (fieldId: string, targetRowId: string, beforeFieldId?: string) => void;
+  moveField: (fieldId: string, targetRowId: string, requested?: FieldPlacement) => void;
   selectField: (fieldId: string | null) => void;
   updateField: (
     fieldId: string,
@@ -72,7 +81,7 @@ export interface FormState {
   updateFieldOptionLabel: (fieldId: string, optionId: string, label: string) => void;
   saveFieldAsComponent: (fieldId: string, name: string) => void;
   removeSavedComponent: (componentId: string) => void;
-  addSavedComponentToRow: (rowId: string, componentId: string) => void;
+  addSavedComponentToRow: (rowId: string, componentId: string, requested?: FieldPlacement) => void;
   restoreDraft: (draft: {
     formSteps: FormStep[];
     introModal: IntroModalState;
