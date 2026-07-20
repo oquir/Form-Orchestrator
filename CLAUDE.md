@@ -12,6 +12,14 @@ Not yet implemented / known gaps:
 - `logic.typeScript` is exported as a raw string; the consumer will need `new Function()`/`eval` to execute it. The user builds the consumer too, so this is a coordinated decision — not a public API constraint.
 - No draft schema versioning in `persistence.ts`; if the store shape changes, old localStorage drafts can silently break.
 
+## Parked work: `feature/colocacion-por-zonas` (local branch, never pushed)
+
+A local branch implements **zone placement**: holding Shift while dragging highlights the target row's columns so you pick the exact start column (width unchanged), and Shift+Ctrl anchors the start where Ctrl is pressed while the pointer sets the end (width follows the selection). It adds `colStart` to `CanvasField`, a pure placement engine in `src/lib/rowLayout/`, and a `RowZoneOverlay`. It works and was verified in-browser.
+
+It is **parked pending a decision**: `colStart` ships in the exported JSON, so the consumer has to read it before the branch is worth merging. Nothing on `main` depends on it — here fields have no `colStart` and rows still wrap to implicit extra grid lines.
+
+Its design decisions are documented in `CLAUDE.md` **on that branch** — read it there before touching the feature, and do not re-derive the rules from the diff. The one worth knowing up front: a full row **rejects** a dropped field instead of wrapping, and that is a deliberate restriction the user chose after testing it, not a bug. The cheap fix (auto-creating a row below on overflow) was offered and declined; the intended workflow is to add another `CanvasRow` by hand.
+
 ## Commit conventions
 
 - Write commit messages **in Spanish**, present tense, imperative ("Agrega X", "Corrige Y", "Amplía Z") — matches the existing history style (`git log`).
