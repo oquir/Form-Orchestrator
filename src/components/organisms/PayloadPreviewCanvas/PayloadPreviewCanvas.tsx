@@ -1,5 +1,8 @@
+import JsonView from "@uiw/react-json-view";
+import type { CSSProperties } from "react";
 import { useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
+import { JSON_VIEW_DARK_THEME, JSON_VIEW_LIGHT_THEME } from "../../../constants/jsonViewTheme";
 import {
   buildMappingTree,
   findOrphanBindings,
@@ -9,11 +12,12 @@ import type { MappingNode, OrphanBinding } from "../../../lib/payloadMapping/pay
 import { PAYLOAD_SCHEMA } from "../../../lib/payloadSchema/payloadSchema.constants";
 import { getAllFields, useFormStore } from "../../../store/formStore";
 import type { CanvasField, CanvasRow } from "../../../types/storeTypes";
-import { PayloadMappingNode } from "../../molecules/PayloadMappingNode/PayloadMappingNode";
+import { colorClassForSummaryValue } from "./PayloadPreviewCanvas.utils";
 
 export function PayloadPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const introSteps = useFormStore((state) => state.introModal.steps);
+  const isDarkMode = useFormStore((state) => state.isDarkMode);
   const [copied, setCopied] = useState<boolean>(false);
 
   const allRows: CanvasRow[] = [
@@ -70,11 +74,24 @@ export function PayloadPreviewCanvas() {
         </div>
       )}
 
-      <pre className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
-        <code>
-          <PayloadMappingNode node={mappingTree} indent={1} />
-        </code>
-      </pre>
+      <div className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
+        <JsonView
+          value={toPlainSummary(mappingTree) as object}
+          style={(isDarkMode ? JSON_VIEW_DARK_THEME : JSON_VIEW_LIGHT_THEME) as CSSProperties}
+          displayDataTypes={false}
+          enableClipboard={false}
+        >
+          <JsonView.String
+            render={(props, result) => {
+              if (result.type !== "value") return <span {...props} />;
+              const colorClass = colorClassForSummaryValue(String(result.value ?? ""));
+              return (
+                <span {...props} className={`${props.className ?? ""} ${colorClass}`.trim()} />
+              );
+            }}
+          />
+        </JsonView>
+      </div>
     </div>
   );
 }

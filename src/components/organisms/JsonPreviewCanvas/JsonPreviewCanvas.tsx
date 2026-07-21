@@ -1,15 +1,17 @@
+import JsonView from "@uiw/react-json-view";
+import type { CSSProperties } from "react";
 import { useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
+import { JSON_VIEW_DARK_THEME, JSON_VIEW_LIGHT_THEME } from "../../../constants/jsonViewTheme";
 import { buildFormExport } from "../../../lib/exportForm/exportForm";
 import type { FormExport } from "../../../lib/exportForm/exportForm.types";
 import { useFormStore } from "../../../store/formStore";
-import type { JsonNode } from "../../../types/jsonTree";
-import { JsonValue } from "../../molecules/JsonValue/JsonValue";
 
 export function JsonPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
+  const isDarkMode = useFormStore((state) => state.isDarkMode);
   const [copied, setCopied] = useState<boolean>(false);
 
   const data: FormExport = buildFormExport(formSteps, setupConfig, introSteps);
@@ -45,11 +47,14 @@ export function JsonPreviewCanvas() {
         </button>
       </div>
 
-      <pre className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
-        <code>
-          <JsonValue value={data as unknown as JsonNode} indent={1} nodeKey="root" />
-        </code>
-      </pre>
+      <div className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
+        <JsonView
+          value={data}
+          style={(isDarkMode ? JSON_VIEW_DARK_THEME : JSON_VIEW_LIGHT_THEME) as CSSProperties}
+          displayDataTypes={false}
+          enableClipboard={false}
+        />
+      </div>
     </div>
   );
 }
