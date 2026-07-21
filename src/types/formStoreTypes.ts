@@ -1,5 +1,6 @@
 import type { FieldTypeDef } from "./fieldTypes";
 import type {
+  ApiBinding,
   CanvasField,
   CanvasTarget,
   DragPlacement,
@@ -71,6 +72,7 @@ export interface FormState {
     updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title" | "alwaysDisabled">>,
   ) => void;
   setFieldEnableWhen: (fieldId: string, condition: EnableCondition | null) => void;
+  updateFieldApiBinding: (fieldId: string, binding: ApiBinding | null) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;

@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { Code, TerminalSquare } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
+import { TabButtonGroup } from "../../molecules/TabButtonGroup/TabButtonGroup";
 import { SaveButton } from "../../organisms/SaveButton/SaveButton";
 import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
 import { JsonPreviewCanvas } from "../JsonPreviewCanvas/JsonPreviewCanvas";
+import { PayloadPreviewCanvas } from "../PayloadPreviewCanvas/PayloadPreviewCanvas";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
+import { VIEW_MODE_TABS } from "./Canvas.constants";
+import type { CanvasViewMode } from "./Canvas.types";
 
 export function Canvas() {
   const activeRows = useFormStore(getActiveRows);
@@ -18,19 +21,33 @@ export function Canvas() {
   const introSteps = useFormStore((state) => state.introModal.steps);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
-  const [isJsonView, setIsJsonView] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<CanvasViewMode>("canvas");
 
   const isIntro: boolean = activeCanvas.type === "introStep";
+  const isCanvasView: boolean = viewMode === "canvas";
+
+  const title: string =
+    viewMode === "json"
+      ? "JSON en vivo"
+      : viewMode === "payload"
+        ? "Payload en vivo"
+        : "Lienzo de trabajo";
+  const subtitle: string =
+    viewMode === "json"
+      ? "Vista previa del JSON exportado del formulario completo"
+      : viewMode === "payload"
+        ? "Vista previa del mapeo de campos hacia el objeto de la API"
+        : isIntro
+          ? "Editando el modal de entrada — flota sobre el formulario"
+          : "Arrastra campos aquí para construir el formulario";
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
       <header className="mb-6 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-slate-800 dark:text-neutral-100">
-              {isJsonView ? "JSON en vivo" : "Lienzo de trabajo"}
-            </h1>
-            {!isJsonView &&
+            <h1 className="text-lg font-semibold text-slate-800 dark:text-neutral-100">{title}</h1>
+            {isCanvasView &&
               (isIntro ? (
                 <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 dark:bg-white dark:text-neutral-900">
                   Modal de entrada
@@ -41,29 +58,11 @@ export function Canvas() {
                 </span>
               ))}
           </div>
-          <p className="text-sm text-slate-400 dark:text-neutral-500">
-            {isJsonView
-              ? "Vista previa del JSON exportado del formulario completo"
-              : isIntro
-                ? "Editando el modal de entrada — flota sobre el formulario"
-                : "Arrastra campos aquí para construir el formulario"}
-          </p>
+          <p className="text-sm text-slate-400 dark:text-neutral-500">{subtitle}</p>
         </div>
         <div className="flex items-center gap-3">
           <SaveButton />
-          <button
-            type="button"
-            onClick={() => setIsJsonView((prev) => !prev)}
-            aria-pressed={isJsonView}
-            className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors hover:cursor-pointer ${
-              isJsonView
-                ? "border-orange-600 bg-orange-600 text-white hover:bg-orange-500 dark:border-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400"
-                : "border-slate-300 bg-white text-slate-500 hover:border-slate-400 hover:bg-slate-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800"
-            }`}
-          >
-            {isJsonView ? <Code size={14} weight="Filled" /> : <TerminalSquare size={14} />}
-            {isJsonView ? "Volver al lienzo" : "Ver JSON"}
-          </button>
+          <TabButtonGroup tabs={VIEW_MODE_TABS} activeTab={viewMode} onSelect={setViewMode} />
           <button
             type="button"
             onClick={() => downloadFormExport(formSteps, setupConfig, introSteps)}
@@ -74,16 +73,16 @@ export function Canvas() {
         </div>
       </header>
 
-      {isJsonView ? (
-        <JsonPreviewCanvas />
-      ) : (
+      {viewMode === "json" && <JsonPreviewCanvas />}
+      {viewMode === "payload" && <PayloadPreviewCanvas />}
+      {isCanvasView && (
         <>
           <CanvasTabs />
           <StepTitleEditor />
         </>
       )}
 
-      {!isJsonView &&
+      {isCanvasView &&
         (isIntro ? (
           <div className="relative flex min-h-[70vh] items-center justify-center overflow-hidden rounded-lg bg-slate-100 p-6 dark:bg-neutral-950">
             {/* Lienzo de fondo: decorativo y no editable, solo aparenta el formulario detrás */}

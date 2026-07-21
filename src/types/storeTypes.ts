@@ -56,6 +56,8 @@ export interface EnableCondition {
   value?: string | number | boolean;
 }
 
+export type ApiBinding = { kind: "mapped"; path: string } | { kind: "excluded" };
+
 export interface CanvasField {
   id: string;
   type: string;
@@ -70,6 +72,7 @@ export interface CanvasField {
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
   enableWhen?: EnableCondition;
+  apiBinding?: ApiBinding;
 }
 
 export interface CanvasRow {
@@ -110,6 +113,7 @@ export interface SavedComponent {
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
   enableWhen?: EnableCondition;
+  apiBinding?: ApiBinding;
 }
 
 export type CanvasTarget =
@@ -129,7 +133,14 @@ export interface DragPlacement extends FieldPlacement {
   isValid: boolean;
 }
 
-export type SidebarTab = "fields" | "attributes" | "validations" | "styles" | "logic" | "library";
+export type SidebarTab =
+  | "fields"
+  | "attributes"
+  | "validations"
+  | "styles"
+  | "logic"
+  | "apiMapping"
+  | "library";
 
 export interface StateSlice {
   formSteps: FormStep[];

@@ -394,6 +394,13 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         enableWhen: condition ?? undefined,
       })),
     ),
+  updateFieldApiBinding: (fieldId, binding) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        apiBinding: binding ?? undefined,
+      })),
+    ),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>
     set((state) => {
@@ -503,6 +510,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       fileConfig: field.fileConfig,
       alwaysDisabled: field.alwaysDisabled,
       enableWhen: field.enableWhen,
+      apiBinding: field.apiBinding,
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -533,6 +541,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           : undefined,
         alwaysDisabled: component.alwaysDisabled,
         enableWhen: component.enableWhen ? { ...component.enableWhen } : undefined,
+        apiBinding: component.apiBinding ? { ...component.apiBinding } : undefined,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

@@ -21,6 +21,7 @@ function mapRows(rows: CanvasRow[]): ExportedRow[] {
       fileConfig: field.fileConfig,
       alwaysDisabled: field.alwaysDisabled,
       enableWhen: field.enableWhen,
+      apiBinding: field.apiBinding,
     })),
   }));
 }

@@ -2,6 +2,7 @@
 import { PanelHeader } from "../../molecules/PanelHeader/PanelHeader";
 import { SidebarTabRail } from "../../molecules/SidebarTabRail/SidebarTabRail";
 import { FieldPalette } from "../FieldPalette/FieldPalette";
+import { ApiMappingPanel } from "../panels/ApiMappingPanel/ApiMappingPanel";
 import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
 import { LibraryPanel } from "../panels/LibraryPanel/LibraryPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
@@ -62,6 +63,7 @@ export function Sidebar() {
           )}
           {selectedField && activeTab === "styles" && <StylesPanel field={selectedField} />}
           {selectedField && activeTab === "logic" && <LogicPanel field={selectedField} />}
+          {selectedField && activeTab === "apiMapping" && <ApiMappingPanel field={selectedField} />}
           {activeTab === "library" && <LibraryPanel selectedField={selectedField} />}
         </div>
       </section>

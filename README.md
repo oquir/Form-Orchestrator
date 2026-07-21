@@ -71,9 +71,16 @@ El wiring de drag-and-drop (paleta → fila, Almacén → fila) vive en el `DndC
 
 ## Gaps conocidos / no implementado
 
-- No hay editor de código estilo Monaco para la tab de Lógica — `LogicPanel` edita `logic.typeScript` como string plano, y las dependencias (`toggleFieldDependency`) son toggles simples de field-id, no expresiones condicionales.
-- No hay menú flotante para cambiar la cantidad de columnas base de una fila (`CanvasRow.columns` siempre se crea en `12` y no es editable).
-- No hay drag-resize del `colSpan` de un campo arrastrando sus bordes — sólo es editable desde el panel de Atributos.
-- No hay test runner configurado.
+- No hay editor de código estilo Monaco para la tab de Lógica — `LogicPanel` edita `logic.typeScript` como string plano. La activación condicional sí está implementada aparte (`enableWhen` + `ConditionEditor`); `logic.dependencies` sigue siendo una lista de toggles de field-id.
+- No hay test runner configurado, y no se va a agregar por ahora: el proyecto es demasiado volátil como para justificarlo.
+- No hay versionado de schema en el draft de `localStorage`; si cambia la forma del store, los borradores viejos pueden romperse en silencio.
+
+### Gaps frente al contrato de la API de Declaración de ICA
+
+El payload real (`DeclaracionIcaE`) es un objeto **anidado** por bloques (`contribuyente`, `baseGravable`, `actividades[]`, `impuestoACargo`, `ajusteDeclaracion`, `totalDeclaracion`, `declarante`, `responsableLegal`). El builder todavía no puede expresar tres cosas que ese contrato necesita:
+
+- **Grupos repetibles.** `actividades` es un array de `{idActividad, ingresoGravado, tarifaXMil, valorImpuestoActividad}` que el usuario final agrega N veces. El modelo `rows → fields` no tiene noción de repetición, así que hoy no hay forma de representarlo.
+- **Ruta destino por campo.** El export es plano (`fields[].fieldId` es un uuid) y no dice a qué propiedad de la API corresponde cada campo — falta algo tipo `apiPath` (`"baseGravable.totalIngresosGravables"`), o bien resolver el mapeo entero del lado del consumer.
+- **Opciones para `select`.** Buena parte del contrato son catálogos (`idTipoDocumento`, `idCiudad`, `idActividad`, `idTipoSancion`, `idTipoRepresentante`, …) que se llenan desde endpoints. Sólo `toggle_group` tiene `options[]`; el tipo `select` no tiene ni opciones estáticas ni forma de apuntar a una fuente remota.
 
 `docs/Project.md` (en español) es la especificación de producto original — sigue siendo la referencia para la forma del JSON destino y cualquier detalle no implementado; conviene revisarla antes de agregar features para que la estructura coincida con el modelo de datos previsto.

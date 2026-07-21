@@ -11,6 +11,7 @@ Not yet implemented / known gaps:
 - No test runner configured, and none will be added: the user considers the project too volatile to justify tests right now.
 - `logic.typeScript` is exported as a raw string; the consumer will need `new Function()`/`eval` to execute it. The user builds the consumer too, so this is a coordinated decision — not a public API constraint.
 - No draft schema versioning in `persistence.ts`; if the store shape changes, old localStorage drafts can silently break.
+- Three gaps against the real ICA API contract (`DeclaracionIcaE`, documented in the README): no **repeatable groups** (the `actividades[]` array has no representation in `rows → fields`), no **`apiPath` per field** to say which nested API property a field feeds, and no **options for `select`** (only `toggle_group` has `options[]`, and nothing points at a remote catalog endpoint).
 
 ## Zone placement (Shift / Shift+Ctrl while dragging)
 
