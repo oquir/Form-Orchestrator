@@ -17,5 +17,6 @@ export interface UseFieldContextMenuResult {
   field: CanvasField | null;
   activeTab: ContextMenuTab;
   handleSelectTab: (tab: ContextMenuTab) => void;
+  handleDelete: () => void;
   position: FieldContextMenuPosition;
 }

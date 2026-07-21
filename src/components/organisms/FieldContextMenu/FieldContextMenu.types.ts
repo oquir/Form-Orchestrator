@@ -1,1 +1,1 @@
-export type ContextMenuTab = "attributes" | "styles" | "validations" | "logic" | "delete";
+export type ContextMenuTab = "attributes" | "styles" | "validations" | "logic" | "apiMapping";

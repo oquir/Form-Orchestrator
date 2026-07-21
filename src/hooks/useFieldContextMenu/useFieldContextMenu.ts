@@ -17,12 +17,12 @@ export function useFieldContextMenu({
   const field = findFieldById(activeRows, menu.fieldId);
 
   function handleSelectTab(tab: ContextMenuTab): void {
-    if (tab === "delete") {
-      removeField(menu.fieldId);
-      onClose();
-      return;
-    }
     setActiveTab(tab);
+  }
+
+  function handleDelete(): void {
+    removeField(menu.fieldId);
+    onClose();
   }
 
   useEffect(() => {
@@ -45,6 +45,7 @@ export function useFieldContextMenu({
     field,
     activeTab,
     handleSelectTab,
+    handleDelete,
     position: {
       left: Math.max(VIEWPORT_MARGIN_PX, left),
       top: Math.max(VIEWPORT_MARGIN_PX, top),

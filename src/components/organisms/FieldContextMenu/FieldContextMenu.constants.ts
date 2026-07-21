@@ -6,5 +6,5 @@ export const CONTEXT_MENU_TABS: TabButtonGroupItem<ContextMenuTab>[] = [
   { tab: "styles", label: "Estilos" },
   { tab: "validations", label: "Validaciones" },
   { tab: "logic", label: "Lógica" },
-  { tab: "delete", label: "Borrar", variant: "danger" },
+  { tab: "apiMapping", label: "Mapeo API" },
 ];
