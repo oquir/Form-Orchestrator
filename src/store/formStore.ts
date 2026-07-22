@@ -44,7 +44,7 @@ function createEmptyField(
     logic: { dependencies: [], typeScript: "" },
   };
 
-  if (type === "toggle_group") {
+  if (type === "toggle_group" || type === "radio_group") {
     const optionCount = Math.max(2, extra?.optionCount ?? 2);
     field.title = extra?.title?.trim() || undefined;
     field.options = Array.from({ length: optionCount }, (_, index) => ({

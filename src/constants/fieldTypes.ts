@@ -9,4 +9,5 @@ export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "calculated", label: "Calculado", category: "basico" },
   { type: "file", label: "Archivo", category: "basico" },
   { type: "toggle_group", label: "Toggle Buttons", category: "complejo" },
+  { type: "radio_group", label: "Radio Buttons", category: "complejo" },
 ];

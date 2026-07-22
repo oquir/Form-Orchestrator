@@ -35,6 +35,35 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
         </div>
       );
     }
+    case "radio_group": {
+      const options = field.options ?? [];
+      return (
+        <div className="flex flex-col gap-1.5">
+          {field.title && (
+            <p className="text-xs font-medium text-slate-500 dark:text-neutral-400">
+              {field.title}
+            </p>
+          )}
+          <div className="flex flex-col gap-1">
+            {options.map((option, index) => (
+              <p
+                key={option.id}
+                className="flex items-center gap-2 text-xs text-slate-500 overflow-x-hidden dark:text-neutral-400"
+              >
+                <span
+                  className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
+                    index === 0 ? "border-orange-500" : "border-slate-300 dark:border-neutral-600"
+                  }`}
+                >
+                  {index === 0 && <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />}
+                </span>
+                {option.label}
+              </p>
+            ))}
+          </div>
+        </div>
+      );
+    }
     case "select":
       return (
         <div className={MOCK_CONTROL_CLASSES}>

@@ -3,9 +3,13 @@ import { Button } from "../../atoms/Button/Button";
 import { ModalActions } from "../../atoms/ModalActions/ModalActions";
 import { ModalShell } from "../../atoms/ModalShell/ModalShell";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
-import type { AddToggleGroupModalProps } from "./AddToggleGroupModal.types";
+import type { AddOptionsFieldModalProps } from "./AddOptionsFieldModal.types";
 
-export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModalProps) {
+export function AddOptionsFieldModal({
+  fieldTypeLabel,
+  onConfirm,
+  onCancel,
+}: AddOptionsFieldModalProps) {
   const [title, setTitle] = useState<string>("");
   const [optionCount, setOptionCount] = useState<number>(2);
   const isValid: boolean = optionCount >= 2;
@@ -13,7 +17,7 @@ export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModal
   return (
     <ModalShell>
       <h2 className="mb-1 text-lg font-semibold text-slate-800 dark:text-neutral-100">
-        Agregar Toggle Buttons
+        Agregar {fieldTypeLabel}
       </h2>
       <p className="mb-4 text-sm text-slate-500 dark:text-neutral-400">
         Definí cuántas opciones tendrá el grupo. Podrás editar sus etiquetas después.
@@ -21,7 +25,7 @@ export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModal
 
       <div className="mb-4 flex flex-col gap-4">
         <LabeledInput
-          id="toggle-group-title"
+          id="options-field-title"
           label="Título del grupo (opcional)"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
@@ -29,7 +33,7 @@ export function AddToggleGroupModal({ onConfirm, onCancel }: AddToggleGroupModal
         />
 
         <LabeledInput
-          id="toggle-group-count"
+          id="options-field-count"
           label="Cantidad de opciones"
           type="number"
           min={2}

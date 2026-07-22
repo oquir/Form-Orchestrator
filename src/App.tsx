@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import "./index.css";
 import { AppLayout } from "./components/layout/AppLayout";
 import { DragPreview } from "./components/molecules/DragPreview/DragPreview";
-import { AddToggleGroupModal } from "./components/organisms/AddToggleGroupModal/AddToggleGroupModal";
+import { AddOptionsFieldModal } from "./components/organisms/AddOptionsFieldModal/AddOptionsFieldModal";
 import { Canvas } from "./components/organisms/Canvas/Canvas";
 import { DraftRecoveryModal } from "./components/organisms/DraftRecoveryModal/DraftRecoveryModal";
 import { SetupWizardModal } from "./components/organisms/SetupWizardModal/SetupWizardModal";
@@ -23,12 +23,12 @@ function App() {
   const {
     sensors,
     activeDrag,
-    pendingToggleGroup,
+    pendingOptionsField,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
-    confirmToggleGroup,
-    cancelToggleGroup,
+    confirmOptionsField,
+    cancelOptionsField,
   } = useDragAndDrop();
 
   useAutosave();
@@ -74,8 +74,12 @@ function App() {
       onDragEnd={handleDragEnd}
     >
       <AppLayout sidebar={<Sidebar />} canvas={<Canvas />} />
-      {pendingToggleGroup && (
-        <AddToggleGroupModal onCancel={cancelToggleGroup} onConfirm={confirmToggleGroup} />
+      {pendingOptionsField && (
+        <AddOptionsFieldModal
+          fieldTypeLabel={pendingOptionsField.fieldType.label}
+          onCancel={cancelOptionsField}
+          onConfirm={confirmOptionsField}
+        />
       )}
       <DragOverlay>{activeDrag ? <DragPreview activeDrag={activeDrag} /> : null}</DragOverlay>
     </DndContext>

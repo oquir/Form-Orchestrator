@@ -9,6 +9,7 @@ export function operatorsForFieldType(type: string): EnableOperator[] {
       return ["equals", "notEquals", "greaterThan", "lessThan", "isEmpty", "isNotEmpty"];
     case "select":
     case "toggle_group":
+    case "radio_group":
       return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
     case "file":
       return ["isEmpty", "isNotEmpty"];

@@ -14,7 +14,8 @@ export function buildZodSchema(field: CanvasField): string {
     case "checkbox":
       schema = "z.boolean()";
       break;
-    case "toggle_group": {
+    case "toggle_group":
+    case "radio_group": {
       const optionIds = (field.options ?? []).map((option) => JSON.stringify(option.id));
       schema = optionIds.length > 0 ? `z.enum([${optionIds.join(", ")}])` : "z.string()";
       break;

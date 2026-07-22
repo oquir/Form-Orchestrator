@@ -12,8 +12,8 @@ import type {
   FieldPlacement,
   SavedComponent,
 } from "../../types/storeTypes";
-import { DRAG_ACTIVATION_DISTANCE_PX } from "./useDragAndDrop.constants";
-import type { PendingToggleGroup, PointerPosition } from "./useDragAndDrop.types";
+import { DRAG_ACTIVATION_DISTANCE_PX, OPTIONS_GROUP_FIELD_TYPES } from "./useDragAndDrop.constants";
+import type { PendingOptionsField, PointerPosition } from "./useDragAndDrop.types";
 import { getColumnAtPointer, getRowElement } from "./useDragAndDrop.utils";
 
 export function useDragAndDrop() {
@@ -22,7 +22,7 @@ export function useDragAndDrop() {
   const moveField = useFormStore((state) => state.moveField);
   const setDragPlacement = useFormStore((state) => state.setDragPlacement);
   const [activeDrag, setActiveDrag] = useState<ActiveDrag | null>(null);
-  const [pendingToggleGroup, setPendingToggleGroup] = useState<PendingToggleGroup | null>(null);
+  const [pendingOptionsField, setPendingOptionsField] = useState<PendingOptionsField | null>(null);
 
   const activeDragRef = useRef<ActiveDrag | null>(null);
   const hoveredRowIdRef = useRef<string | null>(null);
@@ -163,8 +163,8 @@ export function useDragAndDrop() {
 
     if (data?.source === "palette") {
       const fieldType = data.fieldType as FieldTypeDef;
-      if (fieldType.type === "toggle_group") {
-        setPendingToggleGroup({ rowId: targetRowId, fieldType, placement: requested });
+      if (OPTIONS_GROUP_FIELD_TYPES.includes(fieldType.type)) {
+        setPendingOptionsField({ rowId: targetRowId, fieldType, placement: requested });
       } else {
         addFieldToRow(targetRowId, fieldType, undefined, requested);
       }
@@ -177,29 +177,29 @@ export function useDragAndDrop() {
     }
   }
 
-  function confirmToggleGroup(config: { title?: string; optionCount: number }): void {
-    if (!pendingToggleGroup) return;
+  function confirmOptionsField(config: { title?: string; optionCount: number }): void {
+    if (!pendingOptionsField) return;
     addFieldToRow(
-      pendingToggleGroup.rowId,
-      pendingToggleGroup.fieldType,
+      pendingOptionsField.rowId,
+      pendingOptionsField.fieldType,
       config,
-      pendingToggleGroup.placement,
+      pendingOptionsField.placement,
     );
-    setPendingToggleGroup(null);
+    setPendingOptionsField(null);
   }
 
-  function cancelToggleGroup(): void {
-    setPendingToggleGroup(null);
+  function cancelOptionsField(): void {
+    setPendingOptionsField(null);
   }
 
   return {
     sensors,
     activeDrag,
-    pendingToggleGroup,
+    pendingOptionsField,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
-    confirmToggleGroup,
-    cancelToggleGroup,
+    confirmOptionsField,
+    cancelOptionsField,
   };
 }

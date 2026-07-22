@@ -5,6 +5,7 @@ import type { CanvasField } from "../../../../types/storeTypes";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
+import { RadioGroupOptionsEditor } from "../RadioGroupOptionsEditor/RadioGroupOptionsEditor";
 import { ToggleGroupOptionsEditor } from "../ToggleGroupOptionsEditor/ToggleGroupOptionsEditor";
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
@@ -36,6 +37,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       />
 
       {field.type === "toggle_group" && <ToggleGroupOptionsEditor field={field} />}
+      {field.type === "radio_group" && <RadioGroupOptionsEditor field={field} />}
       {field.type === "file" && <FileOptionsEditor field={field} />}
     </div>
   );

@@ -81,6 +81,6 @@ El payload real (`DeclaracionIcaE`) es un objeto **anidado** por bloques (`contr
 
 - **Grupos repetibles.** `actividades` es un array de `{idActividad, ingresoGravado, tarifaXMil, valorImpuestoActividad}` que el usuario final agrega N veces. El modelo `rows → fields` no tiene noción de repetición, así que hoy no hay forma de representarlo.
 - **Ruta destino por campo.** El export es plano (`fields[].fieldId` es un uuid) y no dice a qué propiedad de la API corresponde cada campo — falta algo tipo `apiPath` (`"baseGravable.totalIngresosGravables"`), o bien resolver el mapeo entero del lado del consumer.
-- **Opciones para `select`.** Buena parte del contrato son catálogos (`idTipoDocumento`, `idCiudad`, `idActividad`, `idTipoSancion`, `idTipoRepresentante`, …) que se llenan desde endpoints. Sólo `toggle_group` tiene `options[]`; el tipo `select` no tiene ni opciones estáticas ni forma de apuntar a una fuente remota.
+- **Opciones para `select`.** Buena parte del contrato son catálogos (`idTipoDocumento`, `idCiudad`, `idActividad`, `idTipoSancion`, `idTipoRepresentante`, …) que se llenan desde endpoints. Sólo `toggle_group` y `radio_group` tienen `options[]`; el tipo `select` no tiene ni opciones estáticas ni forma de apuntar a una fuente remota.
 
 `docs/Project.md` (en español) es la especificación de producto original — sigue siendo la referencia para la forma del JSON destino y cualquier detalle no implementado; conviene revisarla antes de agregar features para que la estructura coincida con el modelo de datos previsto.
