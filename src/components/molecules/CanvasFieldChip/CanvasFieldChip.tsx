@@ -19,10 +19,7 @@ export function CanvasFieldChip({
   onContextMenu,
 }: CanvasFieldChipProps) {
   const updateField = useFormStore((state) => state.updateField);
-  const maxSpan: number = getMaxSpanAt(
-    getFreeRuns(rowFields, rowColumns, field.id),
-    field.colStart,
-  );
+  const maxSpan = getMaxSpanAt(getFreeRuns(rowFields, rowColumns, field.id), field.colStart);
 
   const {
     listeners,
@@ -44,9 +41,9 @@ export function CanvasFieldChip({
     setDropRef(node);
   }
 
-  const isUltraCompact: boolean = field.colSpan === 1 && rowColumns >= GRID_BASE_COLUMNS;
-  const isCompact: boolean = rowColumns >= 13 && field.colSpan === 1;
-  const shouldHideContent: boolean = field.colSpan === 1 && rowColumns >= 14;
+  const isUltraCompact = field.colSpan === 1 && rowColumns >= GRID_BASE_COLUMNS;
+  const isCompact = rowColumns >= 13 && field.colSpan === 1;
+  const shouldHideContent = field.colSpan === 1 && rowColumns >= 14;
 
   return (
     <div

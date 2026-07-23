@@ -12,7 +12,7 @@ export function AddOptionsFieldModal({
 }: AddOptionsFieldModalProps) {
   const [title, setTitle] = useState<string>("");
   const [optionCount, setOptionCount] = useState<number>(2);
-  const isValid: boolean = optionCount >= 2;
+  const isValid = optionCount >= 2;
 
   return (
     <ModalShell>

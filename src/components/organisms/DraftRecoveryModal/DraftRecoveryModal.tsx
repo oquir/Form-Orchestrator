@@ -4,7 +4,7 @@ import { ModalShell } from "../../atoms/ModalShell/ModalShell";
 import type { DraftRecoveryModalProps } from "./DraftRecoveryModal.types";
 
 export function DraftRecoveryModal({ draft, onRestore, onDiscard }: DraftRecoveryModalProps) {
-  const savedAtLabel: string = new Date(draft.savedAt).toLocaleString();
+  const savedAtLabel = new Date(draft.savedAt).toLocaleString();
 
   return (
     <ModalShell maxWidthClassName="max-w-md">

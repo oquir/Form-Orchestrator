@@ -12,7 +12,7 @@ export function LogicPanel({ field }: { field: CanvasField }) {
 
   const allFields: CanvasField[] = getAllFields(formSteps.flatMap((step) => step.rows));
   const otherFields: CanvasField[] = allFields.filter((candidate) => candidate.id !== field.id);
-  const isAlwaysDisabled: boolean = Boolean(field.alwaysDisabled);
+  const isAlwaysDisabled = Boolean(field.alwaysDisabled);
 
   return (
     <div className="flex flex-col gap-4">

@@ -1,9 +1,9 @@
 import type { RowZoneOverlayProps } from "./RowZoneOverlay.types";
 
 export function RowZoneOverlay({ columns, placement }: RowZoneOverlayProps) {
-  const zones: number[] = Array.from({ length: columns }, (_, index) => index + 1);
-  const gridTemplateColumns: string = `repeat(${columns}, minmax(0, 1fr))`;
-  const label: string = placement.isValid
+  const zones = Array.from({ length: columns }, (_, index) => index + 1);
+  const gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
+  const label = placement.isValid
     ? `${placement.colStart} → ${placement.colStart + placement.colSpan - 1} · ${placement.colSpan} col`
     : "Sin espacio";
 

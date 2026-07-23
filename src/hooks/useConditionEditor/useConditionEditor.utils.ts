@@ -26,6 +26,7 @@ export function wouldCreateCycle(
   const byId = new Map(allFields.map((f) => [f.id, f]));
   const visited = new Set<string>();
   const stack = [targetFieldId];
+
   while (stack.length > 0) {
     const id = stack.pop() as string;
     if (id === currentFieldId) return true;

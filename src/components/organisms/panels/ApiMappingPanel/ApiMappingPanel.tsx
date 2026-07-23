@@ -3,20 +3,19 @@ import { flattenLeaves, resolveLeafType } from "../../../../lib/payloadSchema/pa
 import { PAYLOAD_SCHEMA } from "../../../../lib/payloadSchema/payloadSchema.constants";
 import type { SchemaLeaf } from "../../../../lib/payloadSchema/payloadSchema.types";
 import { useFormStore } from "../../../../store/formStore";
-import type { SchemaNodeType } from "../../../../types/payloadSchema";
-import type { ApiBinding, CanvasField } from "../../../../types/storeTypes";
+import type { CanvasField } from "../../../../types/storeTypes";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { ApiPathSelect } from "../../../molecules/ApiPathSelect/ApiPathSelect";
 
 export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const updateFieldApiBinding = useFormStore((state) => state.updateFieldApiBinding);
-  const binding: ApiBinding | undefined = field.apiBinding;
-  const isExcluded: boolean = binding?.kind === "excluded";
-  const path: string = binding?.kind === "mapped" ? binding.path : "";
+  const binding = field.apiBinding;
+  const isExcluded = binding?.kind === "excluded";
+  const path = binding?.kind === "mapped" ? binding.path : "";
   const leaves: SchemaLeaf[] = flattenLeaves(PAYLOAD_SCHEMA);
-  const resolvedType: SchemaNodeType | null = path ? resolveLeafType(PAYLOAD_SCHEMA, path) : null;
-  const isOrphan: boolean = Boolean(path) && resolvedType === null;
-  const showTypeMismatch: boolean = Boolean(
+  const resolvedType = path ? resolveLeafType(PAYLOAD_SCHEMA, path) : null;
+  const isOrphan = Boolean(path) && resolvedType === null;
+  const showTypeMismatch = Boolean(
     resolvedType && !fieldMatchesSchemaType(field.type, resolvedType),
   );
 

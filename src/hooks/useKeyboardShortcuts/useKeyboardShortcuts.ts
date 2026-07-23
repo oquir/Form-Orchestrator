@@ -6,10 +6,10 @@ import type { FormState } from "../../types/formStoreTypes";
 export function useKeyboardShortcuts() {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent): void {
-      const isMod: boolean = event.ctrlKey || event.metaKey;
+      const isMod = event.ctrlKey || event.metaKey;
       if (!isMod) return;
 
-      const key: string = event.key.toLowerCase();
+      const key = event.key.toLowerCase();
 
       if (key === "s") {
         event.preventDefault();

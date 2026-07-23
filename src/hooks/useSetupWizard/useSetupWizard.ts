@@ -10,8 +10,8 @@ export function useSetupWizard(): UseSetupWizardResult {
   const [hasIntroModal, setHasIntroModal] = useState<boolean | null>(null);
   const [introModalSteps, setIntroModalSteps] = useState<number>(1);
 
-  const canProceed: boolean = formType !== null;
-  const canFinish: boolean = hasIntroModal !== null;
+  const canProceed = formType !== null;
+  const canFinish = hasIntroModal !== null;
 
   function goNext(): void {
     setStep(2);

@@ -4,11 +4,12 @@ import type { SchemaLeaf } from "./payloadSchema.types";
 function collectLeaves(node: SchemaNode, path: string, out: SchemaLeaf[]): void {
   if (node.type === "object") {
     for (const child of node.children ?? []) {
-      const childPath: string = path ? `${path}.${child.key}` : child.key;
+      const childPath = path ? `${path}.${child.key}` : child.key;
       collectLeaves(child, childPath, out);
     }
     return;
   }
+
   if (node.type === "array") return;
   out.push({ path, type: node.type });
 }

@@ -11,8 +11,8 @@ import { ToggleGroupOptionsEditor } from "../ToggleGroupOptionsEditor/ToggleGrou
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
   const row = useFormStore((state) => findRowContainingField(state, field.id));
-  const rowColumns: number = row?.columns ?? GRID_BASE_COLUMNS;
-  const maxSpan: number = row
+  const rowColumns = row?.columns ?? GRID_BASE_COLUMNS;
+  const maxSpan = row
     ? getMaxSpanAt(getFreeRuns(row.fields, row.columns, field.id), field.colStart)
     : rowColumns;
 

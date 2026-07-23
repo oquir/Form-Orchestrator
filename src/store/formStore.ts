@@ -109,10 +109,12 @@ export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null 
     const row = step.rows.find((r) => r.id === rowId);
     if (row) return row;
   }
+
   for (const step of slice.introModal.steps) {
     const row = step.rows.find((r) => r.id === rowId);
     if (row) return row;
   }
+
   return null;
 }
 
@@ -126,7 +128,7 @@ function buildInitialFormSteps(formType: FormType): FormStep[] {
   ];
 }
 
-const THEME_STORAGE_KEY: string = "form-orchestrator-theme";
+const THEME_STORAGE_KEY = "form-orchestrator-theme";
 
 function getInitialDarkMode(): boolean {
   if (typeof window === "undefined") return false;

@@ -13,7 +13,7 @@ export function getFreeRuns(
   const occupied: boolean[] = new Array(columns + 2).fill(false);
   for (const field of fields) {
     if (field.id === excludeFieldId) continue;
-    const end: number = Math.min(field.colStart + field.colSpan - 1, columns);
+    const end = Math.min(field.colStart + field.colSpan - 1, columns);
     for (let column = Math.max(1, field.colStart); column <= end; column++) {
       occupied[column] = true;
     }
@@ -48,13 +48,14 @@ export function findNearestFit(
   colSpan: number,
 ): number | null {
   let best: number | null = null;
-  let bestDistance: number = Number.POSITIVE_INFINITY;
+  let bestDistance = Number.POSITIVE_INFINITY;
 
   for (const run of runs) {
     if (run.length < colSpan) continue;
-    const lastValidStart: number = run.start + run.length - colSpan;
-    const candidate: number = Math.min(Math.max(desiredStart, run.start), lastValidStart);
-    const distance: number = Math.abs(candidate - desiredStart);
+    const lastValidStart = run.start + run.length - colSpan;
+    const candidate = Math.min(Math.max(desiredStart, run.start), lastValidStart);
+    const distance = Math.abs(candidate - desiredStart);
+
     if (distance < bestDistance) {
       best = candidate;
       bestDistance = distance;
@@ -90,7 +91,7 @@ export function resolvePlacement(
   const runs: FreeRun[] = getFreeRuns(row.fields, row.columns, excludeFieldId);
 
   if (requested) {
-    const span: number = Math.max(1, Math.min(requested.colSpan, row.columns));
+    const span = Math.max(1, Math.min(requested.colSpan, row.columns));
     const snapped: number | null = findNearestFit(runs, requested.colStart, span);
     if (snapped !== null) return { colStart: snapped, colSpan: span };
   }
@@ -107,12 +108,12 @@ export function resolvePlacement(
 
 export function repackRow(row: CanvasRow, columns: number): CanvasRow {
   const ordered: CanvasField[] = sortByColumn(row.fields);
-  let cursor: number = 1;
+  let cursor = 1;
 
   const fields: CanvasField[] = ordered.map((field, index) => {
-    const fieldsAfter: number = ordered.length - index - 1;
-    const available: number = columns - cursor + 1 - fieldsAfter;
-    const colSpan: number = Math.max(1, Math.min(field.colSpan, available));
+    const fieldsAfter = ordered.length - index - 1;
+    const available = columns - cursor + 1 - fieldsAfter;
+    const colSpan = Math.max(1, Math.min(field.colSpan, available));
     const placed: CanvasField = { ...field, colStart: cursor, colSpan };
     cursor += colSpan;
     return placed;
@@ -124,10 +125,10 @@ export function repackRow(row: CanvasRow, columns: number): CanvasRow {
 export function splitOverflowingRow(row: CanvasRow): CanvasRow[] {
   const lines: CanvasField[][] = [];
   let current: CanvasField[] = [];
-  let cursor: number = 1;
+  let cursor = 1;
 
   for (const field of row.fields) {
-    const colSpan: number = Math.max(1, Math.min(field.colSpan, row.columns));
+    const colSpan = Math.max(1, Math.min(field.colSpan, row.columns));
     if (cursor + colSpan - 1 > row.columns && current.length > 0) {
       lines.push(current);
       current = [];
@@ -147,7 +148,7 @@ export function splitOverflowingRow(row: CanvasRow): CanvasRow[] {
 }
 
 export function migrateRows(rows: CanvasRow[]): CanvasRow[] {
-  const needsMigration: boolean = rows.some((row) =>
+  const needsMigration = rows.some((row) =>
     row.fields.some((field) => typeof field.colStart !== "number"),
   );
   if (!needsMigration) return rows;

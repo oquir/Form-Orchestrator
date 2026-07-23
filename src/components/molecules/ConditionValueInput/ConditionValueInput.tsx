@@ -6,7 +6,7 @@ export function ConditionValueInput({
   observedField,
   onChange,
 }: ConditionValueInputProps) {
-  const stringValue: string = condition.value === undefined ? "" : String(condition.value);
+  const stringValue = condition.value === undefined ? "" : String(condition.value);
 
   return (
     <div className="flex flex-col gap-1">

@@ -70,7 +70,7 @@ export function downloadFormExport(
 ): void {
   const data: FormExport = buildFormExport(formSteps, setupConfig, introModalSteps);
   const blob: Blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url: string = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
   const anchor: HTMLAnchorElement = document.createElement("a");
   anchor.href = url;
   anchor.download = `${data.projectMeta.formId}.json`;

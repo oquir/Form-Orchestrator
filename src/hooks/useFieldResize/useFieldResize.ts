@@ -19,22 +19,22 @@ export function useFieldResize({
 
     const rowRect: DOMRect = rowElement.getBoundingClientRect();
     const rowStyles: CSSStyleDeclaration = window.getComputedStyle(rowElement);
-    const paddingLeft: number = Number.parseFloat(rowStyles.paddingLeft) || 0;
-    const paddingRight: number = Number.parseFloat(rowStyles.paddingRight) || 0;
-    const usableWidth: number = rowRect.width - paddingLeft - paddingRight;
-    const perColumn: number = (usableWidth - (rowColumns - 1) * GRID_GAP_PX) / rowColumns;
+    const paddingLeft = Number.parseFloat(rowStyles.paddingLeft) || 0;
+    const paddingRight = Number.parseFloat(rowStyles.paddingRight) || 0;
+    const usableWidth = rowRect.width - paddingLeft - paddingRight;
+    const perColumn = (usableWidth - (rowColumns - 1) * GRID_GAP_PX) / rowColumns;
     if (perColumn <= 0) return;
 
-    const startX: number = event.clientX;
-    const startColSpan: number = colSpan;
-    let lastApplied: number = startColSpan;
+    const startX = event.clientX;
+    const startColSpan = colSpan;
+    let lastApplied = startColSpan;
 
     setIsResizing(true);
 
     function handlePointerMove(moveEvent: PointerEvent): void {
-      const deltaX: number = moveEvent.clientX - startX;
-      const deltaCols: number = Math.round(deltaX / (perColumn + GRID_GAP_PX));
-      const next: number = Math.max(1, Math.min(maxSpan, startColSpan + deltaCols));
+      const deltaX = moveEvent.clientX - startX;
+      const deltaCols = Math.round(deltaX / (perColumn + GRID_GAP_PX));
+      const next = Math.max(1, Math.min(maxSpan, startColSpan + deltaCols));
       if (next !== lastApplied) {
         lastApplied = next;
         onResize(next);

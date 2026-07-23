@@ -14,13 +14,11 @@ export function useConditionEditor({
   const setFieldEnableWhen = useFormStore((state) => state.setFieldEnableWhen);
   const condition = field.enableWhen;
   const observed = condition ? (otherFields.find((f) => f.id === condition.fieldId) ?? null) : null;
-  const observedIsDead: boolean = Boolean(condition && !observed);
+  const observedIsDead = Boolean(condition && !observed);
   const availableOperators: EnableOperator[] = observed
     ? operatorsForFieldType(observed.type)
     : DEFAULT_OPERATORS;
-  const needsValue: boolean = Boolean(
-    condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator),
-  );
+  const needsValue = Boolean(condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator));
 
   function updateCondition(next: Partial<EnableCondition>): void {
     if (!condition) return;
@@ -29,8 +27,11 @@ export function useConditionEditor({
 
   function setConditionOnField(targetFieldId: string): void {
     const nextField = otherFields.find((f) => f.id === targetFieldId);
+
     if (!nextField) return;
+
     const ops: EnableOperator[] = operatorsForFieldType(nextField.type);
+
     setFieldEnableWhen(field.id, {
       fieldId: nextField.id,
       operator: ops[0],
@@ -43,8 +44,11 @@ export function useConditionEditor({
       setFieldEnableWhen(field.id, null);
       return;
     }
+
     const firstCandidate = otherFields[0];
+
     if (!firstCandidate) return;
+
     setConditionOnField(firstCandidate.id);
   }
 
@@ -53,6 +57,7 @@ export function useConditionEditor({
       window.alert("Esa condición generaría un ciclo entre campos.");
       return;
     }
+
     setConditionOnField(nextFieldId);
   }
 

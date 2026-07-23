@@ -6,12 +6,7 @@ import { findNearestFit, getFreeRuns } from "../../lib/rowLayout/rowLayout";
 import { findRowById, useFormStore } from "../../store/formStore";
 import type { ActiveDrag } from "../../types/activeDrag";
 import type { FieldTypeDef } from "../../types/fieldTypes";
-import type {
-  CanvasField,
-  DragPlacement,
-  FieldPlacement,
-  SavedComponent,
-} from "../../types/storeTypes";
+import type { CanvasField, SavedComponent } from "../../types/storeTypes";
 import { DRAG_ACTIVATION_DISTANCE_PX, OPTIONS_GROUP_FIELD_TYPES } from "./useDragAndDrop.constants";
 import type { PendingOptionsField, PointerPosition } from "./useDragAndDrop.types";
 import { getColumnAtPointer, getRowElement } from "./useDragAndDrop.utils";
@@ -58,28 +53,27 @@ export function useDragAndDrop() {
       return;
     }
 
-    const column: number = getColumnAtPointer(rowElement, row.columns, pointerRef.current.x);
-    const excludeId: string | undefined =
-      drag.source === "canvas-field" ? drag.field.id : undefined;
+    const column = getColumnAtPointer(rowElement, row.columns, pointerRef.current.x);
+    const excludeId = drag.source === "canvas-field" ? drag.field.id : undefined;
     const runs = getFreeRuns(row.fields, row.columns, excludeId);
 
     if (ctrl) {
       if (anchorRef.current === null) anchorRef.current = column;
-      const anchor: number = anchorRef.current;
+      const anchor = anchorRef.current;
       const run = runs.find((r) => anchor >= r.start && anchor < r.start + r.length);
       if (!run) {
         setDragPlacement({ rowId, colStart: anchor, colSpan: 1, mode: "resize", isValid: false });
         return;
       }
-      const maxSpan: number = run.start + run.length - anchor;
-      const colSpan: number = Math.max(1, Math.min(column - anchor + 1, maxSpan));
+      const maxSpan = run.start + run.length - anchor;
+      const colSpan = Math.max(1, Math.min(column - anchor + 1, maxSpan));
       setDragPlacement({ rowId, colStart: anchor, colSpan, mode: "resize", isValid: true });
       return;
     }
 
     anchorRef.current = null;
-    const colSpan: number = Math.max(1, Math.min(getDraggedSpan(drag), row.columns));
-    const snapped: number | null = findNearestFit(runs, column, colSpan);
+    const colSpan = Math.max(1, Math.min(getDraggedSpan(drag), row.columns));
+    const snapped = findNearestFit(runs, column, colSpan);
     setDragPlacement({
       rowId,
       colStart: snapped ?? column,
@@ -100,7 +94,7 @@ export function useDragAndDrop() {
     }
 
     function handleKeyChange(event: KeyboardEvent): void {
-      const ctrl: boolean = event.ctrlKey || event.metaKey;
+      const ctrl = event.ctrlKey || event.metaKey;
       if (!ctrl) anchorRef.current = null;
       modifiersRef.current = { shift: event.shiftKey, ctrl };
       recomputePlacement();
@@ -147,8 +141,8 @@ export function useDragAndDrop() {
   }
 
   function handleDragEnd(event: DragEndEvent): void {
-    const placement: DragPlacement | null = useFormStore.getState().dragPlacement;
-    const requested: FieldPlacement | undefined = placement?.isValid
+    const placement = useFormStore.getState().dragPlacement;
+    const requested = placement?.isValid
       ? { colStart: placement.colStart, colSpan: placement.colSpan }
       : undefined;
 

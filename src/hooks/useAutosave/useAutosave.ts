@@ -8,7 +8,9 @@ export function useAutosave() {
     const intervalId = setInterval(() => {
       const { formSteps, introModal, savedComponents, setupConfig, markSaved } =
         useFormStore.getState();
+
       if (!setupConfig.isComplete) return;
+
       saveDraft({ formSteps, introModal, savedComponents, setupConfig });
       markSaved();
     }, AUTOSAVE_INTERVAL_MS);

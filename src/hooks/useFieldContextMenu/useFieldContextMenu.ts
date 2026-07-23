@@ -38,8 +38,8 @@ export function useFieldContextMenu({
     };
   }, [onClose]);
 
-  const left: number = Math.min(menu.x, window.innerWidth - MENU_WIDTH_PX - VIEWPORT_MARGIN_PX);
-  const top: number = Math.min(menu.y, window.innerHeight - MENU_HEIGHT_PX - VIEWPORT_MARGIN_PX);
+  const left = Math.min(menu.x, window.innerWidth - MENU_WIDTH_PX - VIEWPORT_MARGIN_PX);
+  const top = Math.min(menu.y, window.innerHeight - MENU_HEIGHT_PX - VIEWPORT_MARGIN_PX);
 
   return {
     field,
