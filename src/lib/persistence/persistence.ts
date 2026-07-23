@@ -1,6 +1,7 @@
 import type { DraftPayload } from "../../types/persistenceTypes";
 import { migrateRows } from "../rowLayout/rowLayout";
 import { DRAFT_KEY } from "./persistence.constants";
+import { draftPayloadSchema } from "./persistence.schema";
 
 export function saveDraft(payload: Omit<DraftPayload, "savedAt">): void {
   const draft: DraftPayload = { ...payload, savedAt: new Date().toISOString() };
@@ -10,8 +11,11 @@ export function saveDraft(payload: Omit<DraftPayload, "savedAt">): void {
 export function loadDraft(): DraftPayload | null {
   const raw = localStorage.getItem(DRAFT_KEY);
   if (!raw) return null;
+
   try {
-    const draft: DraftPayload = JSON.parse(raw) as DraftPayload;
+    const parsed = draftPayloadSchema.safeParse(JSON.parse(raw));
+    if (!parsed.success) return null;
+    const draft = parsed.data as DraftPayload;
     return {
       ...draft,
       formSteps: draft.formSteps.map((step) => ({ ...step, rows: migrateRows(step.rows) })),
