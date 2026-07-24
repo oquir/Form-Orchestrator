@@ -5,13 +5,14 @@ import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import { findNearestFit, getFreeRuns } from "../../lib/rowLayout/rowLayout";
 import { findRowById, useFormStore } from "../../store/formStore";
 import type { ActiveDrag } from "../../types/activeDrag";
+import type { DragAndDropReturn } from "../../types/dragAndDropReturn";
 import type { FieldTypeDef } from "../../types/fieldTypes";
 import type { CanvasField, SavedComponent } from "../../types/storeTypes";
 import { DRAG_ACTIVATION_DISTANCE_PX, OPTIONS_GROUP_FIELD_TYPES } from "./useDragAndDrop.constants";
 import type { PendingOptionsField, PointerPosition } from "./useDragAndDrop.types";
 import { getColumnAtPointer, getRowElement } from "./useDragAndDrop.utils";
 
-export function useDragAndDrop() {
+export function useDragAndDrop(): DragAndDropReturn {
   const addFieldToRow = useFormStore((state) => state.addFieldToRow);
   const addSavedComponentToRow = useFormStore((state) => state.addSavedComponentToRow);
   const moveField = useFormStore((state) => state.moveField);
