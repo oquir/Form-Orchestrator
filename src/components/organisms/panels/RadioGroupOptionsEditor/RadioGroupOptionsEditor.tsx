@@ -1,6 +1,6 @@
 import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../../store/formStore";
-import type { FieldOption } from "../../../../types/storeTypes";
+import type { FieldOption } from "../../../../types/field";
 import { IconButton } from "../../../atoms/IconButton/IconButton";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import type { RadioGroupOptionsEditorProps } from "./RadioGroupOptionsEditor.types";

@@ -1,4 +1,4 @@
-import type { CanvasField, EnableOperator } from "../../types/storeTypes";
+import type { CanvasField, EnableOperator } from "../../types/field";
 
 export function operatorsForFieldType(type: string): EnableOperator[] {
   switch (type) {

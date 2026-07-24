@@ -1,4 +1,4 @@
-import type { CanvasRow } from "../../../types/storeTypes";
+import type { CanvasRow } from "../../../types/formStructure";
 
 export interface CanvasRowProps {
   row: CanvasRow;

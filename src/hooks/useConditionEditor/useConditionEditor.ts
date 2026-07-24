@@ -1,5 +1,5 @@
 import { useFormStore } from "../../store/formStore";
-import type { EnableCondition, EnableOperator } from "../../types/storeTypes";
+import type { EnableCondition, EnableOperator } from "../../types/field";
 import { DEFAULT_OPERATORS, OPERATORS_WITHOUT_VALUE } from "./useConditionEditor.constants";
 import type {
   UseConditionEditorParams,

@@ -1,4 +1,6 @@
-import type { FormStep, IntroModalState, SavedComponent, SetupConfig } from "./storeTypes";
+import type { SavedComponent } from "./field";
+import type { FormStep, IntroModalState } from "./formStructure";
+import type { SetupConfig } from "./setup";
 
 export interface DraftPayload {
   formSteps: FormStep[];

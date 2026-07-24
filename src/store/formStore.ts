@@ -9,19 +9,12 @@ import {
   resolvePlacement,
   sortByColumn,
 } from "../lib/rowLayout/rowLayout";
+import type { CanvasField, SavedComponent } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
-import type {
-  CanvasField,
-  CanvasRow,
-  CanvasTarget,
-  FieldPlacement,
-  FormStep,
-  FormType,
-  IntroModalState,
-  IntroModalStep,
-  SavedComponent,
-  StateSlice,
-} from "../types/storeTypes";
+import type { CanvasRow, FormStep, IntroModalState, IntroModalStep } from "../types/formStructure";
+import type { CanvasTarget, FieldPlacement } from "../types/placement";
+import type { FormType } from "../types/setup";
+import type { StateSlice } from "../types/store";
 
 function createEmptyRow(): CanvasRow {
   return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields: [] };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFormStore } from "../../store/formStore";
-import type { FormType } from "../../types/storeTypes";
+import type { FormType } from "../../types/setup";
 import type { UseSetupWizardResult } from "./useSetupWizard.types";
 
 export function useSetupWizard(): UseSetupWizardResult {

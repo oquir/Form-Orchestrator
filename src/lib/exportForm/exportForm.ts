@@ -1,5 +1,6 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { CanvasRow, FormStep, IntroModalStep, SetupConfig } from "../../types/storeTypes";
+import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
+import type { SetupConfig } from "../../types/setup";
 import { buildZodSchema } from "../zodSchema/zodSchema";
 import type { ExportedRow, FormExport } from "./exportForm.types";
 

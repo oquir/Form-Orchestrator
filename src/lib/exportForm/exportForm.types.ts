@@ -5,8 +5,8 @@ import type {
   FieldLogic,
   FieldOption,
   FieldStyles,
-  FormType,
-} from "../../types/storeTypes";
+} from "../../types/field";
+import type { FormType } from "../../types/setup";
 
 export interface ExportedField {
   fieldId: string;

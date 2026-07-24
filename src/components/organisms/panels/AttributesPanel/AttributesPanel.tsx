@@ -1,7 +1,7 @@
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
 import { findRowContainingField, useFormStore } from "../../../../store/formStore";
-import type { CanvasField } from "../../../../types/storeTypes";
+import type { CanvasField } from "../../../../types/field";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";

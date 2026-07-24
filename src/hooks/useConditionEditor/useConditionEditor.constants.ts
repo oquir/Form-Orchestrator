@@ -1,4 +1,4 @@
-import type { EnableOperator } from "../../types/storeTypes";
+import type { EnableOperator } from "../../types/field";
 
 export const OPERATORS_WITHOUT_VALUE: EnableOperator[] = [
   "isEmpty",

@@ -11,7 +11,8 @@ import {
 } from "../../../lib/payloadMapping/payloadMapping";
 import type { MappingNode, OrphanBinding } from "../../../lib/payloadMapping/payloadMapping.types";
 import { getAllFields, useFormStore } from "../../../store/formStore";
-import type { CanvasField, CanvasRow } from "../../../types/storeTypes";
+import type { CanvasField } from "../../../types/field";
+import type { CanvasRow } from "../../../types/formStructure";
 import { colorClassForSummaryValue } from "./PayloadPreviewCanvas.utils";
 
 export function PayloadPreviewCanvas() {

@@ -1,5 +1,5 @@
 ﻿import { useFormStore } from "../../../../store/formStore";
-import type { CanvasField, SavedComponent } from "../../../../types/storeTypes";
+import type { CanvasField, SavedComponent } from "../../../../types/field";
 import { SavedComponentListItem } from "../../../molecules/SavedComponentListItem/SavedComponentListItem";
 import { SaveFieldForm } from "../../../molecules/SaveFieldForm/SaveFieldForm";
 

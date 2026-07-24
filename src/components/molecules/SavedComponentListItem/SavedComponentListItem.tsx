@@ -1,7 +1,7 @@
 ﻿import { useDraggable } from "@dnd-kit/core";
 import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
-import type { SavedComponent } from "../../../types/storeTypes";
+import type { SavedComponent } from "../../../types/field";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 

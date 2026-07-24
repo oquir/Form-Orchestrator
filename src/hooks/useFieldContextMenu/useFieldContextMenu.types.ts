@@ -1,5 +1,5 @@
+import type { CanvasField } from "../../types/field";
 import type { ContextMenuTab, FieldContextMenuState } from "../../types/fieldContextMenu";
-import type { CanvasField } from "../../types/storeTypes";
 
 export interface UseFieldContextMenuParams {
   menu: FieldContextMenuState;

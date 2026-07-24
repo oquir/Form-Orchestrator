@@ -1,22 +1,18 @@
-import type { FieldTypeDef } from "./fieldTypes";
 import type {
   ApiBinding,
   CanvasField,
-  CanvasTarget,
-  DragPlacement,
   EnableCondition,
   FieldFileConfig,
   FieldLogic,
-  FieldPlacement,
   FieldStyles,
   FieldValidations,
-  FormStep,
-  FormType,
-  IntroModalState,
   SavedComponent,
-  SetupConfig,
-  SidebarTab,
-} from "./storeTypes";
+} from "./field";
+import type { FieldTypeDef } from "./fieldTypes";
+import type { FormStep, IntroModalState } from "./formStructure";
+import type { CanvasTarget, DragPlacement, FieldPlacement } from "./placement";
+import type { FormType, SetupConfig } from "./setup";
+import type { SidebarTab } from "./ui";
 
 export interface AddFieldExtra {
   title?: string;

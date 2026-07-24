@@ -1,4 +1,4 @@
-import type { EnableOperator } from "../../../types/storeTypes";
+import type { EnableOperator } from "../../../types/field";
 
 export interface ConditionOperatorSelectProps {
   operator: EnableOperator;

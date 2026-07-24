@@ -1,5 +1,5 @@
 import { getAllFields, useFormStore } from "../../../../store/formStore";
-import type { CanvasField } from "../../../../types/storeTypes";
+import type { CanvasField } from "../../../../types/field";
 import { DependencyCheckboxRow } from "../../../molecules/DependencyCheckboxRow/DependencyCheckboxRow";
 import { LabeledTextarea } from "../../../molecules/LabeledTextarea/LabeledTextarea";
 import { ConditionEditor } from "../ConditionEditor/ConditionEditor";

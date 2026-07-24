@@ -1,5 +1,5 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { CanvasRow } from "../../types/storeTypes";
+import type { CanvasRow } from "../../types/formStructure";
 
 export function getIndustriaComercioTemplate(): CanvasRow[] {
   return [

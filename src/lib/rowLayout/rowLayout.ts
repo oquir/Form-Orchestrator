@@ -1,4 +1,6 @@
-import type { CanvasField, CanvasRow, FieldPlacement } from "../../types/storeTypes";
+import type { CanvasField } from "../../types/field";
+import type { CanvasRow } from "../../types/formStructure";
+import type { FieldPlacement } from "../../types/placement";
 import type { FreeRun } from "./rowLayout.types";
 
 export function sortByColumn(fields: CanvasField[]): CanvasField[] {

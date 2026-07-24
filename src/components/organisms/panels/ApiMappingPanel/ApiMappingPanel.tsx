@@ -2,8 +2,8 @@ import { PAYLOAD_SCHEMA } from "../../../../constants/payloadSchema";
 import { fieldMatchesSchemaType } from "../../../../lib/payloadMapping/payloadMapping";
 import { flattenLeaves, resolveLeafType } from "../../../../lib/payloadSchema/payloadSchema";
 import { useFormStore } from "../../../../store/formStore";
+import type { CanvasField } from "../../../../types/field";
 import type { SchemaLeaf } from "../../../../types/payloadSchema";
-import type { CanvasField } from "../../../../types/storeTypes";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { ApiPathSelect } from "../../../molecules/ApiPathSelect/ApiPathSelect";
 

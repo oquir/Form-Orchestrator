@@ -1,5 +1,5 @@
+import type { CanvasField, SavedComponent } from "./field";
 import type { FieldTypeDef } from "./fieldTypes";
-import type { CanvasField, SavedComponent } from "./storeTypes";
 
 export type ActiveDrag =
   | { source: "palette"; fieldType: FieldTypeDef }

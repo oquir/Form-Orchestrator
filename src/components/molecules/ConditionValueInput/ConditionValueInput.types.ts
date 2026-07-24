@@ -1,4 +1,4 @@
-import type { CanvasField, EnableCondition } from "../../../types/storeTypes";
+import type { CanvasField, EnableCondition } from "../../../types/field";
 
 export interface ConditionValueInputProps {
   condition: EnableCondition;

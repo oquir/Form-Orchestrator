@@ -1,4 +1,4 @@
-import type { FormType } from "../../types/storeTypes";
+import type { FormType } from "../../types/setup";
 
 export interface UseSetupWizardResult {
   step: 1 | 2;

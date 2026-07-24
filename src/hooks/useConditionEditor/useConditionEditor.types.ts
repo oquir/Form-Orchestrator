@@ -1,4 +1,4 @@
-import type { CanvasField, EnableCondition, EnableOperator } from "../../types/storeTypes";
+import type { CanvasField, EnableCondition, EnableOperator } from "../../types/field";
 
 export interface UseConditionEditorParams {
   field: CanvasField;

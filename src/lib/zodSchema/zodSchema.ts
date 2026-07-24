@@ -1,4 +1,4 @@
-import type { CanvasField, FieldValidations } from "../../types/storeTypes";
+import type { CanvasField, FieldValidations } from "../../types/field";
 
 export function buildZodSchema(field: CanvasField): string {
   const v: FieldValidations = field.validations;

@@ -1,6 +1,6 @@
 ﻿import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
 import { useFormStore } from "../../../../store/formStore";
-import type { CanvasField, FieldValidations } from "../../../../types/storeTypes";
+import type { CanvasField, FieldValidations } from "../../../../types/field";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPreview/GeneratedSchemaPreview";

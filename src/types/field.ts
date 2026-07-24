@@ -1,12 +1,3 @@
-export type FormType = "industria_comercio" | "retencion_industria_comercio" | "autorretencion";
-
-export interface SetupConfig {
-  isComplete: boolean;
-  formType: FormType | null;
-  hasIntroModal: boolean;
-  introModalSteps: number;
-}
-
 export interface FieldValidations {
   required?: boolean;
   minLength?: number;
@@ -75,30 +66,6 @@ export interface CanvasField {
   apiBinding?: ApiBinding;
 }
 
-export interface CanvasRow {
-  id: string;
-  columns: number;
-  fields: CanvasField[];
-}
-
-export interface FormStep {
-  stepId: string;
-  title: string;
-  subtitle?: string;
-  rows: CanvasRow[];
-}
-
-export interface IntroModalStep {
-  stepId: string;
-  title: string;
-  subtitle?: string;
-  rows: CanvasRow[];
-}
-
-export interface IntroModalState {
-  steps: IntroModalStep[];
-}
-
 export interface SavedComponent {
   id: string;
   name: string;
@@ -114,35 +81,4 @@ export interface SavedComponent {
   alwaysDisabled?: boolean;
   enableWhen?: EnableCondition;
   apiBinding?: ApiBinding;
-}
-
-export type CanvasTarget =
-  | { type: "formStep"; stepId: string }
-  | { type: "introStep"; stepId: string };
-
-export type PlacementMode = "move" | "resize";
-
-export interface FieldPlacement {
-  colStart: number;
-  colSpan: number;
-}
-
-export interface DragPlacement extends FieldPlacement {
-  rowId: string;
-  mode: PlacementMode;
-  isValid: boolean;
-}
-
-export type SidebarTab =
-  | "fields"
-  | "attributes"
-  | "validations"
-  | "styles"
-  | "logic"
-  | "apiMapping"
-  | "library";
-
-export interface StateSlice {
-  formSteps: FormStep[];
-  introModal: IntroModalState;
 }
