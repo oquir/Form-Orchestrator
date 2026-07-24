@@ -1,5 +1,4 @@
-import type { ContextMenuTab } from "../../components/organisms/FieldContextMenu/FieldContextMenu.types";
-import type { FieldContextMenuState } from "../../types/fieldContextMenu";
+import type { ContextMenuTab, FieldContextMenuState } from "../../types/fieldContextMenu";
 import type { CanvasField } from "../../types/storeTypes";
 
 export interface UseFieldContextMenuParams {

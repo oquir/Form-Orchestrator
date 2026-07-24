@@ -1,5 +1,4 @@
-import type { SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
-import type { SchemaLeaf } from "./payloadSchema.types";
+import type { SchemaLeaf, SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
 
 function collectLeaves(node: SchemaNode, path: string, out: SchemaLeaf[]): void {
   if (node.type === "object") {

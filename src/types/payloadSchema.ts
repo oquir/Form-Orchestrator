@@ -6,3 +6,8 @@ export interface SchemaNode {
   children?: SchemaNode[];
   items?: SchemaNode;
 }
+
+export interface SchemaLeaf {
+  path: string;
+  type: SchemaNodeType;
+}

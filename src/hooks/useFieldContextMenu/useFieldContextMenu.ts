@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { ContextMenuTab } from "../../components/organisms/FieldContextMenu/FieldContextMenu.types";
 import { findFieldById, getActiveRows, useFormStore } from "../../store/formStore";
+import type { ContextMenuTab } from "../../types/fieldContextMenu";
 import { MENU_HEIGHT_PX, MENU_WIDTH_PX, VIEWPORT_MARGIN_PX } from "./useFieldContextMenu.constants";
 import type {
   UseFieldContextMenuParams,
