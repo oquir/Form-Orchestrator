@@ -1,7 +1,7 @@
 import { type RefObject, useEffect } from "react";
 
-export function useClickOutside<T extends HTMLElement>(
-  ref: RefObject<T | null>,
+export function useClickOutside(
+  ref: RefObject<HTMLElement | null>,
   onOutside: () => void,
   enabled: boolean = true,
 ): void {
