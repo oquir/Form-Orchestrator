@@ -1,3 +1,4 @@
 export const GRID_BASE_COLUMNS: number = 16;
 export const MIN_ROW_COLUMNS: number = 1;
 export const MAX_ROW_COLUMNS: number = 24;
+export const GRID_GAP_PX: number = 12;

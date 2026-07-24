@@ -1,5 +1,5 @@
 import { type PointerEvent as ReactPointerEvent, useState } from "react";
-import { GRID_GAP_PX } from "./useFieldResize.constants";
+import { GRID_GAP_PX } from "../../constants/grid";
 import type { UseFieldResizeParams, UseFieldResizeResult } from "./useFieldResize.types";
 
 export function useFieldResize({

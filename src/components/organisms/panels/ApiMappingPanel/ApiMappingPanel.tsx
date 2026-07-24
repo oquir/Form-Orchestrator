@@ -1,6 +1,6 @@
+import { PAYLOAD_SCHEMA } from "../../../../constants/payloadSchema";
 import { fieldMatchesSchemaType } from "../../../../lib/payloadMapping/payloadMapping";
 import { flattenLeaves, resolveLeafType } from "../../../../lib/payloadSchema/payloadSchema";
-import { PAYLOAD_SCHEMA } from "../../../../lib/payloadSchema/payloadSchema.constants";
 import { useFormStore } from "../../../../store/formStore";
 import type { SchemaLeaf } from "../../../../types/payloadSchema";
 import type { CanvasField } from "../../../../types/storeTypes";

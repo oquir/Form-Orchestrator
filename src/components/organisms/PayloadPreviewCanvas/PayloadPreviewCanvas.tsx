@@ -3,13 +3,13 @@ import type { CSSProperties } from "react";
 import { useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
 import { JSON_VIEW_DARK_THEME, JSON_VIEW_LIGHT_THEME } from "../../../constants/jsonViewTheme";
+import { PAYLOAD_SCHEMA } from "../../../constants/payloadSchema";
 import {
   buildMappingTree,
   findOrphanBindings,
   toPlainSummary,
 } from "../../../lib/payloadMapping/payloadMapping";
 import type { MappingNode, OrphanBinding } from "../../../lib/payloadMapping/payloadMapping.types";
-import { PAYLOAD_SCHEMA } from "../../../lib/payloadSchema/payloadSchema.constants";
 import { getAllFields, useFormStore } from "../../../store/formStore";
 import type { CanvasField, CanvasRow } from "../../../types/storeTypes";
 import { colorClassForSummaryValue } from "./PayloadPreviewCanvas.utils";

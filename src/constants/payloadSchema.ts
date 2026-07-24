@@ -1,4 +1,4 @@
-import type { SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
+import type { SchemaNode, SchemaNodeType } from "../types/payloadSchema";
 
 function scalar(key: string, type: Exclude<SchemaNodeType, "object" | "array">): SchemaNode {
   return { key, type };

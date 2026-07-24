@@ -1,4 +1,4 @@
-import { GRID_GAP_PX } from "../useFieldResize/useFieldResize.constants";
+import { GRID_GAP_PX } from "../../constants/grid";
 
 export function getRowElement(rowId: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[data-row-id="${rowId}"]`);
