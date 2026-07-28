@@ -1,3 +1,118 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Tokens semánticos: el modo claro usa la escala slate y el oscuro la neutral.
+   Cada token se declara una vez acá y se consume como una sola clase
+   (bg-surface, border-border, text-fg-muted), sin variante dark: en el JSX. */
+
+:root {
+  --ui-surface: var(--color-white);
+  --ui-surface-sunken: var(--color-slate-50);
+  --ui-surface-raised: var(--color-slate-100);
+  --ui-surface-inset: var(--color-slate-200);
+  --ui-field: var(--color-white);
+
+  --ui-border: var(--color-slate-200);
+  --ui-border-strong: var(--color-slate-300);
+  --ui-border-subtle: var(--color-slate-100);
+
+  --ui-fg-strong: var(--color-slate-800);
+  --ui-fg: var(--color-slate-700);
+  --ui-fg-soft: var(--color-slate-600);
+  --ui-fg-muted: var(--color-slate-500);
+  --ui-fg-subtle: var(--color-slate-400);
+
+  --ui-brand: var(--color-orange-600);
+  --ui-brand-hover: var(--color-orange-500);
+  --ui-brand-fg: var(--color-orange-600);
+  --ui-brand-border: var(--color-orange-500);
+  --ui-brand-surface: var(--color-orange-50);
+  --ui-on-brand: var(--color-white);
+
+  --ui-danger: var(--color-red-600);
+  --ui-danger-soft: var(--color-red-300);
+  --ui-danger-border: var(--color-red-200);
+  --ui-danger-surface: var(--color-red-50);
+
+  --ui-warning: var(--color-amber-600);
+  --ui-warning-border: var(--color-amber-200);
+  --ui-warning-surface: var(--color-amber-50);
+
+  --ui-success: var(--color-emerald-600);
+  --ui-info: var(--color-sky-600);
+}
+
+.dark {
+  --ui-surface: var(--color-neutral-900);
+  --ui-surface-sunken: var(--color-neutral-950);
+  --ui-surface-raised: var(--color-neutral-800);
+  --ui-surface-inset: var(--color-neutral-700);
+  --ui-field: var(--color-neutral-800);
+
+  --ui-border: var(--color-neutral-700);
+  --ui-border-strong: var(--color-neutral-600);
+  --ui-border-subtle: var(--color-neutral-800);
+
+  --ui-fg-strong: var(--color-neutral-100);
+  --ui-fg: var(--color-neutral-200);
+  --ui-fg-soft: var(--color-neutral-300);
+  --ui-fg-muted: var(--color-neutral-400);
+  --ui-fg-subtle: var(--color-neutral-500);
+
+  --ui-brand: var(--color-orange-500);
+  --ui-brand-hover: var(--color-orange-400);
+  --ui-brand-fg: var(--color-orange-400);
+  --ui-brand-border: var(--color-orange-500);
+  --ui-brand-surface: color-mix(in oklab, var(--color-orange-500) 10%, transparent);
+  --ui-on-brand: var(--color-white);
+
+  --ui-danger: var(--color-red-400);
+  --ui-danger-soft: var(--color-red-400);
+  --ui-danger-border: color-mix(in oklab, var(--color-red-500) 40%, transparent);
+  --ui-danger-surface: color-mix(in oklab, var(--color-red-500) 10%, transparent);
+
+  --ui-warning: var(--color-amber-400);
+  --ui-warning-border: color-mix(in oklab, var(--color-amber-500) 40%, transparent);
+  --ui-warning-surface: color-mix(in oklab, var(--color-amber-500) 10%, transparent);
+
+  --ui-success: var(--color-emerald-400);
+  --ui-info: var(--color-sky-400);
+}
+
+@theme inline {
+  --color-surface: var(--ui-surface);
+  --color-surface-sunken: var(--ui-surface-sunken);
+  --color-surface-raised: var(--ui-surface-raised);
+  --color-surface-inset: var(--ui-surface-inset);
+  --color-field: var(--ui-field);
+
+  --color-border: var(--ui-border);
+  --color-border-strong: var(--ui-border-strong);
+  --color-border-subtle: var(--ui-border-subtle);
+
+  --color-fg-strong: var(--ui-fg-strong);
+  --color-fg: var(--ui-fg);
+  --color-fg-soft: var(--ui-fg-soft);
+  --color-fg-muted: var(--ui-fg-muted);
+  --color-fg-subtle: var(--ui-fg-subtle);
+
+  --color-brand: var(--ui-brand);
+  --color-brand-hover: var(--ui-brand-hover);
+  --color-brand-fg: var(--ui-brand-fg);
+  --color-brand-border: var(--ui-brand-border);
+  --color-brand-surface: var(--ui-brand-surface);
+  --color-on-brand: var(--ui-on-brand);
+
+  --color-danger: var(--ui-danger);
+  --color-danger-soft: var(--ui-danger-soft);
+  --color-danger-border: var(--ui-danger-border);
+  --color-danger-surface: var(--ui-danger-surface);
+
+  --color-warning: var(--ui-warning);
+  --color-warning-border: var(--ui-warning-border);
+  --color-warning-surface: var(--ui-warning-surface);
+
+  --color-success: var(--ui-success);
+  --color-info: var(--ui-info);
+}
