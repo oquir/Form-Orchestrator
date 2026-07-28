@@ -1,5 +1,7 @@
 import type { FieldTypeDef } from "../types/fieldTypes";
 
+export const OPTION_BASED_FIELD_TYPES: string[] = ["select", "toggle_group", "radio_group"];
+
 export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "text", label: "Texto", category: "basico" },
   { type: "number", label: "Número", category: "basico" },

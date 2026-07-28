@@ -3,13 +3,18 @@ import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
 import { getIndustriaComercioTemplate } from "../lib/baseTemplate/baseTemplate";
 import {
+  allowsManualOptions,
+  exportableOptions,
+  isOptionBasedField,
+} from "../lib/fieldOptions/fieldOptions";
+import {
   getFreeRuns,
   getMaxSpanAt,
   repackRow,
   resolvePlacement,
   sortByColumn,
 } from "../lib/rowLayout/rowLayout";
-import type { CanvasField, SavedComponent } from "../types/field";
+import type { CanvasField, FieldOption, SavedComponent } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
 import type { CanvasRow, FormStep, IntroModalState, IntroModalStep } from "../types/formStructure";
 import type { CanvasTarget, FieldPlacement } from "../types/placement";
@@ -20,12 +25,7 @@ function createEmptyRow(): CanvasRow {
   return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields: [] };
 }
 
-function createEmptyField(
-  type: string,
-  label: string,
-  placement: FieldPlacement,
-  extra?: { title?: string; optionCount?: number },
-): CanvasField {
+function createEmptyField(type: string, label: string, placement: FieldPlacement): CanvasField {
   const field: CanvasField = {
     id: uuidv4(),
     type,
@@ -37,20 +37,18 @@ function createEmptyField(
     logic: { dependencies: [], typeScript: "" },
   };
 
-  if (type === "toggle_group" || type === "radio_group") {
-    const optionCount = Math.max(2, extra?.optionCount ?? 2);
-    field.title = extra?.title?.trim() || undefined;
-    field.options = Array.from({ length: optionCount }, (_, index) => ({
-      id: uuidv4(),
-      label: `Opción ${index + 1}`,
-    }));
-  }
-
   if (type === "file") {
     field.fileConfig = { acceptedFormats: [], maxSizeMB: 10 };
   }
 
   return field;
+}
+
+function createOptions(optionCount: number): FieldOption[] {
+  return Array.from({ length: Math.max(2, optionCount) }, (_, index) => ({
+    id: uuidv4(),
+    label: `Opción ${index + 1}`,
+  }));
 }
 
 function mapRowEverywhere(
@@ -320,13 +318,13 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         })),
       },
     })),
-  addFieldToRow: (rowId, fieldType, extra, requested) =>
+  addFieldToRow: (rowId, fieldType, requested) =>
     set((state) => {
       const row = findRowById(state, rowId);
       if (!row) return state;
       const placement = resolvePlacement(row, GRID_BASE_COLUMNS, requested);
       if (!placement) return state;
-      const newField = createEmptyField(fieldType.type, fieldType.label, placement, extra);
+      const newField = createEmptyField(fieldType.type, fieldType.label, placement);
       return {
         ...mapRowEverywhere(state, rowId, (current) => ({
           ...current,
@@ -389,12 +387,23 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         enableWhen: condition ?? undefined,
       })),
     ),
-  updateFieldApiBinding: (fieldId, binding) =>
+  updateFieldApiBinding: (fieldId, binding, optionsSetup) =>
     set((state) =>
-      mapFieldEverywhere(state, fieldId, (field) => ({
-        ...field,
-        apiBinding: binding ?? undefined,
-      })),
+      mapFieldEverywhere(state, fieldId, (field) => {
+        const next: CanvasField = { ...field, apiBinding: binding ?? undefined };
+        if (!isOptionBasedField(next.type)) return next;
+
+        if (!allowsManualOptions(next)) {
+          next.options = undefined;
+          return next;
+        }
+
+        if (optionsSetup) {
+          next.title = optionsSetup.title?.trim() || undefined;
+          next.options = createOptions(optionsSetup.optionCount);
+        }
+        return next;
+      }),
     ),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>
@@ -501,7 +510,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       styles: field.styles,
       logic: field.logic,
       title: field.title,
-      options: field.options,
+      options: exportableOptions(field),
       fileConfig: field.fileConfig,
       alwaysDisabled: field.alwaysDisabled,
       enableWhen: field.enableWhen,

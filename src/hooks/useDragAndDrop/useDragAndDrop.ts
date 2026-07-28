@@ -8,8 +8,8 @@ import type { ActiveDrag } from "../../types/activeDrag";
 import type { DragAndDropReturn } from "../../types/dragAndDropReturn";
 import type { CanvasField, SavedComponent } from "../../types/field";
 import type { FieldTypeDef } from "../../types/fieldTypes";
-import { DRAG_ACTIVATION_DISTANCE_PX, OPTIONS_GROUP_FIELD_TYPES } from "./useDragAndDrop.constants";
-import type { PendingOptionsField, PointerPosition } from "./useDragAndDrop.types";
+import { DRAG_ACTIVATION_DISTANCE_PX } from "./useDragAndDrop.constants";
+import type { PointerPosition } from "./useDragAndDrop.types";
 import { getColumnAtPointer, getRowElement } from "./useDragAndDrop.utils";
 
 export function useDragAndDrop(): DragAndDropReturn {
@@ -18,7 +18,6 @@ export function useDragAndDrop(): DragAndDropReturn {
   const moveField = useFormStore((state) => state.moveField);
   const setDragPlacement = useFormStore((state) => state.setDragPlacement);
   const [activeDrag, setActiveDrag] = useState<ActiveDrag | null>(null);
-  const [pendingOptionsField, setPendingOptionsField] = useState<PendingOptionsField | null>(null);
 
   const activeDragRef = useRef<ActiveDrag | null>(null);
   const hoveredRowIdRef = useRef<string | null>(null);
@@ -157,12 +156,7 @@ export function useDragAndDrop(): DragAndDropReturn {
     if (!targetRowId) return;
 
     if (data?.source === "palette") {
-      const fieldType = data.fieldType as FieldTypeDef;
-      if (OPTIONS_GROUP_FIELD_TYPES.includes(fieldType.type)) {
-        setPendingOptionsField({ rowId: targetRowId, fieldType, placement: requested });
-      } else {
-        addFieldToRow(targetRowId, fieldType, undefined, requested);
-      }
+      addFieldToRow(targetRowId, data.fieldType as FieldTypeDef, requested);
     } else if (data?.source === "library") {
       const component = data.component as SavedComponent;
       addSavedComponentToRow(targetRowId, component.id, requested);
@@ -172,29 +166,11 @@ export function useDragAndDrop(): DragAndDropReturn {
     }
   }
 
-  function confirmOptionsField(config: { title?: string; optionCount: number }): void {
-    if (!pendingOptionsField) return;
-    addFieldToRow(
-      pendingOptionsField.rowId,
-      pendingOptionsField.fieldType,
-      config,
-      pendingOptionsField.placement,
-    );
-    setPendingOptionsField(null);
-  }
-
-  function cancelOptionsField(): void {
-    setPendingOptionsField(null);
-  }
-
   return {
     sensors,
     activeDrag,
-    pendingOptionsField,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
-    confirmOptionsField,
-    cancelOptionsField,
   };
 }

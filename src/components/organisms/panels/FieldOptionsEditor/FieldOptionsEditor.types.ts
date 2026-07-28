@@ -1,5 +1,5 @@
 import type { CanvasField } from "../../../../types/field";
 
-export interface ToggleGroupOptionsEditorProps {
+export interface FieldOptionsEditorProps {
   field: CanvasField;
 }

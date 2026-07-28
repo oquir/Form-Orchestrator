@@ -1,8 +1,16 @@
-import type { CanvasField, FieldValidations } from "../../types/field";
+import type { CanvasField, FieldOption, FieldValidations } from "../../types/field";
+import { exportableOptions, isOptionBasedField } from "../fieldOptions/fieldOptions";
 
 export function buildZodSchema(field: CanvasField): string {
   const v: FieldValidations = field.validations;
   let schema: string;
+
+  if (isOptionBasedField(field.type)) {
+    const options: FieldOption[] = exportableOptions(field) ?? [];
+    const ids: string[] = options.map((option) => JSON.stringify(option.id));
+    schema = ids.length > 0 ? `z.enum([${ids.join(", ")}])` : "z.string()";
+    return v.required ? schema : `${schema}.optional()`;
+  }
 
   switch (field.type) {
     case "number":
@@ -14,12 +22,6 @@ export function buildZodSchema(field: CanvasField): string {
     case "checkbox":
       schema = "z.boolean()";
       break;
-    case "toggle_group":
-    case "radio_group": {
-      const optionIds = (field.options ?? []).map((option) => JSON.stringify(option.id));
-      schema = optionIds.length > 0 ? `z.enum([${optionIds.join(", ")}])` : "z.string()";
-      break;
-    }
     case "file": {
       const config = field.fileConfig ?? { acceptedFormats: [], maxSizeMB: 10 };
       const maxBytes = Math.floor(config.maxSizeMB * 1024 * 1024);

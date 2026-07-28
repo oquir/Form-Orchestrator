@@ -1,14 +1,19 @@
+import { useState } from "react";
 import { PAYLOAD_SCHEMA } from "../../../../constants/payloadSchema";
+import { isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import { fieldMatchesSchemaType } from "../../../../lib/payloadMapping/payloadMapping";
 import { flattenSelectableLeaves, resolveLeaf } from "../../../../lib/payloadSchema/payloadSchema";
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
+import type { OptionsSetup } from "../../../../types/formStoreTypes";
 import type { SchemaLeaf } from "../../../../types/payloadSchema";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { ApiPathSelect } from "../../../molecules/ApiPathSelect/ApiPathSelect";
+import { FieldOptionsModal } from "../../FieldOptionsModal/FieldOptionsModal";
 
 export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const updateFieldApiBinding = useFormStore((state) => state.updateFieldApiBinding);
+  const [isAskingOptions, setIsAskingOptions] = useState<boolean>(false);
   const binding = field.apiBinding;
   const isExcluded = binding?.kind === "excluded";
   const path = binding?.kind === "mapped" ? binding.path : "";
@@ -21,8 +26,20 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
     resolvedType && !isHostPath && !fieldMatchesSchemaType(field.type, resolvedType),
   );
 
+  const needsOptionsSetup: boolean =
+    isOptionBasedField(field.type) && (field.options ?? []).length === 0;
+
   function handleExcludedToggle(checked: boolean): void {
+    if (checked && needsOptionsSetup) {
+      setIsAskingOptions(true);
+      return;
+    }
     updateFieldApiBinding(field.id, checked ? { kind: "excluded" } : null);
+  }
+
+  function handleOptionsConfirm(setup: OptionsSetup): void {
+    updateFieldApiBinding(field.id, { kind: "excluded" }, setup);
+    setIsAskingOptions(false);
   }
 
   function handlePathChange(nextPath: string): void {
@@ -43,6 +60,8 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
       {isExcluded && (
         <p className="text-[11px] text-slate-400 dark:text-neutral-500">
           Este campo no se enviará al objeto final aunque participe en cálculos o condiciones.
+          {isOptionBasedField(field.type) &&
+            " Si lo volvés a incluir en el payload, las opciones que cargaste se descartan."}
         </p>
       )}
 
@@ -76,6 +95,14 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
             </p>
           )}
         </>
+      )}
+
+      {isAskingOptions && (
+        <FieldOptionsModal
+          fieldTypeLabel={field.label}
+          onConfirm={handleOptionsConfirm}
+          onCancel={() => setIsAskingOptions(false)}
+        />
       )}
     </div>
   );

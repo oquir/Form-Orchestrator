@@ -1,20 +1,23 @@
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
+import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
 import { findRowContainingField, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
+import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
-import { RadioGroupOptionsEditor } from "../RadioGroupOptionsEditor/RadioGroupOptionsEditor";
-import { ToggleGroupOptionsEditor } from "../ToggleGroupOptionsEditor/ToggleGroupOptionsEditor";
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
+  const setSidebarTab = useFormStore((state) => state.setSidebarTab);
   const row = useFormStore((state) => findRowContainingField(state, field.id));
   const rowColumns = row?.columns ?? GRID_BASE_COLUMNS;
   const maxSpan = row
     ? getMaxSpanAt(getFreeRuns(row.fields, row.columns, field.id), field.colStart)
     : rowColumns;
+  const isOptionBased: boolean = isOptionBasedField(field.type);
+  const canEditOptions: boolean = allowsManualOptions(field);
 
   return (
     <div className="flex flex-col gap-4">
@@ -36,8 +39,26 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
         onChange={(value) => updateField(field.id, { colSpan: value })}
       />
 
-      {field.type === "toggle_group" && <ToggleGroupOptionsEditor field={field} />}
-      {field.type === "radio_group" && <RadioGroupOptionsEditor field={field} />}
+      {canEditOptions && <FieldOptionsEditor field={field} />}
+
+      {isOptionBased && !canEditOptions && (
+        <div className="flex flex-col items-start gap-2 border-t border-slate-200 pt-4 dark:border-neutral-700">
+          <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">Opciones</p>
+          <p className="text-xs text-slate-400 dark:text-neutral-500">
+            Las carga el aplicativo que recibe el JSON consultando la base de datos según la ruta
+            mapeada. Si este campo no sale de un catálogo, marcálo como excluido del payload y vas a
+            poder definirlas a mano.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSidebarTab("apiMapping")}
+            className="text-xs font-medium text-orange-600 hover:cursor-pointer hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400"
+          >
+            Ir a Mapeo API
+          </button>
+        </div>
+      )}
+
       {field.type === "file" && <FileOptionsEditor field={field} />}
     </div>
   );

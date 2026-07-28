@@ -1,6 +1,7 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 import type { SetupConfig } from "../../types/setup";
+import { exportableOptions } from "../fieldOptions/fieldOptions";
 import { buildZodSchema } from "../zodSchema/zodSchema";
 import type { ExportedRow, FormExport } from "./exportForm.types";
 
@@ -18,7 +19,7 @@ function mapRows(rows: CanvasRow[]): ExportedRow[] {
       validations: { zodSchema: buildZodSchema(field) },
       logic: field.logic,
       title: field.title,
-      options: field.options,
+      options: exportableOptions(field),
       fileConfig: field.fileConfig,
       alwaysDisabled: field.alwaysDisabled,
       enableWhen: field.enableWhen,

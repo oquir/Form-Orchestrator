@@ -14,9 +14,9 @@ import type { CanvasTarget, DragPlacement, FieldPlacement } from "./placement";
 import type { FormType, SetupConfig } from "./setup";
 import type { SidebarTab } from "./ui";
 
-export interface AddFieldExtra {
+export interface OptionsSetup {
   title?: string;
-  optionCount?: number;
+  optionCount: number;
 }
 
 export interface FormState {
@@ -54,12 +54,7 @@ export interface FormState {
   addRowToActiveCanvas: () => void;
   removeRow: (rowId: string) => void;
   updateRowColumns: (rowId: string, columns: number) => void;
-  addFieldToRow: (
-    rowId: string,
-    fieldType: FieldTypeDef,
-    extra?: AddFieldExtra,
-    requested?: FieldPlacement,
-  ) => void;
+  addFieldToRow: (rowId: string, fieldType: FieldTypeDef, requested?: FieldPlacement) => void;
   removeField: (fieldId: string) => void;
   moveField: (fieldId: string, targetRowId: string, requested?: FieldPlacement) => void;
   selectField: (fieldId: string | null) => void;
@@ -68,7 +63,11 @@ export interface FormState {
     updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title" | "alwaysDisabled">>,
   ) => void;
   setFieldEnableWhen: (fieldId: string, condition: EnableCondition | null) => void;
-  updateFieldApiBinding: (fieldId: string, binding: ApiBinding | null) => void;
+  updateFieldApiBinding: (
+    fieldId: string,
+    binding: ApiBinding | null,
+    optionsSetup?: OptionsSetup,
+  ) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;

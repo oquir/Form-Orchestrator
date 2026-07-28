@@ -1,8 +1,23 @@
 import { ArrowDown2, Calculator, Import } from "reicon-react";
-import { MOCK_CONTROL_CLASSES } from "./FieldPreviewControl.constants";
+import { allowsManualOptions, isOptionBasedField } from "../../../lib/fieldOptions/fieldOptions";
+import { CATALOG_HINT_CLASSES, MOCK_CONTROL_CLASSES } from "./FieldPreviewControl.constants";
 import type { FieldPreviewControlProps } from "./FieldPreviewControl.types";
 
 export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
+  if (isOptionBasedField(field.type) && !allowsManualOptions(field)) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        {field.title && (
+          <p className="text-xs font-medium text-slate-500 dark:text-neutral-400">{field.title}</p>
+        )}
+        <div className={CATALOG_HINT_CLASSES}>
+          <span>Opciones desde la base de datos</span>
+          <ArrowDown2 size={14} weight="Filled" />
+        </div>
+      </div>
+    );
+  }
+
   switch (field.type) {
     case "toggle_group": {
       const options = field.options ?? [];
