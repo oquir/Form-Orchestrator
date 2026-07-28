@@ -19,11 +19,13 @@ export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNode
 
 function buildPathIndex(fields: CanvasField[]): Map<string, CanvasField> {
   const index: Map<string, CanvasField> = new Map();
+
   for (const field of fields) {
     if (field.apiBinding?.kind === "mapped") {
       index.set(field.apiBinding.path, field);
     }
   }
+
   return index;
 }
 
@@ -33,6 +35,7 @@ function buildNode(node: SchemaNode, path: string, index: Map<string, CanvasFiel
       const childPath: string = path ? `${path}.${child.key}` : child.key;
       return buildNode(child, childPath, index);
     });
+
     return { kind: "object", key: node.key, children };
   }
 
@@ -41,6 +44,15 @@ function buildNode(node: SchemaNode, path: string, index: Map<string, CanvasFiel
   }
 
   const matchedField: CanvasField | undefined = index.get(path);
+
+  if (node.providedByHost) {
+    const binding: LeafBindingStatus = {
+      kind: "host",
+      conflictingFieldLabel: matchedField?.label,
+    };
+    return { kind: "leaf", key: node.key, schemaType: node.type, binding };
+  }
+
   const binding: LeafBindingStatus = matchedField
     ? {
         kind: "mapped",
@@ -61,9 +73,11 @@ export function buildMappingTree(schema: SchemaNode, fields: CanvasField[]): Map
 export function toPlainSummary(node: MappingNode): JsonNode {
   if (node.kind === "object") {
     const result: { [key: string]: JsonNode } = {};
+
     for (const child of node.children) {
       result[child.key] = toPlainSummary(child);
     }
+
     return result;
   }
 
@@ -75,6 +89,12 @@ export function toPlainSummary(node: MappingNode): JsonNode {
     return "— sin mapear —";
   }
 
+  if (node.binding.kind === "host") {
+    return node.binding.conflictingFieldLabel
+      ? `⚠ lo define el aplicativo receptor (${node.binding.conflictingFieldLabel} apunta acá)`
+      : "— lo define el aplicativo receptor —";
+  }
+
   return node.binding.typeMismatch
     ? `← ${node.binding.fieldLabel} (⚠ tipo)`
     : `← ${node.binding.fieldLabel}`;
@@ -82,9 +102,12 @@ export function toPlainSummary(node: MappingNode): JsonNode {
 
 export function findOrphanBindings(schema: SchemaNode, fields: CanvasField[]): OrphanBinding[] {
   const orphans: OrphanBinding[] = [];
+
   for (const field of fields) {
     if (field.apiBinding?.kind !== "mapped") continue;
+
     const resolved: SchemaNodeType | null = resolveLeafType(schema, field.apiBinding.path);
+
     if (resolved === null) {
       orphans.push({ fieldId: field.id, fieldLabel: field.label, path: field.apiBinding.path });
     }

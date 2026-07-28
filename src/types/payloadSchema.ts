@@ -5,9 +5,11 @@ export interface SchemaNode {
   type: SchemaNodeType;
   children?: SchemaNode[];
   items?: SchemaNode;
+  providedByHost?: boolean;
 }
 
 export interface SchemaLeaf {
   path: string;
   type: SchemaNodeType;
+  providedByHost?: boolean;
 }

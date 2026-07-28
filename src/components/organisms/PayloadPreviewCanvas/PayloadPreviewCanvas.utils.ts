@@ -5,6 +5,14 @@ export function colorClassForSummaryValue(value: string): string {
     return "italic text-slate-400 dark:text-neutral-500";
   }
 
+  if (value === "— lo define el aplicativo receptor —") {
+    return "italic text-sky-600 dark:text-sky-400";
+  }
+
+  if (value.startsWith("⚠ lo define el aplicativo receptor")) {
+    return "text-amber-600 dark:text-amber-400";
+  }
+
   if (value.startsWith("←") && value.includes("(⚠ tipo)")) {
     return "text-amber-600 dark:text-amber-400";
   }

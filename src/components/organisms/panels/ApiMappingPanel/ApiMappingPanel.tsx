@@ -1,6 +1,6 @@
 import { PAYLOAD_SCHEMA } from "../../../../constants/payloadSchema";
 import { fieldMatchesSchemaType } from "../../../../lib/payloadMapping/payloadMapping";
-import { flattenLeaves, resolveLeafType } from "../../../../lib/payloadSchema/payloadSchema";
+import { flattenSelectableLeaves, resolveLeaf } from "../../../../lib/payloadSchema/payloadSchema";
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
 import type { SchemaLeaf } from "../../../../types/payloadSchema";
@@ -12,11 +12,13 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const binding = field.apiBinding;
   const isExcluded = binding?.kind === "excluded";
   const path = binding?.kind === "mapped" ? binding.path : "";
-  const leaves: SchemaLeaf[] = flattenLeaves(PAYLOAD_SCHEMA);
-  const resolvedType = path ? resolveLeafType(PAYLOAD_SCHEMA, path) : null;
-  const isOrphan = Boolean(path) && resolvedType === null;
+  const leaves: SchemaLeaf[] = flattenSelectableLeaves(PAYLOAD_SCHEMA);
+  const resolvedLeaf: SchemaLeaf | null = path ? resolveLeaf(PAYLOAD_SCHEMA, path) : null;
+  const resolvedType = resolvedLeaf?.type ?? null;
+  const isOrphan = Boolean(path) && resolvedLeaf === null;
+  const isHostPath = Boolean(resolvedLeaf?.providedByHost);
   const showTypeMismatch = Boolean(
-    resolvedType && !fieldMatchesSchemaType(field.type, resolvedType),
+    resolvedType && !isHostPath && !fieldMatchesSchemaType(field.type, resolvedType),
   );
 
   function handleExcludedToggle(checked: boolean): void {
@@ -50,8 +52,16 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
             path={path}
             leaves={leaves}
             isOrphan={isOrphan}
+            isHostPath={isHostPath}
             onChange={handlePathChange}
           />
+
+          {isHostPath && (
+            <p className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
+              Esta ruta la define el aplicativo que recibe el JSON, no el formulario. Reasigná o
+              excluí el campo.
+            </p>
+          )}
 
           {isOrphan && (
             <p className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">

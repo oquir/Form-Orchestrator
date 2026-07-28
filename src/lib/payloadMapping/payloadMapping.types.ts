@@ -2,6 +2,7 @@ import type { SchemaNodeType } from "../../types/payloadSchema";
 
 export type LeafBindingStatus =
   | { kind: "unmapped" }
+  | { kind: "host"; conflictingFieldLabel?: string }
   | { kind: "mapped"; fieldId: string; fieldLabel: string; typeMismatch: boolean };
 
 export type MappingNode =

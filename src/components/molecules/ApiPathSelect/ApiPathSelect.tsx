@@ -2,7 +2,13 @@ import type { SchemaLeaf } from "../../../types/payloadSchema";
 import type { ApiPathSelectProps } from "./ApiPathSelect.types";
 import { groupLeavesByRoot } from "./ApiPathSelect.utils";
 
-export function ApiPathSelect({ path, leaves, isOrphan, onChange }: ApiPathSelectProps) {
+export function ApiPathSelect({
+  path,
+  leaves,
+  isOrphan,
+  isHostPath,
+  onChange,
+}: ApiPathSelectProps) {
   const groups: Map<string, SchemaLeaf[]> = groupLeavesByRoot(leaves);
 
   return (
@@ -17,6 +23,7 @@ export function ApiPathSelect({ path, leaves, isOrphan, onChange }: ApiPathSelec
       >
         {!path && <option value="">— Selecciona una ruta —</option>}
         {isOrphan && <option value={path}>(ruta eliminada — reasignar)</option>}
+        {isHostPath && <option value={path}>{path} (la define el receptor — reasignar)</option>}
         {Array.from(groups.entries()).map(([groupKey, groupLeaves]) => (
           <optgroup key={groupKey} label={groupKey}>
             {groupLeaves.map((leaf) => (

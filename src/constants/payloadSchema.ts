@@ -4,6 +4,10 @@ function scalar(key: string, type: Exclude<SchemaNodeType, "object" | "array">):
   return { key, type };
 }
 
+function hostScalar(key: string, type: Exclude<SchemaNodeType, "object" | "array">): SchemaNode {
+  return { key, type, providedByHost: true };
+}
+
 function object(key: string, children: SchemaNode[]): SchemaNode {
   return { key, type: "object", children };
 }
@@ -13,7 +17,7 @@ function array(key: string, items: SchemaNode): SchemaNode {
 }
 
 const contribuyente: SchemaNode = object("contribuyente", [
-  scalar("codigoMunicipio", "string"),
+  hostScalar("codigoMunicipio", "string"),
   scalar("idTipoDocumento", "number"),
   scalar("idTipoPersona", "number"),
   scalar("numeroDocumento", "string"),
@@ -46,7 +50,7 @@ const baseGravable: SchemaNode = object("baseGravable", [
 const actividades: SchemaNode = array(
   "actividades",
   object("item", [
-    scalar("idDeclaracion", "number"),
+    hostScalar("idDeclaracion", "number"),
     scalar("idActividad", "number"),
     scalar("ingresoGravado", "number"),
     scalar("tarifaXMil", "number"),
@@ -109,7 +113,7 @@ const responsableLegal: SchemaNode = object("responsableLegal", [
 
 export const PAYLOAD_SCHEMA: SchemaNode = object("root", [
   scalar("idTipoDeclaracion", "number"),
-  scalar("numeroRadicado", "number"),
+  hostScalar("numeroRadicado", "number"),
   contribuyente,
   scalar("periodoAnio", "number"),
   scalar("idPeriodoAnual", "number"),
