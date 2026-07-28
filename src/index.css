@@ -2,10 +2,6 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Tokens semánticos: el modo claro usa la escala slate y el oscuro la neutral.
-   Cada token se declara una vez acá y se consume como una sola clase
-   (bg-surface, border-border, text-fg-muted), sin variante dark: en el JSX. */
-
 :root {
   --ui-surface: var(--color-white);
   --ui-surface-sunken: var(--color-slate-50);
