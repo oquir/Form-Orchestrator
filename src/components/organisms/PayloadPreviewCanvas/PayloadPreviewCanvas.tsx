@@ -85,9 +85,11 @@ export function PayloadPreviewCanvas() {
           <JsonView.String
             render={(props, result) => {
               if (result.type !== "value") return <span {...props} />;
-              const colorClass = colorClassForSummaryValue(String(result.value ?? ""));
+              const colorClass: string = colorClassForSummaryValue(String(result.value ?? ""));
               return (
-                <span {...props} className={`${props.className ?? ""} ${colorClass}`.trim()} />
+                <span {...props} className={`${props.className ?? ""} ${colorClass}`.trim()}>
+                  "{props.children}"
+                </span>
               );
             }}
           />
