@@ -4,14 +4,16 @@ import type { SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
 import { resolveLeafType } from "../payloadSchema/payloadSchema";
 import type { LeafBindingStatus, MappingNode, OrphanBinding } from "./payloadMapping.types";
 
+const NUMERIC_FIELD_TYPES: string[] = ["number", "calculated"];
+
 export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNodeType): boolean {
   switch (schemaType) {
     case "number":
-      return fieldType === "number" || fieldType === "calculated";
+      return NUMERIC_FIELD_TYPES.includes(fieldType) || fieldType === "checkbox";
     case "boolean":
       return fieldType === "checkbox";
     case "string":
-      return fieldType !== "number" && fieldType !== "calculated" && fieldType !== "checkbox";
+      return !NUMERIC_FIELD_TYPES.includes(fieldType);
     default:
       return true;
   }

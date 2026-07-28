@@ -11,6 +11,7 @@ export function operatorsForFieldType(type: string): EnableOperator[] {
     case "toggle_group":
     case "radio_group":
       return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
+    case "checkbox_group":
     case "file":
       return ["isEmpty", "isNotEmpty"];
     default:

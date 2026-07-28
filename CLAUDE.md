@@ -27,7 +27,7 @@ Settled decisions — do not re-litigate them without asking:
 
 ## Options and `apiBinding`
 
-`select`, `toggle_group` and `radio_group` (`OPTION_BASED_FIELD_TYPES` in `src/constants/fieldTypes.ts`) only get **manually authored options when the field is explicitly excluded from the payload**. A mapped field — or one whose `apiBinding` is still undefined — gets its options injected at runtime by the consuming app, which reads `apiBinding.path` and queries the catalog. The predicates live in `src/lib/fieldOptions/fieldOptions.ts`; use `allowsManualOptions` rather than checking `apiBinding` inline, so the panel, the canvas preview, `buildZodSchema` and `buildFormExport` can't drift apart.
+`select`, `toggle_group`, `radio_group` and `checkbox_group` (`OPTION_BASED_FIELD_TYPES` in `src/constants/fieldTypes.ts`) only get **manually authored options when the field is explicitly excluded from the payload**. A mapped field — or one whose `apiBinding` is still undefined — gets its options injected at runtime by the consuming app, which reads `apiBinding.path` and queries the catalog. The predicates live in `src/lib/fieldOptions/fieldOptions.ts`; use `allowsManualOptions` rather than checking `apiBinding` inline, so the panel, the canvas preview, `buildZodSchema` and `buildFormExport` can't drift apart.
 
 Consequences to keep in mind:
 
@@ -35,6 +35,8 @@ Consequences to keep in mind:
 - Leaving the excluded state **discards** `options` — this is deliberate, decided over keeping hidden data around.
 - `buildZodSchema` only emits `z.enum([...])` for excluded fields; mapped ones fall back to `z.string()`, since the builder can't enumerate values it never sees.
 - `ConditionValueInput` offers a dropdown only when the observed field has local options, so an `enableWhen` pointing at a mapped select degrades to a free-text input where you type the catalog id by hand.
+- `checkbox` and `checkbox_group` are **different types on purpose**. `checkbox` is a single boolean ("acepto los términos") — `z.boolean()`, only `isTruthy`/`isFalsy` operators, no "required" toggle. `checkbox_group` is multi-select: it carries `options[]` and its schema is `z.array(z.enum([...]))` (`MULTI_VALUE_FIELD_TYPES` drives the array wrapping). Do not merge them.
+- `PAYLOAD_SCHEMA` currently has **53 `number` leaves, 22 `string`, and zero `boolean` or arrays of scalars**. So a `checkbox_group` has nowhere to map and will in practice always be excluded, and `fieldMatchesSchemaType` lets `checkbox` match `number` leaves (0/1) — otherwise every mapped checkbox showed a permanent, unavoidable type warning.
 
 ## Commit conventions
 

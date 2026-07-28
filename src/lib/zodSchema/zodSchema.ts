@@ -1,5 +1,9 @@
 import type { CanvasField, FieldOption, FieldValidations } from "../../types/field";
-import { exportableOptions, isOptionBasedField } from "../fieldOptions/fieldOptions";
+import {
+  exportableOptions,
+  isMultiValueField,
+  isOptionBasedField,
+} from "../fieldOptions/fieldOptions";
 
 export function buildZodSchema(field: CanvasField): string {
   const v: FieldValidations = field.validations;
@@ -9,6 +13,11 @@ export function buildZodSchema(field: CanvasField): string {
     const options: FieldOption[] = exportableOptions(field) ?? [];
     const ids: string[] = options.map((option) => JSON.stringify(option.id));
     schema = ids.length > 0 ? `z.enum([${ids.join(", ")}])` : "z.string()";
+
+    if (isMultiValueField(field.type)) {
+      return v.required ? `z.array(${schema}).min(1)` : `z.array(${schema}).optional()`;
+    }
+
     return v.required ? schema : `${schema}.optional()`;
   }
 

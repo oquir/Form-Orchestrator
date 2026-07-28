@@ -1,4 +1,4 @@
-import { ArrowDown2, Calculator, Import } from "reicon-react";
+import { ArrowDown2, Calculator, Check, Import } from "reicon-react";
 import { allowsManualOptions, isOptionBasedField } from "../../../lib/fieldOptions/fieldOptions";
 import { CATALOG_HINT_CLASSES, MOCK_CONTROL_CLASSES } from "./FieldPreviewControl.constants";
 import type { FieldPreviewControlProps } from "./FieldPreviewControl.types";
@@ -47,6 +47,37 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
               Limpiar selección
             </p>
           )}
+        </div>
+      );
+    }
+    case "checkbox_group": {
+      const options = field.options ?? [];
+      return (
+        <div className="flex flex-col gap-1.5">
+          {field.title && (
+            <p className="text-xs font-medium text-slate-500 dark:text-neutral-400">
+              {field.title}
+            </p>
+          )}
+          <div className="flex flex-col gap-1">
+            {options.map((option, index) => (
+              <p
+                key={option.id}
+                className="flex items-center gap-2 text-xs text-slate-500 overflow-x-hidden dark:text-neutral-400"
+              >
+                <span
+                  className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
+                    index === 0
+                      ? "border-orange-500 bg-orange-500"
+                      : "border-slate-300 dark:border-neutral-600"
+                  }`}
+                >
+                  {index === 0 && <Check size={9} weight="Filled" className="text-white" />}
+                </span>
+                {option.label}
+              </p>
+            ))}
+          </div>
         </div>
       );
     }

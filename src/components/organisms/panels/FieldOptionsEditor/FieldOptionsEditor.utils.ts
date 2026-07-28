@@ -1,4 +1,10 @@
 export function getOptionsHint(fieldType: string, isRequired: boolean): string {
+  if (fieldType === "checkbox_group") {
+    return isRequired
+      ? "Selección múltiple: el usuario deberá marcar al menos una opción."
+      : "Selección múltiple: el usuario puede marcar varias opciones o ninguna.";
+  }
+
   if (fieldType === "radio_group") {
     return "Una vez marcada una opción no se puede deseleccionar, a diferencia de los Toggle Buttons.";
   }
