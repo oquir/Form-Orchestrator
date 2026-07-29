@@ -10,9 +10,12 @@ import { operatorsForFieldType, wouldCreateCycle } from "./useConditionEditor.ut
 export function useConditionEditor({
   field,
   otherFields,
+  kind,
 }: UseConditionEditorParams): UseConditionEditorResult {
   const setFieldEnableWhen = useFormStore((state) => state.setFieldEnableWhen);
-  const condition = field.enableWhen;
+  const setFieldVisibleWhen = useFormStore((state) => state.setFieldVisibleWhen);
+  const setCondition = kind === "visible" ? setFieldVisibleWhen : setFieldEnableWhen;
+  const condition = kind === "visible" ? field.visibleWhen : field.enableWhen;
   const observed = condition ? (otherFields.find((f) => f.id === condition.fieldId) ?? null) : null;
   const observedIsDead = Boolean(condition && !observed);
   const availableOperators: ConditionOperator[] = observed
@@ -22,7 +25,7 @@ export function useConditionEditor({
 
   function updateCondition(next: Partial<FieldCondition>): void {
     if (!condition) return;
-    setFieldEnableWhen(field.id, { ...condition, ...next });
+    setCondition(field.id, { ...condition, ...next });
   }
 
   function setConditionOnField(targetFieldId: string): void {
@@ -32,7 +35,7 @@ export function useConditionEditor({
 
     const ops: ConditionOperator[] = operatorsForFieldType(nextField.type);
 
-    setFieldEnableWhen(field.id, {
+    setCondition(field.id, {
       fieldId: nextField.id,
       operator: ops[0],
       value: OPERATORS_WITHOUT_VALUE.includes(ops[0]) ? undefined : "",
@@ -41,7 +44,7 @@ export function useConditionEditor({
 
   function handleActivationChange(checked: boolean): void {
     if (!checked) {
-      setFieldEnableWhen(field.id, null);
+      setCondition(field.id, null);
       return;
     }
 

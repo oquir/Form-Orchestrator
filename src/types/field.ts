@@ -63,6 +63,7 @@ export interface CanvasField {
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
   enableWhen?: FieldCondition;
+  visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
 }
 
@@ -80,5 +81,6 @@ export interface SavedComponent {
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
   enableWhen?: FieldCondition;
+  visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
 }

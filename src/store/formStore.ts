@@ -361,9 +361,11 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           ...row,
           fields: row.fields
             .filter((field) => field.id !== fieldId)
-            .map((field) =>
-              field.enableWhen?.fieldId === fieldId ? { ...field, enableWhen: undefined } : field,
-            ),
+            .map((field) => ({
+              ...field,
+              enableWhen: field.enableWhen?.fieldId === fieldId ? undefined : field.enableWhen,
+              visibleWhen: field.visibleWhen?.fieldId === fieldId ? undefined : field.visibleWhen,
+            })),
         }));
       return {
         formSteps: state.formSteps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
@@ -406,6 +408,13 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       mapFieldEverywhere(state, fieldId, (field) => ({
         ...field,
         enableWhen: condition ?? undefined,
+      })),
+    ),
+  setFieldVisibleWhen: (fieldId, condition) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        visibleWhen: condition ?? undefined,
       })),
     ),
   updateFieldApiBinding: (fieldId, binding, optionsSetup) =>
@@ -535,6 +544,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       fileConfig: field.fileConfig,
       alwaysDisabled: field.alwaysDisabled,
       enableWhen: field.enableWhen,
+      visibleWhen: field.visibleWhen,
       apiBinding: field.apiBinding,
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
@@ -566,6 +576,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           : undefined,
         alwaysDisabled: component.alwaysDisabled,
         enableWhen: component.enableWhen ? { ...component.enableWhen } : undefined,
+        visibleWhen: component.visibleWhen ? { ...component.visibleWhen } : undefined,
         apiBinding: component.apiBinding ? { ...component.apiBinding } : undefined,
       };
       return {

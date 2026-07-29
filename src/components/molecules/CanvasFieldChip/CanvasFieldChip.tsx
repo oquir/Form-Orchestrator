@@ -1,4 +1,5 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { Eye } from "reicon-react";
 import { GRID_BASE_COLUMNS } from "../../../constants/grid";
 import { getFreeRuns, getMaxSpanAt } from "../../../lib/rowLayout/rowLayout";
 import { useFormStore } from "../../../store/formStore";
@@ -87,6 +88,14 @@ export function CanvasFieldChip({
               {field.label}
             </p>
             <div className="flex items-center gap-1">
+              {field.visibleWhen && (
+                <span
+                  title="Visibilidad condicional"
+                  className="flex items-center rounded-full bg-sky-100 px-1.5 py-0.5 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300"
+                >
+                  <Eye size={10} weight="Filled" />
+                </span>
+              )}
               {field.alwaysDisabled && (
                 <span
                   title="Siempre deshabilitado (solo lectura)"

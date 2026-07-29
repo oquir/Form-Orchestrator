@@ -22,6 +22,7 @@ export interface ExportedField {
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
   enableWhen?: FieldCondition;
+  visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
 }
 

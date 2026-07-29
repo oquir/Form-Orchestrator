@@ -33,8 +33,9 @@ export function wouldCreateCycle(
     if (id === currentFieldId) return true;
     if (visited.has(id)) continue;
     visited.add(id);
-    const next = byId.get(id)?.enableWhen?.fieldId;
-    if (next) stack.push(next);
+    const observed = byId.get(id);
+    if (observed?.enableWhen) stack.push(observed.enableWhen.fieldId);
+    if (observed?.visibleWhen) stack.push(observed.visibleWhen.fieldId);
   }
   return false;
 }

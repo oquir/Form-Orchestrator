@@ -1,8 +1,11 @@
 import type { CanvasField, ConditionOperator, FieldCondition } from "../../types/field";
 
+export type ConditionKind = "enable" | "visible";
+
 export interface UseConditionEditorParams {
   field: CanvasField;
   otherFields: CanvasField[];
+  kind: ConditionKind;
 }
 
 export interface UseConditionEditorResult {

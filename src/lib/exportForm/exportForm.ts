@@ -23,6 +23,7 @@ function mapRows(rows: CanvasRow[]): ExportedRow[] {
       fileConfig: field.fileConfig,
       alwaysDisabled: field.alwaysDisabled,
       enableWhen: field.enableWhen,
+      visibleWhen: field.visibleWhen,
       apiBinding: field.apiBinding,
     })),
   }));

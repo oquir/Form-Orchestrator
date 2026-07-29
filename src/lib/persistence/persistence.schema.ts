@@ -33,7 +33,7 @@ const fieldFileConfigSchema = z.object({
   maxSizeMB: z.number(),
 });
 
-const enableConditionSchema = z.object({
+const fieldConditionSchema = z.object({
   fieldId: z.string(),
   operator: z.enum([
     "equals",
@@ -66,7 +66,8 @@ const canvasFieldSchema = z.object({
   options: z.array(fieldOptionSchema).optional(),
   fileConfig: fieldFileConfigSchema.optional(),
   alwaysDisabled: z.boolean().optional(),
-  enableWhen: enableConditionSchema.optional(),
+  enableWhen: fieldConditionSchema.optional(),
+  visibleWhen: fieldConditionSchema.optional(),
   apiBinding: apiBindingSchema.optional(),
 });
 

@@ -32,7 +32,11 @@ export function LogicPanel({ field }: { field: CanvasField }) {
         </span>
       </label>
 
-      {!isAlwaysDisabled && <ConditionEditor field={field} otherFields={otherFields} />}
+      <ConditionEditor field={field} otherFields={otherFields} kind="visible" />
+
+      {!isAlwaysDisabled && (
+        <ConditionEditor field={field} otherFields={otherFields} kind="enable" />
+      )}
 
       <section aria-labelledby="logic-dependencies-heading">
         <h3
