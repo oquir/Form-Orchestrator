@@ -7,6 +7,7 @@ import {
   INDUSTRIA_COMERCIO_FORM_STEPS,
   type IntroStepTemplate,
 } from "../lib/baseTemplate/baseTemplate";
+import { collectFieldNames, slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import {
   allowsManualOptions,
   exportableOptions,
@@ -30,9 +31,24 @@ function createEmptyRow(): CanvasRow {
   return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields: [] };
 }
 
-function createEmptyField(type: string, label: string, placement: FieldPlacement): CanvasField {
+function allFieldNames(slice: StateSlice, exceptFieldId?: string): Set<string> {
+  const rows: CanvasRow[] = [
+    ...slice.formSteps.flatMap((step) => step.rows),
+    ...slice.introModal.steps.flatMap((step) => step.rows),
+  ];
+
+  return collectFieldNames(rows, exceptFieldId);
+}
+
+function createEmptyField(
+  type: string,
+  label: string,
+  placement: FieldPlacement,
+  taken: Set<string>,
+): CanvasField {
   const field: CanvasField = {
     id: uuidv4(),
+    name: uniqueFieldName(slugifyFieldName(label), taken),
     type,
     label,
     colStart: placement.colStart,
@@ -345,7 +361,12 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       if (!row) return state;
       const placement = resolvePlacement(row, GRID_BASE_COLUMNS, requested);
       if (!placement) return state;
-      const newField = createEmptyField(fieldType.type, fieldType.label, placement);
+      const newField = createEmptyField(
+        fieldType.type,
+        fieldType.label,
+        placement,
+        allFieldNames(state),
+      );
       return {
         ...mapRowEverywhere(state, rowId, (current) => ({
           ...current,
@@ -402,6 +423,13 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           steps: state.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
         },
       };
+    }),
+  setFieldName: (fieldId, name) =>
+    set((state) => {
+      const slug: string = slugifyFieldName(name);
+      const unique: string = uniqueFieldName(slug, allFieldNames(state, fieldId));
+
+      return mapFieldEverywhere(state, fieldId, (field) => ({ ...field, name: unique }));
     }),
   setFieldEnableWhen: (fieldId, condition) =>
     set((state) =>
@@ -562,6 +590,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       if (!placement) return state;
       const newField: CanvasField = {
         id: uuidv4(),
+        name: uniqueFieldName(slugifyFieldName(component.label), allFieldNames(state)),
         type: component.type,
         label: component.label,
         colStart: placement.colStart,

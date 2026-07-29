@@ -55,6 +55,7 @@ const apiBindingSchema = z.discriminatedUnion("kind", [
 
 const canvasFieldSchema = z.object({
   id: z.string(),
+  name: z.string().optional(),
   type: z.string(),
   label: z.string(),
   colStart: z.number().optional(),

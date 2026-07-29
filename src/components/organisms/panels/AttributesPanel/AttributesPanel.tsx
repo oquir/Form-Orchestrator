@@ -3,6 +3,7 @@ import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOp
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
 import { findRowContainingField, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
+import { FieldNameInput } from "../../../molecules/FieldNameInput/FieldNameInput";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
@@ -29,6 +30,8 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
         value={field.label}
         onChange={(event) => updateField(field.id, { label: event.target.value })}
       />
+
+      <FieldNameInput key={field.id} field={field} />
 
       <LabeledRangeSlider
         id="field-colspan"

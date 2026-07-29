@@ -1,4 +1,5 @@
 import type { DraftPayload } from "../../types/persistenceTypes";
+import { migrateFieldNames } from "../fieldName/fieldName";
 import { migrateRows } from "../rowLayout/rowLayout";
 import { DRAFT_KEY } from "./persistence.constants";
 import { draftPayloadSchema } from "./persistence.schema";
@@ -16,14 +17,18 @@ export function loadDraft(): DraftPayload | null {
     const parsed = draftPayloadSchema.safeParse(JSON.parse(raw));
     if (!parsed.success) return null;
     const draft = parsed.data as DraftPayload;
+    const takenNames = new Set<string>();
 
     return {
       ...draft,
-      formSteps: draft.formSteps.map((step) => ({ ...step, rows: migrateRows(step.rows) })),
+      formSteps: draft.formSteps.map((step) => ({
+        ...step,
+        rows: migrateFieldNames(migrateRows(step.rows), takenNames),
+      })),
       introModal: {
         steps: draft.introModal.steps.map((step) => ({
           ...step,
-          rows: migrateRows(step.rows),
+          rows: migrateFieldNames(migrateRows(step.rows), takenNames),
         })),
       },
     };

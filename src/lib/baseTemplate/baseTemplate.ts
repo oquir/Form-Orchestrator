@@ -19,6 +19,7 @@ export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
           fields: [
             {
               id: uuidv4(),
+              name: "periodo_anio",
               type: "select",
               label: "Año gravable",
               colStart: 1,
@@ -36,6 +37,7 @@ export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
           fields: [
             {
               id: uuidv4(),
+              name: "id_periodo_anual",
               type: "toggle_group",
               label: "Periodos",
               colStart: 1,
@@ -59,6 +61,7 @@ export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
           fields: [
             {
               id: uuidv4(),
+              name: "id_tipo_declaracion",
               type: "select",
               label: "Tipo de declaración",
               colStart: 1,
@@ -86,6 +89,7 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
       fields: [
         {
           id: ingresosOrdinariosId,
+          name: "ingresos_ordinarios",
           type: "number",
           label: "Ingresos Ordinarios",
           colStart: 1,
@@ -96,6 +100,7 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
         },
         {
           id: ingresosFueraMunicipioId,
+          name: "ingresos_fuera_municipio",
           type: "number",
           label: "Ingresos Fuera del Municipio",
           colStart: 9,
@@ -104,7 +109,8 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
           styles: {},
           logic: {
             dependencies: [ingresosOrdinariosId],
-            typeScript: `onChange(val => { if (val > getFieldValue('${ingresosOrdinariosId}')) { alert('No puede ser mayor a los ordinarios'); } });`,
+            typeScript:
+              "onChange(val => { if (val > getFieldValue('ingresos_ordinarios')) { alert('No puede ser mayor a los ordinarios'); } });",
           },
         },
       ],
@@ -115,6 +121,7 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
       fields: [
         {
           id: uuidv4(),
+          name: "total_ingresos_netos",
           type: "calculated",
           label: "Total Ingresos Netos",
           colStart: 1,
@@ -123,7 +130,8 @@ export function getIndustriaComercioTemplate(): CanvasRow[] {
           styles: {},
           logic: {
             dependencies: [ingresosOrdinariosId, ingresosFueraMunicipioId],
-            typeScript: `return getFieldValue('${ingresosOrdinariosId}') - getFieldValue('${ingresosFueraMunicipioId}');`,
+            typeScript:
+              "return getFieldValue('ingresos_ordinarios') - getFieldValue('ingresos_fuera_municipio');",
           },
         },
       ],

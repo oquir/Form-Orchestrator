@@ -51,6 +51,7 @@ export type ApiBinding = { kind: "mapped"; path: string } | { kind: "excluded" }
 
 export interface CanvasField {
   id: string;
+  name: string;
   type: string;
   label: string;
   colStart: number;

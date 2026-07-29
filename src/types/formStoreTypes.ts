@@ -62,6 +62,7 @@ export interface FormState {
     fieldId: string,
     updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title" | "alwaysDisabled">>,
   ) => void;
+  setFieldName: (fieldId: string, name: string) => void;
   setFieldEnableWhen: (fieldId: string, condition: FieldCondition | null) => void;
   setFieldVisibleWhen: (fieldId: string, condition: FieldCondition | null) => void;
   updateFieldApiBinding: (
