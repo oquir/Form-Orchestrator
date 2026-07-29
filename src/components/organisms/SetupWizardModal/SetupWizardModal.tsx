@@ -25,9 +25,6 @@ export function SetupWizardModal() {
 
   return (
     <ModalShell maxWidthClassName="max-w-lg">
-      <p className="mb-1 text-xs font-medium text-slate-400 dark:text-neutral-500">
-        Paso {step} de 2
-      </p>
       <h2 className="mb-4 text-lg font-semibold text-slate-800 dark:text-neutral-100">
         {step === 1 ? "Tipo de formulario" : "Modal de entrada"}
       </h2>

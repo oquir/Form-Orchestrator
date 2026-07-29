@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { INDUSTRIA_COMERCIO_INTRO_STEPS } from "../../lib/baseTemplate/baseTemplate";
 import { useFormStore } from "../../store/formStore";
 import type { FormType } from "../../types/setup";
 import type { UseSetupWizardResult } from "./useSetupWizard.types";
@@ -14,6 +15,14 @@ export function useSetupWizard(): UseSetupWizardResult {
   const canFinish = hasIntroModal !== null;
 
   function goNext(): void {
+    if (formType === "industria_comercio") {
+      completeSetup({
+        formType,
+        hasIntroModal: true,
+        introModalSteps: INDUSTRIA_COMERCIO_INTRO_STEPS,
+      });
+      return;
+    }
     setStep(2);
   }
 

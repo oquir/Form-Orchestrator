@@ -1,7 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
-import { getIndustriaComercioTemplate } from "../lib/baseTemplate/baseTemplate";
+import {
+  getIndustriaComercioIntroTemplate,
+  getIndustriaComercioTemplate,
+  INDUSTRIA_COMERCIO_FORM_STEPS,
+  type IntroStepTemplate,
+} from "../lib/baseTemplate/baseTemplate";
 import {
   allowsManualOptions,
   exportableOptions,
@@ -112,13 +117,30 @@ export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null 
 }
 
 function buildInitialFormSteps(formType: FormType): FormStep[] {
-  return [
-    {
+  const isIndustriaComercio: boolean = formType === "industria_comercio";
+  const stepCount: number = isIndustriaComercio ? INDUSTRIA_COMERCIO_FORM_STEPS : 1;
+
+  return Array.from({ length: stepCount }, (_, index) => ({
+    stepId: uuidv4(),
+    title: `Paso ${index + 1}`,
+    rows: isIndustriaComercio && index === 0 ? getIndustriaComercioTemplate() : [createEmptyRow()],
+  }));
+}
+
+function buildInitialIntroSteps(formType: FormType, stepCount: number): IntroModalStep[] {
+  const templates: IntroStepTemplate[] =
+    formType === "industria_comercio" ? getIndustriaComercioIntroTemplate() : [];
+
+  return Array.from({ length: stepCount }, (_, index) => {
+    const template: IntroStepTemplate | undefined = templates[index];
+
+    return {
       stepId: uuidv4(),
-      title: "Paso 1",
-      rows: formType === "industria_comercio" ? getIndustriaComercioTemplate() : [createEmptyRow()],
-    },
-  ];
+      title: template?.title ?? `Paso ${index + 1}`,
+      subtitle: template?.subtitle,
+      rows: template?.rows ?? [createEmptyRow()],
+    };
+  });
 }
 
 const THEME_STORAGE_KEY = "form-orchestrator-theme";
@@ -175,11 +197,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         formSteps,
         introModal: {
           steps: config.hasIntroModal
-            ? Array.from({ length: config.introModalSteps }, (_, index) => ({
-                stepId: uuidv4(),
-                title: `Paso ${index + 1}`,
-                rows: [createEmptyRow()],
-              }))
+            ? buildInitialIntroSteps(config.formType, config.introModalSteps)
             : [],
         },
         activeCanvas: { type: "formStep", stepId: formSteps[0].stepId },
