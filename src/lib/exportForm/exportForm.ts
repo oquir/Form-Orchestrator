@@ -4,26 +4,31 @@ import type { SetupConfig } from "../../types/setup";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
 import { buildZodSchema } from "../zodSchema/zodSchema";
 import type { ExportedRow, FormExport } from "./exportForm.types";
+import { buildNameIndex, resolveCondition, resolveDependencies } from "./exportForm.utils";
 
-function mapRows(rows: CanvasRow[]): ExportedRow[] {
+function mapRows(rows: CanvasRow[], names: Map<string, string>): ExportedRow[] {
   return rows.map((row) => ({
     rowId: row.id,
     columns: row.columns,
     fields: row.fields.map((field) => ({
       fieldId: field.id,
+      name: field.name,
       type: field.type,
       label: field.label,
       colStart: field.colStart,
       colSpan: field.colSpan,
       styles: field.styles,
       validations: { zodSchema: buildZodSchema(field) },
-      logic: field.logic,
+      logic: {
+        dependencies: resolveDependencies(field, names),
+        typeScript: field.logic.typeScript,
+      },
       title: field.title,
       options: exportableOptions(field),
       fileConfig: field.fileConfig,
       alwaysDisabled: field.alwaysDisabled,
-      enableWhen: field.enableWhen,
-      visibleWhen: field.visibleWhen,
+      enableWhen: resolveCondition(field.enableWhen, names),
+      visibleWhen: resolveCondition(field.visibleWhen, names),
       apiBinding: field.apiBinding,
     })),
   }));
@@ -34,6 +39,11 @@ export function buildFormExport(
   setupConfig: SetupConfig,
   introModalSteps: IntroModalStep[],
 ): FormExport {
+  const names: Map<string, string> = buildNameIndex([
+    ...formSteps.flatMap((step) => step.rows),
+    ...introModalSteps.flatMap((step) => step.rows),
+  ]);
+
   return {
     projectMeta: {
       formId: `frm_${Date.now()}`,
@@ -49,7 +59,7 @@ export function buildFormExport(
               stepId: step.stepId,
               title: step.title,
               subtitle: step.subtitle || undefined,
-              rows: mapRows(step.rows),
+              rows: mapRows(step.rows, names),
             })),
           }
         : undefined,
@@ -60,7 +70,7 @@ export function buildFormExport(
         stepId: step.stepId,
         title: step.title,
         subtitle: step.subtitle || undefined,
-        rows: mapRows(step.rows),
+        rows: mapRows(step.rows, names),
       })),
     },
   };

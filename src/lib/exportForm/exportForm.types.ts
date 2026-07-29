@@ -1,28 +1,40 @@
 import type {
   ApiBinding,
+  ConditionOperator,
   FieldCondition,
   FieldFileConfig,
-  FieldLogic,
   FieldOption,
   FieldStyles,
 } from "../../types/field";
 import type { FormType } from "../../types/setup";
 
+export interface ExportedCondition {
+  field: string;
+  operator: ConditionOperator;
+  value?: FieldCondition["value"];
+}
+
+export interface ExportedLogic {
+  dependencies: string[];
+  typeScript: string;
+}
+
 export interface ExportedField {
   fieldId: string;
+  name: string;
   type: string;
   label: string;
   colStart: number;
   colSpan: number;
   styles: FieldStyles;
   validations: { zodSchema: string };
-  logic: FieldLogic;
+  logic: ExportedLogic;
   title?: string;
   options?: FieldOption[];
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
-  enableWhen?: FieldCondition;
-  visibleWhen?: FieldCondition;
+  enableWhen?: ExportedCondition;
+  visibleWhen?: ExportedCondition;
   apiBinding?: ApiBinding;
 }
 
