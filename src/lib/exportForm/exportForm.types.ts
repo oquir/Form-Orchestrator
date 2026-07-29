@@ -1,6 +1,6 @@
 import type {
   ApiBinding,
-  EnableCondition,
+  FieldCondition,
   FieldFileConfig,
   FieldLogic,
   FieldOption,
@@ -21,7 +21,7 @@ export interface ExportedField {
   options?: FieldOption[];
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
-  enableWhen?: EnableCondition;
+  enableWhen?: FieldCondition;
   apiBinding?: ApiBinding;
 }
 

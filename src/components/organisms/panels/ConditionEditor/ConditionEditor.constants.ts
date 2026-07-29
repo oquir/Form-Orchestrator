@@ -1,6 +1,6 @@
-import type { EnableOperator } from "../../../../types/field";
+import type { ConditionOperator } from "../../../../types/field";
 
-export const OPERATOR_LABELS: Record<EnableOperator, string> = {
+export const OPERATOR_LABELS: Record<ConditionOperator, string> = {
   equals: "es igual a",
   notEquals: "es distinto de",
   greaterThan: "es mayor que",

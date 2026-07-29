@@ -31,7 +31,7 @@ export interface FieldFileConfig {
   maxSizeMB: number;
 }
 
-export type EnableOperator =
+export type ConditionOperator =
   | "equals"
   | "notEquals"
   | "greaterThan"
@@ -41,9 +41,9 @@ export type EnableOperator =
   | "isTruthy"
   | "isFalsy";
 
-export interface EnableCondition {
+export interface FieldCondition {
   fieldId: string;
-  operator: EnableOperator;
+  operator: ConditionOperator;
   value?: string | number | boolean;
 }
 
@@ -62,7 +62,7 @@ export interface CanvasField {
   options?: FieldOption[];
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
-  enableWhen?: EnableCondition;
+  enableWhen?: FieldCondition;
   apiBinding?: ApiBinding;
 }
 
@@ -79,6 +79,6 @@ export interface SavedComponent {
   options?: FieldOption[];
   fileConfig?: FieldFileConfig;
   alwaysDisabled?: boolean;
-  enableWhen?: EnableCondition;
+  enableWhen?: FieldCondition;
   apiBinding?: ApiBinding;
 }

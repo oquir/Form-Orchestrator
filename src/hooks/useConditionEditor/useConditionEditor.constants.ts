@@ -1,10 +1,15 @@
-import type { EnableOperator } from "../../types/field";
+import type { ConditionOperator } from "../../types/field";
 
-export const OPERATORS_WITHOUT_VALUE: EnableOperator[] = [
+export const OPERATORS_WITHOUT_VALUE: ConditionOperator[] = [
   "isEmpty",
   "isNotEmpty",
   "isTruthy",
   "isFalsy",
 ];
 
-export const DEFAULT_OPERATORS: EnableOperator[] = ["equals", "notEquals", "isEmpty", "isNotEmpty"];
+export const DEFAULT_OPERATORS: ConditionOperator[] = [
+  "equals",
+  "notEquals",
+  "isEmpty",
+  "isNotEmpty",
+];

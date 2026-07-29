@@ -1,7 +1,7 @@
-import type { CanvasField, EnableCondition } from "../../../types/field";
+import type { CanvasField, FieldCondition } from "../../../types/field";
 
 export interface ConditionValueInputProps {
-  condition: EnableCondition;
+  condition: FieldCondition;
   observedField: CanvasField | null | undefined;
-  onChange: (value: EnableCondition["value"]) => void;
+  onChange: (value: FieldCondition["value"]) => void;
 }

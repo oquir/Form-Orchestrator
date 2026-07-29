@@ -1,4 +1,4 @@
-import type { CanvasField, EnableCondition, EnableOperator } from "../../types/field";
+import type { CanvasField, ConditionOperator, FieldCondition } from "../../types/field";
 
 export interface UseConditionEditorParams {
   field: CanvasField;
@@ -6,13 +6,13 @@ export interface UseConditionEditorParams {
 }
 
 export interface UseConditionEditorResult {
-  condition: EnableCondition | undefined;
+  condition: FieldCondition | undefined;
   observed: CanvasField | null;
   observedIsDead: boolean;
-  availableOperators: EnableOperator[];
+  availableOperators: ConditionOperator[];
   needsValue: boolean;
-  updateCondition: (next: Partial<EnableCondition>) => void;
+  updateCondition: (next: Partial<FieldCondition>) => void;
   handleActivationChange: (checked: boolean) => void;
   handleObservedFieldChange: (nextFieldId: string) => void;
-  handleOperatorChange: (nextOp: EnableOperator) => void;
+  handleOperatorChange: (nextOp: ConditionOperator) => void;
 }

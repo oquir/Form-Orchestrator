@@ -1,5 +1,5 @@
 import { useFormStore } from "../../store/formStore";
-import type { EnableCondition, EnableOperator } from "../../types/field";
+import type { ConditionOperator, FieldCondition } from "../../types/field";
 import { DEFAULT_OPERATORS, OPERATORS_WITHOUT_VALUE } from "./useConditionEditor.constants";
 import type {
   UseConditionEditorParams,
@@ -15,12 +15,12 @@ export function useConditionEditor({
   const condition = field.enableWhen;
   const observed = condition ? (otherFields.find((f) => f.id === condition.fieldId) ?? null) : null;
   const observedIsDead = Boolean(condition && !observed);
-  const availableOperators: EnableOperator[] = observed
+  const availableOperators: ConditionOperator[] = observed
     ? operatorsForFieldType(observed.type)
     : DEFAULT_OPERATORS;
   const needsValue = Boolean(condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator));
 
-  function updateCondition(next: Partial<EnableCondition>): void {
+  function updateCondition(next: Partial<FieldCondition>): void {
     if (!condition) return;
     setFieldEnableWhen(field.id, { ...condition, ...next });
   }
@@ -30,7 +30,7 @@ export function useConditionEditor({
 
     if (!nextField) return;
 
-    const ops: EnableOperator[] = operatorsForFieldType(nextField.type);
+    const ops: ConditionOperator[] = operatorsForFieldType(nextField.type);
 
     setFieldEnableWhen(field.id, {
       fieldId: nextField.id,
@@ -61,7 +61,7 @@ export function useConditionEditor({
     setConditionOnField(nextFieldId);
   }
 
-  function handleOperatorChange(nextOp: EnableOperator): void {
+  function handleOperatorChange(nextOp: ConditionOperator): void {
     updateCondition({
       operator: nextOp,
       value: OPERATORS_WITHOUT_VALUE.includes(nextOp) ? undefined : condition?.value,

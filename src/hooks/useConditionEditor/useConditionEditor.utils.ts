@@ -1,6 +1,6 @@
-import type { CanvasField, EnableOperator } from "../../types/field";
+import type { CanvasField, ConditionOperator } from "../../types/field";
 
-export function operatorsForFieldType(type: string): EnableOperator[] {
+export function operatorsForFieldType(type: string): ConditionOperator[] {
   switch (type) {
     case "checkbox":
       return ["isTruthy", "isFalsy"];

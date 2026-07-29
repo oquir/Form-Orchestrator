@@ -1,8 +1,8 @@
-import type { EnableOperator } from "../../../types/field";
+import type { ConditionOperator } from "../../../types/field";
 
 export interface ConditionOperatorSelectProps {
-  operator: EnableOperator;
-  availableOperators: EnableOperator[];
-  operatorLabels: Record<EnableOperator, string>;
-  onChange: (operator: EnableOperator) => void;
+  operator: ConditionOperator;
+  availableOperators: ConditionOperator[];
+  operatorLabels: Record<ConditionOperator, string>;
+  onChange: (operator: ConditionOperator) => void;
 }

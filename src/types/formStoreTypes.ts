@@ -1,7 +1,7 @@
 import type {
   ApiBinding,
   CanvasField,
-  EnableCondition,
+  FieldCondition,
   FieldFileConfig,
   FieldLogic,
   FieldStyles,
@@ -62,7 +62,7 @@ export interface FormState {
     fieldId: string,
     updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title" | "alwaysDisabled">>,
   ) => void;
-  setFieldEnableWhen: (fieldId: string, condition: EnableCondition | null) => void;
+  setFieldEnableWhen: (fieldId: string, condition: FieldCondition | null) => void;
   updateFieldApiBinding: (
     fieldId: string,
     binding: ApiBinding | null,
