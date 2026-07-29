@@ -61,10 +61,12 @@ export function useDragAndDrop(): DragAndDropReturn {
       if (anchorRef.current === null) anchorRef.current = column;
       const anchor = anchorRef.current;
       const run = runs.find((r) => anchor >= r.start && anchor < r.start + r.length);
+
       if (!run) {
         setDragPlacement({ rowId, colStart: anchor, colSpan: 1, mode: "resize", isValid: false });
         return;
       }
+
       const maxSpan = run.start + run.length - anchor;
       const colSpan = Math.max(1, Math.min(column - anchor + 1, maxSpan));
       setDragPlacement({ rowId, colStart: anchor, colSpan, mode: "resize", isValid: true });
@@ -74,6 +76,7 @@ export function useDragAndDrop(): DragAndDropReturn {
     anchorRef.current = null;
     const colSpan = Math.max(1, Math.min(getDraggedSpan(drag), row.columns));
     const snapped = findNearestFit(runs, column, colSpan);
+
     setDragPlacement({
       rowId,
       colStart: snapped ?? column,
@@ -103,6 +106,7 @@ export function useDragAndDrop(): DragAndDropReturn {
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("keydown", handleKeyChange);
     window.addEventListener("keyup", handleKeyChange);
+
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("keydown", handleKeyChange);
@@ -122,6 +126,7 @@ export function useDragAndDrop(): DragAndDropReturn {
   function handleDragStart(event: DragStartEvent): void {
     const data = event.active.data.current;
     let drag: ActiveDrag | null = null;
+
     if (data?.source === "palette") {
       drag = { source: "palette", fieldType: data.fieldType as FieldTypeDef };
     } else if (data?.source === "library") {
@@ -129,6 +134,7 @@ export function useDragAndDrop(): DragAndDropReturn {
     } else if (data?.source === "canvas-field") {
       drag = { source: "canvas-field", field: data.field as CanvasField };
     }
+
     setActiveDrag(drag);
     activeDragRef.current = drag;
     anchorRef.current = null;

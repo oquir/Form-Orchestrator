@@ -16,6 +16,7 @@ export function getFreeRuns(
   for (const field of fields) {
     if (field.id === excludeFieldId) continue;
     const end = Math.min(field.colStart + field.colSpan - 1, columns);
+
     for (let column = Math.max(1, field.colStart); column <= end; column++) {
       occupied[column] = true;
     }
@@ -23,16 +24,19 @@ export function getFreeRuns(
 
   const runs: FreeRun[] = [];
   let runStart: number | null = null;
+
   for (let column = 1; column <= columns; column++) {
     if (!occupied[column]) {
       if (runStart === null) runStart = column;
       continue;
     }
+
     if (runStart !== null) {
       runs.push({ start: runStart, length: column - runStart });
       runStart = null;
     }
   }
+
   if (runStart !== null) runs.push({ start: runStart, length: columns - runStart + 1 });
   return runs;
 }
@@ -41,6 +45,7 @@ export function findFirstFit(runs: FreeRun[], colSpan: number): number | null {
   for (const run of runs) {
     if (run.length >= colSpan) return run.start;
   }
+
   return null;
 }
 
@@ -72,6 +77,7 @@ export function getLargestRun(runs: FreeRun[]): FreeRun | null {
   for (const run of runs) {
     if (!largest || run.length > largest.length) largest = run;
   }
+
   return largest;
 }
 
@@ -81,6 +87,7 @@ export function getMaxSpanAt(runs: FreeRun[], colStart: number): number {
       return run.start + run.length - colStart;
     }
   }
+
   return 1;
 }
 
@@ -136,9 +143,11 @@ export function splitOverflowingRow(row: CanvasRow): CanvasRow[] {
       current = [];
       cursor = 1;
     }
+
     current.push({ ...field, colStart: cursor, colSpan });
     cursor += colSpan;
   }
+
   if (current.length > 0) lines.push(current);
   if (lines.length === 0) return [{ ...row, fields: [] }];
 
@@ -153,6 +162,7 @@ export function migrateRows(rows: CanvasRow[]): CanvasRow[] {
   const needsMigration = rows.some((row) =>
     row.fields.some((field) => typeof field.colStart !== "number"),
   );
+
   if (!needsMigration) return rows;
   return rows.flatMap((row) => splitOverflowingRow(row));
 }

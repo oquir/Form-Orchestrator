@@ -52,6 +52,7 @@ function buildNode(node: SchemaNode, path: string, index: Map<string, CanvasFiel
       kind: "host",
       conflictingFieldLabel: matchedField?.label,
     };
+
     return { kind: "leaf", key: node.key, schemaType: node.type, binding };
   }
 
@@ -114,5 +115,6 @@ export function findOrphanBindings(schema: SchemaNode, fields: CanvasField[]): O
       orphans.push({ fieldId: field.id, fieldLabel: field.label, path: field.apiBinding.path });
     }
   }
+
   return orphans;
 }

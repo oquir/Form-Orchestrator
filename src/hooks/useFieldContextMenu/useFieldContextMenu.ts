@@ -30,8 +30,10 @@ export function useFieldContextMenu({
     const handleKeyDown = (event: KeyboardEvent): void => {
       if (event.key === "Escape") onClose();
     };
+
     window.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("keydown", handleKeyDown);

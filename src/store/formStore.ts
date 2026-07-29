@@ -57,6 +57,7 @@ function mapRowEverywhere(
   updater: (row: CanvasRow) => CanvasRow,
 ): StateSlice {
   const applyTo = (rows: CanvasRow[]) => rows.map((row) => (row.id === rowId ? updater(row) : row));
+
   return {
     formSteps: slice.formSteps.map((step) => ({
       ...step,
@@ -81,6 +82,7 @@ function mapFieldEverywhere(
       ...row,
       fields: row.fields.map((field) => (field.id === fieldId ? updater(field) : field)),
     }));
+
   return {
     formSteps: slice.formSteps.map((step) => ({
       ...step,
@@ -126,6 +128,7 @@ function getInitialDarkMode(): boolean {
   const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
   if (stored === "dark") return true;
   if (stored === "light") return false;
+
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
@@ -572,20 +575,25 @@ export function getActiveRows(state: {
   activeCanvas: CanvasTarget;
 }): CanvasRow[] {
   const activeCanvas = state.activeCanvas;
+
   if (activeCanvas.type === "formStep") {
     const step = state.formSteps.find((s) => s.stepId === activeCanvas.stepId);
     return step ? step.rows : [];
   }
+
   const step = state.introModal.steps.find((s) => s.stepId === activeCanvas.stepId);
+
   return step ? step.rows : [];
 }
 
 export function findFieldById(rows: CanvasRow[], fieldId: string | null): CanvasField | null {
   if (!fieldId) return null;
+
   for (const row of rows) {
     const field = row.fields.find((f) => f.id === fieldId);
     if (field) return field;
   }
+
   return null;
 }
 
@@ -594,10 +602,12 @@ function findAnyField(state: StateSlice, fieldId: string): CanvasField | null {
     const field = findFieldById(step.rows, fieldId);
     if (field) return field;
   }
+
   for (const step of state.introModal.steps) {
     const field = findFieldById(step.rows, fieldId);
     if (field) return field;
   }
+
   return null;
 }
 
@@ -615,10 +625,12 @@ export function findRowContainingField(
       if (row.fields.some((f) => f.id === fieldId)) return row;
     }
   }
+
   for (const step of state.introModal.steps) {
     for (const row of step.rows) {
       if (row.fields.some((f) => f.id === fieldId)) return row;
     }
   }
+
   return null;
 }

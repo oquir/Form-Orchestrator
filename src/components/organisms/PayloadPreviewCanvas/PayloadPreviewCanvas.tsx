@@ -25,6 +25,7 @@ export function PayloadPreviewCanvas() {
     ...formSteps.flatMap((step) => step.rows),
     ...introSteps.flatMap((step) => step.rows),
   ];
+
   const allFields: CanvasField[] = getAllFields(allRows);
   const mappingTree: MappingNode = buildMappingTree(PAYLOAD_SCHEMA, allFields);
   const orphanBindings: OrphanBinding[] = findOrphanBindings(PAYLOAD_SCHEMA, allFields);

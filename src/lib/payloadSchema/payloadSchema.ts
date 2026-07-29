@@ -6,6 +6,7 @@ function collectLeaves(node: SchemaNode, path: string, out: SchemaLeaf[]): void 
       const childPath = path ? `${path}.${child.key}` : child.key;
       collectLeaves(child, childPath, out);
     }
+
     return;
   }
 
@@ -16,6 +17,7 @@ function collectLeaves(node: SchemaNode, path: string, out: SchemaLeaf[]): void 
 export function flattenLeaves(schema: SchemaNode): SchemaLeaf[] {
   const leaves: SchemaLeaf[] = [];
   collectLeaves(schema, "", leaves);
+
   return leaves;
 }
 
@@ -27,6 +29,7 @@ export function resolveLeaf(schema: SchemaNode, path: string): SchemaLeaf | null
   const leaf: SchemaLeaf | undefined = flattenLeaves(schema).find(
     (candidate) => candidate.path === path,
   );
+
   return leaf ?? null;
 }
 

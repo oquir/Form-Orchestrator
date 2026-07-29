@@ -15,6 +15,7 @@ export function useKeyboardShortcuts() {
         event.preventDefault();
         const state: FormState = useFormStore.getState();
         if (!state.setupConfig.isComplete) return;
+
         saveDraft({
           formSteps: state.formSteps,
           introModal: state.introModal,

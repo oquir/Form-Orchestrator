@@ -19,5 +19,6 @@ export function getColumnAtPointer(
 
   const offsetX = pointerX - rect.left - paddingLeft;
   const column = Math.floor(offsetX / (perColumn + GRID_GAP_PX)) + 1;
+
   return Math.max(1, Math.min(columns, column));
 }

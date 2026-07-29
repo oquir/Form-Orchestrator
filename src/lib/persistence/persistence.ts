@@ -16,6 +16,7 @@ export function loadDraft(): DraftPayload | null {
     const parsed = draftPayloadSchema.safeParse(JSON.parse(raw));
     if (!parsed.success) return null;
     const draft = parsed.data as DraftPayload;
+
     return {
       ...draft,
       formSteps: draft.formSteps.map((step) => ({ ...step, rows: migrateRows(step.rows) })),
