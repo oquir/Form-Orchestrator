@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { CanvasField } from "../../types/field";
+import type { ApiBinding, CanvasField } from "../../types/field";
 import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 
 export type IntroStepTemplate = Omit<IntroModalStep, "stepId">;
@@ -15,9 +15,17 @@ interface FieldSpec {
   label: string;
   colSpan: number;
   path?: string;
+  excluded?: boolean;
   required?: boolean;
   min?: number;
   formula?: string;
+}
+
+function bindingFor(spec: FieldSpec): ApiBinding | undefined {
+  if (spec.path !== undefined) return { kind: "mapped", path: spec.path };
+  if (spec.excluded) return { kind: "excluded" };
+
+  return undefined;
 }
 
 function buildRow(specs: FieldSpec[]): CanvasRow {
@@ -38,7 +46,7 @@ function buildRow(specs: FieldSpec[]): CanvasRow {
       },
       styles: {},
       logic: { dependencies: [], typeScript: "", formula: spec.formula },
-      apiBinding: spec.path === undefined ? undefined : { kind: "mapped", path: spec.path },
+      apiBinding: bindingFor(spec),
     });
 
     colStart += spec.colSpan;
@@ -334,7 +342,107 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
     },
     {
       title: "Impuesto a cargo",
-      rows: [buildRow([])],
+      rows: [
+        buildRow([
+          {
+            name: "total_impuesto",
+            type: "number",
+            label: "17. Total Impuesto",
+            colSpan: GRID_BASE_COLUMNS,
+            excluded: true,
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "generacion_energia_kw",
+            type: "number",
+            label: "18. Generación de Energía / Capacidad Instalada",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "generacionEnergiaKw",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "impuesto_ley_56",
+            type: "number",
+            label: "19. Impuesto Ley 56 1981",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "impuestoLey56",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_impuesto_industria_comercio",
+            type: "number",
+            label: "20. Total Impuesto de Industria y Comercio (Renglón 17 + 19)",
+            colSpan: GRID_BASE_COLUMNS,
+            excluded: true,
+            formula: "total_impuesto + impuesto_ley_56",
+          },
+        ]),
+        buildRow([
+          {
+            name: "impuesto_avisos_tableros",
+            type: "number",
+            label: "21. Impuesto de Avisos y Tableros (15% Renglón 20)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "impuestoACargo.impuestoAvisosTableros",
+            formula: "total_impuesto_industria_comercio * 0.15",
+          },
+        ]),
+        buildRow([
+          {
+            name: "pago_unidades_sector_financiero",
+            type: "number",
+            label: "22. Pago Por Unidades Comerciales Adicionales del Sector Financiero",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "impuestoACargo.pagoUnidadesSectorFinanciero",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "sobretasa_bomberil",
+            type: "number",
+            label:
+              "23. Sobretasa Bomberil (Ley 1575 de 2012) (Si la hay, Liquídela Según el Acuerdo Municipal o Distrital)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "impuestoACargo.sobretasaBomberil",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "sobretasa_seguridad",
+            type: "number",
+            label:
+              "24. Sobretasa de Seguridad (Ley 1421 de 2011) (Si la hay, Liquídela Según el Acuerdo Municipal o Distrital)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "impuestoACargo.sobretasaSeguridad",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_impuesto_a_cargo",
+            type: "number",
+            label: "25. Total Impuesto a Cargo (Renglón 20 + 21 + 22 + 23 + 24)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "impuestoACargo.totalImpuestoACargo",
+            formula:
+              "total_impuesto_industria_comercio + impuesto_avisos_tableros + pago_unidades_sector_financiero + sobretasa_bomberil + sobretasa_seguridad",
+          },
+        ]),
+      ],
     },
   ];
 }
