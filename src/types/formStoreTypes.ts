@@ -4,6 +4,7 @@ import type {
   FieldCondition,
   FieldFileConfig,
   FieldLogic,
+  FieldRule,
   FieldStyles,
   FieldValidations,
   SavedComponent,
@@ -73,6 +74,15 @@ export interface FormState {
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
+  setFieldFormula: (fieldId: string, formula: string) => void;
+  addFieldRule: (fieldId: string) => void;
+  updateFieldRule: (
+    fieldId: string,
+    ruleId: string,
+    updates: Partial<Omit<FieldRule, "id">>,
+  ) => void;
+  removeFieldRule: (fieldId: string, ruleId: string) => void;
+  reorderFieldRule: (fieldId: string, ruleId: string, offset: number) => void;
   updateFieldFileConfig: (fieldId: string, updates: Partial<FieldFileConfig>) => void;
   toggleFieldDependency: (fieldId: string, dependsOnFieldId: string) => void;
   addFieldOption: (fieldId: string) => void;

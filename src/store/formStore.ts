@@ -13,6 +13,7 @@ import {
   exportableOptions,
   isOptionBasedField,
 } from "../lib/fieldOptions/fieldOptions";
+import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
 import {
   getFreeRuns,
   getMaxSpanAt,
@@ -386,6 +387,10 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
               ...field,
               enableWhen: field.enableWhen?.fieldId === fieldId ? undefined : field.enableWhen,
               visibleWhen: field.visibleWhen?.fieldId === fieldId ? undefined : field.visibleWhen,
+              logic: {
+                ...field.logic,
+                rules: pruneRulesReferencing(field.logic.rules, fieldId),
+              },
             })),
         }));
       return {
@@ -500,6 +505,49 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       mapFieldEverywhere(state, fieldId, (field) => ({
         ...field,
         logic: { ...field.logic, ...updates },
+      })),
+    ),
+  setFieldFormula: (fieldId, formula) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        logic: { ...field.logic, formula: formula.trim().length > 0 ? formula : undefined },
+      })),
+    ),
+  addFieldRule: (fieldId) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        logic: { ...field.logic, rules: [...(field.logic.rules ?? []), createFieldRule()] },
+      })),
+    ),
+  updateFieldRule: (fieldId, ruleId, updates) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        logic: {
+          ...field.logic,
+          rules: (field.logic.rules ?? []).map((rule) =>
+            rule.id === ruleId ? { ...rule, ...updates } : rule,
+          ),
+        },
+      })),
+    ),
+  removeFieldRule: (fieldId, ruleId) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        logic: {
+          ...field.logic,
+          rules: (field.logic.rules ?? []).filter((rule) => rule.id !== ruleId),
+        },
+      })),
+    ),
+  reorderFieldRule: (fieldId, ruleId, offset) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        logic: { ...field.logic, rules: moveRule(field.logic.rules ?? [], ruleId, offset) },
       })),
     ),
   toggleFieldDependency: (fieldId, dependsOnFieldId) =>

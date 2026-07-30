@@ -19,6 +19,8 @@ export interface FieldStyles {
 export interface FieldLogic {
   dependencies: string[];
   typeScript: string;
+  formula?: string;
+  rules?: FieldRule[];
 }
 
 export interface FieldOption {
@@ -50,6 +52,18 @@ export interface FieldCondition {
   fieldId: string;
   operator: ConditionOperator;
   value?: string | number | boolean;
+}
+
+export type RuleEffect =
+  | { kind: "formula"; expression: string }
+  | { kind: "constant"; value: string | number | boolean };
+
+export interface FieldRule {
+  id: string;
+  label?: string;
+  matchAll: boolean;
+  when: FieldCondition[];
+  effects: RuleEffect[];
 }
 
 export type ApiBinding = { kind: "mapped"; path: string } | { kind: "excluded" };

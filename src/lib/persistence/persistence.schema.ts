@@ -18,11 +18,6 @@ const fieldStylesSchema = z.object({
   textColor: z.string().optional(),
 });
 
-const fieldLogicSchema = z.object({
-  dependencies: z.array(z.string()),
-  typeScript: z.string(),
-});
-
 const fieldOptionSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -51,6 +46,29 @@ const fieldConditionSchema = z.object({
     "isFalsy",
   ]),
   value: z.union([z.string(), z.number(), z.boolean()]).optional(),
+});
+
+const ruleEffectSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("formula"), expression: z.string() }),
+  z.object({
+    kind: z.literal("constant"),
+    value: z.union([z.string(), z.number(), z.boolean()]),
+  }),
+]);
+
+const fieldRuleSchema = z.object({
+  id: z.string(),
+  label: z.string().optional(),
+  matchAll: z.boolean(),
+  when: z.array(fieldConditionSchema),
+  effects: z.array(ruleEffectSchema),
+});
+
+const fieldLogicSchema = z.object({
+  dependencies: z.array(z.string()),
+  typeScript: z.string(),
+  formula: z.string().optional(),
+  rules: z.array(fieldRuleSchema).optional(),
 });
 
 const apiBindingSchema = z.discriminatedUnion("kind", [
