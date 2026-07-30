@@ -5,6 +5,7 @@ import type {
   FieldFileConfig,
   FieldOption,
   FieldStyles,
+  RuleEffect,
 } from "../../types/field";
 import type { FormType } from "../../types/setup";
 
@@ -14,9 +15,19 @@ export interface ExportedCondition {
   value?: FieldCondition["value"] | string[];
 }
 
+export interface ExportedRule {
+  id: string;
+  label?: string;
+  matchAll: boolean;
+  when: ExportedCondition[];
+  effects: RuleEffect[];
+}
+
 export interface ExportedLogic {
   dependencies: string[];
   typeScript: string;
+  formula?: string;
+  rules?: ExportedRule[];
 }
 
 export interface ExportedField {
@@ -38,9 +49,20 @@ export interface ExportedField {
   apiBinding?: ApiBinding;
 }
 
+export interface ExportedRepeatableGroup {
+  groupId: string;
+  name: string;
+  title: string;
+  min: number;
+  max: number;
+  arrayPath?: string;
+  zodSchema: string;
+}
+
 export interface ExportedRow {
   rowId: string;
   columns: number;
+  groupId?: string;
   fields: ExportedField[];
 }
 
@@ -49,6 +71,7 @@ export interface ExportedStep {
   title: string;
   subtitle?: string;
   rows: ExportedRow[];
+  groups?: ExportedRepeatableGroup[];
 }
 
 export interface ProjectMeta {
@@ -69,6 +92,7 @@ export interface ExportedSetupConfig {
 
 export interface ExportedFormSchema {
   gridBaseColumns: number;
+  evaluationOrder: string[];
   steps: ExportedStep[];
 }
 

@@ -1,7 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type { ApiBinding, CanvasField } from "../../types/field";
-import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
+import type {
+  CanvasRow,
+  FormStep,
+  IntroModalStep,
+  RepeatableGroup,
+} from "../../types/formStructure";
 
 export type IntroStepTemplate = Omit<IntroModalStep, "stepId">;
 export type FormStepTemplate = Omit<FormStep, "stepId">;
@@ -19,6 +24,7 @@ interface FieldSpec {
   required?: boolean;
   min?: number;
   formula?: string;
+  alwaysDisabled?: boolean;
 }
 
 const SALDO_NETO: string =
@@ -31,7 +37,7 @@ function bindingFor(spec: FieldSpec): ApiBinding | undefined {
   return undefined;
 }
 
-function buildRow(specs: FieldSpec[]): CanvasRow {
+function buildRow(specs: FieldSpec[], groupId?: string): CanvasRow {
   const fields: CanvasField[] = [];
   let colStart = 1;
 
@@ -49,13 +55,14 @@ function buildRow(specs: FieldSpec[]): CanvasRow {
       },
       styles: {},
       logic: { dependencies: [], typeScript: "", formula: spec.formula },
+      alwaysDisabled: spec.alwaysDisabled,
       apiBinding: bindingFor(spec),
     });
 
     colStart += spec.colSpan;
   }
 
-  return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields };
+  return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields, groupId };
 }
 
 export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
@@ -103,6 +110,76 @@ export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
       ],
     },
   ];
+}
+
+function buildActividadesStep(): FormStepTemplate {
+  const group: RepeatableGroup = {
+    id: uuidv4(),
+    name: "actividades",
+    title: "Otras Actividades",
+    min: 1,
+    max: 15,
+    arrayPath: "actividades",
+  };
+
+  return {
+    title: "Actividades gravadas",
+    groups: [group],
+    rows: [
+      buildRow(
+        [
+          {
+            name: "actividad",
+            type: "search_select",
+            label: "Actividad",
+            colSpan: 10,
+            path: "actividades[].idActividad",
+            required: true,
+          },
+          {
+            name: "codigo_actividad",
+            type: "text",
+            label: "Código",
+            colSpan: 6,
+            excluded: true,
+            alwaysDisabled: true,
+          },
+        ],
+        group.id,
+      ),
+      buildRow(
+        [
+          {
+            name: "ingresos_gravados",
+            type: "number",
+            label: "Ingresos gravados",
+            colSpan: 6,
+            path: "actividades[].ingresoGravado",
+            required: true,
+            min: 0,
+          },
+          {
+            name: "tarifa_x_mil",
+            type: "number",
+            label: "Tarifa x mil",
+            colSpan: 5,
+            path: "actividades[].tarifaXMil",
+            alwaysDisabled: true,
+          },
+          {
+            name: "impuesto_actividad",
+            type: "calculated",
+            label: "Impuesto",
+            colSpan: 5,
+            path: "actividades[].valorImpuestoActividad",
+            alwaysDisabled: true,
+            formula: "round(ingresos_gravados * tarifa_x_mil / 1000)",
+          },
+        ],
+        group.id,
+      ),
+    ],
+  };
 }
 
 export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
@@ -339,10 +416,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         ]),
       ],
     },
-    {
-      title: "Actividades gravadas",
-      rows: [buildRow([])],
-    },
+    buildActividadesStep(),
     {
       title: "Impuesto a cargo",
       rows: [
@@ -353,8 +427,8 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             label: "17. Total Impuesto",
             colSpan: GRID_BASE_COLUMNS,
             excluded: true,
-            required: true,
-            min: 0,
+            alwaysDisabled: true,
+            formula: "sumOf(impuesto_actividad)",
           },
         ]),
         buildRow([

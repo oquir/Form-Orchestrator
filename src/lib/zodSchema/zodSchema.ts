@@ -1,9 +1,18 @@
 import type { CanvasField, FieldOption, FieldValidations } from "../../types/field";
+import type { RepeatableGroup } from "../../types/formStructure";
 import {
   exportableOptions,
   isMultiValueField,
   isOptionBasedField,
 } from "../fieldOptions/fieldOptions";
+
+export function buildGroupZodSchema(group: RepeatableGroup, fields: CanvasField[]): string {
+  const shape: string = fields
+    .map((field) => `${JSON.stringify(field.name)}: ${buildZodSchema(field)}`)
+    .join(", ");
+
+  return `z.array(z.object({ ${shape} })).min(${group.min}).max(${group.max})`;
+}
 
 export function buildZodSchema(field: CanvasField): string {
   const v: FieldValidations = field.validations;
