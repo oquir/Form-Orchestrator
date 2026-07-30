@@ -2,8 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
 import {
+  type FormStepTemplate,
+  getIndustriaComercioFormTemplate,
   getIndustriaComercioIntroTemplate,
-  getIndustriaComercioTemplate,
   INDUSTRIA_COMERCIO_FORM_STEPS,
   type IntroStepTemplate,
 } from "../lib/baseTemplate/baseTemplate";
@@ -136,12 +137,20 @@ export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null 
 function buildInitialFormSteps(formType: FormType): FormStep[] {
   const isIndustriaComercio: boolean = formType === "industria_comercio";
   const stepCount: number = isIndustriaComercio ? INDUSTRIA_COMERCIO_FORM_STEPS : 1;
+  const templates: FormStepTemplate[] = isIndustriaComercio
+    ? getIndustriaComercioFormTemplate()
+    : [];
 
-  return Array.from({ length: stepCount }, (_, index) => ({
-    stepId: uuidv4(),
-    title: `Paso ${index + 1}`,
-    rows: isIndustriaComercio && index === 0 ? getIndustriaComercioTemplate() : [createEmptyRow()],
-  }));
+  return Array.from({ length: stepCount }, (_, index) => {
+    const template: FormStepTemplate | undefined = templates[index];
+
+    return {
+      stepId: uuidv4(),
+      title: template?.title ?? `Paso ${index + 1}`,
+      subtitle: template?.subtitle,
+      rows: template?.rows ?? [createEmptyRow()],
+    };
+  });
 }
 
 function buildInitialIntroSteps(formType: FormType, stepCount: number): IntroModalStep[] {

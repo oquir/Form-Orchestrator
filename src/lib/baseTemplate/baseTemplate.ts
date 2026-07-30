@@ -1,11 +1,50 @@
 import { v4 as uuidv4 } from "uuid";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { CanvasRow, IntroModalStep } from "../../types/formStructure";
+import type { CanvasField } from "../../types/field";
+import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 
 export type IntroStepTemplate = Omit<IntroModalStep, "stepId">;
+export type FormStepTemplate = Omit<FormStep, "stepId">;
 
 export const INDUSTRIA_COMERCIO_FORM_STEPS: number = 7;
 export const INDUSTRIA_COMERCIO_INTRO_STEPS: number = 2;
+
+interface FieldSpec {
+  name: string;
+  type: string;
+  label: string;
+  colSpan: number;
+  path?: string;
+  required?: boolean;
+  min?: number;
+}
+
+function buildRow(specs: FieldSpec[]): CanvasRow {
+  const fields: CanvasField[] = [];
+  let colStart = 1;
+
+  for (const spec of specs) {
+    fields.push({
+      id: uuidv4(),
+      name: spec.name,
+      type: spec.type,
+      label: spec.label,
+      colStart,
+      colSpan: spec.colSpan,
+      validations: {
+        ...(spec.required ? { required: true } : {}),
+        ...(spec.min === undefined ? {} : { min: spec.min }),
+      },
+      styles: {},
+      logic: { dependencies: [], typeScript: "" },
+      apiBinding: spec.path === undefined ? undefined : { kind: "mapped", path: spec.path },
+    });
+
+    colStart += spec.colSpan;
+  }
+
+  return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields };
+}
 
 export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
   return [
@@ -13,127 +52,173 @@ export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
       title: "Seleccione año gravable y período",
       subtitle: "Complete los datos iniciales para continuar con la declaración.",
       rows: [
-        {
-          id: uuidv4(),
-          columns: GRID_BASE_COLUMNS,
-          fields: [
-            {
-              id: uuidv4(),
-              name: "periodo_anio",
-              type: "select",
-              label: "Año gravable",
-              colStart: 1,
-              colSpan: 16,
-              validations: { required: true },
-              styles: {},
-              logic: { dependencies: [], typeScript: "" },
-              apiBinding: { kind: "mapped", path: "periodoAnio" },
-            },
-          ],
-        },
-        {
-          id: uuidv4(),
-          columns: GRID_BASE_COLUMNS,
-          fields: [
-            {
-              id: uuidv4(),
-              name: "id_periodo_anual",
-              type: "toggle_group",
-              label: "Periodos",
-              colStart: 1,
-              colSpan: GRID_BASE_COLUMNS,
-              validations: { required: true },
-              styles: {},
-              logic: { dependencies: [], typeScript: "" },
-              apiBinding: { kind: "mapped", path: "idPeriodoAnual" },
-            },
-          ],
-        },
+        buildRow([
+          {
+            name: "periodo_anio",
+            type: "select",
+            label: "Año gravable",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "periodoAnio",
+            required: true,
+          },
+        ]),
+        buildRow([
+          {
+            name: "id_periodo_anual",
+            type: "toggle_group",
+            label: "Periodos",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "idPeriodoAnual",
+            required: true,
+          },
+        ]),
       ],
     },
     {
       title: "Seleccione tipo de declaración",
       subtitle: "Elija el tipo de declaración que corresponde al flujo actual.",
       rows: [
-        {
-          id: uuidv4(),
-          columns: GRID_BASE_COLUMNS,
-          fields: [
-            {
-              id: uuidv4(),
-              name: "id_tipo_declaracion",
-              type: "select",
-              label: "Tipo de declaración",
-              colStart: 1,
-              colSpan: GRID_BASE_COLUMNS,
-              validations: { required: true },
-              styles: {},
-              logic: { dependencies: [], typeScript: "" },
-              apiBinding: { kind: "mapped", path: "idTipoDeclaracion" },
-            },
-          ],
-        },
+        buildRow([
+          {
+            name: "id_tipo_declaracion",
+            type: "select",
+            label: "Tipo de declaración",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "idTipoDeclaracion",
+            required: true,
+          },
+        ]),
       ],
     },
   ];
 }
 
-export function getIndustriaComercioTemplate(): CanvasRow[] {
-  const ingresosOrdinariosId: string = uuidv4();
-  const ingresosFueraMunicipioId: string = uuidv4();
-
+export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
   return [
     {
-      id: uuidv4(),
-      columns: GRID_BASE_COLUMNS,
-      fields: [
-        {
-          id: ingresosOrdinariosId,
-          name: "ingresos_ordinarios",
-          type: "number",
-          label: "Ingresos Ordinarios",
-          colStart: 1,
-          colSpan: 8,
-          validations: { required: true, min: 0, message: "No puede ser negativo" },
-          styles: {},
-          logic: { dependencies: [], typeScript: "" },
-        },
-        {
-          id: ingresosFueraMunicipioId,
-          name: "ingresos_fuera_municipio",
-          type: "number",
-          label: "Ingresos Fuera del Municipio",
-          colStart: 9,
-          colSpan: 8,
-          validations: { required: true, min: 0 },
-          styles: {},
-          logic: {
-            dependencies: [ingresosOrdinariosId],
-            typeScript:
-              "onChange(val => { if (val > getFieldValue('ingresos_ordinarios')) { alert('No puede ser mayor a los ordinarios'); } });",
+      title: "Datos",
+      subtitle: "Contribuyente",
+      rows: [
+        buildRow([
+          {
+            name: "tipo_documento",
+            type: "select",
+            label: "Tipo de documento",
+            colSpan: 6,
+            path: "contribuyente.idTipoDocumento",
+            required: true,
           },
-        },
-      ],
-    },
-    {
-      id: uuidv4(),
-      columns: GRID_BASE_COLUMNS,
-      fields: [
-        {
-          id: uuidv4(),
-          name: "total_ingresos_netos",
-          type: "calculated",
-          label: "Total Ingresos Netos",
-          colStart: 1,
-          colSpan: GRID_BASE_COLUMNS,
-          validations: {},
-          styles: {},
-          logic: {
-            dependencies: [ingresosOrdinariosId, ingresosFueraMunicipioId],
-            typeScript:
-              "return getFieldValue('ingresos_ordinarios') - getFieldValue('ingresos_fuera_municipio');",
+          {
+            name: "numero_documento",
+            type: "text",
+            label: "Número de documento",
+            colSpan: 7,
+            path: "contribuyente.numeroDocumento",
+            required: true,
           },
-        },
+          {
+            name: "dv",
+            type: "number",
+            label: "DV",
+            colSpan: 3,
+            path: "contribuyente.digitoVerificacion",
+            required: true,
+          },
+        ]),
+        buildRow([
+          {
+            name: "primer_nombre",
+            type: "text",
+            label: "Primer nombre",
+            colSpan: 4,
+            path: "contribuyente.primerNombre",
+            required: true,
+          },
+          {
+            name: "segundo_nombre",
+            type: "text",
+            label: "Segundo nombre",
+            colSpan: 4,
+            path: "contribuyente.segundoNombre",
+          },
+          {
+            name: "primer_apellido",
+            type: "text",
+            label: "Primer apellido",
+            colSpan: 4,
+            path: "contribuyente.primerApellido",
+            required: true,
+          },
+          {
+            name: "segundo_apellido",
+            type: "text",
+            label: "Segundo apellido",
+            colSpan: 4,
+            path: "contribuyente.segundoApellido",
+          },
+        ]),
+        buildRow([
+          {
+            name: "direccion",
+            type: "text",
+            label: "Dirección",
+            colSpan: 6,
+            path: "contribuyente.direccion",
+            required: true,
+          },
+          {
+            name: "departamento",
+            type: "select",
+            label: "Departamento",
+            colSpan: 5,
+            required: true,
+          },
+          {
+            name: "municipio",
+            type: "select",
+            label: "Municipio",
+            colSpan: 5,
+            path: "contribuyente.idCiudad",
+            required: true,
+          },
+        ]),
+        buildRow([
+          {
+            name: "telefono_celular",
+            type: "text",
+            label: "Teléfono celular",
+            colSpan: 8,
+            path: "contribuyente.telefono",
+            required: true,
+          },
+          {
+            name: "correo_electronico",
+            type: "text",
+            label: "Correo electrónico",
+            colSpan: 8,
+            path: "contribuyente.correo",
+            required: true,
+          },
+        ]),
+        buildRow([
+          {
+            name: "numero_establecimientos",
+            type: "number",
+            label: "Número de establecimientos",
+            colSpan: 8,
+            path: "contribuyente.numeroEstablecimiento",
+            required: true,
+            min: 0,
+          },
+          {
+            name: "clasificacion_contribuyente",
+            type: "select",
+            label: "Clasificación contribuyente",
+            colSpan: 8,
+            path: "contribuyente.idClasificacionMunicipio",
+            required: true,
+          },
+        ]),
       ],
     },
   ];
