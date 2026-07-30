@@ -555,5 +555,54 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         ]),
       ],
     },
+    {
+      title: "Totales",
+      rows: [
+        buildRow([
+          {
+            name: "valor_a_pagar",
+            type: "number",
+            label: "35. Valor a Pagar",
+            colSpan: GRID_BASE_COLUMNS,
+            excluded: true,
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "descuento_pronto_pago",
+            type: "number",
+            label:
+              "36. Descuento Por Pronto Pago (Si Existe, Liquídelo Según el Acuerdo Municipal o Distrital)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "totalDeclaracion.descuentoProntoPago",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "interes_mora",
+            type: "number",
+            label: "37. Más: Intereses de Mora",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "totalDeclaracion.interesMora",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_a_pagar",
+            type: "number",
+            label: "38. Total a Pagar (Renglón 35 - 36 + 37)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "totalDeclaracion.totalDeclaracion",
+            formula: "valor_a_pagar - descuento_pronto_pago + interes_mora",
+          },
+        ]),
+      ],
+    },
   ];
 }
