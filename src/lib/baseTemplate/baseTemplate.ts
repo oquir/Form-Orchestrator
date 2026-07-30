@@ -6,7 +6,7 @@ import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStruct
 export type IntroStepTemplate = Omit<IntroModalStep, "stepId">;
 export type FormStepTemplate = Omit<FormStep, "stepId">;
 
-export const INDUSTRIA_COMERCIO_FORM_STEPS: number = 7;
+export const INDUSTRIA_COMERCIO_FORM_STEPS: number = 8;
 export const INDUSTRIA_COMERCIO_INTRO_STEPS: number = 2;
 
 interface FieldSpec {
@@ -636,6 +636,118 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             label: "Destino de Mi Aporte Voluntario",
             colSpan: GRID_BASE_COLUMNS,
             path: "descripcionAporteVoluntario",
+          },
+        ]),
+      ],
+    },
+    {
+      title: "Firmas",
+      subtitle: "Contador/Revisor",
+      rows: [
+        buildRow([
+          {
+            name: "tipo_documento_declarante",
+            type: "select",
+            label: "Tipo de documento del declarante",
+            colSpan: 8,
+            path: "declarante.idTipoDocumento",
+            required: true,
+          },
+          {
+            name: "numero_documento_declarante",
+            type: "text",
+            label: "Número de documento del declarante",
+            colSpan: 8,
+            path: "declarante.numeroDocumento",
+            required: true,
+          },
+        ]),
+        buildRow([
+          {
+            name: "nombre_completo_declarante",
+            type: "text",
+            label: "Nombre completo del declarante",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "declarante.nombreCompleto",
+            required: true,
+          },
+        ]),
+        buildRow([
+          {
+            name: "tipo_representante",
+            type: "toggle_group",
+            label: "Tipo de representante",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "responsableLegal.idTipoRepresentante",
+          },
+        ]),
+        buildRow([
+          {
+            name: "tipo_documento_responsable",
+            type: "select",
+            label: "Tipo de documento del responsable",
+            colSpan: 8,
+            path: "responsableLegal.idTipoDocumento",
+          },
+          {
+            name: "numero_documento_responsable",
+            type: "text",
+            label: "Número de documento del responsable",
+            colSpan: 8,
+            path: "responsableLegal.numeroDocumento",
+          },
+        ]),
+        buildRow([
+          {
+            name: "primer_nombre_responsable",
+            type: "text",
+            label: "Primer nombre",
+            colSpan: 4,
+            path: "responsableLegal.primerNombre",
+          },
+          {
+            name: "segundo_nombre_responsable",
+            type: "text",
+            label: "Segundo nombre",
+            colSpan: 4,
+            path: "responsableLegal.segundoNombre",
+          },
+          {
+            name: "primer_apellido_responsable",
+            type: "text",
+            label: "Primer apellido",
+            colSpan: 4,
+            path: "responsableLegal.primerApellido",
+          },
+          {
+            name: "segundo_apellido_responsable",
+            type: "text",
+            label: "Segundo apellido",
+            colSpan: 4,
+            path: "responsableLegal.segundoApellido",
+          },
+        ]),
+        buildRow([
+          {
+            name: "celular_responsable",
+            type: "text",
+            label: "Celular",
+            colSpan: 6,
+            path: "responsableLegal.celular",
+          },
+          {
+            name: "correo_responsable",
+            type: "text",
+            label: "Correo electrónico",
+            colSpan: 5,
+            path: "responsableLegal.correoElectronico",
+          },
+          {
+            name: "numero_tarjeta_profesional",
+            type: "text",
+            label: "Número de tarjeta profesional",
+            colSpan: 5,
+            path: "responsableLegal.nroTarjetaProfesional",
           },
         ]),
       ],

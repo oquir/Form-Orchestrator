@@ -4,7 +4,7 @@ export const FORM_TYPES: FormTypeOption[] = [
   {
     value: "industria_comercio",
     label: "Industria y Comercio",
-    description: "Plantilla base lista: 7 pasos y 2 pasos de modal introductorio.",
+    description: "Plantilla base lista: 8 pasos y 2 pasos de modal introductorio.",
   },
   {
     value: "retencion_industria_comercio",
