@@ -42,7 +42,11 @@ function buildNode(node: SchemaNode, path: string, index: Map<string, CanvasFiel
   }
 
   if (node.type === "array") {
-    return { kind: "array", key: node.key };
+    const item: MappingNode | undefined = node.items
+      ? buildNode(node.items, `${path}[]`, index)
+      : undefined;
+
+    return { kind: "array", key: node.key, item };
   }
 
   const matchedField: CanvasField | undefined = index.get(path);
@@ -85,7 +89,7 @@ export function toPlainSummary(node: MappingNode): JsonNode {
   }
 
   if (node.kind === "array") {
-    return "— grupo repetible (pendiente) —";
+    return node.item ? [toPlainSummary(node.item)] : "— grupo repetible —";
   }
 
   if (node.binding.kind === "unmapped") {

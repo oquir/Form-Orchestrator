@@ -7,7 +7,7 @@ export type LeafBindingStatus =
 
 export type MappingNode =
   | { kind: "object"; key: string; children: MappingNode[] }
-  | { kind: "array"; key: string }
+  | { kind: "array"; key: string; item?: MappingNode }
   | { kind: "leaf"; key: string; schemaType: SchemaNodeType; binding: LeafBindingStatus };
 
 export interface OrphanBinding {

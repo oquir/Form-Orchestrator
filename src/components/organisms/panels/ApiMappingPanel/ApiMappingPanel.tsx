@@ -3,9 +3,10 @@ import { PAYLOAD_SCHEMA } from "../../../../constants/payloadSchema";
 import { isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import { fieldMatchesSchemaType } from "../../../../lib/payloadMapping/payloadMapping";
 import { flattenSelectableLeaves, resolveLeaf } from "../../../../lib/payloadSchema/payloadSchema";
-import { useFormStore } from "../../../../store/formStore";
+import { findGroupForField, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
 import type { OptionsSetup } from "../../../../types/formStoreTypes";
+import type { RepeatableGroup } from "../../../../types/formStructure";
 import type { SchemaLeaf } from "../../../../types/payloadSchema";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { ApiPathSelect } from "../../../molecules/ApiPathSelect/ApiPathSelect";
@@ -14,10 +15,14 @@ import { FieldOptionsModal } from "../../FieldOptionsModal/FieldOptionsModal";
 export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const updateFieldApiBinding = useFormStore((state) => state.updateFieldApiBinding);
   const [isAskingOptions, setIsAskingOptions] = useState<boolean>(false);
+  const group: RepeatableGroup | null = useFormStore((state) => findGroupForField(state, field.id));
   const binding = field.apiBinding;
   const isExcluded = binding?.kind === "excluded";
   const path = binding?.kind === "mapped" ? binding.path : "";
-  const leaves: SchemaLeaf[] = flattenSelectableLeaves(PAYLOAD_SCHEMA);
+  const awaitsGroupArrayPath: boolean = group !== null && group.arrayPath === undefined;
+  const leaves: SchemaLeaf[] = awaitsGroupArrayPath
+    ? []
+    : flattenSelectableLeaves(PAYLOAD_SCHEMA, group?.arrayPath);
   const resolvedLeaf: SchemaLeaf | null = path ? resolveLeaf(PAYLOAD_SCHEMA, path) : null;
   const resolvedType = resolvedLeaf?.type ?? null;
   const isOrphan = Boolean(path) && resolvedLeaf === null;
@@ -65,7 +70,15 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
         </p>
       )}
 
-      {!isExcluded && (
+      {!isExcluded && group !== null && (
+        <p className="rounded border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-300">
+          {awaitsGroupArrayPath
+            ? `Este campo vive dentro del grupo repetible “${group.title}”. Elegí primero a qué arreglo del payload corresponde el grupo.`
+            : `Este campo se envía una vez por cada ${group.title.toLowerCase()}, dentro de ${group.arrayPath}[].`}
+        </p>
+      )}
+
+      {!isExcluded && !awaitsGroupArrayPath && (
         <>
           <ApiPathSelect
             path={path}

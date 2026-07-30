@@ -12,4 +12,5 @@ export interface SchemaLeaf {
   path: string;
   type: SchemaNodeType;
   providedByHost?: boolean;
+  arrayPath?: string;
 }
