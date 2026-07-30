@@ -29,11 +29,11 @@ export function FormulaInput({
     () => validateFormula(value, knownNames),
     [value, knownNames],
   );
-  const referencesSelf: boolean = selfName !== undefined && validation.refs.includes(selfName);
+  const referencesSelf = selfName !== undefined && validation.refs.includes(selfName);
 
   function insertName(name: string): void {
     if (name.length === 0) return;
-    const separator: string = value.trim().length === 0 ? "" : " ";
+    const separator = value.trim().length === 0 ? "" : " ";
     onChange(`${value}${separator}${name}`);
   }
 

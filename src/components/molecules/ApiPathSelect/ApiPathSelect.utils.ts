@@ -13,5 +13,6 @@ export function groupLeavesByRoot(leaves: SchemaLeaf[]): Map<string, SchemaLeaf[
       groups.set(groupKey, [leaf]);
     }
   }
+
   return groups;
 }

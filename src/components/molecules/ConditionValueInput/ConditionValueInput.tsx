@@ -12,13 +12,12 @@ export function ConditionValueInput({
   observedField,
   onChange,
 }: ConditionValueInputProps) {
-  const stringValue: string = condition.value === undefined ? "" : String(condition.value);
+  const stringValue = condition.value === undefined ? "" : String(condition.value);
   const options: FieldOption[] = observedField?.options ?? [];
-  const takesList: boolean = operatorTakesList(condition.operator);
-  const isStringBased: boolean = operatorIsStringBased(condition.operator);
-  const hint: string | undefined = OPERATOR_VALUE_HINTS[condition.operator];
-  const isNumeric: boolean =
-    observedField?.type === "number" || observedField?.type === "calculated";
+  const takesList = operatorTakesList(condition.operator);
+  const isStringBased = operatorIsStringBased(condition.operator);
+  const hint = OPERATOR_VALUE_HINTS[condition.operator];
+  const isNumeric = observedField?.type === "number" || observedField?.type === "calculated";
 
   function toggleListEntry(optionId: string): void {
     const selected: string[] = parseConditionList(condition.value);

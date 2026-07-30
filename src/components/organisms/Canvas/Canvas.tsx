@@ -23,16 +23,16 @@ export function Canvas() {
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
   const [viewMode, setViewMode] = useState<CanvasViewMode>("canvas");
 
-  const isIntro: boolean = activeCanvas.type === "introStep";
-  const isCanvasView: boolean = viewMode === "canvas";
+  const isIntro = activeCanvas.type === "introStep";
+  const isCanvasView = viewMode === "canvas";
 
-  const title: string =
+  const title =
     viewMode === "json"
       ? "JSON en vivo"
       : viewMode === "payload"
         ? "Payload en vivo"
         : "Lienzo de trabajo";
-  const subtitle: string =
+  const subtitle =
     viewMode === "json"
       ? "Vista previa del JSON exportado del formulario completo"
       : viewMode === "payload"
