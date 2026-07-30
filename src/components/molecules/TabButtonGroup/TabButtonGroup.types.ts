@@ -5,3 +5,5 @@ export interface TabButtonGroupProps<T extends string> {
   activeTab: T;
   onSelect: (tab: T) => void;
 }
+
+export type TabVariant = NonNullable<TabButtonGroupItem<string>["variant"]>;

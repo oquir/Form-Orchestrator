@@ -1,6 +1,4 @@
-import type { TabButtonGroupItem } from "../../../types/tabButtonGroup";
-
-type TabVariant = NonNullable<TabButtonGroupItem<string>["variant"]>;
+import type { TabVariant } from "./TabButtonGroup.types";
 
 export const TAB_BASE_CLASSES = "rounded-md px-2 py-1 text-xs font-medium transition-colors";
 
