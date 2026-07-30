@@ -604,5 +604,41 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         ]),
       ],
     },
+    {
+      title: "Pago voluntario",
+      rows: [
+        buildRow([
+          {
+            name: "valor_aporte_voluntario",
+            type: "number",
+            label:
+              "39. Liquide el Valor del Pago Voluntario (Según Instrucciones del Municipio/Distrito)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "totalDeclaracion.valorAporteVoluntario",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_a_pagar_con_aporte_voluntario",
+            type: "number",
+            label: "40. Total a Pagar Con Pago Voluntario (Renglón 38 + 39)",
+            colSpan: GRID_BASE_COLUMNS,
+            excluded: true,
+            formula: "total_a_pagar + valor_aporte_voluntario",
+          },
+        ]),
+        buildRow([
+          {
+            name: "destino_aporte_voluntario",
+            type: "text",
+            label: "Destino de Mi Aporte Voluntario",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "descripcionAporteVoluntario",
+          },
+        ]),
+      ],
+    },
   ];
 }
