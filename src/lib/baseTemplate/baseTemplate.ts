@@ -328,5 +328,13 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         ]),
       ],
     },
+    {
+      title: "Actividades gravadas",
+      rows: [buildRow([])],
+    },
+    {
+      title: "Impuesto a cargo",
+      rows: [buildRow([])],
+    },
   ];
 }
