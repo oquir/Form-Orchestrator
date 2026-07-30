@@ -1,11 +1,12 @@
+import { operatorNeedsValue, operatorsForFieldType } from "../../lib/fieldCondition/fieldCondition";
 import { useFormStore } from "../../store/formStore";
 import type { ConditionOperator, FieldCondition } from "../../types/field";
-import { DEFAULT_OPERATORS, OPERATORS_WITHOUT_VALUE } from "./useConditionEditor.constants";
+import { DEFAULT_OPERATORS } from "./useConditionEditor.constants";
 import type {
   UseConditionEditorParams,
   UseConditionEditorResult,
 } from "./useConditionEditor.types";
-import { operatorsForFieldType, wouldCreateCycle } from "./useConditionEditor.utils";
+import { wouldCreateCycle } from "./useConditionEditor.utils";
 
 export function useConditionEditor({
   field,
@@ -21,7 +22,7 @@ export function useConditionEditor({
   const availableOperators: ConditionOperator[] = observed
     ? operatorsForFieldType(observed.type)
     : DEFAULT_OPERATORS;
-  const needsValue = Boolean(condition && !OPERATORS_WITHOUT_VALUE.includes(condition.operator));
+  const needsValue = Boolean(condition && operatorNeedsValue(condition.operator));
 
   function updateCondition(next: Partial<FieldCondition>): void {
     if (!condition) return;
@@ -38,7 +39,7 @@ export function useConditionEditor({
     setCondition(field.id, {
       fieldId: nextField.id,
       operator: ops[0],
-      value: OPERATORS_WITHOUT_VALUE.includes(ops[0]) ? undefined : "",
+      value: operatorNeedsValue(ops[0]) ? "" : undefined,
     });
   }
 
@@ -67,7 +68,7 @@ export function useConditionEditor({
   function handleOperatorChange(nextOp: ConditionOperator): void {
     updateCondition({
       operator: nextOp,
-      value: OPERATORS_WITHOUT_VALUE.includes(nextOp) ? undefined : condition?.value,
+      value: operatorNeedsValue(nextOp) ? condition?.value : undefined,
     });
   }
 

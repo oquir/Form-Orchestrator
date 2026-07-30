@@ -1,5 +1,6 @@
 import type { CanvasField, FieldCondition } from "../../types/field";
 import type { CanvasRow } from "../../types/formStructure";
+import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import type { ExportedCondition } from "./exportForm.types";
 
 export function buildNameIndex(rows: CanvasRow[]): Map<string, string> {
@@ -23,7 +24,9 @@ export function resolveCondition(
   return {
     field: names.get(condition.fieldId) ?? condition.fieldId,
     operator: condition.operator,
-    value: condition.value,
+    value: operatorTakesList(condition.operator)
+      ? parseConditionList(condition.value)
+      : condition.value,
   };
 }
 

@@ -11,7 +11,7 @@ import type { FormType } from "../../types/setup";
 export interface ExportedCondition {
   field: string;
   operator: ConditionOperator;
-  value?: FieldCondition["value"];
+  value?: FieldCondition["value"] | string[];
 }
 
 export interface ExportedLogic {

@@ -1,23 +1,4 @@
-import type { CanvasField, ConditionOperator } from "../../types/field";
-
-export function operatorsForFieldType(type: string): ConditionOperator[] {
-  switch (type) {
-    case "checkbox":
-      return ["isTruthy", "isFalsy"];
-    case "number":
-    case "calculated":
-      return ["equals", "notEquals", "greaterThan", "lessThan", "isEmpty", "isNotEmpty"];
-    case "select":
-    case "toggle_group":
-    case "radio_group":
-      return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
-    case "checkbox_group":
-    case "file":
-      return ["isEmpty", "isNotEmpty"];
-    default:
-      return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
-  }
-}
+import type { CanvasField } from "../../types/field";
 
 export function wouldCreateCycle(
   currentFieldId: string,
