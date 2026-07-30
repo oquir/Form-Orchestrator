@@ -21,6 +21,9 @@ interface FieldSpec {
   formula?: string;
 }
 
+const SALDO_NETO: string =
+  "total_impuesto_a_cargo - valor_exencion_exoneracion_impuesto - retenciones_a_favor - autorretenciones_a_favor - anticipo_liquidado_anio_anterior + anticipo_anio_siguiente + valor_sancion - saldo_favor_periodo_anterior";
+
 function bindingFor(spec: FieldSpec): ApiBinding | undefined {
   if (spec.path !== undefined) return { kind: "mapped", path: spec.path };
   if (spec.excluded) return { kind: "excluded" };
@@ -440,6 +443,114 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             path: "impuestoACargo.totalImpuestoACargo",
             formula:
               "total_impuesto_industria_comercio + impuesto_avisos_tableros + pago_unidades_sector_financiero + sobretasa_bomberil + sobretasa_seguridad",
+          },
+        ]),
+      ],
+    },
+    {
+      title: "Deducciones, sanciones y anticipos",
+      rows: [
+        buildRow([
+          {
+            name: "valor_exencion_exoneracion_impuesto",
+            type: "number",
+            label:
+              "26. Menos: Valor de Exención o Exoneración Sobre el Impuesto y No Sobre los Ingresos",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "ajusteDeclaracion.valorExencionExoneracionImpuesto",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "retenciones_a_favor",
+            type: "number",
+            label:
+              "27. Menos: Retenciones que le practicaron a favor de este municipio o distrito en este periodo",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "ajusteDeclaracion.retencionesAFavor",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "autorretenciones_a_favor",
+            type: "number",
+            label:
+              "28. Menos: Autorretenciones practicadas a favor de este municipio o distrito en este periodo",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "ajusteDeclaracion.autoretencionesAFavor",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "anticipo_liquidado_anio_anterior",
+            type: "number",
+            label: "29. Menos: Anticipo Liquidado en el Año Anterior",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "ajusteDeclaracion.anticipoLiquidadoAnioAnterior",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "anticipo_anio_siguiente",
+            type: "number",
+            label:
+              "30. Anticipo del Año Siguiente (Si Existe, Liquide Porcentaje Según Acuerdo Municipal o Distrital)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "ajusteDeclaracion.anticipoAnioSiguiente",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "valor_sancion",
+            type: "number",
+            label: "31. Más: Sanciones",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "ajusteDeclaracion.valorSancion",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "saldo_favor_periodo_anterior",
+            type: "number",
+            label:
+              "32. Menos: Saldo a Favor del Periodo Anterior Sin Solicitud de Devolución o Compensación",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "ajusteDeclaracion.saldoFavorPeriodoAnterior",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_saldo_a_cargo",
+            type: "number",
+            label: "33. Total Saldo a Cargo (Renglón 25 - 26 - 27 - 28 - 29 + 30 + 31 - 32)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "totalDeclaracion.totalSaldoACargo",
+            formula: `max(${SALDO_NETO}, 0)`,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_saldo_a_favor",
+            type: "number",
+            label:
+              "34. Total Saldo a Favor (Renglón 25 - 26 - 27 - 28 - 29 + 30 + 31 - 32) si el resultado es menor a cero",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "totalDeclaracion.totalSaldoAFavor",
+            formula: `max(-(${SALDO_NETO}), 0)`,
           },
         ]),
       ],
