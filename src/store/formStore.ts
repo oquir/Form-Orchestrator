@@ -16,6 +16,14 @@ import {
 } from "../lib/fieldOptions/fieldOptions";
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
 import {
+  clampGroupBounds,
+  createRepeatableGroup,
+  detachGroup,
+  groupNamesInUse,
+  normalizeGroupRows,
+  pruneEmptyGroups,
+} from "../lib/repeatableGroup/repeatableGroup";
+import {
   getFreeRuns,
   getMaxSpanAt,
   repackRow,
@@ -24,7 +32,13 @@ import {
 } from "../lib/rowLayout/rowLayout";
 import type { CanvasField, FieldOption, SavedComponent } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
-import type { CanvasRow, FormStep, IntroModalState, IntroModalStep } from "../types/formStructure";
+import type {
+  CanvasRow,
+  FormStep,
+  IntroModalState,
+  IntroModalStep,
+  RepeatableGroup,
+} from "../types/formStructure";
 import type { CanvasTarget, FieldPlacement } from "../types/placement";
 import type { FormType } from "../types/setup";
 import type { StateSlice } from "../types/store";
@@ -149,6 +163,7 @@ function buildInitialFormSteps(formType: FormType): FormStep[] {
       title: template?.title ?? `Paso ${index + 1}`,
       subtitle: template?.subtitle,
       rows: template?.rows ?? [createEmptyRow()],
+      groups: template?.groups,
     };
   });
 }
@@ -354,16 +369,99 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     }),
   removeRow: (rowId) =>
     set((state) => ({
-      formSteps: state.formSteps.map((step) => ({
-        ...step,
-        rows: step.rows.filter((row) => row.id !== rowId),
-      })),
+      formSteps: state.formSteps.map((step) =>
+        pruneEmptyGroups({ ...step, rows: step.rows.filter((row) => row.id !== rowId) }),
+      ),
       introModal: {
         steps: state.introModal.steps.map((step) => ({
           ...step,
           rows: step.rows.filter((row) => row.id !== rowId),
         })),
       },
+    })),
+  addGroupToActiveStep: () =>
+    set((state) => {
+      if (state.activeCanvas.type !== "formStep") return state;
+
+      const stepId: string = state.activeCanvas.stepId;
+      const taken: Set<string> = new Set([
+        ...allFieldNames(state),
+        ...groupNamesInUse(state.formSteps),
+      ]);
+      const group: RepeatableGroup = createRepeatableGroup("Grupo repetible", taken);
+      const row: CanvasRow = { ...createEmptyRow(), groupId: group.id };
+
+      return {
+        formSteps: state.formSteps.map((step) =>
+          step.stepId === stepId
+            ? { ...step, rows: [...step.rows, row], groups: [...(step.groups ?? []), group] }
+            : step,
+        ),
+      };
+    }),
+  addRowToGroup: (groupId) =>
+    set((state) => ({
+      formSteps: state.formSteps.map((step) => {
+        if (!(step.groups ?? []).some((group) => group.id === groupId)) return step;
+
+        const row: CanvasRow = { ...createEmptyRow(), groupId };
+
+        return { ...step, rows: normalizeGroupRows([...step.rows, row]) };
+      }),
+    })),
+  updateGroup: (groupId, updates) =>
+    set((state) => {
+      const taken: Set<string> = allFieldNames(state);
+
+      for (const step of state.formSteps) {
+        for (const group of step.groups ?? []) {
+          if (group.id !== groupId) taken.add(group.name);
+        }
+      }
+
+      return {
+        formSteps: state.formSteps.map((step) => {
+          const current: RepeatableGroup | undefined = (step.groups ?? []).find(
+            (group) => group.id === groupId,
+          );
+
+          if (!current) return step;
+
+          const merged: RepeatableGroup = { ...current, ...updates };
+          const next: RepeatableGroup = {
+            ...merged,
+            ...clampGroupBounds(merged.min, merged.max),
+            name:
+              updates.name === undefined
+                ? current.name
+                : uniqueFieldName(slugifyFieldName(updates.name), taken),
+          };
+          const movedArray: boolean = next.arrayPath !== current.arrayPath;
+
+          return {
+            ...step,
+            groups: (step.groups ?? []).map((group) => (group.id === groupId ? next : group)),
+            rows: movedArray
+              ? step.rows.map((row) =>
+                  row.groupId === groupId
+                    ? {
+                        ...row,
+                        fields: row.fields.map((field) =>
+                          field.apiBinding?.kind === "mapped"
+                            ? { ...field, apiBinding: undefined }
+                            : field,
+                        ),
+                      }
+                    : row,
+                )
+              : step.rows,
+          };
+        }),
+      };
+    }),
+  removeGroup: (groupId) =>
+    set((state) => ({
+      formSteps: state.formSteps.map((step) => detachGroup(step, groupId)),
     })),
   addFieldToRow: (rowId, fieldType, requested) =>
     set((state) => {
@@ -419,7 +517,15 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       const placement = resolvePlacement(targetRow, movedField.colSpan, requested, fieldId);
       if (!placement) return state;
 
-      const placed: CanvasField = { ...movedField, ...placement };
+      const sourceRow = findRowContainingField(state, fieldId);
+      const leavesItemScope: boolean =
+        sourceRow?.groupId !== targetRow.groupId && movedField.apiBinding?.kind === "mapped";
+
+      const placed: CanvasField = {
+        ...movedField,
+        ...placement,
+        apiBinding: leavesItemScope ? undefined : movedField.apiBinding,
+      };
       const applyTo = (rows: CanvasRow[]): CanvasRow[] =>
         rows.map((row) => {
           const withoutField = row.fields.filter((f) => f.id !== fieldId);
@@ -684,6 +790,9 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     }),
 }));
 
+const NO_ROWS: CanvasRow[] = [];
+const NO_GROUPS: RepeatableGroup[] = [];
+
 export function getActiveRows(state: {
   formSteps: FormStep[];
   introModal: IntroModalState;
@@ -693,12 +802,39 @@ export function getActiveRows(state: {
 
   if (activeCanvas.type === "formStep") {
     const step = state.formSteps.find((s) => s.stepId === activeCanvas.stepId);
-    return step ? step.rows : [];
+    return step ? step.rows : NO_ROWS;
   }
 
   const step = state.introModal.steps.find((s) => s.stepId === activeCanvas.stepId);
 
-  return step ? step.rows : [];
+  return step ? step.rows : NO_ROWS;
+}
+
+export function getActiveGroups(state: {
+  formSteps: FormStep[];
+  activeCanvas: CanvasTarget;
+}): RepeatableGroup[] {
+  if (state.activeCanvas.type !== "formStep") return NO_GROUPS;
+
+  const step = state.formSteps.find((s) => s.stepId === state.activeCanvas.stepId);
+
+  return step?.groups ?? NO_GROUPS;
+}
+
+export function findGroupForField(
+  state: StateSlice,
+  fieldId: string | null,
+): RepeatableGroup | null {
+  if (!fieldId) return null;
+
+  for (const step of state.formSteps) {
+    const row = step.rows.find((r) => r.fields.some((f) => f.id === fieldId));
+    if (!row) continue;
+
+    return (step.groups ?? []).find((group) => group.id === row.groupId) ?? null;
+  }
+
+  return null;
 }
 
 export function findFieldById(rows: CanvasRow[], fieldId: string | null): CanvasField | null {

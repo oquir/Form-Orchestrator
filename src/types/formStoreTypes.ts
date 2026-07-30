@@ -10,7 +10,7 @@ import type {
   SavedComponent,
 } from "./field";
 import type { FieldTypeDef } from "./fieldTypes";
-import type { FormStep, IntroModalState } from "./formStructure";
+import type { FormStep, IntroModalState, RepeatableGroup } from "./formStructure";
 import type { CanvasTarget, DragPlacement, FieldPlacement } from "./placement";
 import type { FormType, SetupConfig } from "./setup";
 import type { SidebarTab } from "./ui";
@@ -54,6 +54,10 @@ export interface FormState {
   removeIntroModalStep: (stepId: string) => void;
   addRowToActiveCanvas: () => void;
   removeRow: (rowId: string) => void;
+  addGroupToActiveStep: () => void;
+  addRowToGroup: (groupId: string) => void;
+  updateGroup: (groupId: string, updates: Partial<Omit<RepeatableGroup, "id">>) => void;
+  removeGroup: (groupId: string) => void;
   updateRowColumns: (rowId: string, columns: number) => void;
   addFieldToRow: (rowId: string, fieldType: FieldTypeDef, requested?: FieldPlacement) => void;
   removeField: (fieldId: string) => void;

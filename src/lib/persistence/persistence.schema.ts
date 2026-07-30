@@ -100,6 +100,16 @@ const canvasRowSchema = z.object({
   id: z.string(),
   columns: z.number(),
   fields: z.array(canvasFieldSchema),
+  groupId: z.string().optional(),
+});
+
+const repeatableGroupSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  title: z.string(),
+  min: z.number(),
+  max: z.number(),
+  arrayPath: z.string().optional(),
 });
 
 const stepSchema = z.object({
@@ -107,6 +117,7 @@ const stepSchema = z.object({
   title: z.string(),
   subtitle: z.string().optional(),
   rows: z.array(canvasRowSchema),
+  groups: z.array(repeatableGroupSchema).optional(),
 });
 
 const savedComponentSchema = canvasFieldSchema.omit({ colStart: true }).extend({
