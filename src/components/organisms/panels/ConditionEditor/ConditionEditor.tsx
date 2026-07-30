@@ -37,6 +37,7 @@ export function ConditionEditor({ field, otherFields, kind }: ConditionEditorPro
       {condition && (
         <>
           <ConditionFieldSelect
+            label={CONDITION_COPY[kind].fieldLabel}
             condition={condition}
             otherFields={otherFields}
             observedIsDead={observedIsDead}

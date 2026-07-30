@@ -54,15 +54,19 @@ export interface FieldCondition {
   value?: string | number | boolean;
 }
 
+export interface RuleCondition extends FieldCondition {
+  id: string;
+}
+
 export type RuleEffect =
-  | { kind: "formula"; expression: string }
-  | { kind: "constant"; value: string | number | boolean };
+  | { id: string; kind: "formula"; expression: string }
+  | { id: string; kind: "constant"; value: string | number | boolean };
 
 export interface FieldRule {
   id: string;
   label?: string;
   matchAll: boolean;
-  when: FieldCondition[];
+  when: RuleCondition[];
   effects: RuleEffect[];
 }
 

@@ -3,6 +3,7 @@ import type { CanvasField } from "../../../../types/field";
 import { DependencyCheckboxRow } from "../../../molecules/DependencyCheckboxRow/DependencyCheckboxRow";
 import { LabeledTextarea } from "../../../molecules/LabeledTextarea/LabeledTextarea";
 import { ConditionEditor } from "../ConditionEditor/ConditionEditor";
+import { FieldRulesEditor } from "../FieldRulesEditor/FieldRulesEditor";
 
 export function LogicPanel({ field }: { field: CanvasField }) {
   const formSteps = useFormStore((state) => state.formSteps);
@@ -37,6 +38,8 @@ export function LogicPanel({ field }: { field: CanvasField }) {
       {!isAlwaysDisabled && (
         <ConditionEditor field={field} otherFields={otherFields} kind="enable" />
       )}
+
+      <FieldRulesEditor field={field} candidates={otherFields} />
 
       <section aria-labelledby="logic-dependencies-heading">
         <h3

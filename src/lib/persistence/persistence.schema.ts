@@ -49,8 +49,9 @@ const fieldConditionSchema = z.object({
 });
 
 const ruleEffectSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("formula"), expression: z.string() }),
+  z.object({ id: z.string(), kind: z.literal("formula"), expression: z.string() }),
   z.object({
+    id: z.string(),
     kind: z.literal("constant"),
     value: z.union([z.string(), z.number(), z.boolean()]),
   }),
@@ -60,7 +61,7 @@ const fieldRuleSchema = z.object({
   id: z.string(),
   label: z.string().optional(),
   matchAll: z.boolean(),
-  when: z.array(fieldConditionSchema),
+  when: z.array(fieldConditionSchema.extend({ id: z.string() })),
   effects: z.array(ruleEffectSchema),
 });
 

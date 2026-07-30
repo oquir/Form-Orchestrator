@@ -1,6 +1,7 @@
 import type { ConditionFieldSelectProps } from "./ConditionFieldSelect.types";
 
 export function ConditionFieldSelect({
+  label,
   condition,
   otherFields,
   observedIsDead,
@@ -8,9 +9,7 @@ export function ConditionFieldSelect({
 }: ConditionFieldSelectProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] text-slate-500 dark:text-neutral-400">
-        Se habilita cuando el campo…
-      </span>
+      <span className="text-[11px] text-slate-500 dark:text-neutral-400">{label}</span>
       <select
         value={condition.fieldId}
         onChange={(event) => onChange(event.target.value)}

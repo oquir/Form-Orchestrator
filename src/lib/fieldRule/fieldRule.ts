@@ -6,11 +6,11 @@ export function createFieldRule(): FieldRule {
 }
 
 export function createFormulaEffect(): RuleEffect {
-  return { kind: "formula", expression: "" };
+  return { id: uuidv4(), kind: "formula", expression: "" };
 }
 
 export function createConstantEffect(): RuleEffect {
-  return { kind: "constant", value: "" };
+  return { id: uuidv4(), kind: "constant", value: "" };
 }
 
 export function moveRule(rules: FieldRule[], ruleId: string, offset: number): FieldRule[] {
