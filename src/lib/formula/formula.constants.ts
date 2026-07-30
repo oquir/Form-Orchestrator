@@ -20,3 +20,8 @@ export const FORMULA_FUNCTIONS: Record<string, FormulaFunction> = {
 };
 
 export const FORMULA_OPERATORS: string[] = ["+", "-", "*", "/", "(", ")", ","];
+
+export const FORMULA_AGGREGATES: Record<string, (values: number[]) => number> = {
+  sumOf: (values) => values.reduce((total, value) => total + value, 0),
+  countOf: (values) => values.length,
+};

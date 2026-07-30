@@ -1,4 +1,4 @@
-import { FORMULA_FUNCTIONS, FORMULA_OPERATORS } from "./formula.constants";
+import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS, FORMULA_OPERATORS } from "./formula.constants";
 import type {
   FormulaFunction,
   FormulaNode,
@@ -75,7 +75,25 @@ function describeArity(fn: FormulaFunction): string {
   return `entre ${fn.minArgs} y ${fn.maxArgs} argumentos`;
 }
 
+function parseAggregate(cursor: Cursor, callee: string): FormulaNode {
+  cursor.index += 1;
+  const token: FormulaToken | undefined = peek(cursor);
+
+  if (token?.kind !== "ident") {
+    throw new Error(`"${callee}" espera el nombre de un campo de un grupo repetible.`);
+  }
+
+  cursor.index += 1;
+
+  if (!isOp(peek(cursor), ")")) throw new Error(`Falta cerrar el paréntesis de "${callee}".`);
+  cursor.index += 1;
+
+  return { kind: "aggregate", fn: callee, ref: token.text };
+}
+
 function parseCall(cursor: Cursor, callee: string): FormulaNode {
+  if (FORMULA_AGGREGATES[callee]) return parseAggregate(cursor, callee);
+
   const fn: FormulaFunction | undefined = FORMULA_FUNCTIONS[callee];
 
   if (!fn) throw new Error(`La función "${callee}" no existe.`);
@@ -201,6 +219,12 @@ export function collectFormulaRefs(ast: FormulaNode | null): string[] {
           refs.push(node.name);
         }
         break;
+      case "aggregate":
+        if (!seen.has(node.ref)) {
+          seen.add(node.ref);
+          refs.push(node.ref);
+        }
+        break;
       case "unary":
         stack.push(node.operand);
         break;
@@ -260,6 +284,13 @@ export function evaluateFormula(
 
     case "ref":
       return toFormulaNumber(values[ast.name]);
+
+    case "aggregate": {
+      const raw: unknown = values[ast.ref];
+      const items: unknown[] = Array.isArray(raw) ? raw : raw === undefined ? [] : [raw];
+
+      return FORMULA_AGGREGATES[ast.fn](items.map(toFormulaNumber));
+    }
 
     case "unary": {
       const operand: number | null = evaluateFormula(ast.operand, values);

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { validateFormula } from "../../../lib/formula/formula";
-import { FORMULA_FUNCTIONS } from "../../../lib/formula/formula.constants";
+import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "../../../lib/formula/formula.constants";
 import type { FormulaValidation } from "../../../lib/formula/formula.types";
 import { Label } from "../../atoms/Label/Label";
 import {
@@ -11,6 +11,7 @@ import {
 import type { FormulaInputProps } from "./FormulaInput.types";
 
 const FUNCTION_NAMES: string = Object.keys(FORMULA_FUNCTIONS).join(", ");
+const AGGREGATE_NAMES: string = Object.keys(FORMULA_AGGREGATES).join(", ");
 
 export function FormulaInput({
   id,
@@ -83,7 +84,7 @@ export function FormulaInput({
       )}
 
       <p className="text-[11px] text-fg-subtle">
-        {FORMULA_HELP} Funciones: {FUNCTION_NAMES}.
+        {FORMULA_HELP} Funciones: {FUNCTION_NAMES}. Sobre un grupo repetible: {AGGREGATE_NAMES}.
       </p>
     </div>
   );

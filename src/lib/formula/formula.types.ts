@@ -33,12 +33,19 @@ export interface FormulaCallNode {
   args: FormulaNode[];
 }
 
+export interface FormulaAggregateNode {
+  kind: "aggregate";
+  fn: string;
+  ref: string;
+}
+
 export type FormulaNode =
   | FormulaNumberNode
   | FormulaRefNode
   | FormulaUnaryNode
   | FormulaBinaryNode
-  | FormulaCallNode;
+  | FormulaCallNode
+  | FormulaAggregateNode;
 
 export interface FormulaParseResult {
   ast: FormulaNode | null;
