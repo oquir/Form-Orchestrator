@@ -17,6 +17,7 @@ interface FieldSpec {
   path?: string;
   required?: boolean;
   min?: number;
+  formula?: string;
 }
 
 function buildRow(specs: FieldSpec[]): CanvasRow {
@@ -36,7 +37,7 @@ function buildRow(specs: FieldSpec[]): CanvasRow {
         ...(spec.min === undefined ? {} : { min: spec.min }),
       },
       styles: {},
-      logic: { dependencies: [], typeScript: "" },
+      logic: { dependencies: [], typeScript: "", formula: spec.formula },
       apiBinding: spec.path === undefined ? undefined : { kind: "mapped", path: spec.path },
     });
 
@@ -217,6 +218,112 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 8,
             path: "contribuyente.idClasificacionMunicipio",
             required: true,
+          },
+        ]),
+      ],
+    },
+    {
+      title: "Base gravable",
+      rows: [
+        buildRow([
+          {
+            name: "total_ingresos_nacionales",
+            type: "number",
+            label: "8. Total Ingresos Ordinarios y Extraordinarios del Periodo en Todo el País",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.totalIngresosNacionales",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "ingresos_fuera_municipio",
+            type: "number",
+            label: "9. menos: Ingresos Fuera de Este Municipio o Distrito",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.ingresosFueraMunicipio",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_ingresos_ordinarios",
+            type: "number",
+            label:
+              "10. Total Ingresos Ordinarios y Extraordinarios en Este Municipio (Renglón 8-9)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.totalIngresosOrdinarios",
+            formula: "total_ingresos_nacionales - ingresos_fuera_municipio",
+          },
+        ]),
+        buildRow([
+          {
+            name: "ingresos_devoluciones_descuentos",
+            type: "number",
+            label: "11. menos: Ingresos Por Devolución, Rebajas, Descuentos",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.ingresosDevolucionesDescuentos",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "ingresos_exportaciones",
+            type: "number",
+            label: "12. menos: Ingresos Por Exportaciones",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.ingresosExportaciones",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "ingresos_venta_activos",
+            type: "number",
+            label: "13. menos: Ingresos Por Venta de Activos Fijos",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.ingresosVentaActivos",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "ingresos_excluidos_no_gravados",
+            type: "number",
+            label:
+              "14. menos: Ingresos Por Actividades Excluidas o No Sujetas y Otros Ingresos No Gravados",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.ingresosExcluidosNoGravados",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "ingresos_exentos_municipio",
+            type: "number",
+            label:
+              "15. menos: Ingresos Por Otras Actividades Exentas en Este Municipio o Distrito (Por Acuerdo)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.ingresosExentosMunicipio",
+            required: true,
+            min: 0,
+          },
+        ]),
+        buildRow([
+          {
+            name: "total_ingresos_gravables",
+            type: "number",
+            label: "16. TOTAL INGRESOS GRAVABLES (Renglón 10 Menos 11, 12, 13, 14 y 15)",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "baseGravable.totalIngresosGravables",
+            formula:
+              "total_ingresos_ordinarios - ingresos_devoluciones_descuentos - ingresos_exportaciones - ingresos_venta_activos - ingresos_excluidos_no_gravados - ingresos_exentos_municipio",
           },
         ]),
       ],
