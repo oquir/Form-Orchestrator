@@ -1,12 +1,14 @@
+import { useMemo } from "react";
 import { operatorNeedsValue, operatorsForFieldType } from "../../lib/fieldCondition/fieldCondition";
+import { buildFieldGraph, describeCycle, wouldCreateCycle } from "../../lib/fieldGraph/fieldGraph";
+import type { FieldGraph } from "../../lib/fieldGraph/fieldGraph.types";
 import { useFormStore } from "../../store/formStore";
-import type { ConditionOperator, FieldCondition } from "../../types/field";
+import type { CanvasField, ConditionOperator, FieldCondition } from "../../types/field";
 import { DEFAULT_OPERATORS } from "./useConditionEditor.constants";
 import type {
   UseConditionEditorParams,
   UseConditionEditorResult,
 } from "./useConditionEditor.types";
-import { wouldCreateCycle } from "./useConditionEditor.utils";
 
 export function useConditionEditor({
   field,
@@ -23,6 +25,10 @@ export function useConditionEditor({
     ? operatorsForFieldType(observed.type)
     : DEFAULT_OPERATORS;
   const needsValue = Boolean(condition && operatorNeedsValue(condition.operator));
+  const graph: FieldGraph = useMemo(() => {
+    const allFields: CanvasField[] = [field, ...otherFields];
+    return buildFieldGraph(allFields);
+  }, [field, otherFields]);
 
   function updateCondition(next: Partial<FieldCondition>): void {
     if (!condition) return;
@@ -57,8 +63,9 @@ export function useConditionEditor({
   }
 
   function handleObservedFieldChange(nextFieldId: string): void {
-    if (wouldCreateCycle(field.id, nextFieldId, otherFields)) {
-      window.alert("Esa condición generaría un ciclo entre campos.");
+    if (wouldCreateCycle(graph, field.id, nextFieldId)) {
+      const chain: string = describeCycle(graph, [field.id, nextFieldId]);
+      window.alert(`Esa condición generaría un ciclo entre campos (${chain}).`);
       return;
     }
 
