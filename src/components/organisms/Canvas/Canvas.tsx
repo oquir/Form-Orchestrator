@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
-import { getActiveRows, useFormStore } from "../../../store/formStore";
+import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
 import { TabButtonGroup } from "../../molecules/TabButtonGroup/TabButtonGroup";
 import { SaveButton } from "../../organisms/SaveButton/SaveButton";
+import { CanvasAddGroupButton } from "../CanvasAddGroupButton/CanvasAddGroupButton";
 import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
@@ -16,6 +17,7 @@ import type { CanvasViewMode } from "./Canvas.types";
 
 export function Canvas() {
   const activeRows = useFormStore(getActiveRows);
+  const activeGroups = useFormStore(getActiveGroups);
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
@@ -122,10 +124,14 @@ export function Canvas() {
             <div className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
               <CanvasRowsGrid
                 rows={activeRows}
+                groups={activeGroups}
                 onFieldContextMenu={(fieldId, x, y) => setContextMenu({ fieldId, x, y })}
               />
             </div>
-            <CanvasAddRowButton />
+            <div className="flex gap-3">
+              <CanvasAddRowButton />
+              <CanvasAddGroupButton />
+            </div>
           </>
         ))}
 

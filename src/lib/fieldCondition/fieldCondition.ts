@@ -58,6 +58,7 @@ export function operatorsForFieldType(type: string): ConditionOperator[] {
         "isNotEmpty",
       ];
     case "select":
+    case "search_select":
     case "toggle_group":
     case "radio_group":
       return ["equals", "notEquals", "in", "isEmpty", "isNotEmpty"];

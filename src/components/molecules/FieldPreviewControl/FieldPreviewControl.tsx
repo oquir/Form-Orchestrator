@@ -1,9 +1,23 @@
-import { ArrowDown2, Calculator, Check, Import } from "reicon-react";
+import { ArrowDown2, Calculator, Check, Import, Magnifier } from "reicon-react";
 import { allowsManualOptions, isOptionBasedField } from "../../../lib/fieldOptions/fieldOptions";
 import { CATALOG_HINT_CLASSES, MOCK_CONTROL_CLASSES } from "./FieldPreviewControl.constants";
 import type { FieldPreviewControlProps } from "./FieldPreviewControl.types";
 
 export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
+  if (field.type === "search_select") {
+    return (
+      <div className="flex flex-col gap-1.5">
+        {field.title && (
+          <p className="text-xs font-medium text-slate-500 dark:text-neutral-400">{field.title}</p>
+        )}
+        <div className={MOCK_CONTROL_CLASSES}>
+          <span>Buscar y seleccionar…</span>
+          <Magnifier size={14} weight="Filled" />
+        </div>
+      </div>
+    );
+  }
+
   if (isOptionBasedField(field.type) && !allowsManualOptions(field)) {
     return (
       <div className="flex flex-col gap-1.5">
