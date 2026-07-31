@@ -7,6 +7,7 @@ import type {
   FieldStyles,
   RuleEffect,
 } from "./field";
+import type { RichTextContent } from "./richText";
 import type { FormType } from "./setup";
 
 export interface ExportedCondition {
@@ -38,7 +39,7 @@ export interface ExportedField {
   colStart: number;
   colSpan: number;
   styles: FieldStyles;
-  validations: { zodSchema: string };
+  validations: { zodSchema?: string };
   logic: ExportedLogic;
   title?: string;
   options?: FieldOption[];
@@ -47,6 +48,8 @@ export interface ExportedField {
   enableWhen?: ExportedCondition;
   visibleWhen?: ExportedCondition;
   apiBinding?: ApiBinding;
+  labelFor?: string;
+  content?: RichTextContent;
 }
 
 export interface ExportedRepeatableGroup {

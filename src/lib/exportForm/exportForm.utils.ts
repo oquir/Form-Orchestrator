@@ -8,6 +8,7 @@ import type {
 import type { CanvasField, FieldCondition } from "../../types/field";
 import type { CanvasRow, FormStep } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
+import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
 import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
@@ -77,7 +78,7 @@ export function mapRows(rows: CanvasRow[], names: Map<string, string>): Exported
       colStart: field.colStart,
       colSpan: field.colSpan,
       styles: field.styles,
-      validations: { zodSchema: buildZodSchema(field) },
+      validations: isPresentationalField(field.type) ? {} : { zodSchema: buildZodSchema(field) },
       logic: {
         dependencies: resolveDependencies(field, names),
         typeScript: field.logic.typeScript,
@@ -91,6 +92,8 @@ export function mapRows(rows: CanvasRow[], names: Map<string, string>): Exported
       enableWhen: resolveCondition(field.enableWhen, names),
       visibleWhen: resolveCondition(field.visibleWhen, names),
       apiBinding: field.apiBinding,
+      labelFor: field.labelFor ? (names.get(field.labelFor) ?? field.labelFor) : undefined,
+      content: field.content,
     })),
   }));
 }
