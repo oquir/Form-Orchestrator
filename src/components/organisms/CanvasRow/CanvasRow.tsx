@@ -36,6 +36,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
       >
         <Xmark size={12} weight="Filled" />
       </IconButton>
+
       {row.fields.length === 0 && (
         <div
           style={{ gridColumn: `span ${row.columns} / span ${row.columns}` }}
@@ -44,6 +45,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
           Suelta un campo aquí
         </div>
       )}
+
       {row.fields.map((field) => (
         <CanvasFieldChip
           key={field.id}
