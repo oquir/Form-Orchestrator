@@ -1,3 +1,4 @@
+import type { Cursor, FormulaFunction, FormulaNode, FormulaToken } from "../../types/formula";
 import {
   DIGIT,
   FORMULA_AGGREGATES,
@@ -7,7 +8,6 @@ import {
   IDENT_START,
   WHITESPACE,
 } from "./formula.constants";
-import type { Cursor, FormulaFunction, FormulaNode, FormulaToken } from "./formula.types";
 
 export function tokenize(source: string): FormulaToken[] {
   const tokens: FormulaToken[] = [];

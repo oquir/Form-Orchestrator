@@ -1,7 +1,7 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
+import type { FormExport } from "../../types/exportForm";
 import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 import type { SetupConfig } from "../../types/setup";
-import type { FormExport } from "./exportForm.types";
 import { buildNameIndex, mapFormStep, mapRows } from "./exportForm.utils";
 
 export function buildFormExport(

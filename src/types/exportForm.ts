@@ -6,8 +6,8 @@ import type {
   FieldOption,
   FieldStyles,
   RuleEffect,
-} from "../../types/field";
-import type { FormType } from "../../types/setup";
+} from "./field";
+import type { FormType } from "./setup";
 
 export interface ExportedCondition {
   field: string;

@@ -2,9 +2,9 @@ import { useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { operatorNeedsValue, operatorsForFieldType } from "../../lib/fieldCondition/fieldCondition";
 import { buildFieldGraph, describeCycle, wouldCreateCycle } from "../../lib/fieldGraph/fieldGraph";
-import type { FieldGraph } from "../../lib/fieldGraph/fieldGraph.types";
 import { useFormStore } from "../../store/formStore";
 import type { CanvasField, ConditionOperator, FieldRule, RuleCondition } from "../../types/field";
+import type { FieldGraph } from "../../types/fieldGraph";
 import type { UseFieldRulesParams, UseFieldRulesResult } from "./useFieldRules.types";
 
 function conditionOn(target: CanvasField, id: string): RuleCondition {

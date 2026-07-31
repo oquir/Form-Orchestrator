@@ -4,8 +4,8 @@ import { useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
 import { JSON_VIEW_DARK_THEME, JSON_VIEW_LIGHT_THEME } from "../../../constants/jsonViewTheme";
 import { buildFormExport } from "../../../lib/exportForm/exportForm";
-import type { FormExport } from "../../../lib/exportForm/exportForm.types";
 import { useFormStore } from "../../../store/formStore";
+import type { FormExport } from "../../../types/exportForm";
 
 export function JsonPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);

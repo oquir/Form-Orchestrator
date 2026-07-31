@@ -1,9 +1,9 @@
 import type { CanvasField } from "../../types/field";
 import type { JsonNode } from "../../types/jsonTree";
+import type { MappingNode, OrphanBinding } from "../../types/payloadMapping";
 import type { SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
 import { resolveLeafType } from "../payloadSchema/payloadSchema";
 import { NUMERIC_FIELD_TYPES } from "./payloadMapping.constants";
-import type { MappingNode, OrphanBinding } from "./payloadMapping.types";
 import { buildNode, buildPathIndex } from "./payloadMapping.utils";
 
 export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNodeType): boolean {

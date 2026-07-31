@@ -1,4 +1,4 @@
-import type { FormulaFunction } from "./formula.types";
+import type { FormulaFunction } from "../../types/formula";
 import { roundTo } from "./formula.utils";
 
 export const DIGIT = /[0-9]/;

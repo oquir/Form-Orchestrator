@@ -1,7 +1,7 @@
 import type { CanvasField } from "../../types/field";
+import type { LeafBindingStatus, MappingNode } from "../../types/payloadMapping";
 import type { SchemaNode } from "../../types/payloadSchema";
 import { fieldMatchesSchemaType } from "./payloadMapping";
-import type { LeafBindingStatus, MappingNode } from "./payloadMapping.types";
 
 export function buildPathIndex(fields: CanvasField[]): Map<string, CanvasField> {
   const index: Map<string, CanvasField> = new Map();

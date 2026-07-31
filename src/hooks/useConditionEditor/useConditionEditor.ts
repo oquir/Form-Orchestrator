@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { operatorNeedsValue, operatorsForFieldType } from "../../lib/fieldCondition/fieldCondition";
 import { buildFieldGraph, describeCycle, wouldCreateCycle } from "../../lib/fieldGraph/fieldGraph";
-import type { FieldGraph } from "../../lib/fieldGraph/fieldGraph.types";
 import { useFormStore } from "../../store/formStore";
 import type { CanvasField, ConditionOperator, FieldCondition } from "../../types/field";
+import type { FieldGraph } from "../../types/fieldGraph";
 import { DEFAULT_OPERATORS } from "./useConditionEditor.constants";
 import type {
   UseConditionEditorParams,

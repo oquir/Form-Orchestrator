@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { validateFormula } from "../../../lib/formula/formula";
-import type { FormulaValidation } from "../../../lib/formula/formula.types";
+import type { FormulaValidation } from "../../../types/formula";
 import { Label } from "../../atoms/Label/Label";
 import {
   AGGREGATE_NAMES,

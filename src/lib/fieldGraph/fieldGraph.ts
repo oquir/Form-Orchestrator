@@ -1,6 +1,7 @@
 import type { CanvasField } from "../../types/field";
+import type { FieldGraph } from "../../types/fieldGraph";
 import { collectRuleRefs, ruleFormulaExpressions } from "../fieldRule/fieldRule";
-import type { FieldGraph, TopologicalResult } from "./fieldGraph.types";
+import type { TopologicalResult } from "./fieldGraph.types";
 import { formulaRefIds } from "./fieldGraph.utils";
 
 export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {

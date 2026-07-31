@@ -1,8 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { RepeatableGroup } from "../../types/formStructure";
+import type {
+  FormStepTemplate,
+  IntroStepTemplate,
+  RepeatableGroup,
+} from "../../types/formStructure";
 import { SALDO_NETO } from "./baseTemplate.constants";
-import type { FormStepTemplate, IntroStepTemplate } from "./baseTemplate.types";
 import { buildRow } from "./baseTemplate.utils";
 
 export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {

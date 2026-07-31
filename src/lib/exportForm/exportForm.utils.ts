@@ -1,16 +1,16 @@
-import type { CanvasField, FieldCondition } from "../../types/field";
-import type { CanvasRow, FormStep } from "../../types/formStructure";
-import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
-import { exportableOptions } from "../fieldOptions/fieldOptions";
-import { groupFields } from "../repeatableGroup/repeatableGroup";
-import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
 import type {
   ExportedCondition,
   ExportedRepeatableGroup,
   ExportedRow,
   ExportedRule,
   ExportedStep,
-} from "./exportForm.types";
+} from "../../types/exportForm";
+import type { CanvasField, FieldCondition } from "../../types/field";
+import type { CanvasRow, FormStep } from "../../types/formStructure";
+import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
+import { exportableOptions } from "../fieldOptions/fieldOptions";
+import { groupFields } from "../repeatableGroup/repeatableGroup";
+import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
 
 export function buildNameIndex(rows: CanvasRow[]): Map<string, string> {
   const index: Map<string, string> = new Map();

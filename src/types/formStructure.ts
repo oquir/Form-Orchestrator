@@ -34,3 +34,6 @@ export interface IntroModalStep {
 export interface IntroModalState {
   steps: IntroModalStep[];
 }
+
+export type IntroStepTemplate = Omit<IntroModalStep, "stepId">;
+export type FormStepTemplate = Omit<FormStep, "stepId">;

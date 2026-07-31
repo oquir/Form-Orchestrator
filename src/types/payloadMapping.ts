@@ -1,4 +1,4 @@
-import type { SchemaNodeType } from "../../types/payloadSchema";
+import type { SchemaNodeType } from "./payloadSchema";
 
 export type LeafBindingStatus =
   | { kind: "unmapped" }

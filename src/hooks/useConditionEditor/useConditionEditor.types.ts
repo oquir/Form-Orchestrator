@@ -1,6 +1,9 @@
-import type { CanvasField, ConditionOperator, FieldCondition } from "../../types/field";
-
-export type ConditionKind = "enable" | "visible";
+import type {
+  CanvasField,
+  ConditionKind,
+  ConditionOperator,
+  FieldCondition,
+} from "../../types/field";
 
 export interface UseConditionEditorParams {
   field: CanvasField;

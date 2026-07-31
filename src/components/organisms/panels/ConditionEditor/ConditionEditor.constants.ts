@@ -1,5 +1,4 @@
-import type { ConditionKind } from "../../../../hooks/useConditionEditor/useConditionEditor.types";
-import type { ConditionOperator } from "../../../../types/field";
+import type { ConditionKind, ConditionOperator } from "../../../../types/field";
 
 export const CONDITION_COPY: Record<
   ConditionKind,

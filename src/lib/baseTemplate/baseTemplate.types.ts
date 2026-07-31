@@ -1,8 +1,3 @@
-import type { FormStep, IntroModalStep } from "../../types/formStructure";
-
-export type IntroStepTemplate = Omit<IntroModalStep, "stepId">;
-export type FormStepTemplate = Omit<FormStep, "stepId">;
-
 export interface FieldSpec {
   name: string;
   type: string;

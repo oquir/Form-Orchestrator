@@ -5,10 +5,15 @@ import {
   getIndustriaComercioIntroTemplate,
 } from "../lib/baseTemplate/baseTemplate";
 import { INDUSTRIA_COMERCIO_FORM_STEPS } from "../lib/baseTemplate/baseTemplate.constants";
-import type { FormStepTemplate, IntroStepTemplate } from "../lib/baseTemplate/baseTemplate.types";
 import { collectFieldNames, slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import type { CanvasField, FieldOption } from "../types/field";
-import type { CanvasRow, FormStep, IntroModalStep } from "../types/formStructure";
+import type {
+  CanvasRow,
+  FormStep,
+  FormStepTemplate,
+  IntroModalStep,
+  IntroStepTemplate,
+} from "../types/formStructure";
 import type { FieldPlacement } from "../types/placement";
 import type { FormType } from "../types/setup";
 import type { StateSlice } from "../types/store";

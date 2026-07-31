@@ -48,6 +48,8 @@ export type ConditionOperator =
   | "isTruthy"
   | "isFalsy";
 
+export type ConditionKind = "enable" | "visible";
+
 export interface FieldCondition {
   fieldId: string;
   operator: ConditionOperator;
