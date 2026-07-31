@@ -1,8 +1,9 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { Eye } from "reicon-react";
 import { GRID_BASE_COLUMNS } from "../../../constants/grid";
+import { findLabelFor } from "../../../lib/fieldKind/fieldKind";
 import { getFreeRuns, getMaxSpanAt } from "../../../lib/rowLayout/rowLayout";
-import { useFormStore } from "../../../store/formStore";
+import { getActiveRows, getAllFields, useFormStore } from "../../../store/formStore";
 import { FieldDragHandle } from "../../atoms/FieldDragHandle/FieldDragHandle";
 import { FieldResizeHandle } from "../../atoms/FieldResizeHandle/FieldResizeHandle";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
@@ -20,6 +21,8 @@ export function CanvasFieldChip({
   onContextMenu,
 }: CanvasFieldChipProps) {
   const updateField = useFormStore((state) => state.updateField);
+  const activeRows = useFormStore(getActiveRows);
+  const linkedLabel = findLabelFor(getAllFields(activeRows), field.id);
   const maxSpan = getMaxSpanAt(getFreeRuns(rowFields, rowColumns, field.id), field.colStart);
 
   const {
@@ -84,9 +87,18 @@ export function CanvasFieldChip({
           <div
             className={`flex items-center justify-between gap-2 overflow-x-hidden ${shouldHideContent ? "opacity-0" : ""}`}
           >
-            <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">
-              {field.label}
-            </p>
+            {linkedLabel ? (
+              <p
+                title={`La etiqueta la aporta "${linkedLabel.label}"`}
+                className="text-sm font-medium italic text-fg-muted"
+              >
+                {linkedLabel.label}
+              </p>
+            ) : (
+              <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">
+                {field.label}
+              </p>
+            )}
             <div className="flex items-center gap-1">
               {field.visibleWhen && (
                 <span

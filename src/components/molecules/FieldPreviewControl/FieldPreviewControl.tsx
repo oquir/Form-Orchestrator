@@ -33,6 +33,8 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
   }
 
   switch (field.type) {
+    case "label":
+      return null;
     case "toggle_group": {
       const options = field.options ?? [];
       return (

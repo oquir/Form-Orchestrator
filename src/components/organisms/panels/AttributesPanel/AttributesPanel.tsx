@@ -1,5 +1,9 @@
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
-import { isPresentationalField, labelTargetCandidates } from "../../../../lib/fieldKind/fieldKind";
+import {
+  findLabelFor,
+  isPresentationalField,
+  labelTargetCandidates,
+} from "../../../../lib/fieldKind/fieldKind";
 import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
 import {
@@ -29,17 +33,26 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
   const isOptionBased: boolean = isOptionBasedField(field.type);
   const canEditOptions: boolean = allowsManualOptions(field);
   const isPresentational: boolean = isPresentationalField(field.type);
+  const linkedLabel = findLabelFor(getAllFields(activeRows), field.id);
 
   return (
     <div className="flex flex-col gap-4">
       <LabeledInput id="field-type" label="Tipo" value={field.type} disabled />
 
-      <LabeledInput
-        id="field-label"
-        label={isPresentational ? "Texto" : "Etiqueta"}
-        value={field.label}
-        onChange={(event) => updateField(field.id, { label: event.target.value })}
-      />
+      <div className="flex flex-col gap-1">
+        <LabeledInput
+          id="field-label"
+          label={isPresentational ? "Texto" : "Etiqueta"}
+          value={linkedLabel ? linkedLabel.label : field.label}
+          disabled={linkedLabel !== null}
+          onChange={(event) => updateField(field.id, { label: event.target.value })}
+        />
+        {linkedLabel && (
+          <span className="text-[11px] text-fg-subtle">
+            La aporta la etiqueta ligada. Editála seleccionando ese campo en el lienzo.
+          </span>
+        )}
+      </div>
 
       {isPresentational && (
         <LabelTargetSelect
