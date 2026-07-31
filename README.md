@@ -13,6 +13,7 @@ El caso de uso que guía el diseño es el **autoliquidable de Industria y Comerc
 - **Tailwind v4** (vía `@tailwindcss/vite`) para todo el estilado — sin CSS-in-JS. Modo oscuro por clase, con tokens de tema en `src/index.css`
 - **uuid** para generar ids de campos/filas/steps
 - **reicon-react** para íconos
+- **@uiw/react-json-view** para las vistas de JSON (`JsonPreviewCanvas` y `PayloadPreviewCanvas`)
 - **Biome** como linter/formatter (2 espacios, comillas dobles, semicolons, 100 cols, organiza imports)
 
 Package manager: **bun**. No usar npm/yarn/pnpm.
@@ -74,7 +75,18 @@ Manteniendo **Shift** mientras arrastrás elegís la columna de inicio; con **Sh
 - **Sidebar izquierdo** (`organisms/Sidebar/`): un rail vertical de íconos (`SidebarTabRail`, incluye el toggle de modo oscuro) más el panel correspondiente. Las pestañas son Campos, Atributos, Validaciones, Estilos, Lógica, Mapeo API y Almacén. Al hacer clic sobre la pestaña ya activa, el panel se colapsa; el rail siempre queda visible.
 - **Canvas derecho** (`organisms/Canvas/`): una grilla por fila (`@dnd-kit` `useDroppable`), tabs para cambiar entre steps del formulario y del modal, editor de título/subtítulo, control de columnas por fila, redimensionado de campos por arrastre y menú contextual por campo. El encabezado trae el botón de guardar, "Ver JSON" (`JsonPreviewCanvas`, vista previa en vivo del export), la vista de cobertura del contrato (`PayloadPreviewCanvas`) y "Exportar JSON".
 
-El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; `App.tsx` solo arma el `DndContext`/`DragOverlay`.
+El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; el `DndContext`/`DragOverlay` los arma `organisms/FormBuilder/`, que es lo único que envuelve al `AppLayout`.
+
+`App.tsx` no dibuja nada del constructor: es la compuerta de arranque. Monta los hooks globales (`useThemeClass`, `useAutosave`, `useKeyboardShortcuts`) y decide qué mostrar en este orden — `DraftRecoveryModal` si hay borrador, `SetupWizardModal` si el setup no está completo, `FormBuilder` si ya lo está.
+
+### Hooks
+
+Cada hook vive en su propia carpeta, igual que los componentes:
+
+- **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S), `useDraftRecovery`.
+- **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`.
+- **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`.
+- **Genéricos** — `useClickOutside`.
 
 ### Tipos de campo
 
@@ -123,7 +135,7 @@ Los campos con opciones solo admiten opciones escritas a mano **cuando están ex
 
 ### Setup inicial
 
-`organisms/SetupWizardModal/`: modal de 2 pasos cuando `setupConfig.isComplete` es `false`. El paso 1 elige el `FormType` — `industria_comercio` carga la plantilla completa de ocho pasos desde `src/lib/baseTemplate/`; los otros tipos arrancan con una fila vacía. El paso 2 pregunta si hace falta un modal introductorio y cuántos steps tiene.
+`organisms/SetupWizardModal/`: modal de 2 pasos cuando `setupConfig.isComplete` es `false`. El paso 1 elige el `FormType` — `industria_comercio` carga la plantilla completa de ocho pasos desde `src/lib/baseTemplate/`; los otros dos (`retencion_industria_comercio` y `autorretencion`) arrancan con una fila vacía. El paso 2 pregunta si hace falta un modal introductorio y cuántos steps tiene.
 
 ### Exportación
 
@@ -143,6 +155,7 @@ Dos detalles del contrato:
 - No hay versionado de schema en el borrador de `localStorage`; si cambia la forma del store, los borradores viejos se descartan al cargar. Se pierde el trabajo guardado, en silencio.
 - **Renglón 35 (`valor_a_pagar`) no tiene fórmula**, así que la cadena de liquidación se corta ahí: el renglón 33 calcula un total que el 38 nunca recoge. Falta definir de dónde sale.
 - Falta **`dataSource`** en el contrato: el consumidor tiene que inferir de `apiBinding.path` qué catálogo alimenta cada select. Relacionado: `FieldOption.id` es un uuid, así que una opción escrita a mano no tiene id de catálogo que enviar.
+- Los selects mapeados a hojas `number` muestran una advertencia **`⚠ tipo`** permanente (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `municipio`, `clasificacion_contribuyente` y el `search_select` de actividad). El id de catálogo es numérico, pero `fieldMatchesSchemaType` no deja que un tipo con opciones case con `number`.
 - Un campo del formulario no puede condicionar contra un campo del modal introductorio: la lista de candidatos sale solo de `formSteps`.
 - `validations.pattern` no se valida donde se escribe. Ya no puede ejecutar nada, pero una expresión regular inválida hace fallar la construcción del schema del lado del consumidor.
 
