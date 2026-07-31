@@ -38,7 +38,7 @@ export function CanvasTabs() {
             <DashedAddButton
               onClick={addFormStep}
               title="Agregar step al formulario"
-              className="flex items-center gap-1 rounded-lg border-orange-300 px-3 py-1.5 text-orange-600 hover:border-orange-400 hover:text-orange-700 dark:border-orange-500/50 dark:text-orange-400 dark:hover:border-orange-400 dark:hover:text-orange-300"
+              className="flex items-center gap-1 rounded-lg border-brand-border px-3 py-1.5 text-brand-fg hover:border-brand hover:text-brand-hover"
             >
               <Plus size={12} weight="Filled" />
               Nuevo step
@@ -73,7 +73,7 @@ export function CanvasTabs() {
               <DashedAddButton
                 onClick={addIntroModalStep}
                 title="Agregar paso al modal introductorio"
-                className="flex items-center gap-1 rounded-lg border-orange-300 px-3 py-1.5 text-orange-600 hover:border-orange-400 hover:text-orange-700 dark:border-orange-500/50 dark:text-orange-400 dark:hover:border-orange-400 dark:hover:text-orange-300"
+                className="flex items-center gap-1 rounded-lg border-brand-border px-3 py-1.5 text-brand-fg hover:border-brand hover:text-brand-hover"
               >
                 <Plus size={12} weight="Filled" /> Paso del modal
               </DashedAddButton>

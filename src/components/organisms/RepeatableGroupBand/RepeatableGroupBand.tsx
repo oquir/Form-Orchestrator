@@ -21,7 +21,7 @@ export function RepeatableGroupBand({ group, rows, onFieldContextMenu }: Repeata
   return (
     <li className={BAND_CLASSES}>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="flex items-center gap-1.5 text-sky-700 dark:text-sky-300">
+        <span className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
           <Layers size={14} weight="Filled" />
           <span className="text-[11px] font-semibold uppercase tracking-wide">Repetible</span>
         </span>

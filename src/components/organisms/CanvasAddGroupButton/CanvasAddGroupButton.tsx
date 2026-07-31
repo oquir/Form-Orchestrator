@@ -9,7 +9,7 @@ export function CanvasAddGroupButton() {
     <DashedAddButton
       onClick={addGroupToActiveStep}
       title="Un bloque que el contribuyente puede repetir varias veces"
-      className="mt-3 flex w-full items-center justify-center gap-1.5 border-sky-300 py-2 text-sky-600 hover:border-sky-400 hover:text-sky-700 dark:border-sky-500/40 dark:text-sky-400 dark:hover:border-sky-500 dark:hover:text-sky-300"
+      className="mt-3 flex w-full items-center justify-center gap-1.5 border-brand-border py-2 text-brand-fg hover:border-brand hover:text-brand-hover"
     >
       <Layers size={12} weight="Filled" /> Agregar grupo repetible
     </DashedAddButton>
