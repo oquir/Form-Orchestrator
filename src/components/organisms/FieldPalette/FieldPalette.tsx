@@ -1,34 +1,27 @@
 import { PaletteChip } from "../../molecules/PaletteChip/PaletteChip";
-import { BASIC_FIELD_TYPES, COMPLEX_FIELD_TYPES } from "./FieldPalette.constants";
+import {
+  PALETTE_SECTIONS,
+  SECTION_GRID_CLASSES,
+  SECTION_HEADING_CLASSES,
+} from "./FieldPalette.constants";
 
 export function FieldPalette() {
   return (
     <div className="flex flex-col gap-4">
-      <ul className="grid list-none grid-cols-2 gap-2">
-        {BASIC_FIELD_TYPES.map((fieldType) => (
-          <li key={fieldType.type}>
-            <PaletteChip fieldType={fieldType} />
-          </li>
-        ))}
-      </ul>
-
-      {COMPLEX_FIELD_TYPES.length > 0 && (
-        <section aria-labelledby="complex-fields-heading">
-          <h3
-            id="complex-fields-heading"
-            className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-neutral-500"
-          >
-            Campos complejos
+      {PALETTE_SECTIONS.map((section) => (
+        <section key={section.category} aria-labelledby={`palette-${section.category}`}>
+          <h3 id={`palette-${section.category}`} className={SECTION_HEADING_CLASSES}>
+            {section.heading}
           </h3>
-          <ul className="grid list-none grid-cols-2 gap-2">
-            {COMPLEX_FIELD_TYPES.map((fieldType) => (
+          <ul className={SECTION_GRID_CLASSES}>
+            {section.fieldTypes.map((fieldType) => (
               <li key={fieldType.type}>
                 <PaletteChip fieldType={fieldType} />
               </li>
             ))}
           </ul>
         </section>
-      )}
+      ))}
     </div>
   );
 }
