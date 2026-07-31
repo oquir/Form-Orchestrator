@@ -4,14 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-The core builder described below is implemented. `docs/Project.md` (in Spanish) is the original product spec — still the reference for the target JSON schema shape and any unimplemented details; check it before adding features so structure matches the intended data model.
+The core builder described below is implemented, including the eight-step Industria y Comercio template, repeatable groups and the formula/rules engine. `docs/Project.md` (in Spanish) is the original product spec — still the reference for the target JSON schema shape and any unimplemented details; check it before adding features so structure matches the intended data model.
 
 Not yet implemented / known gaps:
-- No Monaco-style code editor for the Logic tab — `LogicPanel` edits `logic.typeScript` as a plain string. (Conditional enabling and visibility *are* implemented separately via `enableWhen`/`visibleWhen` + `ConditionEditor`; `logic.dependencies` remains a plain field-id toggle list.)
-- No test runner configured, and none will be added: the user considers the project too volatile to justify tests right now.
+- No Monaco-style code editor for the Logic tab — `LogicPanel` edits `logic.typeScript` as a plain string. Everything else in that tab (formula, rules, conditions) has real UI.
+- No test runner configured, and none will be added: the user considers the project too volatile to justify tests right now. Verification is done with throwaway `bun run` scripts in the scratchpad.
 - `logic.typeScript` is exported as a raw string; the consumer will need `new Function()`/`eval` to execute it. The user builds the consumer too, so this is a coordinated decision — not a public API constraint.
-- No draft schema versioning in `persistence.ts`; if the store shape changes, old localStorage drafts can silently break.
-- Two gaps against the real ICA API contract (`DeclaracionIcaE`, documented in the README): no **repeatable groups** (the `actividades[]` array has no representation in `rows → fields`), and no **`dataSource`** to say which catalog endpoint feeds a mapped select (the consumer has to infer it from `apiBinding.path`). Related: `FieldOption` carries `{id, label}` where `id` is a uuid, so a manually-authored option has no catalog id to send.
+- No draft schema versioning in `persistence.ts`; if the store shape changes, old localStorage drafts can silently break. Repeatable groups already changed that shape.
+- One gap left against the real ICA API contract (`DeclaracionIcaE`, documented in the README): no **`dataSource`** to say which catalog endpoint feeds a mapped select (the consumer has to infer it from `apiBinding.path`). Related: `FieldOption` carries `{id, label}` where `id` is a uuid, so a manually-authored option has no catalog id to send.
+- **Renglón 35 (`valor_a_pagar`) has no formula**, so the liquidation chain breaks there: renglón 33 computes a total that 38 never picks up. The user has not yet said how 35 is derived. Proposed but unconfirmed: `formula: "total_saldo_a_cargo"`.
+- Selects mapped to `number` leaves show a permanent **`⚠ tipo`** warning (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `municipio`, `clasificacion_contribuyente`, the `search_select` for actividad). A two-line fix in `fieldMatchesSchemaType` — letting option-based types match `number` — has been offered and not yet approved.
 
 ## Zone placement (Shift / Shift+Ctrl while dragging)
 
@@ -25,9 +27,41 @@ Settled decisions — do not re-litigate them without asking:
 - **Holes are preserved.** Deleting or moving a field leaves its gap; every position is explicit. The one exception is `updateRowColumns`, which re-packs, since resizing a row is a deliberate layout change.
 - **One row is one visual line — rows do not overflow to a second line.** A full row rejects a dropped field instead of wrapping. The user **deliberately kept the restriction** after testing it — the intended workflow is to add another `CanvasRow` and place the field there. It is a guardrail, not a bug. Implementing real multi-line rows would require a line index in the model and would turn every placement rule two-dimensional; the cheap alternative (auto-creating a row below on overflow) was offered and declined. Only revisit if the user explicitly asks.
 
+## Repeatable groups (`actividades[]`)
+
+A repeatable group is a **marker on the row**, not a nested container: `CanvasRow.groupId` points at a `RepeatableGroup` held in `FormStep.groups[]` (`src/types/formStructure.ts`). `IntroModalStep` has no `groups` — the intro modal cannot hold one.
+
+This shape was chosen because `useDragAndDrop` resolves everything by `rowId` and never inspects row contents, so **drag & drop, `rowLayout`, resize and every placement rule keep working inside a group with no changes at all**. That satisfies the user's explicit requirement that the fields of an activity stay freely movable and reorderable. The cost is that contiguity is not structural — `normalizeGroupRows` has to pull a group's rows back together by hand after any mutation that could scatter them.
+
+Helpers live in `src/lib/repeatableGroup/repeatableGroup.ts`: `createRepeatableGroup`, `clampGroupBounds`, `groupRows`, `groupFields`, `findGroupIdForRow`, `findGroupIdForField`, `findGroupById`, `normalizeGroupRows`, `pruneEmptyGroups`, `detachGroup`, `groupNamesInUse`. Bounds default to `DEFAULT_GROUP_MIN = 1` / `DEFAULT_GROUP_MAX = 15` (the ICA rule) and are clamped to `MIN_GROUP_ITEMS = 0`…`MAX_GROUP_ITEMS = 99`, since other form types need different limits.
+
+Settled decisions:
+
+- **A group's `arrayPath` is absolute** (`actividades[].idActividad`), not group-relative. One namespace means `resolveLeaf`, duplicate detection and the mapping tree need no special cases.
+- **Moving a field out of a group clears its `apiBinding`.** `moveField` compares the source and target `groupId`; a path scoped to the array item is meaningless outside it. Changing a group's `arrayPath` via `updateGroup` clears its members' mapped bindings for the same reason.
+- **Deleting a group's last row deletes the group** (`removeRow` wraps steps in `pruneEmptyGroups`). `removeGroup` does the opposite: it keeps the rows and only strips their `groupId`.
+
+UI: `RepeatableGroupBand` (`organisms/`) draws the band with title, min/max, `arrayPath` select, "+ Fila" and a dissolve button, wrapping a nested list of `CanvasRow`. `CanvasRowsGrid.utils.ts` turns the flat row list into blocks via `toCanvasBlocks`, and `CanvasAddGroupButton` creates one.
+
+## Formulas and rules (`logic.formula`, `logic.rules`)
+
+`src/lib/formula/formula.ts` is a small self-contained arithmetic language — tokenizer plus recursive descent, no `eval`. Public API: `parseFormula` (returns `{ast, error}`, **never throws**), `collectFormulaRefs`, `validateFormula`, `toFormulaNumber`, `evaluateFormula`. Keep it free of React and store imports.
+
+- Functions (`FORMULA_FUNCTIONS` in `src/constants/formula.ts`): `abs`, `min`, `max`, `sum`, `round` (1–2 args), `floor`, `ceil`.
+- Aggregates (`FORMULA_AGGREGATES`, same file): `sumOf(campo)` and `countOf(campo)` take **a bare field name, not an expression** — they read a repeatable group's column. `sumOf(1 + 2)` is a parse error on purpose.
+- Semantics: a missing, empty or non-numeric ref is `0`; division by zero yields `null`, which propagates through the whole expression.
+
+`FieldRule` (`src/types/field.ts`) is `{id, label?, matchAll, when: RuleCondition[], effects: RuleEffect[]}`, where an effect is either `{kind: "formula", expression}` or `{kind: "constant", value}`. Conditions and effects **carry their own `id`** so lists can be keyed and reordered without index keys. Helpers are in `src/lib/fieldRule/fieldRule.ts`; the UI is `panels/FieldRulesEditor` driven by `src/hooks/useFieldRules/`.
+
+`src/lib/fieldGraph/fieldGraph.ts` unifies **six** edge sources into one dependency graph: `visibleWhen`, `enableWhen`, `rules[].when[]`, refs inside rule formulas, refs inside `logic.formula`, and `logic.dependencies`. Formula refs are field *names*, so `buildNameToIdIndex` normalizes them to ids. `logic.typeScript` is deliberately excluded — it is an opaque string the builder cannot parse. `topologicalOrder` returns `{order, unresolved, cycle}` and never throws; `wouldCreateCycle` backs the editors' guard rails.
+
+Settled decisions:
+
+- **`evaluationOrder` is not exported.** It was added to `formSchema` and then removed: measured against the ICA template it came out byte-identical to document order, and it silently appended cycle members to the end, so a consumer had no way to know the order was invalid. The consumer already has to parse formula strings to evaluate them, so building the graph itself is marginal extra work. Do not re-add it without also surfacing cycles.
+
 ## Options and `apiBinding`
 
-`select`, `toggle_group`, `radio_group` and `checkbox_group` (`OPTION_BASED_FIELD_TYPES` in `src/constants/fieldTypes.ts`) only get **manually authored options when the field is explicitly excluded from the payload**. A mapped field — or one whose `apiBinding` is still undefined — gets its options injected at runtime by the consuming app, which reads `apiBinding.path` and queries the catalog. The predicates live in `src/lib/fieldOptions/fieldOptions.ts`; use `allowsManualOptions` rather than checking `apiBinding` inline, so the panel, the canvas preview, `buildZodSchema` and `buildFormExport` can't drift apart.
+`select`, `search_select`, `toggle_group`, `radio_group` and `checkbox_group` (`OPTION_BASED_FIELD_TYPES` in `src/constants/fieldTypes.ts`) only get **manually authored options when the field is explicitly excluded from the payload**. A mapped field — or one whose `apiBinding` is still undefined — gets its options injected at runtime by the consuming app, which reads `apiBinding.path` and queries the catalog. The predicates live in `src/lib/fieldOptions/fieldOptions.ts`; use `allowsManualOptions` rather than checking `apiBinding` inline, so the panel, the canvas preview, `buildZodSchema` and `buildFormExport` can't drift apart.
 
 Consequences to keep in mind:
 
@@ -36,11 +70,14 @@ Consequences to keep in mind:
 - `buildZodSchema` only emits `z.enum([...])` for excluded fields; mapped ones fall back to `z.string()`, since the builder can't enumerate values it never sees.
 - `ConditionValueInput` offers a dropdown only when the observed field has local options, so an `enableWhen`/`visibleWhen` pointing at a mapped select degrades to a free-text input where you type the catalog id by hand.
 - `checkbox` and `checkbox_group` are **different types on purpose**. `checkbox` is a single boolean ("acepto los términos") — `z.boolean()`, only `isTruthy`/`isFalsy` operators, no "required" toggle. `checkbox_group` is multi-select: it carries `options[]` and its schema is `z.array(z.enum([...]))` (`MULTI_VALUE_FIELD_TYPES` drives the array wrapping). Do not merge them.
-- `PAYLOAD_SCHEMA` currently has **53 `number` leaves, 22 `string`, and zero `boolean` or arrays of scalars**. So a `checkbox_group` has nowhere to map and will in practice always be excluded, and `fieldMatchesSchemaType` lets `checkbox` match `number` leaves (0/1) — otherwise every mapped checkbox showed a permanent, unavoidable type warning.
+- `PAYLOAD_SCHEMA` currently has **75 leaves — 53 `number`, 22 `string`, no `boolean` and no arrays of scalars**; 3 are `providedByHost` and 5 sit inside `actividades[]`. So a `checkbox_group` has nowhere to map and will in practice always be excluded, and `fieldMatchesSchemaType` lets `checkbox` match `number` leaves (0/1) — otherwise every mapped checkbox showed a permanent, unavoidable type warning.
+- `flattenLeaves` descends into arrays and stamps each item leaf with its `arrayPath`; `flattenSelectableLeaves(schema, arrayPath?)` filters by array context, so the mapping panel offers item paths only to fields that live in a group bound to that array.
 
 ## Conditions (`visibleWhen` / `enableWhen` / `alwaysDisabled`)
 
 A field carries two independent `FieldCondition`s. `visibleWhen` decides whether it **renders at all**; `enableWhen` decides whether it is **editable**. They share the type, the operators, the store shape and the whole `ConditionEditor` / `useConditionEditor` machinery — the `kind: "enable" | "visible"` param is the only difference, and it picks which field is read and which setter is called.
+
+Operator semantics live in `src/lib/fieldCondition/fieldCondition.ts` and are shared by the editor, the export and the graph: `operatorNeedsValue`, `operatorTakesList`, `operatorIsStringBased`, `parseConditionList`, and `operatorsForFieldType`, which narrows the offered list per field type (a `checkbox` only gets `isTruthy`/`isFalsy`, a `file` only gets `isEmpty`/`isNotEmpty`, and so on). Use these rather than re-deriving the rules inline.
 
 Precedence the consuming app must apply, in this order:
 
@@ -52,16 +89,17 @@ Settled decisions:
 
 - **A hidden field's Zod schema is exported unchanged.** `buildZodSchema` knows nothing about `visibleWhen`, so a `required` + hidden field still exports `z.string().min(1)`. The consumer must drop hidden fields from the resolver — the builder deliberately does not weaken the schema, because when the field *is* visible the requirement is real. Same coordinated-consumer arrangement as `logic.typeScript`.
 - **Visibility is editable even when `alwaysDisabled` is on** (the enable editor is not — it is hidden, as before). Hiding a read-only field is a legitimate combination.
-- `wouldCreateCycle` walks **both** edge kinds. With two condition types a cycle can span them (`A.visibleWhen → B`, `B.enableWhen → A`), and a checker that follows only one would not see it.
+- `wouldCreateCycle` walks **every** edge kind, not just conditions. A cycle can span condition and formula edges (`A.visibleWhen → B`, `B.formula → A`), and a checker that follows only one would not see it.
 - The candidate list in `LogicPanel` comes from `formSteps` only, so **a form-step field cannot condition on an intro-modal field** (or vice versa). Not a decision so much as an untouched limit — revisit if someone needs it.
 
 ## Commit conventions
 
 - Write commit messages **in Spanish**, present tense, imperative ("Agrega X", "Corrige Y", "Amplía Z") — matches the existing history style (`git log`).
 - Keep the subject line under ~72 chars and specific ("Agrega campo Archivo con presets de formatos" beats "Nuevo campo").
-- When the change is non-trivial, include a body (`git commit -m "subject" -m "body"`) explaining **the why and the touch points** — which files/actions/store shape changed, and any decisions that would be non-obvious from the diff. Someone reading `git show <sha>` should not need to re-read the code to understand the intent.
+- When the change is non-trivial, include a body explaining **the why and the touch points** — which files/actions/store shape changed, and any decisions that would be non-obvious from the diff. Someone reading `git show <sha>` should not need to re-read the code to understand the intent. On Windows, write the message to a file and use `git commit -F <file>`; PowerShell here-strings are unreliable through the tool layer.
 - Do **not** add `Co-Authored-By: Claude` or similar trailers unless the user explicitly asks — the existing history doesn't use them.
 - Prefer one commit per cohesive feature/decision. Split only when the parts are genuinely independent; don't split a single feature just because it touches many files.
+- **Stage by explicit path.** Never `git add -A` or `git add src` — the user frequently has unrelated work in progress, and a broad add has already swept their files into a commit once.
 - Line-ending noise: `.gitattributes` normalizes to LF, so `git status` should stay clean on Windows. If it doesn't, run `git add --renormalize .` once — don't stage random `M` lines as part of feature commits.
 
 ## Commands
@@ -75,7 +113,7 @@ Package manager is **bun** (`bun.lock` present) — use `bun install` / `bun add
 - `bun run format` — Biome format, write mode
 - `bun run preview` — preview production build
 
-There is no test runner configured yet. **Biome is the enforced linter/formatter** (2-space indent, double quotes, semicolons, 100-char line width, auto-organizes imports on check) — `eslint.config.js` exists but is not wired into an npm script, so prefer Biome conventions when in doubt.
+There is no test runner configured yet. **Biome is the enforced linter/formatter** (2-space indent, double quotes, semicolons, 100-char line width, auto-organizes imports on check) — `eslint.config.js` exists but is not wired into an npm script, so prefer Biome conventions when in doubt. `bun run build` occasionally exceeds a 2-minute tool timeout on this machine; that is a harness kill (exit 143), not a build failure — re-run with a longer timeout before reporting a problem.
 
 ## Architecture
 
@@ -83,27 +121,41 @@ The app is a visual, drag-and-drop **step-by-step form builder** ("Form Orchestr
 
 ### File layout conventions
 
-Components follow **atomic design**: `src/components/atoms|molecules|organisms/`, plus `src/components/layout/`. Panels live under `organisms/panels/`. Each component and hook gets its **own folder** with co-located files — `X/X.tsx`, `X/X.types.ts`, `X/X.constants.ts`, `X/X.utils.ts` (only the ones it needs). Hooks follow the same pattern in `src/hooks/useX/useX.ts`. Shared types live in `src/types/`, shared constants in `src/constants/`, and libs in `src/lib/<name>/<name>.ts`. When adding anything, match this shape rather than dropping a loose file in a shared folder.
+Components follow **atomic design**: `src/components/atoms|molecules|organisms/`, plus `src/components/layout/`. Panels live under `organisms/panels/`. Each component and hook gets its **own folder** with co-located files — `X/X.tsx`, `X/X.types.ts`, `X/X.constants.ts`, `X/X.utils.ts` (only the ones it needs). Hooks follow the same pattern in `src/hooks/useX/useX.ts`, libs in `src/lib/<name>/<name>.ts` with the same suffixes.
+
+`X.ts` should read as the module's public API — helpers, constants and types belong in the co-located files, not inline.
+
+**A co-located `X.types.ts` / `X.constants.ts` is private to its folder.** The moment anything outside that folder imports from it, the declaration becomes global and moves to `src/types/` or `src/constants/`. Both directions were audited to zero; keep it that way when adding code. Two corollaries learned while applying it:
+
+- When the leaking declaration drags its neighbours (a type that references sibling types, a constant that needs a private helper), **move the whole file** rather than splitting it — a partial move leaves `src/types` or `src/constants` importing from `src/lib`, which is worse than the original problem. That is why `types/formula.ts`, `types/exportForm.ts` and `types/payloadMapping.ts` are whole-file moves, and why `roundTo` lives unexported inside `constants/formula.ts`.
+- Whatever stays genuinely private stays put: `FieldSpec` in `baseTemplate`, `TopologicalResult` in `fieldGraph`, `SALDO_NETO`, `CONDITION_COPY`, the tokenizer regexes.
+
+The rule is **not enforced by tooling** — it was verified with throwaway audit scripts. A Biome `noRestrictedImports` pattern over `*.types` / `*.constants` would make it permanent; offered, not yet built.
+
+Known wart: `store/formStore.utils.ts` imports `findFieldById` back from `store/formStore.ts`, which imports the utils — a cycle that only works because function declarations are hoisted. Moving `findFieldById` down into the utils would fix it but ripples into the components that import it from the store.
 
 ### Pieces
 
-- **Setup wizard** (`src/components/organisms/SetupWizardModal/`, logic in `src/hooks/useSetupWizard/`): 2-step modal shown when `setupConfig.isComplete` is false. Step 1 picks `FormType` — `industria_comercio` loads `getIndustriaComercioTemplate()` (`src/lib/baseTemplate/baseTemplate.ts`) as the first step's rows; the other two types start from a single blank row. Step 2 asks whether an intro modal is needed and, if so, how many steps — this seeds `introModal.steps`. `DraftRecoveryModal` (`src/components/organisms/DraftRecoveryModal/`) runs before the wizard on mount if `loadDraft()` finds a saved draft.
-- **State** — single Zustand store, `src/store/formStore.ts` (`useFormStore`), typed by `src/types/formStoreTypes.ts` plus the domain type files split out of the old `storeTypes.ts`: `field.ts` (the field model), `formStructure.ts` (rows/steps), `setup.ts`, `placement.ts`, `ui.ts`, `store.ts`. Holds:
-  - `formSteps[]` — the main form is **multi-step**; each `FormStep` has `stepId`, `title`, optional `subtitle`, and its own `rows`.
-  - `introModal.steps[]` — same shape, for the intro modal.
+- **Setup wizard** (`src/components/organisms/SetupWizardModal/`, logic in `src/hooks/useSetupWizard/`): 2-step modal shown when `setupConfig.isComplete` is false. Step 1 picks `FormType` — `industria_comercio` loads `getIndustriaComercioFormTemplate()` and `getIndustriaComercioIntroTemplate()` (`src/lib/baseTemplate/`); the other two types start from a single blank row. Step 2 asks whether an intro modal is needed and, if so, how many steps — this seeds `introModal.steps`. `DraftRecoveryModal` (`src/components/organisms/DraftRecoveryModal/`) runs before the wizard on mount if `loadDraft()` finds a saved draft.
+- **ICA template** (`src/lib/baseTemplate/`): the eight steps of the autoliquidable, built from `FieldSpec` rows — Datos/Contribuyente, Base gravable (renglones 8–16), Actividades gravadas (the repeatable group), Impuesto a cargo (17–25), Deducciones/sanciones/anticipos (26–34), Totales (35, 36, 38), Pago voluntario (39, 40), Firmas/Contador-Revisor. Computed renglones carry `formula` + `alwaysDisabled`; `SALDO_NETO` is the shared subexpression behind the 33/34 a-cargo / a-favor pair, expressed as `max(neto, 0)` and `max(-(neto), 0)`.
+- **State** — single Zustand store, `src/store/formStore.ts` (`useFormStore`), typed by `src/types/formStoreTypes.ts` plus the domain type files: `field.ts`, `formStructure.ts`, `setup.ts`, `placement.ts`, `ui.ts`, `store.ts`. Constructors, canvas-wide walkers and template bootstrapping live in `formStore.utils.ts`; `formStore.constants.ts` holds `THEME_STORAGE_KEY` and the `NO_ROWS` / `NO_GROUPS` sentinels. Holds:
+  - `formSteps[]` — the main form is **multi-step**; each `FormStep` has `stepId`, `title`, optional `subtitle`, its own `rows`, and optional `groups`.
+  - `introModal.steps[]` — same shape minus `groups`.
   - `activeCanvas`: `{type: "formStep" | "introStep", stepId}` — which canvas is being edited.
-  - UI state: `selectedFieldId`, `isSidebarOpen`, `sidebarTab`, `isDarkMode` (persisted to `localStorage` under `form-orchestrator-theme`), `lastSavedAt`.
+  - UI state: `selectedFieldId`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `isDarkMode` (persisted to `localStorage` under `form-orchestrator-theme`), `lastSavedAt`.
   - `savedComponents` ("Almacén de Partes") and `setupConfig`.
-  - Selector helpers exported alongside: `getActiveRows`, `findFieldById`, `getAllFields`, `findRowContainingField`.
-  - Row/field mutations apply uniformly to whichever canvas holds the target id via `mapRowEverywhere`/`mapFieldEverywhere`, so one code path edits both form steps and intro-modal steps. Notable actions: `addFieldToRow`, `moveField` (reorder/move across rows, honoring a `beforeFieldId` insertion point), `removeField` (also clears any `enableWhen`/`visibleWhen` pointing at it), `updateField`, `updateFieldValidations/Styles/Logic/FileConfig`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`/`setFieldVisibleWhen`, `toggleFieldDependency`, `addRowToActiveCanvas`, `updateRowColumns`, `removeRow`, `addFormStep`/`removeFormStep`/`updateFormStepTitle`/`updateFormStepSubtitle` (and the `IntroModalStep` equivalents), `saveFieldAsComponent`/`addSavedComponentToRow`/`removeSavedComponent`, `restoreDraft`.
-- **Field model** (`CanvasField` in `src/types/field.ts`): `type`, `label`, `colSpan`, `validations`, `styles`, `logic`, plus optional `title`, `options[]` (toggle groups), `fileConfig`, `alwaysDisabled`, `enableWhen` and `visibleWhen` — both a `FieldCondition`, i.e. `{fieldId, operator, value}` with operators `equals | notEquals | greaterThan | lessThan | isEmpty | isNotEmpty | isTruthy | isFalsy`. See "Conditions" below. Field types come from `FIELD_TYPES` in `src/constants/fieldTypes.ts` (text, number, select, textarea, checkbox, calculated, file, toggle_group, radio_group).
+  - Selector helpers exported alongside: `getActiveRows`, `getActiveGroups`, `findFieldById`, `getAllFields`, `findRowContainingField`, `findRowById`.
+  - Row/field mutations apply uniformly to whichever canvas holds the target id via `mapRowEverywhere`/`mapFieldEverywhere`. Notable actions: `addFieldToRow`, `moveField`, `removeField` (also clears any `enableWhen`/`visibleWhen` pointing at it), `updateField`, `setFieldName`, `updateFieldValidations/Styles/Logic/FileConfig`, `updateFieldApiBinding`, `setFieldFormula`, `addFieldRule`/`updateFieldRule`/`removeFieldRule`/`reorderFieldRule`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`/`setFieldVisibleWhen`, `toggleFieldDependency`, `addRowToActiveCanvas`/`updateRowColumns`/`removeRow`, `addGroupToActiveStep`/`addRowToGroup`/`updateGroup`/`removeGroup`, the step actions for both canvases, `saveFieldAsComponent`/`addSavedComponentToRow`/`removeSavedComponent`, `restoreDraft`.
+  - **Selectors must return stable references.** Zustand reads them through `useSyncExternalStore`, which compares by identity, so a selector returning a fresh `[]` on every call causes "Maximum update depth exceeded". That is what the `NO_ROWS` / `NO_GROUPS` module-level constants are for — never inline an empty-array literal in a selector.
+- **Field model** (`CanvasField` in `src/types/field.ts`): `name` (unique technical slug, `src/lib/fieldName/`), `type`, `label`, `colStart`, `colSpan`, `validations`, `styles`, `logic`, plus optional `title`, `options[]`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `enableWhen` and `visibleWhen` — both a `FieldCondition` `{fieldId, operator, value}`. Operators: `equals | notEquals | greaterThan | lessThan | startsWith | endsWith | contains | matches | in | isEmpty | isNotEmpty | isTruthy | isFalsy`. `logic` is `{dependencies, typeScript, formula?, rules?}`. Field types come from `FIELD_TYPES` in `src/constants/fieldTypes.ts` — básicos (text, number, select, textarea, checkbox, calculated, file) and complejos (search_select, toggle_group, radio_group, checkbox_group).
 - **Grid**: `src/constants/grid.ts` — `GRID_BASE_COLUMNS = 16` is the default per-row column count; rows carry their own `columns` (clamped to `MIN_ROW_COLUMNS`…`MAX_ROW_COLUMNS`, 1–24) and shrinking a row clamps each field's `colSpan` to fit.
 - **Two-column layout** (`src/components/layout/AppLayout.tsx`):
-  - Left sidebar (`organisms/Sidebar/`): an icon rail (`SidebarTabRail`, includes the dark-mode toggle; clicking the active tab collapses the panel) over a tabbed panel — Campos, Atributos, Validaciones, Estilos, Lógica, Almacén (`FieldPalette` + `panels/AttributesPanel|ValidationsPanel|StylesPanel|LogicPanel|LibraryPanel`). `ConditionEditor` (driven by `src/hooks/useConditionEditor/`) edits `enableWhen` **and** `visibleWhen` — same component twice, told apart by its `kind` prop; `FileOptionsEditor` and `FieldOptionsEditor` handle type-specific config.
-  - Right canvas (`organisms/Canvas/Canvas.tsx`): grid drop targets (`@dnd-kit` `useDroppable` per row, one row = one grid). `CanvasTabs` switches `activeCanvas` across form steps and intro-modal steps with add/remove controls; `StepTitleEditor` edits the active step's title/subtitle; `RowColumnsMenu` changes a row's column count and `FieldResizeHandle` + `src/hooks/useFieldResize/` drag-resizes `colSpan`; `FieldContextMenu` (right-click, via `src/hooks/useFieldContextMenu/`) offers per-field actions. The header carries `SaveButton`, a "Ver JSON" toggle rendering `JsonPreviewCanvas` (live export preview, built from the `atoms/Json*` primitives), and "Exportar JSON". The intro-modal canvas renders inside a decorative fake-modal frame.
-  - Drag-and-drop wiring (palette → row, library component → row, canvas field → row) lives in `src/hooks/useDragAndDrop/`; `App.tsx` only wires `DndContext`/`DragOverlay`. Every palette drop creates the field directly — options are configured later, see "Options and `apiBinding`" below.
+  - Left sidebar (`organisms/Sidebar/`): an icon rail (`SidebarTabRail`, includes the dark-mode toggle; clicking the active tab collapses the panel) over a tabbed panel — `SidebarTab` is `fields | attributes | validations | styles | logic | apiMapping | library`, rendering `FieldPalette` + `panels/AttributesPanel|ValidationsPanel|StylesPanel|LogicPanel|ApiMappingPanel|LibraryPanel`. `LogicPanel` hosts `FormulaInput`, `FieldRulesEditor` and `ConditionEditor` — the last one twice, told apart by its `kind` prop. `FileOptionsEditor` and `FieldOptionsEditor` handle type-specific config.
+  - Right canvas (`organisms/Canvas/Canvas.tsx`): grid drop targets (`@dnd-kit` `useDroppable` per row, one row = one grid), laid out by `CanvasRowsGrid` which blocks consecutive rows of the same group into a `RepeatableGroupBand`. `CanvasTabs` switches `activeCanvas`; `StepTitleEditor` edits title/subtitle; `RowColumnsMenu` changes a row's column count and `FieldResizeHandle` + `src/hooks/useFieldResize/` drag-resizes `colSpan`; `FieldContextMenu` (right-click, via `src/hooks/useFieldContextMenu/`) offers per-field actions. The header carries `SaveButton`, a "Ver JSON" toggle rendering `JsonPreviewCanvas`, a payload-coverage view in `PayloadPreviewCanvas`, and "Exportar JSON". The intro-modal canvas renders inside a decorative fake-modal frame.
+  - Drag-and-drop wiring (palette → row, library component → row, canvas field → row) lives in `src/hooks/useDragAndDrop/`; `App.tsx` only wires `DndContext`/`DragOverlay`. Every palette drop creates the field directly — options are configured later, see "Options and `apiBinding`".
+- **Payload mapping** (`src/lib/payloadSchema/`, `src/lib/payloadMapping/`): `PAYLOAD_SCHEMA` is the hardcoded `DeclaracionIcaE` contract. `buildMappingTree` pairs every leaf with the field bound to it and flags type mismatches, orphan bindings and host-provided leaves; `PayloadPreviewCanvas` renders it.
 - **Persistence** (`src/hooks/useAutosave/`, `src/lib/persistence/persistence.ts`): autosaves to `localStorage` on an interval once setup is complete; `src/hooks/useKeyboardShortcuts/` binds Ctrl/Cmd+S to the same save. `loadDraft`/`clearDraft` back the recovery modal.
-- **Output** (`src/lib/exportForm/exportForm.ts`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, and `formSchema.steps[].rows[].fields[]` (with `colSpan`, `styles`, `validations.zodSchema` generated per-field by `src/lib/zodSchema/zodSchema.ts`, `logic`, `options`, `fileConfig`, `alwaysDisabled`, `enableWhen`, `visibleWhen`) plus `formSchema.gridBaseColumns`, into one downloadable JSON file — the shape documented in `docs/Project.md`.
+- **Output** (`src/lib/exportForm/`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, and `formSchema.steps[]` — each step with its `rows[].fields[]` (`colStart`, `colSpan`, `styles`, `validations.zodSchema` from `src/lib/zodSchema/`, `logic` including `formula` and `rules`, `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `enableWhen`, `visibleWhen`) plus `groups[]` (with `min`/`max`/`arrayPath` and a `buildGroupZodSchema` array schema) and `rows[].groupId` — plus `formSchema.gridBaseColumns`, into one downloadable JSON file. Field ids in conditions, rules and dependencies are **resolved to names** on the way out.
 
 ### Prescribed stack (from spec, already in package.json)
 
