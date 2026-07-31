@@ -1,9 +1,6 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { CanvasField } from "../../types/field";
 import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 import type { SetupConfig } from "../../types/setup";
-import { buildFieldGraph, topologicalOrder } from "../fieldGraph/fieldGraph";
-import type { TopologicalResult } from "../fieldGraph/fieldGraph.types";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
 import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
@@ -75,12 +72,6 @@ function mapFormStep(step: FormStep, names: Map<string, string>): ExportedStep {
   };
 }
 
-function buildEvaluationOrder(fields: CanvasField[], names: Map<string, string>): string[] {
-  const result: TopologicalResult = topologicalOrder(buildFieldGraph(fields));
-
-  return [...result.order, ...result.unresolved].map((id) => names.get(id) ?? id);
-}
-
 export function buildFormExport(
   formSteps: FormStep[],
   setupConfig: SetupConfig,
@@ -91,7 +82,6 @@ export function buildFormExport(
     ...introModalSteps.flatMap((step) => step.rows),
   ];
   const names: Map<string, string> = buildNameIndex(allRows);
-  const allFields: CanvasField[] = allRows.flatMap((row) => row.fields);
 
   return {
     projectMeta: {
@@ -115,7 +105,6 @@ export function buildFormExport(
     },
     formSchema: {
       gridBaseColumns: GRID_BASE_COLUMNS,
-      evaluationOrder: buildEvaluationOrder(allFields, names),
       steps: formSteps.map((step) => mapFormStep(step, names)),
     },
   };

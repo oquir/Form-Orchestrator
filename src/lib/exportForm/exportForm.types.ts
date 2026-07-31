@@ -92,7 +92,6 @@ export interface ExportedSetupConfig {
 
 export interface ExportedFormSchema {
   gridBaseColumns: number;
-  evaluationOrder: string[];
   steps: ExportedStep[];
 }
 
