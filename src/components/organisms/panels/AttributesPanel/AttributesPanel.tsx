@@ -1,3 +1,4 @@
+import { RICH_TEXT_FIELD_TYPE } from "../../../../constants/fieldTypes";
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
 import {
   findLabelFor,
@@ -17,6 +18,7 @@ import { FieldNameInput } from "../../../molecules/FieldNameInput/FieldNameInput
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
 import { LabelTargetSelect } from "../../../molecules/LabelTargetSelect/LabelTargetSelect";
+import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor";
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
 
@@ -24,6 +26,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
   const setSidebarTab = useFormStore((state) => state.setSidebarTab);
   const setFieldLabelFor = useFormStore((state) => state.setFieldLabelFor);
+  const setFieldContent = useFormStore((state) => state.setFieldContent);
   const activeRows = useFormStore(getActiveRows);
   const row = useFormStore((state) => findRowContainingField(state, field.id));
   const rowColumns = row?.columns ?? GRID_BASE_COLUMNS;
@@ -33,7 +36,13 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
   const isOptionBased: boolean = isOptionBasedField(field.type);
   const canEditOptions: boolean = allowsManualOptions(field);
   const isPresentational: boolean = isPresentationalField(field.type);
+  const isRichText: boolean = field.type === RICH_TEXT_FIELD_TYPE;
   const linkedLabel = findLabelFor(getAllFields(activeRows), field.id);
+  const labelFieldLabel: string = isRichText
+    ? "Nombre del bloque"
+    : isPresentational
+      ? "Texto"
+      : "Etiqueta";
 
   return (
     <div className="flex flex-col gap-4">
@@ -42,7 +51,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       <div className="flex flex-col gap-1">
         <LabeledInput
           id="field-label"
-          label={isPresentational ? "Texto" : "Etiqueta"}
+          label={labelFieldLabel}
           value={linkedLabel ? linkedLabel.label : field.label}
           disabled={linkedLabel !== null}
           onChange={(event) => updateField(field.id, { label: event.target.value })}
@@ -54,7 +63,15 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
         )}
       </div>
 
-      {isPresentational && (
+      {isRichText && (
+        <RichTextEditor
+          key={field.id}
+          value={field.content}
+          onChange={(content) => setFieldContent(field.id, content)}
+        />
+      )}
+
+      {isPresentational && !isRichText && (
         <LabelTargetSelect
           value={field.labelFor}
           candidates={labelTargetCandidates(getAllFields(activeRows), field.id)}

@@ -420,6 +420,9 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       return mapFieldEverywhere(state, fieldId, (field) => ({ ...field, name: unique }));
     }),
 
+  setFieldContent: (fieldId, content) =>
+    set((state) => mapFieldEverywhere(state, fieldId, (field) => ({ ...field, content }))),
+
   setFieldLabelFor: (labelId, targetFieldId) =>
     set((state) => {
       const applyTo = (rows: CanvasRow[]) =>

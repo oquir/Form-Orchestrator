@@ -12,6 +12,7 @@ import type {
 import type { FieldTypeDef } from "./fieldTypes";
 import type { FormStep, IntroModalState, RepeatableGroup } from "./formStructure";
 import type { CanvasTarget, DragPlacement, FieldPlacement } from "./placement";
+import type { RichTextContent } from "./richText";
 import type { FormType, SetupConfig } from "./setup";
 import type { SidebarTab } from "./ui";
 
@@ -69,6 +70,7 @@ export interface FormState {
   ) => void;
   setFieldName: (fieldId: string, name: string) => void;
   setFieldLabelFor: (labelId: string, targetFieldId: string | null) => void;
+  setFieldContent: (fieldId: string, content: RichTextContent) => void;
   setFieldEnableWhen: (fieldId: string, condition: FieldCondition | null) => void;
   setFieldVisibleWhen: (fieldId: string, condition: FieldCondition | null) => void;
   updateFieldApiBinding: (

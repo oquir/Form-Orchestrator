@@ -1,5 +1,6 @@
 import { ArrowDown2, Calculator, Check, Import, Magnifier } from "reicon-react";
 import { allowsManualOptions, isOptionBasedField } from "../../../lib/fieldOptions/fieldOptions";
+import { RichTextView } from "../../atoms/RichTextView/RichTextView";
 import { CATALOG_HINT_CLASSES, MOCK_CONTROL_CLASSES } from "./FieldPreviewControl.constants";
 import type { FieldPreviewControlProps } from "./FieldPreviewControl.types";
 
@@ -35,6 +36,8 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
   switch (field.type) {
     case "label":
       return null;
+    case "rich_text":
+      return <RichTextView content={field.content} />;
     case "toggle_group": {
       const options = field.options ?? [];
       return (

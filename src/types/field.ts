@@ -1,3 +1,5 @@
+import type { RichTextContent } from "./richText";
+
 export interface FieldValidations {
   required?: boolean;
   minLength?: number;
@@ -92,6 +94,7 @@ export interface CanvasField {
   visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
   labelFor?: string;
+  content?: RichTextContent;
 }
 
 export interface SavedComponent {

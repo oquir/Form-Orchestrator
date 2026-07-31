@@ -1,4 +1,22 @@
 import { z } from "zod";
+import { safeHref } from "../richText/richText.utils";
+
+const richTextLeafSchema = z
+  .object({
+    text: z.string(),
+    bold: z.boolean().optional(),
+    italic: z.boolean().optional(),
+    underline: z.boolean().optional(),
+    href: z.string().optional(),
+  })
+  .transform((leaf) => ({ ...leaf, href: safeHref(leaf.href) }));
+
+const richTextContentSchema = z.array(
+  z.object({
+    type: z.literal("paragraph"),
+    children: z.array(richTextLeafSchema),
+  }),
+);
 
 const fieldValidationsSchema = z.object({
   required: z.boolean().optional(),
@@ -95,6 +113,7 @@ const canvasFieldSchema = z.object({
   visibleWhen: fieldConditionSchema.optional(),
   apiBinding: apiBindingSchema.optional(),
   labelFor: z.string().optional(),
+  content: richTextContentSchema.optional(),
 });
 
 const canvasRowSchema = z.object({
