@@ -56,7 +56,9 @@ export function buildZodSchema(field: CanvasField): string {
       if (v.minLength !== undefined) schema += `.min(${v.minLength})`;
       if (v.maxLength !== undefined) schema += `.max(${v.maxLength})`;
       if (v.pattern) {
-        schema += `.regex(/${v.pattern}/${v.message ? `, { message: ${JSON.stringify(v.message)} }` : ""})`;
+        const source: string = JSON.stringify(v.pattern);
+        const message: string = v.message ? `, { message: ${JSON.stringify(v.message)} }` : "";
+        schema += `.regex(new RegExp(${source})${message})`;
       }
   }
 
