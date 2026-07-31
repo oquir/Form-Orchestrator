@@ -1,4 +1,4 @@
-import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "../../../lib/formula/formula.constants";
+import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "../../../constants/formula";
 
 export const FORMULA_TEXTAREA_CLASSES: string =
   "w-full rounded-md border border-border bg-field px-2 py-1 font-mono text-xs text-fg outline-none focus:border-brand-border";

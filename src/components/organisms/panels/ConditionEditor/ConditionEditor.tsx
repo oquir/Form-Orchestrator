@@ -1,9 +1,10 @@
+import { OPERATOR_LABELS } from "../../../../constants/conditions";
 import { useConditionEditor } from "../../../../hooks/useConditionEditor/useConditionEditor";
 import { ConditionActivationToggle } from "../../../molecules/ConditionActivationToggle/ConditionActivationToggle";
 import { ConditionFieldSelect } from "../../../molecules/ConditionFieldSelect/ConditionFieldSelect";
 import { ConditionOperatorSelect } from "../../../molecules/ConditionOperatorSelect/ConditionOperatorSelect";
 import { ConditionValueInput } from "../../../molecules/ConditionValueInput/ConditionValueInput";
-import { CONDITION_COPY, OPERATOR_LABELS } from "./ConditionEditor.constants";
+import { CONDITION_COPY } from "./ConditionEditor.constants";
 import type { ConditionEditorProps } from "./ConditionEditor.types";
 
 export function ConditionEditor({ field, otherFields, kind }: ConditionEditorProps) {

@@ -1,13 +1,6 @@
+import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "../../constants/formula";
 import type { Cursor, FormulaFunction, FormulaNode, FormulaToken } from "../../types/formula";
-import {
-  DIGIT,
-  FORMULA_AGGREGATES,
-  FORMULA_FUNCTIONS,
-  FORMULA_OPERATORS,
-  IDENT_PART,
-  IDENT_START,
-  WHITESPACE,
-} from "./formula.constants";
+import { DIGIT, FORMULA_OPERATORS, IDENT_PART, IDENT_START, WHITESPACE } from "./formula.constants";
 
 export function tokenize(source: string): FormulaToken[] {
   const tokens: FormulaToken[] = [];
@@ -174,9 +167,4 @@ export function parseExpression(cursor: Cursor): FormulaNode {
   }
 
   return left;
-}
-
-export function roundTo(value: number, decimals: number): number {
-  const factor: number = 10 ** Math.trunc(decimals);
-  return Math.round(value * factor) / factor;
 }

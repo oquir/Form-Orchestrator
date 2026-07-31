@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, Xmark } from "reicon-react";
+import { OPERATOR_LABELS } from "../../../../constants/conditions";
 import { useFieldRules } from "../../../../hooks/useFieldRules/useFieldRules";
 import {
   operatorNeedsValue,
@@ -12,7 +13,6 @@ import { ConditionOperatorSelect } from "../../../molecules/ConditionOperatorSel
 import { ConditionValueInput } from "../../../molecules/ConditionValueInput/ConditionValueInput";
 import { FormulaInput } from "../../../molecules/FormulaInput/FormulaInput";
 import { RuleEffectRow } from "../../../molecules/RuleEffectRow/RuleEffectRow";
-import { OPERATOR_LABELS } from "../ConditionEditor/ConditionEditor.constants";
 import {
   ADD_LINK_CLASSES,
   BASE_FORMULA_HINT,

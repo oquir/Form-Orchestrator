@@ -1,3 +1,4 @@
+import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "../../constants/formula";
 import type {
   Cursor,
   FormulaNode,
@@ -5,7 +6,6 @@ import type {
   FormulaToken,
   FormulaValidation,
 } from "../../types/formula";
-import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "./formula.constants";
 import { parseExpression, peek, tokenize } from "./formula.utils";
 
 export function parseFormula(source: string): FormulaParseResult {

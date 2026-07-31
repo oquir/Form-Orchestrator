@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
+import { INDUSTRIA_COMERCIO_FORM_STEPS } from "../constants/baseTemplate";
 import { GRID_BASE_COLUMNS } from "../constants/grid";
 import {
   getIndustriaComercioFormTemplate,
   getIndustriaComercioIntroTemplate,
 } from "../lib/baseTemplate/baseTemplate";
-import { INDUSTRIA_COMERCIO_FORM_STEPS } from "../lib/baseTemplate/baseTemplate.constants";
 import { collectFieldNames, slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import type { CanvasField, FieldOption } from "../types/field";
 import type {
