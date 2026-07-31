@@ -1,3 +1,4 @@
+import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
 import { DependencyCheckboxRow } from "../../../molecules/DependencyCheckboxRow/DependencyCheckboxRow";
@@ -12,8 +13,24 @@ export function LogicPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
 
   const allFields: CanvasField[] = getAllFields(formSteps.flatMap((step) => step.rows));
-  const otherFields: CanvasField[] = allFields.filter((candidate) => candidate.id !== field.id);
+  const otherFields: CanvasField[] = allFields.filter(
+    (candidate) => candidate.id !== field.id && !isPresentationalField(candidate.type),
+  );
   const isAlwaysDisabled = Boolean(field.alwaysDisabled);
+
+  // Un campo presentacional no tiene valor: se puede ocultar, pero no habilitar,
+  // ni calcular, ni observar desde una regla.
+  if (isPresentationalField(field.type)) {
+    return (
+      <div className="flex flex-col gap-4">
+        <ConditionEditor field={field} otherFields={otherFields} kind="visible" />
+        <p className="text-xs text-fg-subtle">
+          Este campo solo muestra contenido, así que no tiene habilitación condicional, fórmula ni
+          reglas.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

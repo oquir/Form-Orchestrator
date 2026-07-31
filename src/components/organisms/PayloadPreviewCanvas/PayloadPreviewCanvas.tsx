@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
 import { JSON_VIEW_DARK_THEME, JSON_VIEW_LIGHT_THEME } from "../../../constants/jsonViewTheme";
 import { PAYLOAD_SCHEMA } from "../../../constants/payloadSchema";
+import { isPresentationalField } from "../../../lib/fieldKind/fieldKind";
 import {
   buildMappingTree,
   findOrphanBindings,
@@ -26,7 +27,9 @@ export function PayloadPreviewCanvas() {
     ...introSteps.flatMap((step) => step.rows),
   ];
 
-  const allFields: CanvasField[] = getAllFields(allRows);
+  const allFields: CanvasField[] = getAllFields(allRows).filter(
+    (field) => !isPresentationalField(field.type),
+  );
   const mappingTree: MappingNode = buildMappingTree(PAYLOAD_SCHEMA, allFields);
   const orphanBindings: OrphanBinding[] = findOrphanBindings(PAYLOAD_SCHEMA, allFields);
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PAYLOAD_SCHEMA } from "../../../../constants/payloadSchema";
+import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import { fieldMatchesSchemaType } from "../../../../lib/payloadMapping/payloadMapping";
 import { flattenSelectableLeaves, resolveLeaf } from "../../../../lib/payloadSchema/payloadSchema";
@@ -17,6 +18,15 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const [isAskingOptions, setIsAskingOptions] = useState<boolean>(false);
   const group: RepeatableGroup | null = useFormStore((state) => findGroupForField(state, field.id));
   const binding = field.apiBinding;
+
+  if (isPresentationalField(field.type)) {
+    return (
+      <p className="text-xs text-fg-subtle">
+        Este campo solo muestra contenido: no envía ningún valor, así que no se mapea al payload.
+      </p>
+    );
+  }
+
   const isExcluded = binding?.kind === "excluded";
   const path = binding?.kind === "mapped" ? binding.path : "";
   const awaitsGroupArrayPath: boolean = group !== null && group.arrayPath === undefined;

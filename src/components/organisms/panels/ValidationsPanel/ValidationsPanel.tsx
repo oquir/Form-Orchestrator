@@ -1,4 +1,5 @@
-﻿import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
+﻿import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
+import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldValidations } from "../../../../types/field";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
@@ -12,6 +13,14 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
   const v: FieldValidations = field.validations;
   const isNumeric = field.type === "number" || field.type === "calculated";
   const isTextLike = field.type === "text" || field.type === "textarea" || field.type === "select";
+
+  if (isPresentationalField(field.type)) {
+    return (
+      <p className="text-xs text-fg-subtle">
+        Este campo solo muestra contenido: no recibe un valor, así que no hay nada que validar.
+      </p>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

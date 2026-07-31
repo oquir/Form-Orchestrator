@@ -1,5 +1,6 @@
 import type { CanvasField, FieldOption, FieldValidations } from "../../types/field";
 import type { RepeatableGroup } from "../../types/formStructure";
+import { isPresentationalField } from "../fieldKind/fieldKind";
 import {
   exportableOptions,
   isMultiValueField,
@@ -8,6 +9,7 @@ import {
 
 export function buildGroupZodSchema(group: RepeatableGroup, fields: CanvasField[]): string {
   const shape: string = fields
+    .filter((field) => !isPresentationalField(field.type))
     .map((field) => `${JSON.stringify(field.name)}: ${buildZodSchema(field)}`)
     .join(", ");
 
