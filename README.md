@@ -2,14 +2,17 @@
 
 Constructor visual de formularios paso a paso ("step-by-step form builder") con drag-and-drop, que compila toda su configuración a un único documento JSON estructurado.
 
+El caso de uso que guía el diseño es el **autoliquidable de Industria y Comercio (ICA)**: ocho pasos, cálculos encadenados entre renglones y un bloque repetible de actividades económicas. La plantilla de ICA viene armada por defecto.
+
 ## Stack
 
-- **React 19** + **TypeScript** + **Vite**
-- **Zustand** para el estado global (canvas, steps, campos)
-- **@dnd-kit** para drag-and-drop (paleta → fila, Almacén de Partes → fila)
-- **react-hook-form** + **zod** para la validación de los campos generados (los schemas Zod se generan dinámicamente por campo y se guardan como string, ej. `"z.number().min(0)"`)
-- **Tailwind v4** (vía `@tailwindcss/vite`) para todo el estilado — sin CSS-in-JS
+- **React 19** + **TypeScript** + **Vite 8**
+- **Zustand 5** para el estado global (canvas, steps, campos, grupos)
+- **@dnd-kit** para drag-and-drop (paleta → fila, Almacén de Partes → fila, campo → fila)
+- **react-hook-form** + **zod 4** para la validación de los campos generados (los schemas Zod se generan dinámicamente por campo y se guardan como string, ej. `"z.number().min(0)"`)
+- **Tailwind v4** (vía `@tailwindcss/vite`) para todo el estilado — sin CSS-in-JS. Modo oscuro por clase, con tokens de tema en `src/index.css`
 - **uuid** para generar ids de campos/filas/steps
+- **reicon-react** para íconos
 - **Biome** como linter/formatter (2 espacios, comillas dobles, semicolons, 100 cols, organiza imports)
 
 Package manager: **bun**. No usar npm/yarn/pnpm.
@@ -26,61 +29,123 @@ bun run format    # Biome format --write
 bun run preview   # preview del build de producción
 ```
 
-No hay test runner configurado todavía.
+No hay test runner configurado, y no se va a agregar por ahora. La verificación se hace con scripts `bun run` desechables.
 
 ## Arquitectura
 
 ### Estado
 
-Un único store de Zustand, `src/store/formStore.ts` (`useFormStore`). Contiene:
+Un único store de Zustand, `src/store/formStore.ts` (`useFormStore`), con los constructores y recorridos en `formStore.utils.ts`. Contiene:
 
-- `formSteps`: los steps del formulario principal, cada uno con `stepId`, `title` (obligatorio), `subtitle` (opcional) y `rows` (grid de 12 columnas).
-- `introModal.steps`: steps de un modal introductorio opcional, con la misma forma (`title` obligatorio, `subtitle` opcional).
+- `formSteps`: los steps del formulario principal, cada uno con `stepId`, `title`, `subtitle` opcional, sus `rows` y sus `groups` opcionales.
+- `introModal.steps`: steps de un modal introductorio opcional, con la misma forma pero **sin** grupos.
 - `activeCanvas`: qué canvas se está editando (`{ type: "formStep", stepId }` o `{ type: "introStep", stepId }`).
-- `selectedFieldId`, `savedComponents` (Almacén de Partes), `setupConfig`, `isSidebarOpen`, `sidebarTab`, `isDarkMode`.
+- `selectedFieldId`, `savedComponents` (Almacén de Partes), `setupConfig`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `isDarkMode`, `lastSavedAt`.
 
-Las mutaciones de campos/filas (`addFieldToRow`, `updateField`, `updateFieldValidations/Styles/Logic`, `toggleFieldDependency`, `addRowToActiveCanvas`, `removeRow`, `addFormStep`/`addIntroModalStep`, etc.) se aplican de forma uniforme sobre cualquier canvas que contenga el id objetivo vía `mapRowEverywhere`/`mapFieldEverywhere`, así el mismo código edita tanto el formulario principal como los steps del intro modal.
+Las mutaciones de campos y filas se aplican de forma uniforme sobre cualquier canvas que contenga el id objetivo, vía `mapRowEverywhere`/`mapFieldEverywhere`, así el mismo código edita tanto el formulario principal como los steps del modal.
 
-### Componentes — Atomic Design (3 capas)
+> **Los selectores deben devolver referencias estables.** Zustand los lee a través de `useSyncExternalStore`, que compara por identidad: un selector que devuelve un `[]` nuevo en cada llamada provoca "Maximum update depth exceeded". Para eso están las constantes `NO_ROWS`/`NO_GROUPS` en `formStore.constants.ts` — nunca poner un literal de arreglo vacío dentro de un selector.
 
-`src/components/` sigue una organización de Atomic Design con **atoms → molecules → organisms** (sin capas `templates`/`pages`; `App.tsx` es el punto de entrada que compone todo).
+### Grilla y posicionamiento
 
-- **`atoms/`** — primitivas de UI sin lógica de negocio: `Button` (variantes primary/secondary/ghost), `Input`, `Textarea`, `Label`, `Checkbox`, `FieldTypeBadge`, `IconButton`, `CodeBlock`.
-- **`molecules/`** — combinaciones reutilizables de átomos: `LabeledInput`, `LabeledTextarea`, `LabeledRangeSlider`, `TwoColumnFieldGroup`, `ColorPickerField`, `SaveFieldForm` (form "guardar como componente", compartido entre Canvas y el Almacén), `SavedComponentListItem`, `DependencyCheckboxRow`, `GeneratedSchemaPreview`, `SelectableOptionCard`, `BinaryChoiceToggle`, `WizardFooterActions`, `ModalActions`, `ModalShell`, `PanelHeader`, `SidebarTabRail`, `StepTabChip`, `DashedAddButton`, `TabButtonGroup`, `SaveButton`, `CanvasFieldChip`, `PaletteChip`.
-- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasTabs`, `FieldContextMenu`, `FieldPalette`, `Sidebar`, `DraftRecoveryModal`, `SetupWizardModal`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `LibraryPanel`) — estos últimos son neutrales respecto a "sidebar" y los reutilizan tanto `Sidebar` como el `FieldContextMenu` del Canvas.
-- **`layout/AppLayout.tsx`** — shell de dos columnas (sidebar colapsable + canvas), fuera de la jerarquía atómica porque es el layout raíz, no un componente de UI reutilizable.
+`GRID_BASE_COLUMNS = 16` es el ancho por defecto de una fila, pero cada fila lleva su propio `columns` (entre 1 y 24). Cada campo guarda `colStart` y `colSpan`, y **ambos viajan en el JSON exportado**, así que el consumidor tiene que leerlos o el layout no sobrevive el viaje.
+
+Las reglas viven en `src/lib/rowLayout/` como funciones puras. Tres decisiones asentadas:
+
+- **Las colisiones se resuelven por imán, nunca empujando.** Si el rango destino pisa a un vecino, la vista previa se corre al hueco válido más cercano; si no entra en ninguno, se pone roja y el drop se rechaza. Un campo que no estás arrastrando nunca se mueve.
+- **Los huecos se preservan.** Borrar o mover un campo deja su hueco; toda posición es explícita.
+- **Una fila es una línea visual.** Una fila llena rechaza el campo en vez de desbordar a una segunda línea. Es una restricción deliberada, no un bug.
+
+Manteniendo **Shift** mientras arrastrás elegís la columna de inicio; con **Shift+Ctrl** además definís el ancho con el puntero.
+
+### Componentes — Atomic Design
+
+`src/components/` sigue **atoms → molecules → organisms**, más `layout/`. Cada componente y hook vive en su **propia carpeta** con archivos co-locados: `X/X.tsx`, `X/X.types.ts`, `X/X.constants.ts`, `X/X.utils.ts` (solo los que necesite). Las libs siguen el mismo patrón en `src/lib/<nombre>/`.
+
+> Un `X.types.ts` o `X.constants.ts` es **privado a su carpeta**. En cuanto algo de afuera lo importa, la declaración pasa a `src/types/` o `src/constants/`. Ambas direcciones están auditadas en cero.
+
+- **`atoms/`** — primitivas sin lógica de negocio: `Button`, `Input`, `TextArea`, `Label`, `Checkbox`, `CodeBlock`, `IconButton`, `FieldTypeBadge`, `FieldDragHandle`, `FieldResizeHandle`, `DashedAddButton`, `ModalShell`, `ModalActions`, `TwoColumnFieldGroup`, `WizardFooterActions`, `RichTextView`.
+- **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledTextarea`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `FormulaInput`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `ConditionActivationToggle`, `DependencyCheckboxRow`, `GeneratedSchemaPreview`, `SaveFieldForm`, `SavedComponentListItem`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`.
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `ApiMappingPanel`, `LibraryPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`).
+- **`layout/AppLayout.tsx`** — shell de dos columnas, fuera de la jerarquía atómica porque es el layout raíz.
 
 ### Layout de dos columnas
 
-- **Sidebar izquierdo** (`organisms/Sidebar.tsx`): un rail vertical de íconos (`SidebarTabRail`) para elegir tab (Campos/Atributos/Validaciones/Estilos/Lógica/Almacén) más el panel correspondiente. No hay botón dedicado para mostrar/ocultar el panel: al hacer clic en un ícono se abre esa sección, y al hacer clic de nuevo sobre la sección ya activa y abierta, el panel se cierra (toggle). El rail (ancho fijo) siempre queda visible aunque el panel esté colapsado.
-- **Canvas derecho** (`organisms/Canvas.tsx`): grid de 12 columnas por fila (`@dnd-kit` `useDroppable`), tabs para cambiar entre steps del formulario y del intro modal (`CanvasTabs`), editor de título/subtítulo del step activo, controles para agregar/quitar filas y steps, y un menú contextual (`FieldContextMenu`) para editar un campo sin perder el foco del canvas.
+- **Sidebar izquierdo** (`organisms/Sidebar/`): un rail vertical de íconos (`SidebarTabRail`, incluye el toggle de modo oscuro) más el panel correspondiente. Las pestañas son Campos, Atributos, Validaciones, Estilos, Lógica, Mapeo API y Almacén. Al hacer clic sobre la pestaña ya activa, el panel se colapsa; el rail siempre queda visible.
+- **Canvas derecho** (`organisms/Canvas/`): una grilla por fila (`@dnd-kit` `useDroppable`), tabs para cambiar entre steps del formulario y del modal, editor de título/subtítulo, control de columnas por fila, redimensionado de campos por arrastre y menú contextual por campo. El encabezado trae el botón de guardar, "Ver JSON" (`JsonPreviewCanvas`, vista previa en vivo del export), la vista de cobertura del contrato (`PayloadPreviewCanvas`) y "Exportar JSON".
 
-El wiring de drag-and-drop (paleta → fila, Almacén → fila) vive en el `DndContext`/`handleDragEnd` de `App.tsx`.
+El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; `App.tsx` solo arma el `DndContext`/`DragOverlay`.
+
+### Tipos de campo
+
+Se declaran en `FIELD_TYPES` (`src/constants/fieldTypes.ts`) y se agrupan por categoría, que es lo que dibuja la paleta:
+
+- **Básicos** — `text`, `number`, `select`, `textarea`, `checkbox`, `calculated`, `file`.
+- **Complejos** — `search_select`, `toggle_group`, `radio_group`, `checkbox_group`.
+- **Contenido** — `label`, `rich_text`.
+
+`checkbox` y `checkbox_group` son tipos distintos a propósito: el primero es un booleano único, el segundo es multi-selección con `options[]`.
+
+### Campos presentacionales
+
+Los tipos de la categoría Contenido **no reciben ningún valor**: solo muestran texto. Conservan estilos, tamaño, posición y visibilidad condicional; no tienen validaciones, no se mapean al payload, no generan schema Zod y no aparecen como candidatos de condición ni de fórmula. El predicado es `isPresentationalField` (`src/lib/fieldKind/`).
+
+- **`label`** — una etiqueta suelta que puede **ligarse a un campo** vía `labelFor`. El campo ligado deja de mostrar su propia etiqueta. La relación es 1:1 y se limpia sola si borrás el campo destino.
+- **`rich_text`** — un bloque de texto con negrita, cursiva, subrayado y enlaces. **El contenido se guarda estructurado, no como HTML**, así el consumidor lo pinta con componentes y nunca necesita `dangerouslySetInnerHTML`. El serializador funciona como sanitizador: recorre el DOM con lista blanca, y los enlaces solo admiten `http`, `https` y `mailto`.
+
+### Grupos repetibles
+
+Un grupo repetible es una **marca sobre la fila** (`CanvasRow.groupId`), no un contenedor anidado. Gracias a eso el drag-and-drop, el redimensionado y todas las reglas de posicionamiento siguen funcionando dentro del grupo sin ningún cambio: los campos de una actividad se mueven y reordenan libremente.
+
+Cada grupo lleva `min`, `max` y un `arrayPath` que lo ata a un arreglo del contrato (por defecto 1 a 15 sobre `actividades`, la regla de ICA, pero es parametrizable). Sacar un campo del grupo limpia su mapeo, porque una ruta dentro del item no significa nada afuera.
+
+### Fórmulas y reglas
+
+`src/lib/formula/` implementa un pequeño lenguaje aritmético propio — tokenizador más descenso recursivo, **sin `eval`**. Funciones: `abs`, `min`, `max`, `sum`, `round`, `floor`, `ceil`. Agregaciones sobre un grupo repetible: `sumOf(campo)` y `countOf(campo)`.
+
+Además de la fórmula, un campo puede llevar **reglas** (`FieldRule`): un conjunto de condiciones y los efectos que se aplican si se cumplen (una fórmula o un valor constante).
+
+`src/lib/fieldGraph/` unifica **seis** fuentes de dependencias en un solo grafo —`visibleWhen`, `enableWhen`, las condiciones de las reglas, las referencias dentro de las fórmulas de las reglas, las de `logic.formula` y `logic.dependencies`— y detecta ciclos, que es lo que impide armar un cálculo circular desde la interfaz.
+
+### Condiciones
+
+Cada campo lleva dos condiciones independientes: `visibleWhen` decide si **se dibuja**, `enableWhen` si es **editable**. El orden de precedencia que debe aplicar el consumidor es: si `visibleWhen` da falso el campo no se renderiza ni se valida; si no, `alwaysDisabled` lo deja de solo lectura; si no, `enableWhen` decide si va deshabilitado.
+
+### Mapeo al payload
+
+`PAYLOAD_SCHEMA` (`src/constants/payloadSchema.ts`) es el contrato real de `DeclaracionIcaE`. Cada campo se marca como **mapeado** a una hoja del contrato, **excluido** del payload, o queda sin definir. `PayloadPreviewCanvas` muestra la cobertura: qué hojas están cubiertas, cuáles no, y qué campos apuntan a rutas que ya no existen.
+
+Los campos con opciones solo admiten opciones escritas a mano **cuando están excluidos del payload**. Si están mapeados, las opciones las inyecta en tiempo de ejecución el aplicativo receptor, consultando el catálogo que corresponde a la ruta.
 
 ### Persistencia
 
-`src/hooks/useAutosave.ts` + `src/lib/persistence.ts`: autoguarda el store en `localStorage` cada 5 minutos una vez completado el setup. `DraftRecoveryModal` ofrece restaurar o descartar un borrador guardado al iniciar.
+`src/hooks/useAutosave/` + `src/lib/persistence/`: autoguarda el store en `localStorage` cada 3 minutos una vez completado el setup, y `Ctrl/Cmd+S` hace lo mismo. `DraftRecoveryModal` ofrece restaurar o descartar el borrador al iniciar. El borrador se **valida con Zod** antes de usarse: si no cuadra, se descarta en vez de corromper el estado.
 
 ### Setup inicial
 
-`organisms/SetupWizardModal.tsx`: modal de 2 pasos mostrado cuando `setupConfig.isComplete` es `false`. Paso 1 elige el `FormType` (`industria_comercio` carga una plantilla base desde `src/lib/baseTemplate.ts`; los otros tipos arrancan con una fila vacía). Paso 2 pregunta si hace falta un modal introductorio y, de ser así, cuántos steps tiene.
+`organisms/SetupWizardModal/`: modal de 2 pasos cuando `setupConfig.isComplete` es `false`. El paso 1 elige el `FormType` — `industria_comercio` carga la plantilla completa de ocho pasos desde `src/lib/baseTemplate/`; los otros tipos arrancan con una fila vacía. El paso 2 pregunta si hace falta un modal introductorio y cuántos steps tiene.
 
 ### Exportación
 
-`src/lib/exportForm.ts` (`downloadFormExport`/`buildFormExport`) serializa `projectMeta`, `setupConfig.introModal` y `formSchema.steps[].rows[].fields[]` (con `colSpan`, `styles`, `validations.zodSchema` generado por `src/lib/zodSchema.ts`, y `logic`) en un único JSON descargable. Cada step (formulario e intro modal) exporta `title` y, si existe, `subtitle`.
+`src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.
+
+Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (incluidas `formula` y `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `enableWhen` y `visibleWhen`.
+
+Dos detalles del contrato:
+
+- Los ids de campo en condiciones, reglas, dependencias y `labelFor` salen **resueltos a nombre**, así el consumidor no necesita el mapa de uuids.
+- `validations.zodSchema` es **opcional**: los campos presentacionales lo omiten, y su ausencia es cómo el consumidor sabe que ahí no hay nada que validar.
 
 ## Gaps conocidos / no implementado
 
-- No hay editor de código estilo Monaco para la tab de Lógica — `LogicPanel` edita `logic.typeScript` como string plano. La activación condicional sí está implementada aparte (`enableWhen` + `ConditionEditor`); `logic.dependencies` sigue siendo una lista de toggles de field-id.
-- No hay test runner configurado, y no se va a agregar por ahora: el proyecto es demasiado volátil como para justificarlo.
-- No hay versionado de schema en el draft de `localStorage`; si cambia la forma del store, los borradores viejos pueden romperse en silencio.
+- No hay editor de código estilo Monaco para la tab de Lógica — `LogicPanel` edita `logic.typeScript` como string plano. Todo el resto de esa pestaña (fórmula, reglas, condiciones) sí tiene interfaz.
+- `logic.typeScript` se exporta como string crudo; el consumidor necesita `new Function()`/`eval` para ejecutarlo. **Esto define el límite de confianza del archivo**: cualquiera que le pueda entregar un JSON al consumidor obtiene ejecución de código en él. Es una decisión coordinada, no una restricción de API pública.
+- No hay versionado de schema en el borrador de `localStorage`; si cambia la forma del store, los borradores viejos se descartan al cargar. Se pierde el trabajo guardado, en silencio.
+- **Renglón 35 (`valor_a_pagar`) no tiene fórmula**, así que la cadena de liquidación se corta ahí: el renglón 33 calcula un total que el 38 nunca recoge. Falta definir de dónde sale.
+- Falta **`dataSource`** en el contrato: el consumidor tiene que inferir de `apiBinding.path` qué catálogo alimenta cada select. Relacionado: `FieldOption.id` es un uuid, así que una opción escrita a mano no tiene id de catálogo que enviar.
+- Un campo del formulario no puede condicionar contra un campo del modal introductorio: la lista de candidatos sale solo de `formSteps`.
+- `validations.pattern` no se valida donde se escribe. Ya no puede ejecutar nada, pero una expresión regular inválida hace fallar la construcción del schema del lado del consumidor.
 
-### Gaps frente al contrato de la API de Declaración de ICA
+---
 
-El payload real (`DeclaracionIcaE`) es un objeto **anidado** por bloques (`contribuyente`, `baseGravable`, `actividades[]`, `impuestoACargo`, `ajusteDeclaracion`, `totalDeclaracion`, `declarante`, `responsableLegal`). El builder todavía no puede expresar tres cosas que ese contrato necesita:
-
-- **Grupos repetibles.** `actividades` es un array de `{idActividad, ingresoGravado, tarifaXMil, valorImpuestoActividad}` que el usuario final agrega N veces. El modelo `rows → fields` no tiene noción de repetición, así que hoy no hay forma de representarlo.
-- **Ruta destino por campo.** El export es plano (`fields[].fieldId` es un uuid) y no dice a qué propiedad de la API corresponde cada campo — falta algo tipo `apiPath` (`"baseGravable.totalIngresosGravables"`), o bien resolver el mapeo entero del lado del consumer.
-- **Opciones para `select`.** Buena parte del contrato son catálogos (`idTipoDocumento`, `idCiudad`, `idActividad`, `idTipoSancion`, `idTipoRepresentante`, …) que se llenan desde endpoints. Sólo `toggle_group` y `radio_group` tienen `options[]`; el tipo `select` no tiene ni opciones estáticas ni forma de apuntar a una fuente remota.
-
-`docs/Project.md` (en español) es la especificación de producto original — sigue siendo la referencia para la forma del JSON destino y cualquier detalle no implementado; conviene revisarla antes de agregar features para que la estructura coincida con el modelo de datos previsto.
+`CLAUDE.md` documenta las decisiones de diseño y las razones detrás de ellas, con más profundidad que este archivo. `docs/Project.md` (en español) es la especificación de producto original — sigue siendo la referencia para la forma del JSON destino y cualquier detalle no implementado.
