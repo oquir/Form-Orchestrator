@@ -94,6 +94,7 @@ const canvasFieldSchema = z.object({
   enableWhen: fieldConditionSchema.optional(),
   visibleWhen: fieldConditionSchema.optional(),
   apiBinding: apiBindingSchema.optional(),
+  labelFor: z.string().optional(),
 });
 
 const canvasRowSchema = z.object({

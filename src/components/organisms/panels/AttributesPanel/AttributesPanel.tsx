@@ -1,17 +1,26 @@
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
+import { isPresentationalField, labelTargetCandidates } from "../../../../lib/fieldKind/fieldKind";
 import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
-import { findRowContainingField, useFormStore } from "../../../../store/formStore";
+import {
+  findRowContainingField,
+  getActiveRows,
+  getAllFields,
+  useFormStore,
+} from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
 import { FieldNameInput } from "../../../molecules/FieldNameInput/FieldNameInput";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
+import { LabelTargetSelect } from "../../../molecules/LabelTargetSelect/LabelTargetSelect";
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
   const setSidebarTab = useFormStore((state) => state.setSidebarTab);
+  const setFieldLabelFor = useFormStore((state) => state.setFieldLabelFor);
+  const activeRows = useFormStore(getActiveRows);
   const row = useFormStore((state) => findRowContainingField(state, field.id));
   const rowColumns = row?.columns ?? GRID_BASE_COLUMNS;
   const maxSpan = row
@@ -19,6 +28,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
     : rowColumns;
   const isOptionBased: boolean = isOptionBasedField(field.type);
   const canEditOptions: boolean = allowsManualOptions(field);
+  const isPresentational: boolean = isPresentationalField(field.type);
 
   return (
     <div className="flex flex-col gap-4">
@@ -26,10 +36,18 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
 
       <LabeledInput
         id="field-label"
-        label="Etiqueta"
+        label={isPresentational ? "Texto" : "Etiqueta"}
         value={field.label}
         onChange={(event) => updateField(field.id, { label: event.target.value })}
       />
+
+      {isPresentational && (
+        <LabelTargetSelect
+          value={field.labelFor}
+          candidates={labelTargetCandidates(getAllFields(activeRows), field.id)}
+          onChange={(targetFieldId) => setFieldLabelFor(field.id, targetFieldId)}
+        />
+      )}
 
       <FieldNameInput key={field.id} field={field} />
 

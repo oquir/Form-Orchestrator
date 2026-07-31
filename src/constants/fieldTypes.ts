@@ -10,6 +10,8 @@ export const OPTION_BASED_FIELD_TYPES: string[] = [
 
 export const MULTI_VALUE_FIELD_TYPES: string[] = ["checkbox_group"];
 
+export const PRESENTATIONAL_FIELD_TYPES: string[] = ["label"];
+
 export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "text", label: "Texto", category: "basico" },
   { type: "number", label: "Número", category: "basico" },
@@ -22,4 +24,5 @@ export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "toggle_group", label: "Toggle Buttons", category: "complejo" },
   { type: "radio_group", label: "Radio Buttons", category: "complejo" },
   { type: "checkbox_group", label: "Checkbox Group", category: "complejo" },
+  { type: "label", label: "Etiqueta", category: "contenido" },
 ];

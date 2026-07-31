@@ -361,6 +361,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
               ...field,
               enableWhen: field.enableWhen?.fieldId === fieldId ? undefined : field.enableWhen,
               visibleWhen: field.visibleWhen?.fieldId === fieldId ? undefined : field.visibleWhen,
+              labelFor: field.labelFor === fieldId ? undefined : field.labelFor,
               logic: {
                 ...field.logic,
                 rules: pruneRulesReferencing(field.logic.rules, fieldId),
@@ -417,6 +418,31 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       const unique: string = uniqueFieldName(slug, allFieldNames(state, fieldId));
 
       return mapFieldEverywhere(state, fieldId, (field) => ({ ...field, name: unique }));
+    }),
+
+  setFieldLabelFor: (labelId, targetFieldId) =>
+    set((state) => {
+      const applyTo = (rows: CanvasRow[]) =>
+        rows.map((row) => ({
+          ...row,
+          fields: row.fields.map((field) => {
+            if (field.id === labelId) {
+              return { ...field, labelFor: targetFieldId ?? undefined };
+            }
+
+            const stealsTarget: boolean =
+              targetFieldId !== null && field.labelFor === targetFieldId;
+
+            return stealsTarget ? { ...field, labelFor: undefined } : field;
+          }),
+        }));
+
+      return {
+        formSteps: state.formSteps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+        introModal: {
+          steps: state.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+        },
+      };
     }),
   setFieldEnableWhen: (fieldId, condition) =>
     set((state) =>

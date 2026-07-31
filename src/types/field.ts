@@ -91,6 +91,7 @@ export interface CanvasField {
   enableWhen?: FieldCondition;
   visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
+  labelFor?: string;
 }
 
 export interface SavedComponent {
