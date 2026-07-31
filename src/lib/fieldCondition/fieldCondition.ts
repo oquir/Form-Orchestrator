@@ -1,21 +1,9 @@
 import type { ConditionOperator } from "../../types/field";
-
-const OPERATORS_WITHOUT_VALUE: ConditionOperator[] = [
-  "isEmpty",
-  "isNotEmpty",
-  "isTruthy",
-  "isFalsy",
-];
-
-const LIST_OPERATORS: ConditionOperator[] = ["in"];
-
-const STRING_OPERATORS: ConditionOperator[] = [
-  "startsWith",
-  "endsWith",
-  "contains",
-  "matches",
-  "in",
-];
+import {
+  LIST_OPERATORS,
+  OPERATORS_WITHOUT_VALUE,
+  STRING_OPERATORS,
+} from "./fieldCondition.constants";
 
 export function operatorNeedsValue(operator: ConditionOperator): boolean {
   return !OPERATORS_WITHOUT_VALUE.includes(operator);

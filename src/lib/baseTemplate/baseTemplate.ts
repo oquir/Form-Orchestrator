@@ -1,69 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { ApiBinding, CanvasField } from "../../types/field";
-import type {
-  CanvasRow,
-  FormStep,
-  IntroModalStep,
-  RepeatableGroup,
-} from "../../types/formStructure";
-
-export type IntroStepTemplate = Omit<IntroModalStep, "stepId">;
-export type FormStepTemplate = Omit<FormStep, "stepId">;
-
-export const INDUSTRIA_COMERCIO_FORM_STEPS: number = 8;
-export const INDUSTRIA_COMERCIO_INTRO_STEPS: number = 2;
-
-interface FieldSpec {
-  name: string;
-  type: string;
-  label: string;
-  colSpan: number;
-  path?: string;
-  excluded?: boolean;
-  required?: boolean;
-  min?: number;
-  formula?: string;
-  alwaysDisabled?: boolean;
-}
-
-const SALDO_NETO: string =
-  "total_impuesto_a_cargo - valor_exencion_exoneracion_impuesto - retenciones_a_favor - autorretenciones_a_favor - anticipo_liquidado_anio_anterior + anticipo_anio_siguiente + valor_sancion - saldo_favor_periodo_anterior";
-
-function bindingFor(spec: FieldSpec): ApiBinding | undefined {
-  if (spec.path !== undefined) return { kind: "mapped", path: spec.path };
-  if (spec.excluded) return { kind: "excluded" };
-
-  return undefined;
-}
-
-function buildRow(specs: FieldSpec[], groupId?: string): CanvasRow {
-  const fields: CanvasField[] = [];
-  let colStart = 1;
-
-  for (const spec of specs) {
-    fields.push({
-      id: uuidv4(),
-      name: spec.name,
-      type: spec.type,
-      label: spec.label,
-      colStart,
-      colSpan: spec.colSpan,
-      validations: {
-        ...(spec.required ? { required: true } : {}),
-        ...(spec.min === undefined ? {} : { min: spec.min }),
-      },
-      styles: {},
-      logic: { dependencies: [], typeScript: "", formula: spec.formula },
-      alwaysDisabled: spec.alwaysDisabled,
-      apiBinding: bindingFor(spec),
-    });
-
-    colStart += spec.colSpan;
-  }
-
-  return { id: uuidv4(), columns: GRID_BASE_COLUMNS, fields, groupId };
-}
+import type { RepeatableGroup } from "../../types/formStructure";
+import { SALDO_NETO } from "./baseTemplate.constants";
+import type { FormStepTemplate, IntroStepTemplate } from "./baseTemplate.types";
+import { buildRow } from "./baseTemplate.utils";
 
 export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
   return [

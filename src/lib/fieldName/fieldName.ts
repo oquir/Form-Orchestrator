@@ -1,6 +1,5 @@
 import type { CanvasRow } from "../../types/formStructure";
-
-const FALLBACK_NAME = "campo";
+import { FALLBACK_NAME } from "./fieldName.constants";
 
 export function slugifyFieldName(label: string): string {
   const withoutAccents: string = label.normalize("NFD").replace(/\p{Diacritic}/gu, "");

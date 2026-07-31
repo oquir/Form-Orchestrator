@@ -66,3 +66,8 @@ export interface FormulaFunction {
   maxArgs: number;
   apply: (args: number[]) => number;
 }
+
+export interface Cursor {
+  tokens: FormulaToken[];
+  index: number;
+}

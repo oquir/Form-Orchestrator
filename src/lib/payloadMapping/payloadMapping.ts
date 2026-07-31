@@ -2,9 +2,9 @@ import type { CanvasField } from "../../types/field";
 import type { JsonNode } from "../../types/jsonTree";
 import type { SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
 import { resolveLeafType } from "../payloadSchema/payloadSchema";
-import type { LeafBindingStatus, MappingNode, OrphanBinding } from "./payloadMapping.types";
-
-const NUMERIC_FIELD_TYPES: string[] = ["number", "calculated"];
+import { NUMERIC_FIELD_TYPES } from "./payloadMapping.constants";
+import type { MappingNode, OrphanBinding } from "./payloadMapping.types";
+import { buildNode, buildPathIndex } from "./payloadMapping.utils";
 
 export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNodeType): boolean {
   switch (schemaType) {
@@ -17,59 +17,6 @@ export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNode
     default:
       return true;
   }
-}
-
-function buildPathIndex(fields: CanvasField[]): Map<string, CanvasField> {
-  const index: Map<string, CanvasField> = new Map();
-
-  for (const field of fields) {
-    if (field.apiBinding?.kind === "mapped") {
-      index.set(field.apiBinding.path, field);
-    }
-  }
-
-  return index;
-}
-
-function buildNode(node: SchemaNode, path: string, index: Map<string, CanvasField>): MappingNode {
-  if (node.type === "object") {
-    const children: MappingNode[] = (node.children ?? []).map((child) => {
-      const childPath: string = path ? `${path}.${child.key}` : child.key;
-      return buildNode(child, childPath, index);
-    });
-
-    return { kind: "object", key: node.key, children };
-  }
-
-  if (node.type === "array") {
-    const item: MappingNode | undefined = node.items
-      ? buildNode(node.items, `${path}[]`, index)
-      : undefined;
-
-    return { kind: "array", key: node.key, item };
-  }
-
-  const matchedField: CanvasField | undefined = index.get(path);
-
-  if (node.providedByHost) {
-    const binding: LeafBindingStatus = {
-      kind: "host",
-      conflictingFieldLabel: matchedField?.label,
-    };
-
-    return { kind: "leaf", key: node.key, schemaType: node.type, binding };
-  }
-
-  const binding: LeafBindingStatus = matchedField
-    ? {
-        kind: "mapped",
-        fieldId: matchedField.id,
-        fieldLabel: matchedField.label,
-        typeMismatch: !fieldMatchesSchemaType(matchedField.type, node.type),
-      }
-    : { kind: "unmapped" };
-
-  return { kind: "leaf", key: node.key, schemaType: node.type, binding };
 }
 
 export function buildMappingTree(schema: SchemaNode, fields: CanvasField[]): MappingNode {

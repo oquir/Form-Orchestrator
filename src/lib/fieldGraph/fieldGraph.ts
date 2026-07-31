@@ -1,7 +1,7 @@
 import type { CanvasField } from "../../types/field";
 import { collectRuleRefs, ruleFormulaExpressions } from "../fieldRule/fieldRule";
-import { collectFormulaRefs, parseFormula } from "../formula/formula";
 import type { FieldGraph, TopologicalResult } from "./fieldGraph.types";
+import { formulaRefIds } from "./fieldGraph.utils";
 
 export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   const index: Map<string, string> = new Map();
@@ -11,19 +11,6 @@ export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   }
 
   return index;
-}
-
-function formulaRefIds(source: string | undefined, byName: Map<string, string>): string[] {
-  if (!source) return [];
-
-  const ids: string[] = [];
-
-  for (const name of collectFormulaRefs(parseFormula(source).ast)) {
-    const id: string | undefined = byName.get(name);
-    if (id) ids.push(id);
-  }
-
-  return ids;
 }
 
 export function fieldDependencies(field: CanvasField, byName: Map<string, string>): string[] {

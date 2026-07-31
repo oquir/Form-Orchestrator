@@ -1,76 +1,8 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 import type { SetupConfig } from "../../types/setup";
-import { exportableOptions } from "../fieldOptions/fieldOptions";
-import { groupFields } from "../repeatableGroup/repeatableGroup";
-import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
-import type {
-  ExportedRepeatableGroup,
-  ExportedRow,
-  ExportedStep,
-  FormExport,
-} from "./exportForm.types";
-import {
-  buildNameIndex,
-  resolveCondition,
-  resolveDependencies,
-  resolveRules,
-} from "./exportForm.utils";
-
-function mapRows(rows: CanvasRow[], names: Map<string, string>): ExportedRow[] {
-  return rows.map((row) => ({
-    rowId: row.id,
-    columns: row.columns,
-    groupId: row.groupId,
-    fields: row.fields.map((field) => ({
-      fieldId: field.id,
-      name: field.name,
-      type: field.type,
-      label: field.label,
-      colStart: field.colStart,
-      colSpan: field.colSpan,
-      styles: field.styles,
-      validations: { zodSchema: buildZodSchema(field) },
-      logic: {
-        dependencies: resolveDependencies(field, names),
-        typeScript: field.logic.typeScript,
-        formula: field.logic.formula,
-        rules: resolveRules(field, names),
-      },
-      title: field.title,
-      options: exportableOptions(field),
-      fileConfig: field.fileConfig,
-      alwaysDisabled: field.alwaysDisabled,
-      enableWhen: resolveCondition(field.enableWhen, names),
-      visibleWhen: resolveCondition(field.visibleWhen, names),
-      apiBinding: field.apiBinding,
-    })),
-  }));
-}
-
-function mapGroups(step: FormStep): ExportedRepeatableGroup[] | undefined {
-  if (!step.groups || step.groups.length === 0) return undefined;
-
-  return step.groups.map((group) => ({
-    groupId: group.id,
-    name: group.name,
-    title: group.title,
-    min: group.min,
-    max: group.max,
-    arrayPath: group.arrayPath,
-    zodSchema: buildGroupZodSchema(group, groupFields(step.rows, group.id)),
-  }));
-}
-
-function mapFormStep(step: FormStep, names: Map<string, string>): ExportedStep {
-  return {
-    stepId: step.stepId,
-    title: step.title,
-    subtitle: step.subtitle || undefined,
-    rows: mapRows(step.rows, names),
-    groups: mapGroups(step),
-  };
-}
+import type { FormExport } from "./exportForm.types";
+import { buildNameIndex, mapFormStep, mapRows } from "./exportForm.utils";
 
 export function buildFormExport(
   formSteps: FormStep[],

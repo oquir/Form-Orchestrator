@@ -1,9 +1,10 @@
 import type { FormulaFunction } from "./formula.types";
+import { roundTo } from "./formula.utils";
 
-function roundTo(value: number, decimals: number): number {
-  const factor: number = 10 ** Math.trunc(decimals);
-  return Math.round(value * factor) / factor;
-}
+export const DIGIT = /[0-9]/;
+export const IDENT_START = /[A-Za-z_]/;
+export const IDENT_PART = /[A-Za-z0-9_]/;
+export const WHITESPACE = /\s/;
 
 export const FORMULA_FUNCTIONS: Record<string, FormulaFunction> = {
   abs: { minArgs: 1, maxArgs: 1, apply: (args) => Math.abs(args[0]) },
