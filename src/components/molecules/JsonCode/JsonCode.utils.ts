@@ -1,78 +1,22 @@
-import type { JsonLine, JsonSegment } from "./JsonCode.types";
+import type { JsonSegment } from "../../../types/jsonCode";
+import { JSON_TOKEN_CLASSES } from "./JsonCode.constants";
 
-const TOKEN_RE: RegExp =
-  /("(?:\\.|[^"\\])*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b/g;
-
-export function tokenizeJson(json: string): JsonSegment[] {
-  const segments: JsonSegment[] = [];
-  let last = 0;
-  TOKEN_RE.lastIndex = 0;
-
-  let match: RegExpExecArray | null = TOKEN_RE.exec(json);
-  while (match !== null) {
-    if (match.index > last) segments.push(json.slice(last, match.index));
-
-    const [full, quoted, colon, num, keyword] = match;
-    const offset: number = match.index;
-
-    if (quoted !== undefined) {
-      if (colon !== undefined) {
-        segments.push({ text: quoted, kind: "key", offset });
-        segments.push(colon);
-      } else {
-        segments.push({ text: quoted, kind: "string", offset });
-      }
-    } else if (num !== undefined) {
-      segments.push({ text: num, kind: "number", offset });
-    } else if (keyword !== undefined) {
-      segments.push({ text: keyword, kind: keyword === "null" ? "null" : "boolean", offset });
-    }
-
-    last = match.index + full.length;
-    match = TOKEN_RE.exec(json);
+export function decodeString(quoted: string): string {
+  try {
+    return JSON.parse(quoted) as string;
+  } catch {
+    return quoted;
   }
-
-  if (last < json.length) segments.push(json.slice(last));
-
-  return segments;
 }
 
-export function parseJsonLines(json: string): JsonLine[] {
-  const raw: string[] = json.split("\n");
-  const lines: JsonLine[] = [];
-  const stack: number[] = [];
-  let offset = 0;
-
-  for (let i = 0; i < raw.length; i++) {
-    const text: string = raw[i];
-    const line: JsonLine = {
-      text,
-      offset,
-      opensContainer: false,
-      openChar: null,
-      closeIndex: -1,
-      trailingComma: false,
-    };
-    lines.push(line);
-    offset += text.length + 1;
-
-    const trimmed: string = text.trim();
-    const first: string = trimmed.charAt(0);
-    if (first === "}" || first === "]") {
-      const opener: number | undefined = stack.pop();
-      if (opener !== undefined) {
-        lines[opener].closeIndex = i;
-        lines[opener].trailingComma = trimmed.endsWith(",");
-      }
-    }
-
-    const lastChar: string = trimmed.charAt(trimmed.length - 1);
-    if (lastChar === "{" || lastChar === "[") {
-      line.opensContainer = true;
-      line.openChar = lastChar;
-      stack.push(i);
-    }
+export function segmentClass(
+  segment: Exclude<JsonSegment, string>,
+  valueClassName?: (rawValue: string) => string | undefined,
+): string {
+  if (segment.kind === "string" && valueClassName) {
+    const custom: string | undefined = valueClassName(decodeString(segment.text));
+    if (custom && custom.length > 0) return custom;
   }
 
-  return lines;
+  return JSON_TOKEN_CLASSES[segment.kind];
 }
