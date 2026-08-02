@@ -92,6 +92,34 @@ Standalone; it is never bound to an input. Supports bold, italic, underline and 
 
 The editor is a `contentEditable` with its own toolbar and no new dependency. It paints the model by creating nodes, never via `innerHTML`, and repaints **only on mount** — repainting on every change would send the caret to the end mid-typing, so the panel passes `key={field.id}` to remount on field change. The selection is saved before the URL input opens and restored on apply, since moving focus loses it. Three lint suppressions are annotated in place: a `textarea` cannot carry inline formatting, and the mount effect cannot depend on `value`.
 
+## Simulador (`FormPreviewCanvas`) — el consumidor de mentira
+
+The fourth canvas view mode renders the form as the taxpayer would see it. It is not a mock: it is a working prototype of the consuming app, living inside the builder.
+
+**The single rule that makes it worth anything: it consumes `buildFormExport(...)` and never touches `useFormStore`.** `useFormPreview` is the only place the store is read, and it reads it solely to feed `buildFormExport`. If the simulator can't do something, the real consumer can't either — that is the point. Everything is keyed by field **name**, because the export already resolved ids to names.
+
+Layers, all React-free and benchmarked at ~1 ms per keystroke for the full ICA form with 15 activities:
+
+- `lib/formRuntime/` — `buildRuntimeModel(export)` flattens the export into name indexes; `resolveRuntime(model, state)` returns a `RuntimeSnapshot` with a `root` scope plus one scope per repetition of each group.
+- `lib/runtimeCondition/` — **`evaluateCondition`**, the executor for the 13 operators. It did not exist before: the builder only ever *authored* conditions. Shared by visibility, enablement and rule matching.
+- `lib/runtimeFormula/` — resolves `logic.formula` and `logic.rules` in topological order over field names (`planDerivedFields`), reusing `parseFormula`/`evaluateFormula`. Formula first, then rules override in list order.
+- `lib/runtimePayload/` — walks `apiBinding.path` to assemble the real `DeclaracionIcaE` object, expanding `[]` to the repetition index.
+- `lib/zodHydrate/` — `new Function("z", ...)` over `validations.zodSchema`.
+- `lib/mockCatalog/` — deterministic fake options for mapped selects.
+
+Settled decisions:
+
+- **Three passes in `resolveRuntime`, in this order:** groups with raw root values → root with the group columns exposed as arrays → groups again with the resolved root. `evaluateFormula` reads a plain `ref` as a scalar but `sumOf(campo)` expects an **array** under the same key, so the group's columns have to be flattened into the root scope for the aggregates to work. Collapse this into one pass and the ICA totals silently read `0`.
+- **A scope per repetition, not one bag.** A field inside an activity resolves siblings from its own row (`{...rootValues, ...item}`), so `impuesto_actividad` computes per activity instead of reading the last one.
+- **`eval` is not a shortcut, it is the contract.** `ExportedField.validations` carries **only** `zodSchema` as a string — `required`, `min`, `max` and `pattern` are not exported. The consumer has no other way to validate. `hydrateZodSchema` wraps it in try/catch and surfaces the failure as a `RuntimeIssue` instead of crashing, which is also what finally makes the `validations.pattern` gap visible where it is authored.
+- **`required` is sniffed from the schema string** (`isRequiredBySchema`: no trailing `.optional()`), for the same reason. `checkbox` is excluded because `buildZodSchema` never appends `.optional()` to it.
+- **`logic.typeScript` is not executed.** It is arbitrary code and says nothing about whether the form is well built.
+- **Preview state is local to the component tree**, never in the Zustand store — answers are throwaway and switching to another view resets them. `reconcileState` re-pads group arrays when the canvas gains or loses a group so typing isn't lost mid-edit.
+- **Hidden fields are neither rendered nor validated** (`PreviewField` returns `null`, `collectErrors` skips them), matching the documented precedence. Inline errors appear only after "Validar todo"; the results panel lists them live.
+- **`react-hook-form` is still unused.** It was installed by the spec but the hard part here is the runtime, not the state layer, and a plain value bag makes formulas-writing-back and repeatable arrays far easier to get right. Swapping the state layer later means replacing `useFormPreview`, not the libs.
+
+Cost to know about: passing the whole `z` namespace into `new Function` defeats tree-shaking, so Zod ships whole. The bundle went from 546 kB to 780 kB. Lazy-loading `FormPreviewCanvas` behind `React.lazy` would claw it back; offered, not built.
+
 ## Tooltips (`field.tooltip`)
 
 `FieldTooltip` is `{content: RichTextContent, position: "top"|"bottom"|"left"|"right", customClasses?}`. Only eight types offer it — `TOOLTIP_CAPABLE_FIELD_TYPES` in `src/constants/fieldTypes.ts`: text, number, select, checkbox, calculated, file, toggle_group, radio_group. Use `supportsTooltip` / `hasTooltip` / `exportableTooltip` (`src/lib/fieldTooltip/`) rather than checking the type or the emptiness inline, so the panel, the canvas chip and the export can't drift apart. `AttributesPanel` renders `panels/FieldTooltipEditor` behind that predicate; the store action is `updateFieldTooltip(fieldId, updates | null)`, where `null` removes it and a partial merges onto `createEmptyTooltip()`.

@@ -149,6 +149,17 @@ Los campos con opciones solo admiten opciones escritas a mano **cuando están ex
 
 `organisms/SetupWizardModal/`: modal de 2 pasos cuando `setupConfig.isComplete` es `false`. El paso 1 elige el `FormType` — `industria_comercio` carga la plantilla completa de ocho pasos desde `src/lib/baseTemplate/`; los otros dos (`retencion_industria_comercio` y `autorretencion`) arrancan con una fila vacía. El paso 2 pregunta si hace falta un modal introductorio y cuántos steps tiene.
 
+### Simulador
+
+La pestaña **Simulador** del lienzo dibuja el formulario funcionando: controles reales, condiciones que prenden y apagan campos, fórmulas que liquidan, grupos repetibles con agregar y quitar, validación con Zod y el payload de la API armándose en vivo.
+
+Lo importante es de dónde saca los datos: **consume el JSON exportado y nada más**. No lee el store del builder. Si algo falta en el contrato, el simulador se rompe igual que se rompería el aplicativo que recibe el JSON, así que sirve de prueba viva y no solo de demo.
+
+Dos cosas que el simulador deja a la vista:
+
+- Los campos con opciones mapeadas no traen opciones en el JSON, porque las inyecta el consumidor desde el catálogo. El simulador genera tres opciones falsas y las marca como **catálogo simulado**.
+- `logic.typeScript` **no se ejecuta**: es código arbitrario y no dice nada sobre si el formulario está bien armado.
+
 ### Exportación
 
 `src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.

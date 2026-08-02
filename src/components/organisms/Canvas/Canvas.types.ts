@@ -1,1 +1,1 @@
-export type CanvasViewMode = "canvas" | "json" | "payload";
+export type CanvasViewMode = "canvas" | "preview" | "json" | "payload";

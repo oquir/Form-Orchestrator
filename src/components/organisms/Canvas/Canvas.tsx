@@ -9,6 +9,7 @@ import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
+import { FormPreviewCanvas } from "../FormPreviewCanvas/FormPreviewCanvas";
 import { JsonPreviewCanvas } from "../JsonPreviewCanvas/JsonPreviewCanvas";
 import { PayloadPreviewCanvas } from "../PayloadPreviewCanvas/PayloadPreviewCanvas";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
@@ -33,15 +34,19 @@ export function Canvas() {
       ? "JSON en vivo"
       : viewMode === "payload"
         ? "Payload en vivo"
-        : "Lienzo de trabajo";
+        : viewMode === "preview"
+          ? "Simulador"
+          : "Lienzo de trabajo";
   const subtitle =
     viewMode === "json"
       ? "Vista previa del JSON exportado del formulario completo"
       : viewMode === "payload"
         ? "Vista previa del mapeo de campos hacia el objeto de la API"
-        : isIntro
-          ? "Editando el modal de entrada — flota sobre el formulario"
-          : "Arrastra campos aquí para construir el formulario";
+        : viewMode === "preview"
+          ? "El formulario funcionando, armado solo con el JSON exportado"
+          : isIntro
+            ? "Editando el modal de entrada — flota sobre el formulario"
+            : "Arrastra campos aquí para construir el formulario";
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
@@ -68,13 +73,14 @@ export function Canvas() {
           <button
             type="button"
             onClick={() => downloadFormExport(formSteps, setupConfig, introSteps)}
-            className="rounded-md bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400"
+            className="rounded-md bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400 cursor-pointer"
           >
             Exportar JSON
           </button>
         </div>
       </header>
 
+      {viewMode === "preview" && <FormPreviewCanvas />}
       {viewMode === "json" && <JsonPreviewCanvas />}
       {viewMode === "payload" && <PayloadPreviewCanvas />}
       {isCanvasView && (
