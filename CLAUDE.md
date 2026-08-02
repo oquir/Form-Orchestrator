@@ -141,7 +141,7 @@ Settled decisions:
 
 - Write commit messages **in Spanish**, present tense, imperative ("Agrega X", "Corrige Y", "Amplía Z") — matches the existing history style (`git log`).
 - Keep the subject line under ~72 chars and specific ("Agrega campo Archivo con presets de formatos" beats "Nuevo campo").
-- When the change is non-trivial, include a body explaining **the why and the touch points** — which files/actions/store shape changed, and any decisions that would be non-obvious from the diff. Someone reading `git show <sha>` should not need to re-read the code to understand the intent. On Windows, write the message to a file and use `git commit -F <file>`; PowerShell here-strings are unreliable through the tool layer.
+- **Keep bodies short — three or four lines at most, and often none.** The user asked for this explicitly: long explanatory bodies were getting in the way. Say the *why* in one or two lines if the diff doesn't show it, and nothing else; the durable detail belongs in `CLAUDE.md` and the README, not in the history. A subject line alone is fine for a mechanical change. On Windows, write the message to a file and use `git commit -F <file>`; PowerShell here-strings are unreliable through the tool layer.
 - Do **not** add `Co-Authored-By: Claude` or similar trailers unless the user explicitly asks — the existing history doesn't use them.
 - Prefer one commit per cohesive feature/decision. Split only when the parts are genuinely independent; don't split a single feature just because it touches many files.
 - **Stage by explicit path.** Never `git add -A` or `git add src` — the user frequently has unrelated work in progress, and a broad add has already swept their files into a commit once.
