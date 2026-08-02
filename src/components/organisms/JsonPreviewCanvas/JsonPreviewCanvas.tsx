@@ -1,23 +1,22 @@
-import JsonView from "@uiw/react-json-view";
-import type { CSSProperties } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
-import { JSON_VIEW_DARK_THEME, JSON_VIEW_LIGHT_THEME } from "../../../constants/jsonViewTheme";
 import { buildFormExport } from "../../../lib/exportForm/exportForm";
 import { useFormStore } from "../../../store/formStore";
-import type { FormExport } from "../../../types/exportForm";
+import { JsonCode } from "../../molecules/JsonCode/JsonCode";
 
 export function JsonPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
-  const isDarkMode = useFormStore((state) => state.isDarkMode);
   const [copied, setCopied] = useState<boolean>(false);
 
-  const data: FormExport = buildFormExport(formSteps, setupConfig, introSteps);
+  const json: string = useMemo(
+    () => JSON.stringify(buildFormExport(formSteps, setupConfig, introSteps), null, 2),
+    [formSteps, setupConfig, introSteps],
+  );
 
   const handleCopy = async (): Promise<void> => {
-    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    await navigator.clipboard.writeText(json);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -47,14 +46,7 @@ export function JsonPreviewCanvas() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
-        <JsonView
-          value={data}
-          style={(isDarkMode ? JSON_VIEW_DARK_THEME : JSON_VIEW_LIGHT_THEME) as CSSProperties}
-          displayDataTypes={false}
-          enableClipboard={false}
-        />
-      </div>
+      <JsonCode json={json} className="flex-1 rounded-md bg-slate-100 p-3 dark:bg-neutral-950" />
     </div>
   );
 }

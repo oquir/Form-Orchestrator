@@ -1,8 +1,5 @@
-import JsonView from "@uiw/react-json-view";
-import type { CSSProperties } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CheckCircle, Copy } from "reicon-react";
-import { JSON_VIEW_DARK_THEME, JSON_VIEW_LIGHT_THEME } from "../../../constants/jsonViewTheme";
 import { PAYLOAD_SCHEMA } from "../../../constants/payloadSchema";
 import { isPresentationalField } from "../../../lib/fieldKind/fieldKind";
 import {
@@ -14,27 +11,33 @@ import { getAllFields, useFormStore } from "../../../store/formStore";
 import type { CanvasField } from "../../../types/field";
 import type { CanvasRow } from "../../../types/formStructure";
 import type { MappingNode, OrphanBinding } from "../../../types/payloadMapping";
+import { JsonCode } from "../../molecules/JsonCode/JsonCode";
 import { colorClassForSummaryValue } from "./PayloadPreviewCanvas.utils";
 
 export function PayloadPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const introSteps = useFormStore((state) => state.introModal.steps);
-  const isDarkMode = useFormStore((state) => state.isDarkMode);
   const [copied, setCopied] = useState<boolean>(false);
 
-  const allRows: CanvasRow[] = [
-    ...formSteps.flatMap((step) => step.rows),
-    ...introSteps.flatMap((step) => step.rows),
-  ];
+  const { summaryJson, orphanBindings } = useMemo(() => {
+    const allRows: CanvasRow[] = [
+      ...formSteps.flatMap((step) => step.rows),
+      ...introSteps.flatMap((step) => step.rows),
+    ];
+    const allFields: CanvasField[] = getAllFields(allRows).filter(
+      (field) => !isPresentationalField(field.type),
+    );
+    const mappingTree: MappingNode = buildMappingTree(PAYLOAD_SCHEMA, allFields);
+    const orphans: OrphanBinding[] = findOrphanBindings(PAYLOAD_SCHEMA, allFields);
 
-  const allFields: CanvasField[] = getAllFields(allRows).filter(
-    (field) => !isPresentationalField(field.type),
-  );
-  const mappingTree: MappingNode = buildMappingTree(PAYLOAD_SCHEMA, allFields);
-  const orphanBindings: OrphanBinding[] = findOrphanBindings(PAYLOAD_SCHEMA, allFields);
+    return {
+      summaryJson: JSON.stringify(toPlainSummary(mappingTree), null, 2),
+      orphanBindings: orphans,
+    };
+  }, [formSteps, introSteps]);
 
   const handleCopy = async (): Promise<void> => {
-    await navigator.clipboard.writeText(JSON.stringify(toPlainSummary(mappingTree), null, 2));
+    await navigator.clipboard.writeText(summaryJson);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -79,26 +82,11 @@ export function PayloadPreviewCanvas() {
         </div>
       )}
 
-      <div className="flex-1 overflow-auto rounded-md bg-slate-100 p-2 text-xs leading-relaxed dark:bg-neutral-900">
-        <JsonView
-          value={toPlainSummary(mappingTree) as object}
-          style={(isDarkMode ? JSON_VIEW_DARK_THEME : JSON_VIEW_LIGHT_THEME) as CSSProperties}
-          displayDataTypes={false}
-          enableClipboard={false}
-        >
-          <JsonView.String
-            render={(props, result) => {
-              if (result.type !== "value") return <span {...props} />;
-              const colorClass: string = colorClassForSummaryValue(String(result.value ?? ""));
-              return (
-                <span {...props} className={`${props.className ?? ""} ${colorClass}`.trim()}>
-                  "{props.children}"
-                </span>
-              );
-            }}
-          />
-        </JsonView>
-      </div>
+      <JsonCode
+        json={summaryJson}
+        valueClassName={colorClassForSummaryValue}
+        className="flex-1 rounded-md bg-slate-100 p-3 dark:bg-neutral-950"
+      />
     </div>
   );
 }
