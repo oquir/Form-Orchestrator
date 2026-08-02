@@ -14,8 +14,7 @@ import {
   TextBlock2,
   ToggleOn2,
 } from "reicon-react";
-
-type IconProps = { size?: number; className?: string };
+import type { IconProps } from "./PaletteChip.types";
 
 export const FIELD_TYPE_ICONS: Record<string, ComponentType<IconProps>> = {
   text: Text,
