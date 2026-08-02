@@ -1,5 +1,6 @@
-﻿import { useDraggable } from "@dnd-kit/core";
+import { useDraggable } from "@dnd-kit/core";
 import type { FieldTypeDef } from "../../../types/fieldTypes";
+import { FIELD_TYPE_ICONS } from "./PaletteChip.constants";
 
 export function PaletteChip({ fieldType }: { fieldType: FieldTypeDef }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -7,17 +8,20 @@ export function PaletteChip({ fieldType }: { fieldType: FieldTypeDef }) {
     data: { source: "palette", fieldType },
   });
 
+  const Icon = FIELD_TYPE_ICONS[fieldType.type];
+
   return (
     <button
       type="button"
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`cursor-grab rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-white active:cursor-grabbing dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:border-neutral-600 dark:hover:bg-neutral-700 w-full ${
+      className={`flex h-full min-h-[72px] w-full cursor-grab flex-col items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 py-3 text-center text-[11px] font-medium leading-tight text-slate-600 transition-colors hover:border-slate-300 hover:bg-white active:cursor-grabbing dark:border-neutral-700/70 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:border-neutral-600 dark:hover:bg-neutral-700/70 ${
         isDragging ? "opacity-40" : ""
       }`}
     >
-      {fieldType.label}
+      {Icon && <Icon size={20} className="text-slate-400 dark:text-neutral-400" />}
+      <span>{fieldType.label}</span>
     </button>
   );
 }

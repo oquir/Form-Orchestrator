@@ -5,9 +5,9 @@ import type { PaletteSection } from "./FieldPalette.types";
 const SECTION_ORDER: FieldTypeCategory[] = ["basico", "complejo", "contenido"];
 
 const SECTION_HEADINGS: Record<FieldTypeCategory, string> = {
-  basico: "Campos básicos",
-  complejo: "Campos complejos",
-  contenido: "Contenido",
+  basico: "Inputs básicos",
+  complejo: "Inputs complejos",
+  contenido: "Visor de contenido",
 };
 
 export const PALETTE_SECTIONS: PaletteSection[] = SECTION_ORDER.map((category) => ({
@@ -19,4 +19,4 @@ export const PALETTE_SECTIONS: PaletteSection[] = SECTION_ORDER.map((category) =
 export const SECTION_HEADING_CLASSES: string =
   "mb-2 text-[11px] font-semibold uppercase tracking-wide text-fg-subtle";
 
-export const SECTION_GRID_CLASSES: string = "grid list-none grid-cols-2 gap-2";
+export const SECTION_GRID_CLASSES: string = "grid list-none grid-cols-3 gap-2";
