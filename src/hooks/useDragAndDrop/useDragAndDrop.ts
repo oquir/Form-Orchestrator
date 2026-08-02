@@ -1,4 +1,4 @@
-import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
+import type { DragEndEvent, DragMoveEvent, DragStartEvent, Modifier } from "@dnd-kit/core";
 import { PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
@@ -10,7 +10,9 @@ import type { CanvasField, SavedComponent } from "../../types/field";
 import type { FieldTypeDef } from "../../types/fieldTypes";
 import { DRAG_ACTIVATION_DISTANCE_PX } from "./useDragAndDrop.constants";
 import type { PointerPosition } from "./useDragAndDrop.types";
-import { getColumnAtPointer, getRowElement } from "./useDragAndDrop.utils";
+import { centerOverlayOnCursor, getColumnAtPointer, getRowElement } from "./useDragAndDrop.utils";
+
+const OVERLAY_MODIFIERS: Modifier[] = [centerOverlayOnCursor];
 
 export function useDragAndDrop(): DragAndDropReturn {
   const addFieldToRow = useFormStore((state) => state.addFieldToRow);
@@ -175,6 +177,7 @@ export function useDragAndDrop(): DragAndDropReturn {
   return {
     sensors,
     activeDrag,
+    overlayModifiers: OVERLAY_MODIFIERS,
     handleDragStart,
     handleDragMove,
     handleDragEnd,

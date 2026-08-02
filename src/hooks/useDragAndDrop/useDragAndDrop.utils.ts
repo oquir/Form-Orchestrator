@@ -1,4 +1,28 @@
+import type { Modifier } from "@dnd-kit/core";
+import { getEventCoordinates } from "@dnd-kit/utilities";
 import { GRID_GAP_PX } from "../../constants/grid";
+
+export const centerOverlayOnCursor: Modifier = ({
+  activatorEvent,
+  draggingNodeRect,
+  overlayNodeRect,
+  transform,
+}) => {
+  if (!activatorEvent || !draggingNodeRect) return transform;
+
+  const coordinates = getEventCoordinates(activatorEvent);
+  if (!coordinates) return transform;
+
+  const rect = overlayNodeRect ?? draggingNodeRect;
+  const grabOffsetX: number = coordinates.x - draggingNodeRect.left;
+  const grabOffsetY: number = coordinates.y - draggingNodeRect.top;
+
+  return {
+    ...transform,
+    x: transform.x + grabOffsetX - rect.width / 2,
+    y: transform.y + grabOffsetY - rect.height / 2,
+  };
+};
 
 export function getRowElement(rowId: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[data-row-id="${rowId}"]`);
