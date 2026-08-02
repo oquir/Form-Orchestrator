@@ -46,6 +46,12 @@ const fieldFileConfigSchema = z.object({
   maxSizeMB: z.number(),
 });
 
+const fieldTooltipSchema = z.object({
+  content: richTextContentSchema,
+  position: z.enum(["top", "bottom", "left", "right"]),
+  customClasses: z.string().optional(),
+});
+
 const fieldConditionSchema = z.object({
   fieldId: z.string(),
   operator: z.enum([
@@ -114,6 +120,7 @@ const canvasFieldSchema = z.object({
   apiBinding: apiBindingSchema.optional(),
   labelFor: z.string().optional(),
   content: richTextContentSchema.optional(),
+  tooltip: fieldTooltipSchema.optional(),
 });
 
 const canvasRowSchema = z.object({

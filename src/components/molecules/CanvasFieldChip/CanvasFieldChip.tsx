@@ -1,13 +1,15 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { Eye } from "reicon-react";
+import { Eye, InfoCircle } from "reicon-react";
 import { GRID_BASE_COLUMNS } from "../../../constants/grid";
 import { findLabelFor } from "../../../lib/fieldKind/fieldKind";
+import { hasTooltip } from "../../../lib/fieldTooltip/fieldTooltip";
 import { getFreeRuns, getMaxSpanAt } from "../../../lib/rowLayout/rowLayout";
 import { getActiveRows, getAllFields, useFormStore } from "../../../store/formStore";
 import { FieldDragHandle } from "../../atoms/FieldDragHandle/FieldDragHandle";
 import { FieldResizeHandle } from "../../atoms/FieldResizeHandle/FieldResizeHandle";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
 import { FieldPreviewControl } from "../FieldPreviewControl/FieldPreviewControl";
+import { TooltipBubble } from "../TooltipBubble/TooltipBubble";
 import type { CanvasFieldChipProps } from "./CanvasFieldChip.types";
 import { getChipPaddingClasses } from "./CanvasFieldChip.utils";
 
@@ -48,6 +50,7 @@ export function CanvasFieldChip({
   const isUltraCompact = field.colSpan === 1 && rowColumns >= GRID_BASE_COLUMNS;
   const isCompact = rowColumns >= 13 && field.colSpan === 1;
   const shouldHideContent = field.colSpan === 1 && rowColumns >= 14;
+  const showTooltip: boolean = hasTooltip(field);
 
   return (
     <div
@@ -56,7 +59,7 @@ export function CanvasFieldChip({
       className={`group relative min-w-0 ${isDragging ? "opacity-40" : ""}`}
     >
       <div
-        className={`relative ${
+        className={`relative group/tooltip ${
           isOver ? "rounded-md outline-2 outline-orange-400 dark:outline-orange-500" : ""
         }`}
         style={{ marginTop: field.styles.marginTop, marginBottom: field.styles.marginBottom }}
@@ -87,18 +90,21 @@ export function CanvasFieldChip({
           <div
             className={`flex items-center justify-between gap-2 overflow-x-hidden ${shouldHideContent ? "opacity-0" : ""}`}
           >
-            {linkedLabel ? (
-              <p
-                title={`La etiqueta la aporta "${linkedLabel.label}"`}
-                className="text-sm font-medium italic text-fg-muted"
-              >
-                {linkedLabel.label}
-              </p>
-            ) : (
-              <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">
-                {field.label}
-              </p>
-            )}
+            <div className="flex min-w-0 items-center gap-1">
+              {linkedLabel ? (
+                <p
+                  title={`La etiqueta la aporta "${linkedLabel.label}"`}
+                  className="text-sm font-medium italic text-fg-muted"
+                >
+                  {linkedLabel.label}
+                </p>
+              ) : (
+                <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">
+                  {field.label}
+                </p>
+              )}
+              {showTooltip && <InfoCircle size={12} className="shrink-0 text-fg-subtle" />}
+            </div>
             <div className="flex items-center gap-1">
               {field.visibleWhen && (
                 <span
@@ -131,6 +137,7 @@ export function CanvasFieldChip({
             <FieldPreviewControl field={field} />
           </div>
         </button>
+        {showTooltip && field.tooltip && <TooltipBubble tooltip={field.tooltip} />}
         <FieldResizeHandle
           colSpan={field.colSpan}
           rowColumns={rowColumns}

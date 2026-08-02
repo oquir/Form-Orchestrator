@@ -8,6 +8,7 @@ import {
   isOptionBasedField,
 } from "../lib/fieldOptions/fieldOptions";
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
+import { createEmptyTooltip, exportableTooltip } from "../lib/fieldTooltip/fieldTooltip";
 import {
   clampGroupBounds,
   createRepeatableGroup,
@@ -587,6 +588,13 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         },
       })),
     ),
+  updateFieldTooltip: (fieldId, updates) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        tooltip: updates ? { ...(field.tooltip ?? createEmptyTooltip()), ...updates } : undefined,
+      })),
+    ),
   addFieldOption: (fieldId) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
@@ -633,6 +641,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       enableWhen: field.enableWhen,
       visibleWhen: field.visibleWhen,
       apiBinding: field.apiBinding,
+      tooltip: exportableTooltip(field),
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -666,6 +675,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         enableWhen: component.enableWhen ? { ...component.enableWhen } : undefined,
         visibleWhen: component.visibleWhen ? { ...component.visibleWhen } : undefined,
         apiBinding: component.apiBinding ? { ...component.apiBinding } : undefined,
+        tooltip: component.tooltip ? { ...component.tooltip } : undefined,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

@@ -5,6 +5,7 @@ import type {
   FieldFileConfig,
   FieldOption,
   FieldStyles,
+  FieldTooltip,
   RuleEffect,
 } from "./field";
 import type { RichTextContent } from "./richText";
@@ -50,6 +51,7 @@ export interface ExportedField {
   apiBinding?: ApiBinding;
   labelFor?: string;
   content?: RichTextContent;
+  tooltip?: FieldTooltip;
 }
 
 export interface ExportedRepeatableGroup {

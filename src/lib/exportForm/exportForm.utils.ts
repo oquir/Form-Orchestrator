@@ -10,6 +10,7 @@ import type { CanvasRow, FormStep } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
+import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
 import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
 
@@ -94,6 +95,7 @@ export function mapRows(rows: CanvasRow[], names: Map<string, string>): Exported
       apiBinding: field.apiBinding,
       labelFor: field.labelFor ? (names.get(field.labelFor) ?? field.labelFor) : undefined,
       content: field.content,
+      tooltip: exportableTooltip(field),
     })),
   }));
 }

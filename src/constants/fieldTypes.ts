@@ -12,6 +12,17 @@ export const MULTI_VALUE_FIELD_TYPES: string[] = ["checkbox_group"];
 
 export const PRESENTATIONAL_FIELD_TYPES: string[] = ["label", "rich_text"];
 
+export const TOOLTIP_CAPABLE_FIELD_TYPES: string[] = [
+  "text",
+  "number",
+  "select",
+  "checkbox",
+  "calculated",
+  "file",
+  "toggle_group",
+  "radio_group",
+];
+
 export const RICH_TEXT_FIELD_TYPE = "rich_text";
 
 export const FIELD_TYPES: FieldTypeDef[] = [

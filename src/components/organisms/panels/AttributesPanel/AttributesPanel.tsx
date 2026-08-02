@@ -6,6 +6,7 @@ import {
   labelTargetCandidates,
 } from "../../../../lib/fieldKind/fieldKind";
 import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
+import { supportsTooltip } from "../../../../lib/fieldTooltip/fieldTooltip";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
 import {
   findRowContainingField,
@@ -20,6 +21,7 @@ import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/Labele
 import { LabelTargetSelect } from "../../../molecules/LabelTargetSelect/LabelTargetSelect";
 import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor";
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
+import { FieldTooltipEditor } from "../FieldTooltipEditor/FieldTooltipEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
@@ -111,6 +113,8 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       )}
 
       {field.type === "file" && <FileOptionsEditor field={field} />}
+
+      {supportsTooltip(field.type) && <FieldTooltipEditor field={field} />}
     </div>
   );
 }

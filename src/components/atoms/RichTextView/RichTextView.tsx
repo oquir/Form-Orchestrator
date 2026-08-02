@@ -23,13 +23,13 @@ function renderLeaf(leaf: RichTextLeaf, key: number): ReactNode {
   return <span key={key}>{node}</span>;
 }
 
-export function RichTextView({ content }: RichTextViewProps) {
+export function RichTextView({ content, className }: RichTextViewProps) {
   if (isEmptyRichText(content)) {
     return <p className="text-xs italic text-fg-subtle">Bloque de texto vacío</p>;
   }
 
   return (
-    <div className="flex flex-col gap-1 text-xs text-fg-soft">
+    <div className={`flex flex-col gap-1 ${className ?? "text-xs text-fg-soft"}`}>
       {(content ?? []).map((paragraph, index) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: los parrafos no tienen id propio
         <p key={index}>

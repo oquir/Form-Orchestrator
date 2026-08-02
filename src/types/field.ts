@@ -35,6 +35,14 @@ export interface FieldFileConfig {
   maxSizeMB: number;
 }
 
+export type TooltipPosition = "top" | "bottom" | "left" | "right";
+
+export interface FieldTooltip {
+  content: RichTextContent;
+  position: TooltipPosition;
+  customClasses?: string;
+}
+
 export type ConditionOperator =
   | "equals"
   | "notEquals"
@@ -95,6 +103,7 @@ export interface CanvasField {
   apiBinding?: ApiBinding;
   labelFor?: string;
   content?: RichTextContent;
+  tooltip?: FieldTooltip;
 }
 
 export interface SavedComponent {
@@ -113,4 +122,5 @@ export interface SavedComponent {
   enableWhen?: FieldCondition;
   visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
+  tooltip?: FieldTooltip;
 }

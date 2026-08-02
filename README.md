@@ -105,6 +105,18 @@ Los tipos de la categoría Contenido **no reciben ningún valor**: solo muestran
 - **`label`** — una etiqueta suelta que puede **ligarse a un campo** vía `labelFor`. El campo ligado deja de mostrar su propia etiqueta. La relación es 1:1 y se limpia sola si borrás el campo destino.
 - **`rich_text`** — un bloque de texto con negrita, cursiva, subrayado y enlaces. **El contenido se guarda estructurado, no como HTML**, así el consumidor lo pinta con componentes y nunca necesita `dangerouslySetInnerHTML`. El serializador funciona como sanitizador: recorre el DOM con lista blanca, y los enlaces solo admiten `http`, `https` y `mailto`.
 
+### Tooltips de ayuda
+
+Ocho tipos de campo pueden llevar un **tooltip**: `text`, `number`, `select`, `checkbox`, `calculated`, `file`, `toggle_group` y `radio_group` (`TOOLTIP_CAPABLE_FIELD_TYPES`). El predicado es `supportsTooltip` (`src/lib/fieldTooltip/`). El resto no lo ofrece a propósito.
+
+El tooltip lleva `content`, `position` (`top` | `bottom` | `left` | `right`) y un `customClasses` opcional. El `content` es **el mismo `RichTextContent` estructurado que usa `rich_text`**, así que admite negrita, cursiva, subrayado y enlaces, pasa por el mismo sanitizador y el consumidor lo pinta con los mismos componentes — nunca con `dangerouslySetInnerHTML`.
+
+Lo que debe hacer el consumidor: si el campo trae `tooltip`, dibujar un **ícono de información junto a la etiqueta visible** y mostrar el contenido en `position` al hacer hover o tap sobre ese ícono. El disparador es el ícono, no el campo entero: se descubre a simple vista, funciona en celular y no tapa lo que el contribuyente va a tocar. Si el campo tiene su etiqueta ligada por `labelFor`, el ícono va junto a **esa** etiqueta.
+
+En el lienzo del builder el ícono aparece igual, pero la burbuja se previsualiza al pasar el mouse por el campo completo, para poder juzgar la posición elegida sin tener que apuntarle al ícono.
+
+Un tooltip cuyo contenido queda vacío **no se exporta**: `exportableTooltip` lo descarta, igual que `exportableOptions` con las opciones.
+
 ### Grupos repetibles
 
 Un grupo repetible es una **marca sobre la fila** (`CanvasRow.groupId`), no un contenedor anidado. Gracias a eso el drag-and-drop, el redimensionado y todas las reglas de posicionamiento siguen funcionando dentro del grupo sin ningún cambio: los campos de una actividad se mueven y reordenan libremente.
@@ -141,7 +153,7 @@ Los campos con opciones solo admiten opciones escritas a mano **cuando están ex
 
 `src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.
 
-Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (incluidas `formula` y `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `enableWhen` y `visibleWhen`.
+Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (incluidas `formula` y `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `enableWhen` y `visibleWhen`.
 
 Dos detalles del contrato:
 
