@@ -8,9 +8,16 @@ import type {
 } from "../../types/formula";
 import { parseExpression, peek, tokenize } from "./formula.utils";
 
+// API publica del lenguaje aritmetico. Es autocontenido y no usa eval: lo que llega en
+// `logic.formula` es texto que el usuario escribe, y ejecutarlo seria la misma clase de agujero
+// que el `validations.pattern` inyectable. Nada de React ni del store entra aca.
+
+// Nunca lanza: el error viaja en el resultado. Los editores llaman a esto en cada tecla y
+// necesitan poder pintar el mensaje sin envolver todo en try/catch.
 export function parseFormula(source: string): FormulaParseResult {
   const trimmed: string = source.trim();
 
+  // Fuente vacia no es un error, es "este campo no tiene formula": ast y error ambos en null.
   if (trimmed.length === 0) return { ast: null, error: null };
 
   try {
@@ -28,6 +35,8 @@ export function parseFormula(source: string): FormulaParseResult {
   }
 }
 
+// Devuelve los nombres de campo que la formula lee, sin repetir y en orden de lectura.
+// fieldGraph los usa como aristas, asi que un nombre de mas inventa una dependencia falsa.
 export function collectFormulaRefs(ast: FormulaNode | null): string[] {
   const refs: string[] = [];
   const seen = new Set<string>();
@@ -53,6 +62,8 @@ export function collectFormulaRefs(ast: FormulaNode | null): string[] {
         stack.push(node.operand);
         break;
       case "binary":
+        // Al reves de como se leen: la pila saca por el final, asi que el izquierdo va ultimo
+        // para salir primero. Lo mismo con el reverse() de los argumentos de una llamada.
         stack.push(node.right, node.left);
         break;
       case "call":
@@ -82,6 +93,8 @@ export function validateFormula(source: string, knownNames: Set<string>): Formul
   };
 }
 
+// Todo lo que no sea un numero legible vale 0: un campo vacio, un texto o un valor ausente.
+// Es la semantica del lenguaje, no una tolerancia a errores, y el consumidor debe copiarla.
 export function toFormulaNumber(value: unknown): number {
   if (typeof value === "number") return Number.isFinite(value) ? value : 0;
   if (typeof value === "boolean") return value ? 1 : 0;
@@ -96,6 +109,8 @@ export function toFormulaNumber(value: unknown): number {
   return 0;
 }
 
+// El null es "no se puede calcular" y se propaga hacia arriba: en cuanto un operando es null
+// toda la expresion lo es. Solo lo produce la division por cero y un resultado no finito.
 export function evaluateFormula(
   ast: FormulaNode | null,
   values: Record<string, unknown>,
@@ -110,6 +125,8 @@ export function evaluateFormula(
       return toFormulaNumber(values[ast.name]);
 
     case "aggregate": {
+      // sumOf/countOf esperan la columna de un grupo repetible, que llega como array. Un escalar
+      // suelto se trata como grupo de uno para que la expresion no se caiga fuera de un grupo.
       const raw: unknown = values[ast.ref];
       const items: unknown[] = Array.isArray(raw) ? raw : raw === undefined ? [] : [raw];
 
