@@ -49,6 +49,10 @@ import {
   mapRowEverywhere,
 } from "./formStore.utils";
 
+// El unico store de la aplicacion. Sostiene los dos lienzos a la vez -formSteps y las pantallas
+// del modal de intro- y casi toda mutacion se aplica al que contenga el id, sin preguntar cual
+// esta activo: de ahi mapRowEverywhere y mapFieldEverywhere.
+
 export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null {
   for (const step of slice.formSteps) {
     const row = step.rows.find((r) => r.id === rowId);
@@ -230,6 +234,8 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     set((state) => {
       const row = findRowById(state, rowId);
       if (!row) return state;
+      // El piso es la cantidad de campos que ya hay: nunca menos de una columna por campo, o
+      // alguno se quedaria sin sitio al reempaquetar.
       const nextColumns = Math.max(
         MIN_ROW_COLUMNS,
         Math.min(MAX_ROW_COLUMNS, Math.round(columns)),
@@ -311,6 +317,8 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           return {
             ...step,
             groups: (step.groups ?? []).map((group) => (group.id === groupId ? next : group)),
+            // Cambiar el arrayPath del grupo invalida el mapeo de todos sus campos, por la misma
+            // razon que sacarlos del grupo: la ruta apuntaba al item del array anterior.
             rows: movedArray
               ? step.rows.map((row) =>
                   row.groupId === groupId
@@ -353,6 +361,9 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         selectedFieldId: newField.id,
       };
     }),
+  // Borrar un campo obliga a limpiar todo lo que le apuntaba, o quedarian referencias colgando:
+  // condiciones, reglas y la etiqueta externa que lo tuviera como destino. La etiqueta sobrevive
+  // sin vinculo en vez de borrarse, igual que un hueco en la fila se conserva.
   removeField: (fieldId) =>
     set((state) => {
       const applyTo = (rows: CanvasRow[]) =>
@@ -385,9 +396,13 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       const targetRow = findRowById(state, targetRowId);
       if (!movedField || !targetRow) return state;
 
+      // Sin hueco valido el movimiento se descarta entero: la fila destino queda intacta y el
+      // campo se queda donde estaba. Nunca se desplaza a un vecino para hacer sitio.
       const placement = resolvePlacement(targetRow, movedField.colSpan, requested, fieldId);
       if (!placement) return state;
 
+      // Sacar un campo de un grupo le quita el mapeo: su ruta esta dentro del item del array
+      // (actividades[].algo) y fuera del grupo no significa nada.
       const sourceRow = findRowContainingField(state, fieldId);
       const leavesItemScope: boolean =
         sourceRow?.groupId !== targetRow.groupId && movedField.apiBinding?.kind === "mapped";
@@ -426,6 +441,9 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   setFieldContent: (fieldId, content) =>
     set((state) => mapFieldEverywhere(state, fieldId, (field) => ({ ...field, content }))),
 
+  // El vinculo vive en la etiqueta, no en el campo, asi que solo hay un extremo que mantener.
+  // La relacion es uno a uno: si otra etiqueta ya apuntaba a ese campo, se la desvincula aca
+  // mismo. Que un campo tenga etiqueta externa nunca se guarda, se deduce con hasLinkedLabel.
   setFieldLabelFor: (labelId, targetFieldId) =>
     set((state) => {
       const applyTo = (rows: CanvasRow[]) =>
@@ -698,6 +716,8 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     }),
 }));
 
+// Selectores del lienzo activo. Devuelven NO_ROWS / NO_GROUPS y no un [] recien creado, porque
+// Zustand compara por identidad y un vacio nuevo en cada llamada provoca un bucle de renders.
 export function getActiveRows(state: {
   formSteps: FormStep[];
   introModal: IntroModalState;
@@ -719,6 +739,7 @@ export function getActiveGroups(state: {
   formSteps: FormStep[];
   activeCanvas: CanvasTarget;
 }): RepeatableGroup[] {
+  // El lienzo del modal de intro no admite grupos repetibles: IntroModalStep no tiene `groups`.
   if (state.activeCanvas.type !== "formStep") return NO_GROUPS;
 
   const step = state.formSteps.find((s) => s.stepId === state.activeCanvas.stepId);
