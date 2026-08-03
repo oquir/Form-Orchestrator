@@ -151,14 +151,17 @@ Los campos con opciones solo admiten opciones escritas a mano **cuando están ex
 
 ### Simulador
 
-El botón **Simulador**, al lado de "Exportar JSON", abre el formulario funcionando a pantalla completa: sin sidebar ni lienzo, como lo vería el contribuyente. Controles reales, condiciones que prenden y apagan campos, fórmulas que liquidan, grupos repetibles con agregar y quitar, validación con Zod y el payload de la API armándose en vivo.
+El botón **Simulador**, al lado de "Exportar JSON", abre el formulario funcionando a pantalla completa: sin sidebar ni lienzo, como lo vería el contribuyente. Controles reales, condiciones que prenden y apagan campos, fórmulas que liquidan, grupos repetibles con agregar y quitar, y el payload de la API armándose en vivo en el panel lateral.
 
 Lo importante es de dónde saca los datos: **consume el JSON exportado y nada más**. No lee el store del builder. Si algo falta en el contrato, el simulador se rompe igual que se rompería el aplicativo que recibe el JSON, así que sirve de prueba viva y no solo de demo.
 
-Dos cosas que el simulador deja a la vista:
+La validación es **por paso**: "Siguiente" valida únicamente los campos de esa pantalla y no deja avanzar mientras haya errores; en el último paso el botón pasa a "Enviar". Un campo al que todavía no llegaste nunca se pinta de rojo. El panel lateral sí lista todos los errores en vivo, que es la vista global.
+
+Tres cosas que el simulador deja a la vista:
 
 - Los campos con opciones mapeadas no traen opciones en el JSON, porque las inyecta el consumidor desde el catálogo. El simulador genera tres opciones falsas y las marca como **catálogo simulado**.
 - `logic.typeScript` **no se ejecuta**: es código arbitrario y no dice nada sobre si el formulario está bien armado.
+- **No aplica los estilos del campo** — ver los gaps conocidos más abajo.
 
 ### Exportación
 
@@ -181,6 +184,8 @@ Dos detalles del contrato:
 - Los selects mapeados a hojas `number` muestran una advertencia **`⚠ tipo`** permanente (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `municipio`, `clasificacion_contribuyente` y el `search_select` de actividad). El id de catálogo es numérico, pero `fieldMatchesSchemaType` no deja que un tipo con opciones case con `number`.
 - Un campo del formulario no puede condicionar contra un campo del modal introductorio: la lista de candidatos sale solo de `formSteps`.
 - `validations.pattern` no se valida donde se escribe. Ya no puede ejecutar nada, pero una expresión regular inválida hace fallar la construcción del schema del lado del consumidor.
+- **El simulador no aplica `styles`.** Los estilos viajan en el JSON y el lienzo sí los pinta, pero el simulador dibuja controles genéricos: un campo con fondo amarillo se ve amarillo en el lienzo y gris en el simulador. Los cuatro que van por `style` (`marginTop`, `marginBottom`, `backgroundColor`, `textColor`) son un arreglo corto; `customClasses` no, por lo de abajo.
+- **`styles.customClasses` funciona solo por casualidad, y al consumidor le va a pasar lo mismo.** Tailwind compila leyendo el **código fuente**. Una clase que escribís en el input "Clases CSS" vive en `localStorage` y en el JSON exportado, nunca en el fuente, así que solo se genera si algún componente ya la usaba por su cuenta. Comprobado contra el CSS compilado: `font-bold`, `text-right` y `uppercase` existen; `bg-purple-700`, `tracking-widest` y `text-2xl` no. No hay safelist ni `@source` en `index.css`. **Falla a medias**, que es la peor forma de fallar. Le pasa igual a `tooltip.customClasses`. Arreglarlo es una decisión de producto, no un parche: o una safelist de Tailwind sobre un set acotado de clases, o cambiar el campo libre por un selector.
 
 ---
 
