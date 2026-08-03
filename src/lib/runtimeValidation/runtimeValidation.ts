@@ -11,6 +11,9 @@ import { isPresentationalField } from "../fieldKind/fieldKind";
 import { firstZodMessage, hydrateFieldSchemas } from "../zodHydrate/zodHydrate";
 import { coerceValue, fieldKey } from "./runtimeValidation.utils";
 
+// Valida todo el formulario contra los schemas de Zod hidratados desde el export.
+// Devuelve dos cosas distintas: `errors` es lo que el usuario hizo mal llenando el formulario,
+// `issues` es lo que esta mal en el formulario en si (un schema que no compila, un ciclo).
 export function validateRuntime(model: RuntimeModel, snapshot: RuntimeSnapshot): ValidationResult {
   const groupFields: ExportedField[] = [...model.groupFields.values()].flat();
   const { schemas, issues } = hydrateFieldSchemas([...model.rootFields, ...groupFields]);
@@ -36,6 +39,7 @@ function collectErrors(
   index?: number,
 ): void {
   for (const field of fields) {
+    // Un campo presentacional no tiene valor que validar, y el export ni siquiera le pone schema.
     if (isPresentationalField(field.type)) continue;
     // Un campo oculto no se renderiza ni se valida: es la precedencia del contrato.
     if (!scope.visible[field.name]) continue;

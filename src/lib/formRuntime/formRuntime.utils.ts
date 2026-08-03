@@ -8,6 +8,8 @@ import type {
 import { evaluateCondition } from "../runtimeCondition/runtimeCondition";
 import { fieldKey } from "../runtimeValidation/runtimeValidation.utils";
 
+// Piezas de apoyo del runtime: recorridos del export y armado de los ambitos.
+
 export function stepFields(step: ExportedStep): ExportedField[] {
   return step.rows.flatMap((row) => row.fields);
 }
@@ -38,6 +40,8 @@ export function allSteps(model: RuntimeModel): ExportedStep[] {
   return [...model.introSteps, ...model.steps];
 }
 
+// Convierte cada columna de un grupo en un array bajo el nombre del campo. Es lo que permite que
+// sumOf(impuesto_actividad) encuentre algo que sumar cuando se resuelve el root.
 export function groupColumns(
   model: RuntimeModel,
   groups: Record<string, RuntimeValues[]>,
@@ -63,6 +67,8 @@ export function buildScope(
   const visible: Record<string, boolean> = {};
   const disabled: Record<string, boolean> = {};
 
+  // Precedencia del contrato: alwaysDisabled gana sobre enableWhen. La visibilidad se calcula
+  // aparte porque manda sobre las dos: un campo oculto no se dibuja ni se valida.
   for (const field of fields) {
     visible[field.name] = evaluateCondition(field.visibleWhen, values);
     disabled[field.name] =

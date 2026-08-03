@@ -14,6 +14,12 @@ import type {
 import { computeDerivedValues, type DerivedResult } from "../runtimeFormula/runtimeFormula";
 import { buildScope, emptyItem, groupColumns } from "./formRuntime.utils";
 
+// El corazon del simulador. Solo consume el JSON exportado, nunca el store: si algo no se puede
+// hacer con lo que hay aca, el aplicativo que consuma el export tampoco podra.
+// Todo se indexa por nombre de campo porque el export ya resolvio los ids a nombres al salir.
+
+// Aplana el export en los indices que el resto del runtime necesita. Recorre el modal de intro
+// junto con los pasos: para evaluar, un campo del intro es un campo mas del formulario.
 export function buildRuntimeModel(exported: FormExport): RuntimeModel {
   const steps: ExportedStep[] = exported.formSchema.steps;
   const introSteps: ExportedStep[] = exported.setupConfig.introModal?.steps ?? [];
@@ -72,6 +78,10 @@ export function createInitialState(model: RuntimeModel): PreviewState {
   return { values: {}, groups };
 }
 
+// Tres pasadas, y el orden no es negociable: evaluateFormula lee un ref suelto como escalar pero
+// sumOf(campo) espera un array bajo esa misma clave, asi que las columnas del grupo tienen que
+// estar aplanadas en el root antes de resolverlo. Juntar esto en una sola pasada hace que los
+// totales de la declaracion den 0 sin que nada falle a la vista.
 export function resolveRuntime(model: RuntimeModel, state: PreviewState): RuntimeSnapshot {
   // Pasada 1: los grupos con los valores crudos del root, para poder alimentar los agregados.
   const firstPass: Record<string, RuntimeValues[]> = resolveGroupValues(model, state, state.values);
@@ -110,6 +120,9 @@ export function resolveRuntime(model: RuntimeModel, state: PreviewState): Runtim
   };
 }
 
+// Un ambito por repeticion, no una bolsa comun: cada fila del grupo resuelve a sus hermanas de
+// la misma fila. Si se compartiera un solo ambito, el impuesto de una actividad terminaria
+// calculado con los ingresos de la ultima.
 function resolveGroupValues(
   model: RuntimeModel,
   state: PreviewState,
@@ -119,9 +132,11 @@ function resolveGroupValues(
 
   for (const [groupId, fields] of model.groupFields) {
     resolved[groupId] = (state.groups[groupId] ?? []).map((item) => {
+      // La fila pisa al root: un campo del grupo gana al campo suelto que se llame igual.
       const derived: DerivedResult = computeDerivedValues(fields, { ...rootValues, ...item });
       const scoped: RuntimeValues = {};
 
+      // Solo se devuelven las columnas del grupo; los valores del root vuelven por su lado.
       for (const field of fields) scoped[field.name] = derived.values[field.name];
 
       return scoped;

@@ -1,3 +1,7 @@
+// Escritura por ruta sobre el objeto del payload. Las rutas del contrato vienen como
+// "contribuyente.primerNombre" o "actividades[0].idActividad", y hay que crear los tramos que
+// falten sobre la marcha porque el objeto empieza vacio.
+
 export const ARRAY_MARKER = "[]";
 
 interface PathSegment {
@@ -40,6 +44,8 @@ export function setDeepValue(target: Record<string, unknown>, path: string, valu
       return;
     }
 
+    // Se rellenan los huecos hasta el indice pedido: las repeticiones no llegan en orden y el
+    // array no puede quedar disperso, o el consumidor recibiria posiciones vacias.
     if (!Array.isArray(cursor[segment.key])) cursor[segment.key] = [];
     const list = cursor[segment.key] as Record<string, unknown>[];
     while (list.length <= segment.index) list.push({});

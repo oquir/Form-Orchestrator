@@ -16,6 +16,9 @@ export function catalogOptions(field: ExportedField): FieldOption[] {
   }));
 }
 
+// El simulador marca estas opciones como falsas en pantalla, para que nadie confunda un catalogo
+// inventado con uno real. Los ids que genera no son los del catalogo de verdad, asi que una
+// condicion escrita contra un id concreto no se puede probar aca.
 export function isSimulatedCatalog(field: ExportedField): boolean {
   return (!field.options || field.options.length === 0) && field.apiBinding?.kind === "mapped";
 }

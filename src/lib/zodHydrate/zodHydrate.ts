@@ -9,6 +9,8 @@ export interface HydratedSchema {
 
 // Es el unico camino que tiene el consumidor: el export solo lleva el schema como string,
 // no las validaciones crudas. Simularlo aca es lo que hace fiel a la vista previa.
+// El fallo se devuelve como texto en vez de propagarse: un schema mal escrito tiene que verse
+// como un problema de ese campo, no tumbar el formulario entero.
 export function hydrateZodSchema(source: string | undefined): HydratedSchema {
   if (!source || source.trim() === "") return { schema: null, error: null };
 

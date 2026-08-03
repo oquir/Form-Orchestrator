@@ -9,6 +9,11 @@ import {
   toConditionList,
 } from "./runtimeCondition.utils";
 
+// El ejecutor de los 13 operadores. El builder solo sabia *escribir* condiciones; esto es lo que
+// las corre, y lo comparten la visibilidad, la habilitacion y el disparo de las reglas.
+
+// Sin condicion el resultado es true: un campo sin visibleWhen se ve, uno sin enableWhen se
+// edita. Es lo que permite llamar a esto sin preguntar antes si la condicion existe.
 export function evaluateCondition(
   condition: ExportedCondition | undefined,
   values: RuntimeValues,
@@ -64,6 +69,8 @@ export function evaluateConditions(
     : conditions.some((condition) => evaluateCondition(condition, values));
 }
 
+// Una expresion invalida no rompe el formulario: se trata como que no coincide. El patron lo
+// escribe el autor y no se valida donde se escribe, asi que aca hay que contar con que llegue mal.
 function matchesPattern(observed: unknown, expected: unknown): boolean {
   const source: string = toComparableText(expected);
   if (source === "") return true;
