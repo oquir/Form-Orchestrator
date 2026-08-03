@@ -3,6 +3,8 @@ import { saveDraft } from "../../lib/persistence/persistence";
 import { useFormStore } from "../../store/formStore";
 import type { FormState } from "../../types/formStoreTypes";
 
+// Ctrl/Cmd+S guarda el mismo borrador que el autoguardado. Se monta en App, sobre FormBuilder,
+// para que tambien funcione con el simulador abierto.
 export function useKeyboardShortcuts() {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent): void {

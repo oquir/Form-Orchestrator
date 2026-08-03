@@ -4,6 +4,9 @@ import { useFormStore } from "../../store/formStore";
 import type { FormType } from "../../types/setup";
 import type { UseSetupWizardResult } from "./useSetupWizard.types";
 
+// Asistente de dos pasos que se muestra mientras setupConfig.isComplete sea falso.
+// Industria y comercio se salta la segunda pregunta: su plantilla ya trae modal de intro con un
+// numero de pantallas fijo, asi que no tiene sentido preguntarlo.
 export function useSetupWizard(): UseSetupWizardResult {
   const completeSetup = useFormStore((state) => state.completeSetup);
   const [step, setStep] = useState<1 | 2>(1);

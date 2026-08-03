@@ -27,5 +27,7 @@ export function reconcileState(model: RuntimeModel, state: PreviewState): Previe
 
   if (Object.keys(groups).length !== Object.keys(state.groups).length) changed = true;
 
+  // Se devuelve el mismo objeto si nada cambio: un state nuevo en cada render dispararia el
+  // efecto otra vez y entraria en bucle.
   return changed ? { ...state, groups } : state;
 }

@@ -14,6 +14,11 @@ import { centerOverlayOnCursor, getColumnAtPointer, getRowElement } from "./useD
 
 const OVERLAY_MODIFIERS: Modifier[] = [centerOverlayOnCursor];
 
+// Todo el cableado de arrastrar y soltar: de la paleta a una fila, del almacen a una fila y de una
+// fila a otra. App solo monta el DndContext y el DragOverlay.
+// Con Shift se resaltan las columnas de la fila para elegir donde empieza el campo; con Shift+Ctrl
+// la columna donde se pulso Ctrl queda anclada y el puntero define el final, asi que el arrastre
+// tambien redimensiona. Los modificadores se leen en vivo durante el arrastre.
 export function useDragAndDrop(): DragAndDropReturn {
   const addFieldToRow = useFormStore((state) => state.addFieldToRow);
   const addSavedComponentToRow = useFormStore((state) => state.addSavedComponentToRow);
@@ -21,6 +26,8 @@ export function useDragAndDrop(): DragAndDropReturn {
   const setDragPlacement = useFormStore((state) => state.setDragPlacement);
   const [activeDrag, setActiveDrag] = useState<ActiveDrag | null>(null);
 
+  // Todo esto va en refs y no en estado: se actualiza en cada movimiento del puntero y en cada
+  // tecla, y volver a renderizar a ese ritmo haria el arrastre a tirones.
   const activeDragRef = useRef<ActiveDrag | null>(null);
   const hoveredRowIdRef = useRef<string | null>(null);
   const pointerRef = useRef<PointerPosition>({ x: 0, y: 0 });

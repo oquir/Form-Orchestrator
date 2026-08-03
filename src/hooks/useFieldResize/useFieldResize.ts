@@ -2,6 +2,9 @@ import { type PointerEvent as ReactPointerEvent, useState } from "react";
 import { GRID_GAP_PX } from "../../constants/grid";
 import type { UseFieldResizeParams, UseFieldResizeResult } from "./useFieldResize.types";
 
+// Redimensiona un campo arrastrando su borde. El ancho se mide en columnas, asi que hay que
+// calcular cuanto ocupa una columna en pixeles a partir del ancho real de la fila, descontando
+// el relleno y los huecos entre columnas.
 export function useFieldResize({
   colSpan,
   rowColumns,

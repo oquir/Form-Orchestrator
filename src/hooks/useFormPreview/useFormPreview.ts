@@ -12,6 +12,9 @@ import type { FormPreviewApi } from "../../types/formPreview";
 import type { PreviewState, RuntimeModel, RuntimeSnapshot } from "../../types/formRuntime";
 import { emptyGroupItem, reconcileState } from "./useFormPreview.utils";
 
+// El unico sitio donde el simulador toca el store, y solo para alimentar a buildFormExport.
+// Las respuestas viven aca, en el arbol de componentes, nunca en el store: son desechables y
+// cambiar de vista las descarta. Cambiar despues a react-hook-form seria reemplazar este hook.
 export function useFormPreview(): FormPreviewApi {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
@@ -25,6 +28,8 @@ export function useFormPreview(): FormPreviewApi {
   );
 
   const [state, setState] = useState<PreviewState>(() => createInitialState(model));
+  // Los errores se revelan por clave, no de golpe: un campo al que todavia no se llego nunca
+  // aparece en rojo. El panel de resultados si los lista todos, que es la vista global.
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
 
   useEffect(() => {

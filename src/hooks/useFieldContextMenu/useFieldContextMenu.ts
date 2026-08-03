@@ -7,6 +7,8 @@ import type {
   UseFieldContextMenuResult,
 } from "./useFieldContextMenu.types";
 
+// Menu contextual del campo (clic derecho). Las constantes de tamano existen para poder voltear el
+// menu cuando abriria fuera de la ventana: hay que saber cuanto mide antes de pintarlo.
 export function useFieldContextMenu({
   menu,
   onClose,
