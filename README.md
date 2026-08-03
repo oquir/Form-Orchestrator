@@ -151,7 +151,7 @@ Los campos con opciones solo admiten opciones escritas a mano **cuando están ex
 
 ### Simulador
 
-La pestaña **Simulador** del lienzo dibuja el formulario funcionando: controles reales, condiciones que prenden y apagan campos, fórmulas que liquidan, grupos repetibles con agregar y quitar, validación con Zod y el payload de la API armándose en vivo.
+El botón **Simulador**, al lado de "Exportar JSON", abre el formulario funcionando a pantalla completa: sin sidebar ni lienzo, como lo vería el contribuyente. Controles reales, condiciones que prenden y apagan campos, fórmulas que liquidan, grupos repetibles con agregar y quitar, validación con Zod y el payload de la API armándose en vivo.
 
 Lo importante es de dónde saca los datos: **consume el JSON exportado y nada más**. No lee el store del builder. Si algo falta en el contrato, el simulador se rompe igual que se rompería el aplicativo que recibe el JSON, así que sirve de prueba viva y no solo de demo.
 

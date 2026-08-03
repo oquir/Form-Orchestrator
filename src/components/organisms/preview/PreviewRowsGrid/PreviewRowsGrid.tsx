@@ -31,7 +31,7 @@ export function PreviewRowsGrid({
                     ? preview.model.fieldsByName.get(field.labelFor)?.tooltip
                     : undefined
                 }
-                error={preview.showErrors ? preview.errors[key] : undefined}
+                error={preview.revealed[key] ? preview.errors[key] : undefined}
                 onChange={(value) => preview.setValue(field.name, value, groupId, itemIndex)}
               />
             );

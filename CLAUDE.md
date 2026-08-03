@@ -92,9 +92,11 @@ Standalone; it is never bound to an input. Supports bold, italic, underline and 
 
 The editor is a `contentEditable` with its own toolbar and no new dependency. It paints the model by creating nodes, never via `innerHTML`, and repaints **only on mount** — repainting on every change would send the caret to the end mid-typing, so the panel passes `key={field.id}` to remount on field change. The selection is saved before the URL input opens and restored on apply, since moving focus loses it. Three lint suppressions are annotated in place: a `textarea` cannot carry inline formatting, and the mount effect cannot depend on `value`.
 
-## Simulador (`FormPreviewCanvas`) — el consumidor de mentira
+## Simulador (`FormSimulator`) — el consumidor de mentira
 
-The fourth canvas view mode renders the form as the taxpayer would see it. It is not a mock: it is a working prototype of the consuming app, living inside the builder.
+Renders the form as the taxpayer would see it. It is not a mock: it is a working prototype of the consuming app, living inside the builder.
+
+**It is a full-screen mode, not a canvas view.** `isSimulatorOpen` lives in the store (next to `isSidebarOpen`) and `FormBuilder` returns `<FormSimulator />` early when it is on, so the sidebar, the canvas and the whole `DndContext` unmount — the simulator gets the entire viewport with no builder chrome. The entry point is a button beside "Exportar JSON"; it is deliberately *not* one of the `VIEW_MODE_TABS`, because those swap the canvas body while this replaces the app. `useAutosave` and the keyboard shortcuts live in `App`, above `FormBuilder`, so they keep running while the simulator is open. The header carries its own dark-mode toggle, since the sidebar rail that normally owns it is gone.
 
 **The single rule that makes it worth anything: it consumes `buildFormExport(...)` and never touches `useFormStore`.** `useFormPreview` is the only place the store is read, and it reads it solely to feed `buildFormExport`. If the simulator can't do something, the real consumer can't either — that is the point. Everything is keyed by field **name**, because the export already resolved ids to names.
 
@@ -115,7 +117,8 @@ Settled decisions:
 - **`required` is sniffed from the schema string** (`isRequiredBySchema`: no trailing `.optional()`), for the same reason. `checkbox` is excluded because `buildZodSchema` never appends `.optional()` to it.
 - **`logic.typeScript` is not executed.** It is arbitrary code and says nothing about whether the form is well built.
 - **Preview state is local to the component tree**, never in the Zustand store — answers are throwaway and switching to another view resets them. `reconcileState` re-pads group arrays when the canvas gains or loses a group so typing isn't lost mid-edit.
-- **Hidden fields are neither rendered nor validated** (`PreviewField` returns `null`, `collectErrors` skips them), matching the documented precedence. Inline errors appear only after "Validar todo"; the results panel lists them live.
+- **Hidden fields are neither rendered nor validated** (`PreviewField` returns `null`, `collectErrors` skips them), matching the documented precedence.
+- **Validation is per step, and it gates navigation.** There is no "validate everything" button — the form is filled step by step, so "Siguiente" (and the intro modal's "Continuar") validates only that screen and refuses to advance while it has errors; the last step's button becomes "Enviar". `stepErrorKeys(step, snapshot)` builds the keys a screen owns, expanding a repeatable group's rows to one key per repetition so `validateRuntime`'s indexing lines up. Errors are revealed per key (`revealed`), not globally, so a field you have not reached yet never shows red. The results panel still lists every error live, which is the global view.
 - **`react-hook-form` is still unused.** It was installed by the spec but the hard part here is the runtime, not the state layer, and a plain value bag makes formulas-writing-back and repeatable arrays far easier to get right. Swapping the state layer later means replacing `useFormPreview`, not the libs.
 
 Cost to know about: passing the whole `z` namespace into `new Function` defeats tree-shaking, so Zod ships whole. The bundle went from 546 kB to 780 kB. Lazy-loading `FormPreviewCanvas` behind `React.lazy` would claw it back; offered, not built.

@@ -1,9 +1,37 @@
 import type { ExportedField, ExportedStep } from "../../types/exportForm";
-import type { RuntimeModel, RuntimeScope, RuntimeValues } from "../../types/formRuntime";
+import type {
+  RuntimeModel,
+  RuntimeScope,
+  RuntimeSnapshot,
+  RuntimeValues,
+} from "../../types/formRuntime";
 import { evaluateCondition } from "../runtimeCondition/runtimeCondition";
+import { fieldKey } from "../runtimeValidation/runtimeValidation.utils";
 
 export function stepFields(step: ExportedStep): ExportedField[] {
   return step.rows.flatMap((row) => row.fields);
+}
+
+// Las claves de error de un paso: los campos sueltos por nombre y los de un grupo repetible
+// una vez por repeticion, que es como las indexa validateRuntime.
+export function stepErrorKeys(step: ExportedStep, snapshot: RuntimeSnapshot): string[] {
+  const keys: string[] = [];
+
+  for (const row of step.rows) {
+    for (const field of row.fields) {
+      if (!row.groupId) {
+        keys.push(field.name);
+        continue;
+      }
+
+      const repetitions: number = (snapshot.groups[row.groupId] ?? []).length;
+      for (let index = 0; index < repetitions; index += 1) {
+        keys.push(fieldKey(field.name, row.groupId, index));
+      }
+    }
+  }
+
+  return keys;
 }
 
 export function allSteps(model: RuntimeModel): ExportedStep[] {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Play } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
@@ -9,7 +10,6 @@ import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
-import { FormPreviewCanvas } from "../FormPreviewCanvas/FormPreviewCanvas";
 import { JsonPreviewCanvas } from "../JsonPreviewCanvas/JsonPreviewCanvas";
 import { PayloadPreviewCanvas } from "../PayloadPreviewCanvas/PayloadPreviewCanvas";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
@@ -23,6 +23,7 @@ export function Canvas() {
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
+  const setSimulatorOpen = useFormStore((state) => state.setSimulatorOpen);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
   const [viewMode, setViewMode] = useState<CanvasViewMode>("canvas");
 
@@ -34,19 +35,15 @@ export function Canvas() {
       ? "JSON en vivo"
       : viewMode === "payload"
         ? "Payload en vivo"
-        : viewMode === "preview"
-          ? "Simulador"
-          : "Lienzo de trabajo";
+        : "Lienzo de trabajo";
   const subtitle =
     viewMode === "json"
       ? "Vista previa del JSON exportado del formulario completo"
       : viewMode === "payload"
         ? "Vista previa del mapeo de campos hacia el objeto de la API"
-        : viewMode === "preview"
-          ? "El formulario funcionando, armado solo con el JSON exportado"
-          : isIntro
-            ? "Editando el modal de entrada — flota sobre el formulario"
-            : "Arrastra campos aquí para construir el formulario";
+        : isIntro
+          ? "Editando el modal de entrada — flota sobre el formulario"
+          : "Arrastra campos aquí para construir el formulario";
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
@@ -72,6 +69,14 @@ export function Canvas() {
           <TabButtonGroup tabs={VIEW_MODE_TABS} activeTab={viewMode} onSelect={setViewMode} />
           <button
             type="button"
+            onClick={() => setSimulatorOpen(true)}
+            className="flex items-center gap-1.5 rounded-md border border-orange-600 px-3 py-1.5 text-xs font-medium text-orange-600 hover:bg-orange-50 dark:border-orange-500 dark:text-orange-500 dark:hover:bg-orange-500/10 cursor-pointer"
+          >
+            <Play size={12} weight="Filled" />
+            Simulador
+          </button>
+          <button
+            type="button"
             onClick={() => downloadFormExport(formSteps, setupConfig, introSteps)}
             className="rounded-md bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400 cursor-pointer"
           >
@@ -80,7 +85,6 @@ export function Canvas() {
         </div>
       </header>
 
-      {viewMode === "preview" && <FormPreviewCanvas />}
       {viewMode === "json" && <JsonPreviewCanvas />}
       {viewMode === "payload" && <PayloadPreviewCanvas />}
       {isCanvasView && (

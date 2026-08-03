@@ -7,10 +7,11 @@ export interface FormPreviewApi {
   errors: Record<string, string>;
   issues: RuntimeIssue[];
   payload: Record<string, unknown>;
-  showErrors: boolean;
+  revealed: Record<string, boolean>;
   setValue: (name: string, value: unknown, groupId?: string, index?: number) => void;
   addGroupItem: (groupId: string) => void;
   removeGroupItem: (groupId: string, index: number) => void;
-  validateAll: () => void;
+  // Muestra los errores de esas claves y responde si el paso quedo limpio.
+  validateKeys: (keys: string[]) => boolean;
   reset: () => void;
 }

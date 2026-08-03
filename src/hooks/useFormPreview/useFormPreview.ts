@@ -25,7 +25,7 @@ export function useFormPreview(): FormPreviewApi {
   );
 
   const [state, setState] = useState<PreviewState>(() => createInitialState(model));
-  const [showErrors, setShowErrors] = useState<boolean>(false);
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setState((previous) => reconcileState(model, previous));
@@ -71,9 +71,23 @@ export function useFormPreview(): FormPreviewApi {
     }));
   }, []);
 
+  const validateKeys = useCallback(
+    (keys: string[]): boolean => {
+      setRevealed((previous) => {
+        const next: Record<string, boolean> = { ...previous };
+        for (const key of keys) next[key] = true;
+
+        return next;
+      });
+
+      return keys.every((key) => validation.errors[key] === undefined);
+    },
+    [validation.errors],
+  );
+
   const reset = useCallback(() => {
     setState(createInitialState(model));
-    setShowErrors(false);
+    setRevealed({});
   }, [model]);
 
   return {
@@ -83,11 +97,11 @@ export function useFormPreview(): FormPreviewApi {
     errors: validation.errors,
     issues: validation.issues,
     payload,
-    showErrors,
+    revealed,
     setValue,
     addGroupItem,
     removeGroupItem,
-    validateAll: () => setShowErrors(true),
+    validateKeys,
     reset,
   };
 }

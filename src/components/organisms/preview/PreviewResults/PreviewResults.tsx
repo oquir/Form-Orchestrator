@@ -21,16 +21,16 @@ export function PreviewResults({ preview }: PreviewResultsProps) {
   );
 
   return (
-    <aside className="flex min-h-0 flex-col gap-3 rounded-lg border border-border bg-surface p-3">
-      <div className="flex items-center justify-between gap-2">
+    <aside className="flex h-full min-h-0 flex-col gap-3 rounded-lg border border-border bg-surface p-3">
+      <div className="flex shrink-0 items-center justify-between gap-2">
         <TabButtonGroup tabs={RESULT_TABS} activeTab={tab} onSelect={setTab} />
         <span className="text-[11px] text-fg-subtle">
-          {mappedFieldCount(preview.model)} campos mapeados
+          {mappedFieldCount(preview.model)} mapeados
         </span>
       </div>
 
       {issues.length > 0 && (
-        <ul className="flex list-none flex-col gap-1 rounded-md border border-warning-border bg-warning-surface p-2">
+        <ul className="flex shrink-0 list-none flex-col gap-1 rounded-md border border-warning-border bg-warning-surface p-2">
           {issues.map((issue) => (
             <li key={`${issue.kind}-${issue.field ?? ""}`} className="text-[11px] text-warning">
               {issue.field ? `${issue.field}: ` : ""}
@@ -40,20 +40,14 @@ export function PreviewResults({ preview }: PreviewResultsProps) {
         </ul>
       )}
 
-      {tab === "payload" && (
-        <JsonCode json={payloadJson} className="max-h-[60vh] overflow-auto font-mono text-xs" />
-      )}
-
-      {tab === "values" && (
-        <JsonCode json={valuesJson} className="max-h-[60vh] overflow-auto font-mono text-xs" />
-      )}
-
-      {tab === "errors" && (
-        <div className="max-h-[60vh] overflow-auto">
-          {errorEntries.length === 0 ? (
+      <div className="min-h-64 flex-1 overflow-hidden lg:min-h-0">
+        {tab === "payload" && <JsonCode json={payloadJson} className="h-full" />}
+        {tab === "values" && <JsonCode json={valuesJson} className="h-full" />}
+        {tab === "errors" &&
+          (errorEntries.length === 0 ? (
             <p className="text-xs text-fg-subtle">Sin errores de validación.</p>
           ) : (
-            <ul className="flex list-none flex-col gap-1.5">
+            <ul className="flex h-full list-none flex-col gap-1.5 overflow-auto">
               {errorEntries.map(([key, message]) => (
                 <li key={key} className="text-[11px]">
                   <span className="font-medium text-fg-soft">{key}</span>
@@ -61,9 +55,8 @@ export function PreviewResults({ preview }: PreviewResultsProps) {
                 </li>
               ))}
             </ul>
-          )}
-        </div>
-      )}
+          ))}
+      </div>
     </aside>
   );
 }

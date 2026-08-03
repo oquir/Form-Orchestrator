@@ -30,12 +30,14 @@ export interface FormState {
   savedComponents: SavedComponent[];
   setupConfig: SetupConfig;
   isSidebarOpen: boolean;
+  isSimulatorOpen: boolean;
   sidebarTab: SidebarTab;
   isDarkMode: boolean;
   lastSavedAt: string | null;
   dragPlacement: DragPlacement | null;
   setDragPlacement: (placement: DragPlacement | null) => void;
   setSidebarOpen: (open: boolean) => void;
+  setSimulatorOpen: (open: boolean) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   toggleDarkMode: () => void;
   markSaved: () => void;
