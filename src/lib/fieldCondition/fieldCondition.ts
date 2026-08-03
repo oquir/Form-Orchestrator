@@ -5,6 +5,12 @@ import {
   STRING_OPERATORS,
 } from "./fieldCondition.constants";
 
+// Semantica de los operadores del lado del builder: quien pide un valor, quien lo toma como lista
+// y cuales tienen sentido para cada tipo de campo. Lo comparten el editor, el export y el grafo,
+// asi que conviene preguntarlo aca en vez de repetir las reglas en cada sitio.
+// Un campo lleva dos condiciones independientes: visibleWhen decide si se dibuja y enableWhen si
+// se puede editar. Comparten tipo y editor; solo cambia cual se lee y cual se escribe.
+
 export function operatorNeedsValue(operator: ConditionOperator): boolean {
   return !OPERATORS_WITHOUT_VALUE.includes(operator);
 }

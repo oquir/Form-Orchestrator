@@ -9,6 +9,11 @@ import { SALDO_NETO, TIPO_DOCUMENTO_NIT } from "./baseTemplate.constants";
 import type { TemplateCondition } from "./baseTemplate.types";
 import { buildRow, resolveTemplateConditions } from "./baseTemplate.utils";
 
+// Los ocho pasos del formulario de industria y comercio, escritos como filas de FieldSpec.
+// Es el unico tipo de formulario con plantilla; los demas arrancan con una fila vacia.
+// Los renglones calculados llevan formula y alwaysDisabled, y la cadena de liquidacion sube de la
+// base gravable al total a pagar. SALDO_NETO es la subexpresion que comparten el 33 y el 34.
+
 // Un NIT identifica a una persona juridica: no tiene nombres ni apellidos que capturar.
 const SOLO_PERSONA_NATURAL: TemplateCondition = {
   field: "tipo_documento",

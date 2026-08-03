@@ -1,6 +1,10 @@
 import type { CanvasRow } from "../../types/formStructure";
 import { FALLBACK_NAME } from "./fieldName.constants";
 
+// El nombre tecnico es la identidad del campo hacia afuera: con el se referencian las formulas,
+// las condiciones y todo el export. Tiene que ser unico y valido como identificador del lenguaje
+// de formulas, de ahi que se quiten acentos y no pueda empezar por un digito.
+
 export function slugifyFieldName(label: string): string {
   const withoutAccents: string = label.normalize("NFD").replace(/\p{Diacritic}/gu, "");
   const slug: string = withoutAccents

@@ -2,6 +2,9 @@ import type { RichTextLeaf } from "../../types/richText";
 import { ALLOWED_PROTOCOLS } from "./richText.constants";
 import type { MarkState, StyleLike } from "./richText.types";
 
+// Solo se aceptan http, https y mailto; a lo que no trae esquema se le antepone https. Corre en
+// tres momentos -al insertar el enlace, al serializar y al cargar el borrador- y los tres hacen
+// falta: localStorage se puede editar a mano desde las devtools.
 export function safeHref(raw: string | null | undefined): string | undefined {
   if (!raw) return undefined;
 
@@ -24,6 +27,8 @@ export function safeHref(raw: string | null | undefined): string | undefined {
   return undefined;
 }
 
+// Word y Google Docs no pegan <b> ni <i>: pegan spans con font-weight y text-decoration. Sin
+// esto, pegar desde alli entraria como texto plano y el usuario perderia todo el formato.
 export function marksFromStyle(style: StyleLike | undefined): MarkState {
   if (!style) return {};
 
