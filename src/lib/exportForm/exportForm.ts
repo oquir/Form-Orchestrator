@@ -4,11 +4,16 @@ import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStruct
 import type { SetupConfig } from "../../types/setup";
 import { buildNameIndex, mapFormStep, mapRows } from "./exportForm.utils";
 
+// El JSON que se lleva el consumidor: todo lo que hace falta para dibujar y validar el formulario.
+// Es la frontera del proyecto, asi que lo que no salga de aca no existe para el aplicativo.
+
 export function buildFormExport(
   formSteps: FormStep[],
   setupConfig: SetupConfig,
   introModalSteps: IntroModalStep[],
 ): FormExport {
+  // El indice cubre los dos lienzos a la vez porque los ids se traducen a nombres al salir:
+  // hacia afuera un campo se identifica por su nombre tecnico, nunca por su uuid.
   const allRows: CanvasRow[] = [
     ...formSteps.flatMap((step) => step.rows),
     ...introModalSteps.flatMap((step) => step.rows),

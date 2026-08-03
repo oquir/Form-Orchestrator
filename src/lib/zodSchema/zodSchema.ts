@@ -7,6 +7,11 @@ import {
   isOptionBasedField,
 } from "../fieldOptions/fieldOptions";
 
+// Genera el schema de Zod como texto, que es lo unico que viaja en el export. El consumidor lo
+// ejecuta con new Function, asi que lo de aca tiene que ser una expresion valida por si sola.
+// Ojo: no sabe nada de visibleWhen. Un campo obligatorio y oculto igual exporta su `.min(1)`,
+// porque cuando se ve la exigencia es real; es el consumidor quien debe sacarlo del resolver.
+
 export function buildGroupZodSchema(group: RepeatableGroup, fields: CanvasField[]): string {
   const shape: string = fields
     .filter((field) => !isPresentationalField(field.type))
@@ -21,6 +26,9 @@ export function buildZodSchema(field: CanvasField): string {
   let schema: string;
 
   if (isOptionBasedField(field.type)) {
+    // Solo se enumeran los valores de un campo excluido del payload, que es el unico caso en que
+    // el builder los conoce. Uno mapeado recibe sus opciones del catalogo en tiempo de ejecucion,
+    // asi que cae en z.string(): no se puede enumerar lo que no se ha visto.
     const options: FieldOption[] = exportableOptions(field) ?? [];
     const ids: string[] = options.map((option) => JSON.stringify(option.id));
     schema = ids.length > 0 ? `z.enum([${ids.join(", ")}])` : "z.string()";
@@ -64,6 +72,8 @@ export function buildZodSchema(field: CanvasField): string {
       }
   }
 
+  // Que un campo sea obligatorio se expresa por omision: no se agrega `.optional()`. Es lo que
+  // luego lee isRequiredBySchema para pintar el asterisco, ya que `required` no se exporta.
   if (!v.required && field.type !== "checkbox") {
     schema += ".optional()";
   }

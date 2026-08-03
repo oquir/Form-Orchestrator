@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { safeHref } from "../richText/richText.utils";
 
+// Forma del borrador guardado. Ademas de validar, sanea: aca esta el tercer paso de safeHref,
+// despues del editor y del serializador. Hace falta porque un borrador se puede manipular a mano
+// desde las devtools, asi que un enlace javascript: podria entrar por esta puerta.
+
 const richTextLeafSchema = z
   .object({
     text: z.string(),

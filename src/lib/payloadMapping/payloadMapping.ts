@@ -6,9 +6,15 @@ import { resolveLeafType } from "../payloadSchema/payloadSchema";
 import { NUMERIC_FIELD_TYPES } from "./payloadMapping.constants";
 import { buildNode, buildPathIndex } from "./payloadMapping.utils";
 
+// Cruza el contrato de la API con lo que el usuario mapeo, para poder mostrar la cobertura y
+// avisar de desajustes de tipo, rutas huerfanas y hojas que pone el host.
+
 export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNodeType): boolean {
   switch (schemaType) {
     case "number":
+      // El checkbox cuenta como numero porque el contrato no tiene booleanos: se mapea a 0 o 1.
+      // Sin esta excepcion cualquier checkbox mapeado mostraria un aviso de tipo imposible de
+      // quitar. Los selects contra hojas numericas siguen avisando: es un hueco conocido.
       return NUMERIC_FIELD_TYPES.includes(fieldType) || fieldType === "checkbox";
     case "boolean":
       return fieldType === "checkbox";
