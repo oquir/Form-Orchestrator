@@ -5,8 +5,22 @@ import type {
   IntroStepTemplate,
   RepeatableGroup,
 } from "../../types/formStructure";
-import { SALDO_NETO } from "./baseTemplate.constants";
-import { buildRow } from "./baseTemplate.utils";
+import { SALDO_NETO, TIPO_DOCUMENTO_NIT } from "./baseTemplate.constants";
+import type { TemplateCondition } from "./baseTemplate.types";
+import { buildRow, resolveTemplateConditions } from "./baseTemplate.utils";
+
+// Un NIT identifica a una persona juridica: no tiene nombres ni apellidos que capturar.
+const SOLO_PERSONA_NATURAL: TemplateCondition = {
+  field: "tipo_documento",
+  operator: "notEquals",
+  value: TIPO_DOCUMENTO_NIT,
+};
+
+const SOLO_PERSONA_JURIDICA: TemplateCondition = {
+  field: "tipo_documento",
+  operator: "equals",
+  value: TIPO_DOCUMENTO_NIT,
+};
 
 export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
   return [
@@ -126,7 +140,7 @@ function buildActividadesStep(): FormStepTemplate {
 }
 
 export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
-  return [
+  return resolveTemplateConditions([
     {
       title: "Datos",
       subtitle: "Contribuyente",
@@ -155,6 +169,16 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 3,
             path: "contribuyente.digitoVerificacion",
             required: true,
+            alwaysDisabled: true,
+            // La base en 0 evita que un DV calculado quede pegado al cambiar de tipo de documento.
+            formula: "0",
+            rules: [
+              {
+                label: "Digito de verificacion del NIT",
+                when: [SOLO_PERSONA_JURIDICA],
+                formula: "dvNit(numero_documento)",
+              },
+            ],
           },
         ]),
         buildRow([
@@ -165,6 +189,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 4,
             path: "contribuyente.primerNombre",
             required: true,
+            visibleWhen: SOLO_PERSONA_NATURAL,
           },
           {
             name: "segundo_nombre",
@@ -172,6 +197,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             label: "Segundo nombre",
             colSpan: 4,
             path: "contribuyente.segundoNombre",
+            visibleWhen: SOLO_PERSONA_NATURAL,
           },
           {
             name: "primer_apellido",
@@ -180,6 +206,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 4,
             path: "contribuyente.primerApellido",
             required: true,
+            visibleWhen: SOLO_PERSONA_NATURAL,
           },
           {
             name: "segundo_apellido",
@@ -187,6 +214,18 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             label: "Segundo apellido",
             colSpan: 4,
             path: "contribuyente.segundoApellido",
+            visibleWhen: SOLO_PERSONA_NATURAL,
+          },
+        ]),
+        buildRow([
+          {
+            name: "nombre_completo",
+            type: "text",
+            label: "Razón social",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "contribuyente.nombreCompleto",
+            required: true,
+            visibleWhen: SOLO_PERSONA_JURIDICA,
           },
         ]),
         buildRow([
@@ -769,5 +808,5 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         ]),
       ],
     },
-  ];
+  ]);
 }

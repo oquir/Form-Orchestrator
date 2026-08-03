@@ -1,3 +1,17 @@
+import type { ConditionOperator } from "../../types/field";
+
+export interface TemplateCondition {
+  field: string;
+  operator: ConditionOperator;
+  value?: string | number | boolean;
+}
+
+export interface TemplateRule {
+  label?: string;
+  when: TemplateCondition[];
+  formula: string;
+}
+
 export interface FieldSpec {
   name: string;
   type: string;
@@ -9,4 +23,6 @@ export interface FieldSpec {
   min?: number;
   formula?: string;
   alwaysDisabled?: boolean;
+  visibleWhen?: TemplateCondition;
+  rules?: TemplateRule[];
 }
