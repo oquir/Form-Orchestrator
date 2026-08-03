@@ -9,6 +9,12 @@ import {
   MIN_GROUP_ITEMS,
 } from "./repeatableGroup.constants";
 
+// Un grupo repetible es una marca en la fila (`CanvasRow.groupId`), no un contenedor anidado.
+// Se eligio asi porque el drag and drop resuelve todo por rowId y nunca mira dentro de la fila:
+// de ese modo mover, redimensionar y colocar campos siguen funcionando dentro de un grupo sin
+// una sola linea extra. El precio es que la contiguidad no es estructural y hay que rehacerla a
+// mano con normalizeGroupRows despues de cualquier cambio que pueda desordenar las filas.
+
 export function createRepeatableGroup(title: string, taken: Set<string>): RepeatableGroup {
   return {
     id: uuidv4(),
@@ -51,6 +57,8 @@ export function findGroupById(
   return (step.groups ?? []).find((group) => group.id === groupId);
 }
 
+// Junta las filas de cada grupo en la posicion de la primera de ellas. Sin esto, agregar una fila
+// o mover una de sitio deja las filas del grupo salteadas y la banda se dibujaria partida en dos.
 export function normalizeGroupRows(rows: CanvasRow[]): CanvasRow[] {
   const emitted = new Set<string>();
   const result: CanvasRow[] = [];
@@ -72,6 +80,8 @@ export function normalizeGroupRows(rows: CanvasRow[]): CanvasRow[] {
   return result;
 }
 
+// Borrar la ultima fila de un grupo borra el grupo. Es lo contrario de removeGroup, que conserva
+// las filas y solo les quita la marca: un grupo sin filas no tiene nada que repetir.
 export function pruneEmptyGroups(step: FormStep): FormStep {
   const groups: RepeatableGroup[] | undefined = step.groups;
 
