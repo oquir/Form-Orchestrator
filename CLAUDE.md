@@ -26,6 +26,7 @@ Holding **Shift** while dragging highlights every column of the target row (`Row
 
 Settled decisions — do not re-litigate them without asking:
 
+- **`dragPlacement` is written only when it actually changes.** `recomputePlacement` runs on every `pointermove` — ~100/s — and almost always recomputes the same thing, but a store write creates a new state object and forces every subscriber to re-run its selector. `applyPlacement` compares by value first (`samePlacement`, since the recomputed object is always a fresh instance). Measured: a 120-move drag across 6 columns went from 120 writes to 6. The refs in this hook exist for the same reason; the write was the one that slipped through.
 - **Collision is resolved by magnetic snap, never by pushing.** If the target range overlaps a neighbour, the preview slides to the nearest valid gap; if nothing fits, it goes red and the drop is rejected. A field the user is not dragging is never moved.
 - **Holes are preserved.** Deleting or moving a field leaves its gap; every position is explicit. The one exception is `updateRowColumns`, which re-packs, since resizing a row is a deliberate layout change.
 - **One row is one visual line — rows do not overflow to a second line.** A full row rejects a dropped field instead of wrapping. The user **deliberately kept the restriction** after testing it — the intended workflow is to add another `CanvasRow` and place the field there. It is a guardrail, not a bug. Implementing real multi-line rows would require a line index in the model and would turn every placement rule two-dimensional; the cheap alternative (auto-creating a row below on overflow) was offered and declined. Only revisit if the user explicitly asks.
@@ -72,6 +73,8 @@ A presentational field **keeps** its `colStart`/`colSpan`, its `styles` and its 
 
 The link lives **on the label**: `CanvasField.labelFor` points at the input field. One owner, so there are no two ends to keep in sync, and it mirrors how `enableWhen` points outward. The rule "a field with a linked label has no label of its own" is **derived, never stored** — `hasLinkedLabel(fields, id)` computes it.
 
+Deriving it is O(n) per question, which is why **`CanvasRowsGrid` builds the index once and drills a `linkedLabels: Map` down through `CanvasRow` and `RepeatableGroupBand`** (`buildLinkedLabelIndex`, keyed by the *target* field's id). Each chip used to subscribe to `getActiveRows` and rebuild the whole field list to answer for itself — n chips × O(n), measured at 16.9× the necessary work on a 15-field step. The index keeps `findLabelFor`'s first-wins tie-break so a hand-edited draft with two labels on one target answers identically. `AttributesPanel` still calls `findLabelFor` directly: one field, one question, no loop.
+
 Invariants the store maintains:
 
 - **1:1** — `setFieldLabelFor` unlinks any other label already pointing at that target.
@@ -115,7 +118,7 @@ Layers, all React-free and benchmarked at ~1 ms per keystroke for the full ICA f
   - **The actividades dump has a different shape and two open questions.** Each row is `{idDeclaracion, codigoCIIU, descripcion, tarifaXMil}` — no `{success, result}` wrapper. `idDeclaracion` (30492–55326) is taken as the option id and `codigoCIIU` (130–9609) only feeds the label, on the reasoning that the template carries a **separate** `codigo_actividad` field for the CIIU, so the two cannot be the same value; the payload leaf is `actividades[].idActividad` and **nobody has confirmed which of the two it wants**. Flipping it is one line in the generator. Note the catalog's own `idDeclaracion` key collides by name with the payload's `actividades[].idDeclaracion`, which is a `providedByHost` leaf and a different thing.
   - **`tarifaXMil` is dropped on conversion and that is a known loss.** `FieldOption` is `{id, label}`, with nowhere to put it. The template already has `codigo_actividad` and `tarifa_x_mil` sitting `alwaysDisabled` and permanently empty, clearly waiting to be filled from the chosen activity — the dump now supplies exactly those two columns (8 distinct tariffs: 4, 5, 6, 7, 7.5, 8, 9, 10). Wiring it needs a decision first: catalog entries would have to carry extra columns and something would have to project them onto sibling fields. Not built.
   - Still invented, because they never came in a dump: the `periodoAnio`, `idClasificacionMunicipio` and `idTipoRepresentante` entries in `MOCK_BY_LEAF`.
-  - Cost: the data file adds ~93 kB raw to the bundle (873 kB, was 780 before any of it). It is a plain module, so `React.lazy` on `FormPreviewCanvas` would drop it from the initial chunk along with Zod.
+  - Cost: the data file adds ~93 kB raw. It no longer lands in the initial chunk — see the lazy boundary below.
 
 Settled decisions:
 
@@ -129,7 +132,11 @@ Settled decisions:
 - **Validation is per step, and it gates navigation.** There is no "validate everything" button — the form is filled step by step, so "Siguiente" (and the intro modal's "Continuar") validates only that screen and refuses to advance while it has errors; the last step's button becomes "Enviar". `stepErrorKeys(step, snapshot)` builds the keys a screen owns, expanding a repeatable group's rows to one key per repetition so `validateRuntime`'s indexing lines up. Errors are revealed per key (`revealed`), not globally, so a field you have not reached yet never shows red. The results panel still lists every error live, which is the global view.
 - **`react-hook-form` is still unused.** It was installed by the spec but the hard part here is the runtime, not the state layer, and a plain value bag makes formulas-writing-back and repeatable arrays far easier to get right. Swapping the state layer later means replacing `useFormPreview`, not the libs.
 
-Cost to know about: passing the whole `z` namespace into `new Function` defeats tree-shaking, so Zod ships whole. The bundle went from 546 kB to 780 kB. Lazy-loading `FormPreviewCanvas` behind `React.lazy` would claw it back; offered, not built.
+**The simulator is behind a `React.lazy` boundary** in `FormBuilder`, with a `Suspense` fallback. Whoever only builds forms never downloads it. Measured on the ICA template: one 872 kB chunk became **762 kB initial + 117 kB on demand** (gzip 240 → 208).
+
+What actually crossed the boundary is `mockCatalog.data.ts` and the `preview/` tree — **not Zod**. Verified by grepping the built chunks: the catalog labels appear only in `FormSimulator-*.js`, but `invalid_union` appears in both. Zod stays in the initial chunk because `persistence.schema.ts` and `catalogBank.schema.ts` import it eagerly — `loadDraft` and `loadCatalogBank` both run at startup. So the old note that lazy-loading "would claw back Zod" was wrong: getting Zod out needs `loadDraft` to become async and dynamic-import its schema, which ripples into `DraftRecoveryModal` and the store bootstrap. Not done.
+
+Keep the boundary honest: any new eager import of `lib/mockCatalog/`, `lib/zodHydrate/` or `components/organisms/preview/` from the builder side silently pulls the chunk back into the initial load.
 
 ## Tooltips (`field.tooltip`)
 
