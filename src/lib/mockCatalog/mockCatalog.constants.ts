@@ -46,3 +46,51 @@ export const MOCK_CATALOGS: Record<string, (parent?: string) => FieldOption[]> =
   [CATALOG_DEPARTAMENTOS]: () => DEPARTAMENTOS,
   [CATALOG_MUNICIPIOS]: (parent) => (parent ? (MUNICIPIOS_POR_DEPARTAMENTO[parent] ?? []) : []),
 };
+
+// Catalogos que el JSON todavia no declara: el simulador los reconoce por la hoja del payload a la
+// que el campo esta mapeado. Vive solo aca, el contrato no cambia. Los ids importan — son los que
+// las condiciones de la plantilla comparan: sin un "2" real, persona juridica era inalcanzable.
+export const MOCK_BY_LEAF: Record<string, FieldOption[]> = {
+  idTipoDocumento: [
+    { id: "1", label: "Cédula de ciudadanía" },
+    { id: "2", label: "NIT" },
+    { id: "3", label: "Cédula de extranjería" },
+    { id: "4", label: "Pasaporte" },
+    { id: "5", label: "Tarjeta de identidad" },
+  ],
+  periodoAnio: [
+    { id: "2026", label: "2026" },
+    { id: "2025", label: "2025" },
+    { id: "2024", label: "2024" },
+    { id: "2023", label: "2023" },
+  ],
+  idPeriodoAnual: [
+    { id: "1", label: "Anual" },
+    { id: "2", label: "Primer semestre" },
+    { id: "3", label: "Segundo semestre" },
+  ],
+  idTipoDeclaracion: [
+    { id: "1", label: "Inicial" },
+    { id: "2", label: "Corrección" },
+  ],
+  idClasificacionMunicipio: [
+    { id: "1", label: "Régimen común" },
+    { id: "2", label: "Régimen simplificado" },
+    { id: "3", label: "Gran contribuyente" },
+    { id: "4", label: "Autorretenedor" },
+  ],
+  idTipoRepresentante: [
+    { id: "1", label: "Representante legal" },
+    { id: "2", label: "Apoderado" },
+    { id: "3", label: "Revisor fiscal" },
+  ],
+  // Codigos CIIU rev. 4 A.C. reales, que es lo que el contribuyente reconoce.
+  idActividad: [
+    { id: "4711", label: "4711 · Comercio al por menor en establecimientos no especializados" },
+    { id: "4772", label: "4772 · Comercio al por menor de otros productos nuevos" },
+    { id: "4530", label: "4530 · Comercio de partes y accesorios para vehículos" },
+    { id: "5611", label: "5611 · Expendio a la mesa de comidas preparadas" },
+    { id: "6201", label: "6201 · Actividades de desarrollo de sistemas informáticos" },
+    { id: "6810", label: "6810 · Actividades inmobiliarias con bienes propios o arrendados" },
+  ],
+};

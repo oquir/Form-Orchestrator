@@ -109,7 +109,7 @@ Layers, all React-free and benchmarked at ~1 ms per keystroke for the full ICA f
 - `lib/runtimeFormula/` — resolves `logic.formula` and `logic.rules` in topological order over field names (`planDerivedFields`), reusing `parseFormula`/`evaluateFormula`. Formula first, then rules override in list order.
 - `lib/runtimePayload/` — walks `apiBinding.path` to assemble the real `DeclaracionIcaE` object, expanding `[]` to the repetition index.
 - `lib/zodHydrate/` — `new Function("z", ...)` over `validations.zodSchema`.
-- `lib/mockCatalog/` — the options a catalog-fed select offers: `MOCK_CATALOGS` keyed by a declared `dataSource.catalog`, falling back to deterministic options built from the payload path. **Simulator-only, never exported.**
+- `lib/mockCatalog/` — the options a catalog-fed select offers, resolved in three tiers: `MOCK_CATALOGS` keyed by a declared `dataSource.catalog`, then `MOCK_BY_LEAF` keyed by the payload leaf the field is mapped to, then `placeholderOptions` as a last resort. **All of it is simulator-only and none of it is exported** — verified by grepping the built JSON for the fake labels. `MOCK_BY_LEAF` exists because the ICA template's conditions compare against **real catalog ids**: without a `tipo_documento` option whose id is literally `"2"`, persona jurídica was unreachable in the simulator, so `visibleWhen` on razón social and the whole `dvNit` rule could never fire. Fake data that doesn't match the real ids makes the simulator lie in the one direction that matters. Only `idTipoDocumento` is load-bearing today; the rest are plausible values, one line each to correct.
 
 Settled decisions:
 

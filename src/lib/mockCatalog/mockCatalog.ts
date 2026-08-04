@@ -1,7 +1,8 @@
 import type { ExportedField } from "../../types/exportForm";
 import type { FieldDataSource, FieldOption } from "../../types/field";
 import type { RuntimeValues } from "../../types/formRuntime";
-import { MOCK_CATALOGS, MOCK_OPTION_COUNT } from "./mockCatalog.constants";
+import { isOptionBasedField } from "../fieldOptions/fieldOptions";
+import { MOCK_BY_LEAF, MOCK_CATALOGS, MOCK_OPTION_COUNT } from "./mockCatalog.constants";
 
 // Un campo mapeado no lleva opciones: las inyecta el consumidor consultando el catalogo.
 // Para poder simularlo se generan opciones deterministas a partir de la ruta, salvo cuando
@@ -27,9 +28,17 @@ export function catalogOptions(field: ExportedField, values: RuntimeValues = {})
     return catalog ? catalog() : placeholderOptions(source.catalog);
   }
 
-  if (field.apiBinding?.kind !== "mapped") return [];
+  // Sin dataSource el consumidor infiere el catalogo de la ruta, asi que el simulador hace igual.
+  if (field.apiBinding?.kind === "mapped") {
+    const leaf: string = field.apiBinding.path.split(".").pop() ?? field.name;
 
-  return placeholderOptions(field.apiBinding.path.split(".").pop() ?? field.name);
+    return MOCK_BY_LEAF[leaf] ?? placeholderOptions(leaf);
+  }
+
+  // Ni catalogo ni ruta: no hay de donde sacar opciones. Aun asi se inventan, porque un select
+  // vacio y obligatorio deja el formulario sin salida y eso no se puede ni probar ni reportar.
+  // El unico vacio legitimo es el de arriba: esperar a que elijan el campo padre.
+  return placeholderOptions(field.name);
 }
 
 // Un catalogo declarado sin datos de mentira igual tiene que dejar llenar el formulario.
@@ -40,8 +49,10 @@ function placeholderOptions(prefix: string): FieldOption[] {
   }));
 }
 
+// Solo un campo de opciones puede tener catalogo: un texto mapeado no lo tiene, aunque comparta
+// la ruta. Las opciones autoradas tampoco son simuladas, las escribio alguien.
 export function isSimulatedCatalog(field: ExportedField): boolean {
-  if (field.options && field.options.length > 0) return false;
+  if (!isOptionBasedField(field.type)) return false;
 
-  return field.dataSource !== undefined || field.apiBinding?.kind === "mapped";
+  return !field.options || field.options.length === 0;
 }
