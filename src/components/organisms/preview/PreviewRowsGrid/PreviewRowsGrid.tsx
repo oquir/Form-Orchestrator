@@ -29,6 +29,7 @@ export function PreviewRowsGrid({
                   key={field.fieldId}
                   field={field}
                   scope={scope}
+                  catalogBank={preview.catalogBank}
                   externalLabel={preview.model.externalLabels.get(field.name)}
                   linkedTooltip={
                     field.labelFor

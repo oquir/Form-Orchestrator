@@ -16,6 +16,7 @@ export function useFormPreview(): FormPreviewApi {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
+  const catalogBank = useFormStore((state) => state.catalogBank);
 
   // El simulador solo ve el JSON exportado. Si algo falta en el contrato, se rompe aca igual
   // que se romperia en el aplicativo que lo consume.
@@ -92,6 +93,7 @@ export function useFormPreview(): FormPreviewApi {
 
   return {
     model,
+    catalogBank,
     state,
     snapshot,
     errors: validation.errors,

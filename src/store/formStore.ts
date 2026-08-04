@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
+import { loadCatalogBank, saveCatalogBank } from "../lib/catalogBank/catalogBank";
 import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import {
@@ -25,6 +26,7 @@ import {
   resolvePlacement,
   sortByColumn,
 } from "../lib/rowLayout/rowLayout";
+import type { CatalogBank } from "../types/catalog";
 import type { CanvasField, SavedComponent } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
 import type {
@@ -88,6 +90,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   dragPlacement: null,
   isDarkMode: getInitialDarkMode(),
   lastSavedAt: null,
+  catalogBank: loadCatalogBank(),
   setDragPlacement: (placement) => set({ dragPlacement: placement }),
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
   setSimulatorOpen: (open) => set({ isSimulatorOpen: open }),
@@ -495,6 +498,22 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         return next;
       }),
     ),
+  // El banco no entra al borrador: se guarda en su propia clave y sobrevive a descartarlo.
+  setCatalogEntries: (catalogId, entries) =>
+    set((state) => {
+      const catalogBank: CatalogBank = { ...state.catalogBank, [catalogId]: entries };
+      saveCatalogBank(catalogBank);
+
+      return { catalogBank };
+    }),
+  clearCatalogEntries: (catalogId) =>
+    set((state) => {
+      const catalogBank: CatalogBank = { ...state.catalogBank };
+      delete catalogBank[catalogId];
+      saveCatalogBank(catalogBank);
+
+      return { catalogBank };
+    }),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>
     set((state) => {

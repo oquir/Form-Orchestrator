@@ -5,4 +5,5 @@ export type SidebarTab =
   | "styles"
   | "logic"
   | "apiMapping"
-  | "library";
+  | "library"
+  | "catalogs";

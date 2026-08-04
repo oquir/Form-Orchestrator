@@ -8,6 +8,7 @@ import type { PreviewFieldProps } from "./PreviewField.types";
 export function PreviewField({
   field,
   scope,
+  catalogBank,
   externalLabel,
   linkedTooltip,
   error,
@@ -41,6 +42,7 @@ export function PreviewField({
           disabled
           invalid={false}
           scopeValues={scope.values}
+          catalogBank={catalogBank}
           onChange={onChange}
         />
       </div>
@@ -69,6 +71,7 @@ export function PreviewField({
         disabled={disabled}
         invalid={Boolean(error)}
         scopeValues={scope.values}
+        catalogBank={catalogBank}
         onChange={onChange}
       />
 

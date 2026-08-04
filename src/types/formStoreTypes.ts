@@ -1,3 +1,4 @@
+import type { CatalogBank, CatalogEntry } from "./catalog";
 import type {
   ApiBinding,
   CanvasField,
@@ -35,6 +36,7 @@ export interface FormState {
   sidebarTab: SidebarTab;
   isDarkMode: boolean;
   lastSavedAt: string | null;
+  catalogBank: CatalogBank;
   dragPlacement: DragPlacement | null;
   setDragPlacement: (placement: DragPlacement | null) => void;
   setSidebarOpen: (open: boolean) => void;
@@ -83,6 +85,8 @@ export interface FormState {
     optionsSetup?: OptionsSetup,
   ) => void;
   updateFieldDataSource: (fieldId: string, dataSource: FieldDataSource | null) => void;
+  setCatalogEntries: (catalogId: string, entries: CatalogEntry[]) => void;
+  clearCatalogEntries: (catalogId: string) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;

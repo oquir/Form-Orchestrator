@@ -19,10 +19,11 @@ export function PreviewFieldControl({
   disabled,
   invalid,
   scopeValues,
+  catalogBank,
   onChange,
 }: PreviewFieldControlProps) {
   const controlClasses = `${CONTROL_BASE_CLASSES} ${invalid ? CONTROL_INVALID_CLASSES : CONTROL_IDLE_CLASSES}`;
-  const options: FieldOption[] = catalogOptions(field, scopeValues);
+  const options: FieldOption[] = catalogOptions(field, scopeValues, catalogBank);
   const inputId = `preview-${field.name}`;
 
   switch (field.type) {

@@ -155,6 +155,12 @@ Precedencia que aplica el consumidor, en este orden:
 
 El par real hoy es `departamento` → `municipio`: el segundo declara `{catalog:"municipios", dependsOn:"departamento"}` y un `enableWhen` con `isNotEmpty`, así que arranca deshabilitado y su catálogo se consulta filtrado.
 
+### Banco de catálogos
+
+La pestaña **Catálogos** del sidebar guarda las opciones que el simulador ofrece en cada campo de catálogo. Se cargan **pegando la respuesta del endpoint** e indicando qué campo es el id, cuál la etiqueta y, en catálogos parametrizados, cuál apunta al padre.
+
+Vive en su propia clave de `localStorage` (`form-orchestrator-catalogs`): **no entra al borrador ni al JSON exportado**, y se comparte entre formularios — los departamentos que cargues una vez los usa también el formulario de retención, porque la unidad es el catálogo y no el campo. Si un catálogo no está cargado, el simulador cae a sus datos de mentira.
+
 ### Persistencia
 
 `src/hooks/useAutosave/` + `src/lib/persistence/`: autoguarda el store en `localStorage` cada 3 minutos una vez completado el setup, y `Ctrl/Cmd+S` hace lo mismo. `DraftRecoveryModal` ofrece restaurar o descartar el borrador al iniciar. El borrador se **valida con Zod** antes de usarse: si no cuadra, se descarta en vez de corromper el estado.

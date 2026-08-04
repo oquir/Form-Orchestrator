@@ -4,6 +4,7 @@ import { SidebarTabRail } from "../../molecules/SidebarTabRail/SidebarTabRail";
 import { FieldPalette } from "../FieldPalette/FieldPalette";
 import { ApiMappingPanel } from "../panels/ApiMappingPanel/ApiMappingPanel";
 import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
+import { CatalogsPanel } from "../panels/CatalogsPanel/CatalogsPanel";
 import { LibraryPanel } from "../panels/LibraryPanel/LibraryPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
@@ -56,9 +57,10 @@ export function Sidebar() {
 
         <div className="flex-1 overflow-y-auto p-4 text-sm text-slate-400 dark:text-neutral-500">
           {activeTab === "fields" && <FieldPalette />}
-          {activeTab !== "fields" && activeTab !== "library" && !selectedField && (
-            <p>Sin campo seleccionado.</p>
-          )}
+          {activeTab !== "fields" &&
+            activeTab !== "library" &&
+            activeTab !== "catalogs" &&
+            !selectedField && <p>Sin campo seleccionado.</p>}
           {selectedField && activeTab === "attributes" && <AttributesPanel field={selectedField} />}
           {selectedField && activeTab === "validations" && (
             <ValidationsPanel field={selectedField} />
@@ -67,6 +69,7 @@ export function Sidebar() {
           {selectedField && activeTab === "logic" && <LogicPanel field={selectedField} />}
           {selectedField && activeTab === "apiMapping" && <ApiMappingPanel field={selectedField} />}
           {activeTab === "library" && <LibraryPanel selectedField={selectedField} />}
+          {activeTab === "catalogs" && <CatalogsPanel />}
         </div>
       </section>
     </div>
