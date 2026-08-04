@@ -101,6 +101,11 @@ const apiBindingSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("excluded") }),
 ]);
 
+const fieldDataSourceSchema = z.object({
+  catalog: z.string(),
+  dependsOn: z.string().optional(),
+});
+
 const canvasFieldSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
@@ -118,6 +123,7 @@ const canvasFieldSchema = z.object({
   enableWhen: fieldConditionSchema.optional(),
   visibleWhen: fieldConditionSchema.optional(),
   apiBinding: apiBindingSchema.optional(),
+  dataSource: fieldDataSourceSchema.optional(),
   labelFor: z.string().optional(),
   content: richTextContentSchema.optional(),
   tooltip: fieldTooltipSchema.optional(),

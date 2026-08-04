@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { CATALOG_DEPARTAMENTOS, CATALOG_MUNICIPIOS } from "../../constants/catalog";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type {
   FormStepTemplate,
@@ -242,7 +243,10 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             type: "select",
             label: "Departamento",
             colSpan: 5,
+            // No viaja en el payload: solo acota el catalogo de municipios.
+            excluded: true,
             required: true,
+            dataSource: { catalog: CATALOG_DEPARTAMENTOS },
           },
           {
             name: "municipio",
@@ -251,6 +255,9 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 5,
             path: "contribuyente.idCiudad",
             required: true,
+            // El catalogo de municipios se consulta por departamento: sin el no hay nada que elegir.
+            enableWhen: { field: "departamento", operator: "isNotEmpty" },
+            dataSource: { catalog: CATALOG_MUNICIPIOS, dependsOn: "departamento" },
           },
         ]),
         buildRow([

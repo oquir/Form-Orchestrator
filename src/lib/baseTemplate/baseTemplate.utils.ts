@@ -34,6 +34,17 @@ function pendingRules(rules: TemplateRule[] | undefined): FieldRule[] | undefine
   }));
 }
 
+function resolvePointer(
+  condition: FieldCondition | undefined,
+  idsByName: Map<string, string>,
+): FieldCondition | undefined {
+  if (!condition) return undefined;
+
+  const targetId: string | undefined = idsByName.get(condition.fieldId);
+
+  return targetId ? { ...condition, fieldId: targetId } : undefined;
+}
+
 // La plantilla apunta al campo observado por nombre; los uuid solo existen despues de buildRow.
 export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps: T[]): T[] {
   const idsByName: Map<string, string> = new Map();
@@ -47,9 +58,14 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
   for (const step of steps) {
     for (const row of step.rows) {
       for (const field of row.fields) {
-        if (field.visibleWhen) {
-          const targetId: string | undefined = idsByName.get(field.visibleWhen.fieldId);
-          field.visibleWhen = targetId ? { ...field.visibleWhen, fieldId: targetId } : undefined;
+        field.visibleWhen = resolvePointer(field.visibleWhen, idsByName);
+        field.enableWhen = resolvePointer(field.enableWhen, idsByName);
+
+        if (field.dataSource?.dependsOn) {
+          const parentId: string | undefined = idsByName.get(field.dataSource.dependsOn);
+          field.dataSource = parentId
+            ? { ...field.dataSource, dependsOn: parentId }
+            : { catalog: field.dataSource.catalog };
         }
 
         if (field.logic.rules) {
@@ -94,6 +110,8 @@ export function buildRow(specs: FieldSpec[], groupId?: string): CanvasRow {
       alwaysDisabled: spec.alwaysDisabled,
       apiBinding: bindingFor(spec),
       visibleWhen: pendingCondition(spec.visibleWhen),
+      enableWhen: pendingCondition(spec.enableWhen),
+      dataSource: spec.dataSource,
     });
 
     colStart += spec.colSpan;

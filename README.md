@@ -139,7 +139,21 @@ Cada campo lleva dos condiciones independientes: `visibleWhen` decide si **se di
 
 `PAYLOAD_SCHEMA` (`src/constants/payloadSchema.ts`) es el contrato real de `DeclaracionIcaE`. Cada campo se marca como **mapeado** a una hoja del contrato, **excluido** del payload, o queda sin definir. `PayloadPreviewCanvas` muestra la cobertura: qué hojas están cubiertas, cuáles no, y qué campos apuntan a rutas que ya no existen.
 
-Los campos con opciones solo admiten opciones escritas a mano **cuando están excluidos del payload**. Si están mapeados, las opciones las inyecta en tiempo de ejecución el aplicativo receptor, consultando el catálogo que corresponde a la ruta.
+Los campos con opciones solo admiten opciones escritas a mano **cuando están excluidos del payload y no declaran un catálogo**. En cualquier otro caso las inyecta en tiempo de ejecución el aplicativo receptor.
+
+### De dónde salen las opciones (`dataSource`)
+
+`dataSource` es `{catalog, dependsOn?}` y responde **de dónde salen las opciones**, mientras que `apiBinding` responde **si el valor viaja en el payload**. Son preguntas independientes: `departamento` está excluido (la API solo quiere `idCiudad`, porque el municipio ya implica el departamento) y aun así necesita consultar el catálogo `departamentos`.
+
+Precedencia que aplica el consumidor, en este orden:
+
+1. Si el campo trae `options[]`, se usan. Solo se exportan para campos excluidos sin catálogo.
+2. Si trae `dataSource`, se consulta `dataSource.catalog`. Si además trae `dependsOn`, se pasa el valor actual de ese campo como parámetro y no se ofrece nada hasta que lo tenga.
+3. Si no trae ninguno y está mapeado, se infiere el catálogo desde `apiBinding.path`.
+
+`options[]` y `dataSource` **nunca viajan juntos**: `allowsManualOptions` devuelve `false` en cuanto hay catálogo, así que el export descarta las opciones y el schema Zod cae a `z.string()` en vez de congelar valores viejos. El catálogo se elige de una lista cerrada (`CATALOGS` en `src/constants/catalog.ts`), no se escribe a mano, por la misma razón que la ruta se elige de `PAYLOAD_SCHEMA`.
+
+El par real hoy es `departamento` → `municipio`: el segundo declara `{catalog:"municipios", dependsOn:"departamento"}` y un `enableWhen` con `isNotEmpty`, así que arranca deshabilitado y su catálogo se consulta filtrado.
 
 ### Persistencia
 
@@ -180,7 +194,7 @@ Dos detalles del contrato:
 - `logic.typeScript` se exporta como string crudo; el consumidor necesita `new Function()`/`eval` para ejecutarlo. **Esto define el límite de confianza del archivo**: cualquiera que le pueda entregar un JSON al consumidor obtiene ejecución de código en él. Es una decisión coordinada, no una restricción de API pública.
 - No hay versionado de schema en el borrador de `localStorage`; si cambia la forma del store, los borradores viejos se descartan al cargar. Se pierde el trabajo guardado, en silencio.
 - **Renglón 35 (`valor_a_pagar`) no tiene fórmula**, así que la cadena de liquidación se corta ahí: el renglón 33 calcula un total que el 38 nunca recoge. Falta definir de dónde sale.
-- Falta **`dataSource`** en el contrato: el consumidor tiene que inferir de `apiBinding.path` qué catálogo alimenta cada select. Relacionado: `FieldOption.id` es un uuid, así que una opción escrita a mano no tiene id de catálogo que enviar.
+- **`dataSource` solo lo usan `departamento` y `municipio`.** Los demás selects de catálogo (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `clasificacion_contribuyente`, el `search_select` de actividad) siguen dependiendo de que el consumidor infiera el catálogo desde `apiBinding.path`. Declararlos es una entrada en `CATALOGS` y un check en el panel de mapeo, pero antes hay que acordar los nombres de catálogo con el otro proyecto. Sigue abierto: `FieldOption.id` es un uuid, así que una opción escrita a mano no tiene id de catálogo que enviar.
 - Los selects mapeados a hojas `number` muestran una advertencia **`⚠ tipo`** permanente (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `municipio`, `clasificacion_contribuyente` y el `search_select` de actividad). El id de catálogo es numérico, pero `fieldMatchesSchemaType` no deja que un tipo con opciones case con `number`.
 - Un campo del formulario no puede condicionar contra un campo del modal introductorio: la lista de candidatos sale solo de `formSteps`.
 - `validations.pattern` no se valida donde se escribe. Ya no puede ejecutar nada, pero una expresión regular inválida hace fallar la construcción del schema del lado del consumidor.

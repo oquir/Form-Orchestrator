@@ -12,7 +12,7 @@ Not yet implemented / known gaps:
 - `logic.typeScript` is exported as a raw string; the consumer will need `new Function()`/`eval` to execute it. The user builds the consumer too, so this is a coordinated decision — not a public API constraint.
 - No draft schema versioning in `persistence.ts`; if the store shape changes, old localStorage drafts can silently break. Repeatable groups already changed that shape, and so did `labelFor` / `content`. What saves it today is that `loadDraft` validates with Zod and returns `null` on mismatch — the draft is lost rather than corrupting the store, which is silent loss of work.
 - `validations.pattern` is not validated where it is authored. Since the injection fix it can no longer execute anything, but an invalid regex now throws `SyntaxError` in the consumer when it builds the schema. A `try { new RegExp(value) } catch` in `ValidationsPanel` would catch it where it is written.
-- One gap left against the real ICA API contract (`DeclaracionIcaE`, documented in the README): no **`dataSource`** to say which catalog endpoint feeds a mapped select (the consumer has to infer it from `apiBinding.path`). Related: `FieldOption` carries `{id, label}` where `id` is a uuid, so a manually-authored option has no catalog id to send.
+- **`dataSource` exists but only `departamento`/`municipio` use it.** The other catalog-fed selects (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `clasificacion_contribuyente`, the `search_select` for actividad) still sit on the legacy path-inference fallback. Declaring them is a `CATALOGS` entry plus a checkbox in the mapping panel, but it needs the catalog names agreed with the consumer first. Related and still open: `FieldOption` carries `{id, label}` where `id` is a uuid, so a manually-authored option has no catalog id to send.
 - **Renglón 35 (`valor_a_pagar`) has no formula**, so the liquidation chain breaks there: renglón 33 computes a total that 38 never picks up. The user has not yet said how 35 is derived. Proposed but unconfirmed: `formula: "total_saldo_a_cargo"`.
 - Selects mapped to `number` leaves show a permanent **`⚠ tipo`** warning (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `municipio`, `clasificacion_contribuyente`, the `search_select` for actividad). A two-line fix in `fieldMatchesSchemaType` — letting option-based types match `number` — has been offered and not yet approved.
 - **The simulator ignores `field.styles` entirely.** The export carries them (`styles: field.styles` in `mapRows`) and `CanvasFieldChip` applies all five, but grepping `.styles` under `components/organisms/preview/` returns nothing: the simulator draws generic controls. So a field styled yellow is yellow on the canvas and grey in the simulator, which undercuts the "faithful consumer" premise. The four that go through `style={{}}` (`marginTop`, `marginBottom`, `backgroundColor`, `textColor`) are a short, safe fix. `customClasses` is not — see the next entry.
@@ -109,7 +109,7 @@ Layers, all React-free and benchmarked at ~1 ms per keystroke for the full ICA f
 - `lib/runtimeFormula/` — resolves `logic.formula` and `logic.rules` in topological order over field names (`planDerivedFields`), reusing `parseFormula`/`evaluateFormula`. Formula first, then rules override in list order.
 - `lib/runtimePayload/` — walks `apiBinding.path` to assemble the real `DeclaracionIcaE` object, expanding `[]` to the repetition index.
 - `lib/zodHydrate/` — `new Function("z", ...)` over `validations.zodSchema`.
-- `lib/mockCatalog/` — deterministic fake options for mapped selects.
+- `lib/mockCatalog/` — the options a catalog-fed select offers: `MOCK_CATALOGS` keyed by a declared `dataSource.catalog`, falling back to deterministic options built from the payload path. **Simulator-only, never exported.**
 
 Settled decisions:
 
@@ -139,17 +139,38 @@ Settled decisions:
 
 ## Options and `apiBinding`
 
-`select`, `search_select`, `toggle_group`, `radio_group` and `checkbox_group` (`OPTION_BASED_FIELD_TYPES` in `src/constants/fieldTypes.ts`) only get **manually authored options when the field is explicitly excluded from the payload**. A mapped field — or one whose `apiBinding` is still undefined — gets its options injected at runtime by the consuming app, which reads `apiBinding.path` and queries the catalog. The predicates live in `src/lib/fieldOptions/fieldOptions.ts`; use `allowsManualOptions` rather than checking `apiBinding` inline, so the panel, the canvas preview, `buildZodSchema` and `buildFormExport` can't drift apart.
+`select`, `search_select`, `toggle_group`, `radio_group` and `checkbox_group` (`OPTION_BASED_FIELD_TYPES` in `src/constants/fieldTypes.ts`) only get **manually authored options when the field is explicitly excluded from the payload *and* declares no `dataSource`**. Otherwise its options are injected at runtime by the consuming app. The predicates live in `src/lib/fieldOptions/fieldOptions.ts`; use `allowsManualOptions` rather than checking `apiBinding` inline, so the panel, the canvas preview, `buildZodSchema` and `buildFormExport` can't drift apart — it has exactly four call sites and they are the whole enforcement.
+
+**Where a field's options come from — the precedence the consumer applies, in this order:**
+
+1. `options[]` present → use them. Only ever emitted for excluded fields with no `dataSource`.
+2. `dataSource` present → query `dataSource.catalog`; if it carries `dependsOn`, pass that field's current value as the parameter and offer nothing until it has one.
+3. Neither, and `apiBinding.kind === "mapped"` → infer the catalog from `apiBinding.path`. Legacy fallback; most ICA selects still sit here.
+
+**`options[]` and `dataSource` are mutually exclusive by construction**, not by convention: `allowsManualOptions` returns false whenever `dataSource` is set, which makes `exportableOptions` return `undefined` and `buildZodSchema` fall back to `z.string()` instead of freezing a `z.enum` of stale catalog values. The JSON can never carry both, so the consumer never has to break a tie.
 
 Consequences to keep in mind:
 
-- Dropping an option-based field from the palette creates it with **no options**. `FieldOptionsModal` (título + cantidad) fires from `ApiMappingPanel` at the moment the field is marked excluded, not on drop.
-- Leaving the excluded state **discards** `options` — this is deliberate, decided over keeping hidden data around.
+- Dropping an option-based field from the palette creates it with **no options**. `FieldOptionsModal` (título + cantidad) fires from `ApiMappingPanel` at the moment the field is marked excluded, not on drop — **unless the field already declares a `dataSource`**, in which case excluding it asks nothing, because there is nothing to author.
+- Leaving the excluded state **discards** `options` — this is deliberate, decided over keeping hidden data around. Declaring a `dataSource` discards them for the same reason (`updateFieldDataSource`); the two paths share `allowsManualOptions` so they cannot disagree.
 - `buildZodSchema` only emits `z.enum([...])` for excluded fields; mapped ones fall back to `z.string()`, since the builder can't enumerate values it never sees.
 - `ConditionValueInput` offers a dropdown only when the observed field has local options, so an `enableWhen`/`visibleWhen` pointing at a mapped select degrades to a free-text input where you type the catalog id by hand.
 - `checkbox` and `checkbox_group` are **different types on purpose**. `checkbox` is a single boolean ("acepto los términos") — `z.boolean()`, only `isTruthy`/`isFalsy` operators, no "required" toggle. `checkbox_group` is multi-select: it carries `options[]` and its schema is `z.array(z.enum([...]))` (`MULTI_VALUE_FIELD_TYPES` drives the array wrapping). Do not merge them.
 - `PAYLOAD_SCHEMA` currently has **75 leaves — 53 `number`, 22 `string`, no `boolean` and no arrays of scalars**; 3 are `providedByHost` and 5 sit inside `actividades[]`. So a `checkbox_group` has nowhere to map and will in practice always be excluded, and `fieldMatchesSchemaType` lets `checkbox` match `number` leaves (0/1) — otherwise every mapped checkbox showed a permanent, unavoidable type warning.
 - `flattenLeaves` descends into arrays and stamps each item leaf with its `arrayPath`; `flattenSelectableLeaves(schema, arrayPath?)` filters by array context, so the mapping panel offers item paths only to fields that live in a group bound to that array.
+
+### `dataSource` — which catalog feeds a field
+
+`FieldDataSource` is `{catalog, dependsOn?}` (`src/types/field.ts`). `catalog` is a contract string the consumer maps to its own endpoint; `dependsOn` names the field whose value parameterizes the query. In the store it holds the parent's **id**; `resolveDataSource` turns it into a **name** on the way out, exactly like `labelFor`.
+
+`dataSource` answers "where do the options come from", and `apiBinding` answers "does this value travel in the payload". **They are orthogonal, and conflating them was the original bug.** `departamento` is the proof: it is `{kind:"excluded"}` because the API only wants `idCiudad` — the municipality already implies the department — and it carries `{catalog:"departamentos"}` because its options are still a catalog query. Before the split, marking a field excluded forced the author through `FieldOptionsModal`, so "excluded but catalog-fed" was unauthorable.
+
+Settled decisions:
+
+- **`CATALOGS` is a closed list** (`src/constants/catalog.ts`), picked from a dropdown, never typed. Same reasoning as `apiBinding.path` being chosen from `PAYLOAD_SCHEMA`: it is a contract shared with an app the builder cannot see, and a typo'd catalog name fails silently and with no clue on the far side. Adding one is a line there plus a line in `MOCK_CATALOGS`.
+- **Identifying a catalog by field `name` was rejected.** It forces the consumer to carry a list of magic names, breaks the moment a field is renamed, and does not generalize to the next dependent pair. `dataSource` is that idea made explicit in the data.
+- **A `dataSource` never ships its options.** The DANE departments and municipalities in `mockCatalog.constants.ts` are simulator-only; the export carries the catalog name and nothing else.
+- **A catalog with no mock data still yields placeholder options** (`placeholderOptions`), so declaring one never leaves the simulator with a dead select you cannot fill past.
 
 ## Conditions (`visibleWhen` / `enableWhen` / `alwaysDisabled`)
 

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { PAYLOAD_SCHEMA } from "../../../../constants/payloadSchema";
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
-import { isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
+import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import { fieldMatchesSchemaType } from "../../../../lib/payloadMapping/payloadMapping";
 import { flattenSelectableLeaves, resolveLeaf } from "../../../../lib/payloadSchema/payloadSchema";
-import { findGroupForField, useFormStore } from "../../../../store/formStore";
+import { findGroupForField, getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
 import type { OptionsSetup } from "../../../../types/formStoreTypes";
 import type { RepeatableGroup } from "../../../../types/formStructure";
@@ -12,9 +12,11 @@ import type { SchemaLeaf } from "../../../../types/payloadSchema";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { ApiPathSelect } from "../../../molecules/ApiPathSelect/ApiPathSelect";
 import { FieldOptionsModal } from "../../FieldOptionsModal/FieldOptionsModal";
+import { FieldDataSourceEditor } from "../FieldDataSourceEditor/FieldDataSourceEditor";
 
 export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const updateFieldApiBinding = useFormStore((state) => state.updateFieldApiBinding);
+  const formSteps = useFormStore((state) => state.formSteps);
   const [isAskingOptions, setIsAskingOptions] = useState<boolean>(false);
   const group: RepeatableGroup | null = useFormStore((state) => findGroupForField(state, field.id));
   const binding = field.apiBinding;
@@ -41,8 +43,15 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
     resolvedType && !isHostPath && !fieldMatchesSchemaType(field.type, resolvedType),
   );
 
+  const dataSourceCandidates: CanvasField[] = getAllFields(
+    formSteps.flatMap((step) => step.rows),
+  ).filter((candidate) => candidate.id !== field.id && !isPresentationalField(candidate.type));
+
+  // Con un catalogo declarado no hay opciones que autorar: excluir deja de arrastrar al modal.
   const needsOptionsSetup: boolean =
-    isOptionBasedField(field.type) && (field.options ?? []).length === 0;
+    isOptionBasedField(field.type) &&
+    (field.options ?? []).length === 0 &&
+    field.dataSource === undefined;
 
   function handleExcludedToggle(checked: boolean): void {
     if (checked && needsOptionsSetup) {
@@ -75,7 +84,7 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
       {isExcluded && (
         <p className="text-[11px] text-slate-400 dark:text-neutral-500">
           Este campo no se enviará al objeto final aunque participe en cálculos o condiciones.
-          {isOptionBasedField(field.type) &&
+          {allowsManualOptions(field) &&
             " Si lo volvés a incluir en el payload, las opciones que cargaste se descartan."}
         </p>
       )}
@@ -118,6 +127,10 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
             </p>
           )}
         </>
+      )}
+
+      {isOptionBasedField(field.type) && (
+        <FieldDataSourceEditor field={field} candidates={dataSourceCandidates} />
       )}
 
       {isAskingOptions && (

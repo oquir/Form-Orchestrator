@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
+import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import {
   allowsManualOptions,
@@ -365,6 +366,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
               enableWhen: field.enableWhen?.fieldId === fieldId ? undefined : field.enableWhen,
               visibleWhen: field.visibleWhen?.fieldId === fieldId ? undefined : field.visibleWhen,
               labelFor: field.labelFor === fieldId ? undefined : field.labelFor,
+              dataSource: pruneDataSourceReferencing(field.dataSource, fieldId),
               logic: {
                 ...field.logic,
                 rules: pruneRulesReferencing(field.logic.rules, fieldId),
@@ -479,6 +481,17 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           next.title = optionsSetup.title?.trim() || undefined;
           next.options = createOptions(optionsSetup.optionCount);
         }
+        return next;
+      }),
+    ),
+  // Declarar un catalogo descarta las opciones autoradas, igual que salir de "excluido":
+  // no se guardan datos que el JSON ya no va a poder llevar.
+  updateFieldDataSource: (fieldId, dataSource) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => {
+        const next: CanvasField = { ...field, dataSource: dataSource ?? undefined };
+        if (isOptionBasedField(next.type) && !allowsManualOptions(next)) next.options = undefined;
+
         return next;
       }),
     ),

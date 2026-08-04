@@ -84,6 +84,13 @@ export interface FieldRule {
 
 export type ApiBinding = { kind: "mapped"; path: string } | { kind: "excluded" };
 
+// Que catalogo alimenta las opciones del campo. `dependsOn` guarda el id del campo que
+// parametriza la consulta (departamento -> municipios) y se resuelve a nombre al exportar.
+export interface FieldDataSource {
+  catalog: string;
+  dependsOn?: string;
+}
+
 export interface CanvasField {
   id: string;
   name: string;
@@ -101,6 +108,7 @@ export interface CanvasField {
   enableWhen?: FieldCondition;
   visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
+  dataSource?: FieldDataSource;
   labelFor?: string;
   content?: RichTextContent;
   tooltip?: FieldTooltip;
@@ -122,5 +130,6 @@ export interface SavedComponent {
   enableWhen?: FieldCondition;
   visibleWhen?: FieldCondition;
   apiBinding?: ApiBinding;
+  dataSource?: FieldDataSource;
   tooltip?: FieldTooltip;
 }

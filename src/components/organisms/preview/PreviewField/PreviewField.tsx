@@ -40,6 +40,7 @@ export function PreviewField({
           value={undefined}
           disabled
           invalid={false}
+          scopeValues={scope.values}
           onChange={onChange}
         />
       </div>
@@ -67,6 +68,7 @@ export function PreviewField({
         value={scope.values[field.name]}
         disabled={disabled}
         invalid={Boolean(error)}
+        scopeValues={scope.values}
         onChange={onChange}
       />
 

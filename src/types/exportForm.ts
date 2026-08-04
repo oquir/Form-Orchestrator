@@ -2,6 +2,7 @@ import type {
   ApiBinding,
   ConditionOperator,
   FieldCondition,
+  FieldDataSource,
   FieldFileConfig,
   FieldOption,
   FieldStyles,
@@ -49,6 +50,7 @@ export interface ExportedField {
   enableWhen?: ExportedCondition;
   visibleWhen?: ExportedCondition;
   apiBinding?: ApiBinding;
+  dataSource?: FieldDataSource;
   labelFor?: string;
   content?: RichTextContent;
   tooltip?: FieldTooltip;

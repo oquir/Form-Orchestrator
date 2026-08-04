@@ -5,7 +5,7 @@ import type {
   ExportedRule,
   ExportedStep,
 } from "../../types/exportForm";
-import type { CanvasField, FieldCondition } from "../../types/field";
+import type { CanvasField, FieldCondition, FieldDataSource } from "../../types/field";
 import type { CanvasRow, FormStep } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
@@ -66,6 +66,19 @@ export function resolveRules(
   }));
 }
 
+export function resolveDataSource(
+  field: CanvasField,
+  names: Map<string, string>,
+): FieldDataSource | undefined {
+  const source: FieldDataSource | undefined = field.dataSource;
+  if (!source) return undefined;
+
+  return {
+    catalog: source.catalog,
+    dependsOn: source.dependsOn ? (names.get(source.dependsOn) ?? source.dependsOn) : undefined,
+  };
+}
+
 export function mapRows(rows: CanvasRow[], names: Map<string, string>): ExportedRow[] {
   return rows.map((row) => ({
     rowId: row.id,
@@ -93,6 +106,7 @@ export function mapRows(rows: CanvasRow[], names: Map<string, string>): Exported
       enableWhen: resolveCondition(field.enableWhen, names),
       visibleWhen: resolveCondition(field.visibleWhen, names),
       apiBinding: field.apiBinding,
+      dataSource: resolveDataSource(field, names),
       labelFor: field.labelFor ? (names.get(field.labelFor) ?? field.labelFor) : undefined,
       content: field.content,
       tooltip: exportableTooltip(field),

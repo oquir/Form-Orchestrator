@@ -24,5 +24,12 @@ export interface FieldSpec {
   formula?: string;
   alwaysDisabled?: boolean;
   visibleWhen?: TemplateCondition;
+  enableWhen?: TemplateCondition;
   rules?: TemplateRule[];
+  dataSource?: TemplateDataSource;
+}
+
+export interface TemplateDataSource {
+  catalog: string;
+  dependsOn?: string;
 }

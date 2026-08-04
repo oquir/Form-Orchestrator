@@ -2,6 +2,7 @@ import type {
   ApiBinding,
   CanvasField,
   FieldCondition,
+  FieldDataSource,
   FieldFileConfig,
   FieldLogic,
   FieldRule,
@@ -81,6 +82,7 @@ export interface FormState {
     binding: ApiBinding | null,
     optionsSetup?: OptionsSetup,
   ) => void;
+  updateFieldDataSource: (fieldId: string, dataSource: FieldDataSource | null) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;

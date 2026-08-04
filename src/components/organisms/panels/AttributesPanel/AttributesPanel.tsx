@@ -98,9 +98,9 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
         <div className="flex flex-col items-start gap-2 border-t border-slate-200 pt-4 dark:border-neutral-700">
           <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">Opciones</p>
           <p className="text-xs text-slate-400 dark:text-neutral-500">
-            Las carga el aplicativo que recibe el JSON consultando la base de datos según la ruta
-            mapeada. Si este campo no sale de un catálogo, marcálo como excluido del payload y vas a
-            poder definirlas a mano.
+            {field.dataSource
+              ? `Las carga el aplicativo que recibe el JSON consultando el catálogo “${field.dataSource.catalog}”. Para definirlas a mano hay que quitar ese catálogo.`
+              : "Las carga el aplicativo que recibe el JSON consultando la base de datos según la ruta mapeada. Si este campo no sale de un catálogo, marcálo como excluido del payload y vas a poder definirlas a mano."}
           </p>
           <button
             type="button"
