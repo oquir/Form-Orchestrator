@@ -8,9 +8,15 @@ import type { ActiveDrag } from "../../types/activeDrag";
 import type { DragAndDropReturn } from "../../types/dragAndDropReturn";
 import type { CanvasField, SavedComponent } from "../../types/field";
 import type { FieldTypeDef } from "../../types/fieldTypes";
+import type { DragPlacement } from "../../types/placement";
 import { DRAG_ACTIVATION_DISTANCE_PX } from "./useDragAndDrop.constants";
 import type { PointerPosition } from "./useDragAndDrop.types";
-import { centerOverlayOnCursor, getColumnAtPointer, getRowElement } from "./useDragAndDrop.utils";
+import {
+  centerOverlayOnCursor,
+  getColumnAtPointer,
+  getRowElement,
+  samePlacement,
+} from "./useDragAndDrop.utils";
 
 const OVERLAY_MODIFIERS: Modifier[] = [centerOverlayOnCursor];
 
@@ -45,20 +51,31 @@ export function useDragAndDrop(): DragAndDropReturn {
     return GRID_BASE_COLUMNS;
   }, []);
 
+  // recomputePlacement corre en cada pointermove, o sea unas cien veces por segundo, y casi
+  // siempre para dejar todo igual. Escribir al store igual crea un estado nuevo y obliga a cada
+  // suscriptor a reevaluar su selector, asi que solo se escribe cuando el valor cambia de verdad.
+  const applyPlacement = useCallback(
+    (next: DragPlacement | null): void => {
+      if (samePlacement(useFormStore.getState().dragPlacement, next)) return;
+      setDragPlacement(next);
+    },
+    [setDragPlacement],
+  );
+
   const recomputePlacement = useCallback((): void => {
     const drag = activeDragRef.current;
     const rowId = hoveredRowIdRef.current;
     const { shift, ctrl } = modifiersRef.current;
 
     if (!drag || !rowId || !shift) {
-      setDragPlacement(null);
+      applyPlacement(null);
       return;
     }
 
     const row = findRowById(useFormStore.getState(), rowId);
     const rowElement = getRowElement(rowId);
     if (!row || !rowElement) {
-      setDragPlacement(null);
+      applyPlacement(null);
       return;
     }
 
@@ -72,13 +89,13 @@ export function useDragAndDrop(): DragAndDropReturn {
       const run = runs.find((r) => anchor >= r.start && anchor < r.start + r.length);
 
       if (!run) {
-        setDragPlacement({ rowId, colStart: anchor, colSpan: 1, mode: "resize", isValid: false });
+        applyPlacement({ rowId, colStart: anchor, colSpan: 1, mode: "resize", isValid: false });
         return;
       }
 
       const maxSpan = run.start + run.length - anchor;
       const colSpan = Math.max(1, Math.min(column - anchor + 1, maxSpan));
-      setDragPlacement({ rowId, colStart: anchor, colSpan, mode: "resize", isValid: true });
+      applyPlacement({ rowId, colStart: anchor, colSpan, mode: "resize", isValid: true });
       return;
     }
 
@@ -86,14 +103,14 @@ export function useDragAndDrop(): DragAndDropReturn {
     const colSpan = Math.max(1, Math.min(getDraggedSpan(drag), row.columns));
     const snapped = findNearestFit(runs, column, colSpan);
 
-    setDragPlacement({
+    applyPlacement({
       rowId,
       colStart: snapped ?? column,
       colSpan,
       mode: "move",
       isValid: snapped !== null,
     });
-  }, [getDraggedSpan, setDragPlacement]);
+  }, [getDraggedSpan, applyPlacement]);
 
   useEffect(() => {
     if (!activeDrag) return;

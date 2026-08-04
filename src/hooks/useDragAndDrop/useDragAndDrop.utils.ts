@@ -1,6 +1,7 @@
 import type { Modifier } from "@dnd-kit/core";
 import { getEventCoordinates } from "@dnd-kit/utilities";
 import { GRID_GAP_PX } from "../../constants/grid";
+import type { DragPlacement } from "../../types/placement";
 
 // Medidas del arrastre contra el DOM real. La grilla la dibuja CSS, asi que la unica forma de
 // saber sobre que columna esta el puntero es medir la fila.
@@ -31,6 +32,20 @@ export const centerOverlayOnCursor: Modifier = ({
 
 export function getRowElement(rowId: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[data-row-id="${rowId}"]`);
+}
+
+// Comparacion por valor: el placement se recalcula en cada movimiento del puntero y sale un objeto
+// nuevo aunque la columna no haya cambiado, asi que por identidad nunca coincidirian.
+export function samePlacement(a: DragPlacement | null, b: DragPlacement | null): boolean {
+  if (a === null || b === null) return a === b;
+
+  return (
+    a.rowId === b.rowId &&
+    a.colStart === b.colStart &&
+    a.colSpan === b.colSpan &&
+    a.mode === b.mode &&
+    a.isValid === b.isValid
+  );
 }
 
 export function getColumnAtPointer(
