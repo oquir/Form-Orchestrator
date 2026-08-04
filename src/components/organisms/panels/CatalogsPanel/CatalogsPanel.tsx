@@ -8,6 +8,7 @@ import {
 import { useFormStore } from "../../../../store/formStore";
 import type { CatalogEntry, CatalogParseResult } from "../../../../types/catalog";
 import { Button } from "../../../atoms/Button/Button";
+import { BinaryChoiceToggle } from "../../../molecules/BinaryChoiceToggle/BinaryChoiceToggle";
 import {
   CARD_CLASSES,
   ERROR_CLASSES,
@@ -24,20 +25,22 @@ export function CatalogsPanel() {
   return (
     <div className="flex flex-col gap-4">
       <p className={HINT_CLASSES}>
-        Las opciones que el simulador ofrece en cada campo de catálogo. No viajan en el JSON
-        exportado y no dependen del borrador: se comparten entre todos tus formularios, así que los
-        departamentos que cargues acá los hereda el formulario de retención.
+        Las opciones que el simulador ofrece en cada campo de catálogo. Cada uno elige entre los
+        datos de prueba que trae el simulador y los que cargues vos; cambiar de uno a otro no borra
+        lo cargado. No viajan en el JSON exportado y no dependen del borrador: se comparten entre
+        todos tus formularios, así que los departamentos que cargues acá los hereda el de retención.
       </p>
 
       {CATALOGS.map((catalog) => (
-        <CatalogCard key={catalog.id} catalog={catalog} entries={catalogBank[catalog.id] ?? []} />
+        <CatalogCard key={catalog.id} catalog={catalog} stored={catalogBank[catalog.id]} />
       ))}
     </div>
   );
 }
 
-function CatalogCard({ catalog, entries }: CatalogCardProps) {
+function CatalogCard({ catalog, stored }: CatalogCardProps) {
   const setCatalogEntries = useFormStore((state) => state.setCatalogEntries);
+  const setCatalogSource = useFormStore((state) => state.setCatalogSource);
   const clearCatalogEntries = useFormStore((state) => state.clearCatalogEntries);
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -47,7 +50,9 @@ function CatalogCard({ catalog, entries }: CatalogCardProps) {
   const [parentKey, setParentKey] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
+  const entries: CatalogEntry[] = stored?.entries ?? [];
   const loaded: boolean = entries.length > 0;
+  const isCustom: boolean = loaded && stored?.source === "custom";
 
   function load(): void {
     const result: CatalogParseResult = parseCatalogPaste(
@@ -76,7 +81,7 @@ function CatalogCard({ catalog, entries }: CatalogCardProps) {
             {catalog.label}
           </p>
           <p className={HINT_CLASSES}>
-            {loaded ? `${entries.length} opciones cargadas` : "Usando datos de mentira"}
+            {loaded ? `${entries.length} opciones cargadas` : "Sin cargar"}
             {catalog.requiresParent && " · se consulta por un campo padre"}
           </p>
         </div>
@@ -90,22 +95,33 @@ function CatalogCard({ catalog, entries }: CatalogCardProps) {
       </div>
 
       {loaded && !isOpen && (
-        <div className="flex items-center justify-between gap-2">
-          <p className={`${HINT_CLASSES} truncate`}>
-            {entries
-              .slice(0, 3)
-              .map((entry: CatalogEntry) => entry.label)
-              .join(" · ")}
-            {entries.length > 3 && " …"}
-          </p>
-          <button
-            type="button"
-            onClick={() => clearCatalogEntries(catalog.id)}
-            className="shrink-0 text-[11px] text-slate-400 hover:cursor-pointer hover:text-red-600 dark:text-neutral-500"
-          >
-            Vaciar
-          </button>
-        </div>
+        <>
+          <BinaryChoiceToggle
+            value={isCustom}
+            onChange={(next) => setCatalogSource(catalog.id, next ? "custom" : "default")}
+            yesLabel="Personalizado"
+            noLabel="Por defecto"
+          />
+
+          <div className="flex items-center justify-between gap-2">
+            <p className={`${HINT_CLASSES} truncate`}>
+              {isCustom
+                ? entries
+                    .slice(0, 3)
+                    .map((entry: CatalogEntry) => entry.label)
+                    .join(" · ")
+                : "Usando los datos de prueba del simulador"}
+              {isCustom && entries.length > 3 && " …"}
+            </p>
+            <button
+              type="button"
+              onClick={() => clearCatalogEntries(catalog.id)}
+              className="shrink-0 text-[11px] text-slate-400 hover:cursor-pointer hover:text-red-600 dark:text-neutral-500"
+            >
+              Vaciar
+            </button>
+          </div>
+        </>
       )}
 
       {isOpen && (

@@ -1,6 +1,6 @@
-import type { CatalogDefinition, CatalogEntry } from "../../../../types/catalog";
+import type { CatalogDefinition, StoredCatalog } from "../../../../types/catalog";
 
 export interface CatalogCardProps {
   catalog: CatalogDefinition;
-  entries: CatalogEntry[];
+  stored: StoredCatalog | undefined;
 }

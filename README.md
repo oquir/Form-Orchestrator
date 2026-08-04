@@ -159,7 +159,11 @@ El par real hoy es `departamento` → `municipio`: el segundo declara `{catalog:
 
 La pestaña **Catálogos** del sidebar guarda las opciones que el simulador ofrece en cada campo de catálogo. Se cargan **pegando la respuesta del endpoint** e indicando qué campo es el id, cuál la etiqueta y, en catálogos parametrizados, cuál apunta al padre.
 
-Vive en su propia clave de `localStorage` (`form-orchestrator-catalogs`): **no entra al borrador ni al JSON exportado**, y se comparte entre formularios — los departamentos que cargues una vez los usa también el formulario de retención, porque la unidad es el catálogo y no el campo. Si un catálogo no está cargado, el simulador cae a sus datos de mentira.
+Vive en su propia clave de `localStorage` (`form-orchestrator-catalogs`): **no entra al borrador ni al JSON exportado**, y se comparte entre formularios — los departamentos que cargues una vez los usa también el formulario de retención, porque la unidad es el catálogo y no el campo.
+
+Cada catálogo tiene su propio interruptor **Por defecto / Personalizado**. Volver a "Por defecto" **no borra lo cargado**, solo lo ignora: podés probar con los datos de prueba del simulador y regresar a los reales sin volver a pegar el JSON. Un catálogo que nunca cargaste usa siempre los datos de prueba.
+
+En el simulador, la etiqueta **"Catálogo simulado"** debajo de un campo indica que sus opciones son inventadas. Si el catálogo está en modo personalizado, la etiqueta desaparece — así se ve, campo por campo, con qué datos estás probando.
 
 ### Persistencia
 

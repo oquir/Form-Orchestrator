@@ -174,14 +174,16 @@ Settled decisions:
 
 ### The catalog bank — real options for the simulator
 
-`CatalogBank` is `Record<catalogId, CatalogEntry[]>` (`src/types/catalog.ts`), edited from the **Catálogos** sidebar tab and stored under its own `localStorage` key (`form-orchestrator-catalogs`), **never in the draft and never in the export** — `exportForm` and `persistence` contain zero references to it, so the isolation is structural rather than a promise.
+`CatalogBank` is `Record<catalogId, {source, entries}>` (`src/types/catalog.ts`), edited from the **Catálogos** sidebar tab and stored under its own `localStorage` key (`form-orchestrator-catalogs`), **never in the draft and never in the export** — `exportForm` and `persistence` contain zero references to it, so the isolation is structural rather than a promise.
 
 It is keyed **by catalog, not by field**, and that is the whole point: `departamentos` is the same catalog in the ICA form and in retención, so loading it once serves every form. Per-field storage would have forced re-entering it per form, and that is what makes a "copy options from one simulator to another" button look necessary — it is a symptom of the wrong unit, and it does not exist here.
 
 Settled decisions:
 
 - **Options are pasted, not typed.** `parseCatalogPaste(raw, idKey, labelKey, parentKey?)` takes an endpoint response verbatim: it digs out the first array inside a `{data:[…]}`-style wrapper, and the author names the id/label/parent keys. Typing 1.100 municipios row by row is not a workflow anyone completes.
-- **The bank wins whole, or not at all.** If `bank[catalogId]` exists, it is used even when the parent filter yields nothing. Falling back to mock data for an unloaded parent would mix real and fake options in one dropdown.
+- **The bank wins whole, or not at all.** If a catalog is active (`usesCustomCatalog`), it is used even when the parent filter yields nothing. Falling back to mock data for an unloaded parent would mix real and fake options in one dropdown.
+- **Which data to use is a per-catalog switch, not a prompt.** Each catalog is `default` or `custom`, and flipping to `default` **keeps** the pasted entries rather than discarding them — testing against the small fake set should not cost you the JSON you pasted. A modal asking "default or custom?" on entering the simulator was proposed and rejected: it would be a global answer to a per-catalog question, annoying if it fired every time and an unfindable hidden preference if it fired once. State you can see and flip beats a question you answer and forget.
+- **`isSimulatedCatalog` takes the bank**, because the warning has to be true: before this it kept saying "Catálogo simulado" under a field already showing the 33 real departments loaded from the endpoint. That badge is where an author actually finds out which data they are looking at — which is the discoverability problem the rejected modal was reaching for, solved at the point of use.
 - **No HTTP.** Connecting the simulator to the real catalog endpoints was considered and deferred: it buys real data at the cost of CORS, auth, and a simulator that stops working offline. Pasting gets the same data with none of that, and the bank is the structure a URL fetch would fill later anyway.
 
 ## Conditions (`visibleWhen` / `enableWhen` / `alwaysDisabled`)

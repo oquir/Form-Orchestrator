@@ -1,4 +1,4 @@
-import type { CatalogBank, CatalogEntry } from "./catalog";
+import type { CatalogBank, CatalogEntry, CatalogSource } from "./catalog";
 import type {
   ApiBinding,
   CanvasField,
@@ -86,6 +86,7 @@ export interface FormState {
   ) => void;
   updateFieldDataSource: (fieldId: string, dataSource: FieldDataSource | null) => void;
   setCatalogEntries: (catalogId: string, entries: CatalogEntry[]) => void;
+  setCatalogSource: (catalogId: string, source: CatalogSource) => void;
   clearCatalogEntries: (catalogId: string) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;

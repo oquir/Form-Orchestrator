@@ -501,7 +501,21 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   // El banco no entra al borrador: se guarda en su propia clave y sobrevive a descartarlo.
   setCatalogEntries: (catalogId, entries) =>
     set((state) => {
-      const catalogBank: CatalogBank = { ...state.catalogBank, [catalogId]: entries };
+      const catalogBank: CatalogBank = {
+        ...state.catalogBank,
+        [catalogId]: { source: "custom", entries },
+      };
+      saveCatalogBank(catalogBank);
+
+      return { catalogBank };
+    }),
+  // Cambiar de origen conserva lo cargado: volver a lo personalizado no obliga a pegarlo de nuevo.
+  setCatalogSource: (catalogId, source) =>
+    set((state) => {
+      const stored = state.catalogBank[catalogId];
+      if (!stored) return state;
+
+      const catalogBank: CatalogBank = { ...state.catalogBank, [catalogId]: { ...stored, source } };
       saveCatalogBank(catalogBank);
 
       return { catalogBank };

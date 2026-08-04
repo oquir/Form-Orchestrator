@@ -78,7 +78,7 @@ export function PreviewField({
       <div className="flex flex-wrap items-center gap-2">
         {error && <span className="text-[11px] text-danger">{error}</span>}
         {computed && <span className="text-[11px] text-fg-subtle">Calculado</span>}
-        {isSimulatedCatalog(field) && (
+        {isSimulatedCatalog(field, catalogBank) && (
           <span className="text-[11px] text-fg-subtle">Catálogo simulado</span>
         )}
       </div>

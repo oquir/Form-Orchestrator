@@ -2,7 +2,7 @@ import type { CatalogBank } from "../../types/catalog";
 import type { ExportedField } from "../../types/exportForm";
 import type { FieldDataSource, FieldOption } from "../../types/field";
 import type { RuntimeValues } from "../../types/formRuntime";
-import { catalogEntriesFor } from "../catalogBank/catalogBank";
+import { catalogEntriesFor, usesCustomCatalog } from "../catalogBank/catalogBank";
 import { isOptionBasedField } from "../fieldOptions/fieldOptions";
 import { MOCK_BY_LEAF, MOCK_CATALOGS, MOCK_OPTION_COUNT } from "./mockCatalog.constants";
 
@@ -43,10 +43,10 @@ export function catalogOptions(
   return placeholderOptions(field.name);
 }
 
-// Lo que el autor cargo en el banco manda: si el catalogo esta ahi se usa entero, aunque el filtro
-// por padre no devuelva nada. Mezclarlo con el dato de mentira daria resultados incoherentes.
+// Lo que el autor cargo en el banco manda: si el catalogo esta activo se usa entero, aunque el
+// filtro por padre no devuelva nada. Mezclarlo con el dato de mentira daria listas incoherentes.
 function fromCatalog(catalogId: string, bank: CatalogBank, parentId?: string): FieldOption[] {
-  if (bank[catalogId]) {
+  if (usesCustomCatalog(bank, catalogId)) {
     return catalogEntriesFor(bank, catalogId, parentId).map((entry) => ({
       id: entry.id,
       label: entry.label,
@@ -67,9 +67,11 @@ function placeholderOptions(prefix: string): FieldOption[] {
 }
 
 // Solo un campo de opciones puede tener catalogo: un texto mapeado no lo tiene, aunque comparta
-// la ruta. Las opciones autoradas tampoco son simuladas, las escribio alguien.
-export function isSimulatedCatalog(field: ExportedField): boolean {
+// la ruta. Ni las opciones autoradas ni las cargadas en el banco son simuladas: alguien las puso.
+export function isSimulatedCatalog(field: ExportedField, bank: CatalogBank = {}): boolean {
   if (!isOptionBasedField(field.type)) return false;
+  if (field.options && field.options.length > 0) return false;
+  if (field.dataSource && usesCustomCatalog(bank, field.dataSource.catalog)) return false;
 
-  return !field.options || field.options.length === 0;
+  return true;
 }

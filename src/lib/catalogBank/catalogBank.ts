@@ -1,4 +1,9 @@
-import type { CatalogBank, CatalogEntry, CatalogParseResult } from "../../types/catalog";
+import type {
+  CatalogBank,
+  CatalogEntry,
+  CatalogParseResult,
+  StoredCatalog,
+} from "../../types/catalog";
 import { CATALOG_BANK_KEY } from "./catalogBank.constants";
 import { catalogBankSchema } from "./catalogBank.schema";
 import { findArray, readKey } from "./catalogBank.utils";
@@ -20,12 +25,19 @@ export function saveCatalogBank(bank: CatalogBank): void {
   localStorage.setItem(CATALOG_BANK_KEY, JSON.stringify(bank));
 }
 
+// Un catalogo en "default", o cargado pero vacio, se comporta como si no estuviera.
+export function usesCustomCatalog(bank: CatalogBank, catalogId: string): boolean {
+  const stored: StoredCatalog | undefined = bank[catalogId];
+
+  return stored !== undefined && stored.source === "custom" && stored.entries.length > 0;
+}
+
 export function catalogEntriesFor(
   bank: CatalogBank,
   catalogId: string,
   parentId?: string,
 ): CatalogEntry[] {
-  const entries: CatalogEntry[] = bank[catalogId] ?? [];
+  const entries: CatalogEntry[] = bank[catalogId]?.entries ?? [];
   if (parentId === undefined) return entries;
 
   return entries.filter((entry) => entry.parentId === parentId);

@@ -6,4 +6,9 @@ const catalogEntrySchema = z.object({
   parentId: z.string().optional(),
 });
 
-export const catalogBankSchema = z.record(z.string(), z.array(catalogEntrySchema));
+const storedCatalogSchema = z.object({
+  source: z.enum(["default", "custom"]),
+  entries: z.array(catalogEntrySchema),
+});
+
+export const catalogBankSchema = z.record(z.string(), storedCatalogSchema);
