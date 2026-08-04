@@ -12,7 +12,12 @@ import {
 } from "./RepeatableGroupBand.constants";
 import type { RepeatableGroupBandProps } from "./RepeatableGroupBand.types";
 
-export function RepeatableGroupBand({ group, rows, onFieldContextMenu }: RepeatableGroupBandProps) {
+export function RepeatableGroupBand({
+  group,
+  rows,
+  linkedLabels,
+  onFieldContextMenu,
+}: RepeatableGroupBandProps) {
   const updateGroup = useFormStore((state) => state.updateGroup);
   const addRowToGroup = useFormStore((state) => state.addRowToGroup);
   const removeGroup = useFormStore((state) => state.removeGroup);
@@ -103,7 +108,12 @@ export function RepeatableGroupBand({ group, rows, onFieldContextMenu }: Repeata
 
       <ul className="grid list-none grid-cols-16 content-start gap-3">
         {rows.map((row) => (
-          <CanvasRow key={row.id} row={row} onFieldContextMenu={onFieldContextMenu} />
+          <CanvasRow
+            key={row.id}
+            row={row}
+            linkedLabels={linkedLabels}
+            onFieldContextMenu={onFieldContextMenu}
+          />
         ))}
       </ul>
     </li>

@@ -7,7 +7,7 @@ import { RowZoneOverlay } from "../../molecules/RowZoneOverlay/RowZoneOverlay";
 import { RowColumnsMenu } from "../../organisms/RowColumnsMenu/RowColumnsMenu";
 import type { CanvasRowProps } from "./CanvasRow.types";
 
-export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
+export function CanvasRow({ row, linkedLabels, onFieldContextMenu }: CanvasRowProps) {
   const { setNodeRef, isOver } = useDroppable({ id: row.id, data: { rowId: row.id } });
   const selectedFieldId = useFormStore((state) => state.selectedFieldId);
   const selectField = useFormStore((state) => state.selectField);
@@ -53,6 +53,7 @@ export function CanvasRow({ row, onFieldContextMenu }: CanvasRowProps) {
           rowId={row.id}
           rowColumns={row.columns}
           rowFields={row.fields}
+          linkedLabel={linkedLabels.get(field.id) ?? null}
           selected={selectedFieldId === field.id}
           onClick={() => selectField(field.id)}
           onContextMenu={(event) => {

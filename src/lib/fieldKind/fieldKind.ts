@@ -18,6 +18,21 @@ export function findLabelFor(fields: CanvasField[], fieldId: string): CanvasFiel
   return fields.find((field) => field.labelFor === fieldId) ?? null;
 }
 
+// Para preguntarlo campo por campo. findLabelFor recorre la lista entera cada vez, asi que usarla
+// dentro de un bucle sobre los mismos campos cuesta al cuadrado; el lienzo dibuja un chip por campo
+// y cada uno preguntaba por su cuenta.
+export function buildLinkedLabelIndex(fields: CanvasField[]): Map<string, CanvasField> {
+  const index: Map<string, CanvasField> = new Map();
+
+  // Gana la primera, como findLabelFor: el store mantiene el 1:1, pero un borrador manipulado a
+  // mano podria traer dos etiquetas apuntando al mismo campo y ahi las dos respuestas difieren.
+  for (const field of fields) {
+    if (field.labelFor && !index.has(field.labelFor)) index.set(field.labelFor, field);
+  }
+
+  return index;
+}
+
 // Que un campo tenga etiqueta externa se calcula, nunca se guarda: el vinculo vive solo en la
 // etiqueta, asi que no hay dos extremos que puedan quedar desincronizados.
 export function hasLinkedLabel(fields: CanvasField[], fieldId: string): boolean {

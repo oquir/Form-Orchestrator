@@ -1,10 +1,9 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { Eye, InfoCircle } from "reicon-react";
 import { GRID_BASE_COLUMNS } from "../../../constants/grid";
-import { findLabelFor } from "../../../lib/fieldKind/fieldKind";
 import { hasTooltip } from "../../../lib/fieldTooltip/fieldTooltip";
 import { getFreeRuns, getMaxSpanAt } from "../../../lib/rowLayout/rowLayout";
-import { getActiveRows, getAllFields, useFormStore } from "../../../store/formStore";
+import { useFormStore } from "../../../store/formStore";
 import { FieldDragHandle } from "../../atoms/FieldDragHandle/FieldDragHandle";
 import { FieldResizeHandle } from "../../atoms/FieldResizeHandle/FieldResizeHandle";
 import { FieldTypeBadge } from "../../atoms/FieldTypeBadge/FieldTypeBadge";
@@ -18,13 +17,12 @@ export function CanvasFieldChip({
   rowId,
   rowColumns,
   rowFields,
+  linkedLabel,
   selected,
   onClick,
   onContextMenu,
 }: CanvasFieldChipProps) {
   const updateField = useFormStore((state) => state.updateField);
-  const activeRows = useFormStore(getActiveRows);
-  const linkedLabel = findLabelFor(getAllFields(activeRows), field.id);
   const maxSpan = getMaxSpanAt(getFreeRuns(rowFields, rowColumns, field.id), field.colStart);
 
   const {
