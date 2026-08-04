@@ -1,5 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
-import { CATALOG_DEPARTAMENTOS, CATALOG_MUNICIPIOS } from "../../constants/catalog";
+import {
+  CATALOG_ACTIVIDADES,
+  CATALOG_DEPARTAMENTOS,
+  CATALOG_MUNICIPIOS,
+  CATALOG_PERIODOS_ANUALES,
+  CATALOG_TIPOS_DECLARACION,
+  CATALOG_TIPOS_DOCUMENTO,
+} from "../../constants/catalog";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type {
   FormStepTemplate,
@@ -52,6 +59,7 @@ export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "idPeriodoAnual",
             required: true,
+            dataSource: { catalog: CATALOG_PERIODOS_ANUALES },
           },
         ]),
       ],
@@ -68,6 +76,7 @@ export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "idTipoDeclaracion",
             required: true,
+            dataSource: { catalog: CATALOG_TIPOS_DECLARACION },
           },
         ]),
       ],
@@ -98,6 +107,7 @@ function buildActividadesStep(): FormStepTemplate {
             colSpan: 10,
             path: "actividades[].idActividad",
             required: true,
+            dataSource: { catalog: CATALOG_ACTIVIDADES },
           },
           {
             name: "codigo_actividad",
@@ -159,6 +169,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 6,
             path: "contribuyente.idTipoDocumento",
             required: true,
+            dataSource: { catalog: CATALOG_TIPOS_DOCUMENTO },
           },
           {
             name: "numero_documento",
@@ -720,6 +731,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 8,
             path: "declarante.idTipoDocumento",
             required: true,
+            dataSource: { catalog: CATALOG_TIPOS_DOCUMENTO },
           },
           {
             name: "numero_documento_declarante",
@@ -756,6 +768,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             label: "Tipo de documento del responsable",
             colSpan: 8,
             path: "responsableLegal.idTipoDocumento",
+            dataSource: { catalog: CATALOG_TIPOS_DOCUMENTO },
           },
           {
             name: "numero_documento_responsable",
