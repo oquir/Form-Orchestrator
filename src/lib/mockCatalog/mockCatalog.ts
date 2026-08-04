@@ -66,8 +66,10 @@ function placeholderOptions(prefix: string): FieldOption[] {
   }));
 }
 
-// Solo un campo de opciones puede tener catalogo: un texto mapeado no lo tiene, aunque comparta
-// la ruta. Ni las opciones autoradas ni las cargadas en el banco son simuladas: alguien las puso.
+// La bandera existe para avisar en pantalla que esas opciones son inventadas, y que nadie las
+// confunda con un catalogo real. Solo un campo de opciones puede tener catalogo: un texto mapeado
+// no lo tiene, aunque comparta la ruta. Ni las opciones autoradas ni las cargadas en el banco son
+// simuladas: alguien las puso a mano.
 export function isSimulatedCatalog(field: ExportedField, bank: CatalogBank = {}): boolean {
   if (!isOptionBasedField(field.type)) return false;
   if (field.options && field.options.length > 0) return false;

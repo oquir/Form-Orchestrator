@@ -4,6 +4,10 @@ import { collectRuleRefs, ruleFormulaExpressions } from "../fieldRule/fieldRule"
 import type { TopologicalResult } from "./fieldGraph.types";
 import { formulaRefIds } from "./fieldGraph.utils";
 
+// Un unico grafo de dependencias entre campos. Existe porque las relaciones estan repartidas en
+// seis sitios distintos del modelo y hay que mirarlas juntas: un ciclo puede cruzarlos.
+// `logic.typeScript` queda fuera a proposito: es una cadena opaca que el builder no sabe leer.
+
 export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   const index: Map<string, string> = new Map();
 
@@ -14,6 +18,8 @@ export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   return index;
 }
 
+// Las seis fuentes de aristas, todas normalizadas a ids. Las formulas referencian campos por
+// nombre, de ahi el indice byName: sin el, un ref quedaria fuera del grafo sin avisar.
 export function fieldDependencies(field: CanvasField, byName: Map<string, string>): string[] {
   const candidates: string[] = [
     ...(field.visibleWhen ? [field.visibleWhen.fieldId] : []),
@@ -44,6 +50,8 @@ export function buildFieldGraph(fields: CanvasField[]): FieldGraph {
   const edges: Map<string, string[]> = new Map();
 
   for (const field of fields) {
+    // Se descartan las referencias a campos que ya no existen: un binding viejo apuntando a un
+    // campo borrado meteria un nodo fantasma y el orden topologico no cerraria nunca.
     edges.set(
       field.id,
       fieldDependencies(field, byName).filter((id) => byId.has(id)),
@@ -88,6 +96,9 @@ export function findCycle(graph: FieldGraph): string[] | null {
   return null;
 }
 
+// Barre la lista emitiendo lo que ya tiene todas sus dependencias resueltas, hasta que una
+// vuelta entera no logra emitir nada. Lo que quede sin emitir es justamente lo que esta en un
+// ciclo. Nunca lanza: devuelve el orden parcial y el ciclo aparte, para que quien llame decida.
 export function topologicalOrder(graph: FieldGraph): TopologicalResult {
   const order: string[] = [];
   const emitted = new Set<string>();
@@ -115,11 +126,15 @@ export function topologicalOrder(graph: FieldGraph): TopologicalResult {
   return { order, unresolved, cycle: unresolved.length > 0 ? findCycle(graph) : null };
 }
 
+// Guarda de los editores: responde si atar `fieldId` a `dependsOnFieldId` cerraria un ciclo.
+// Camina todas las aristas, no solo las del tipo que se esta editando, porque un ciclo puede
+// mezclarlas (A.visibleWhen mira a B y la formula de B lee A).
 export function wouldCreateCycle(
   graph: FieldGraph,
   fieldId: string,
   dependsOnFieldId: string,
 ): boolean {
+  // Un campo que se observa a si mismo es el ciclo mas corto posible.
   if (fieldId === dependsOnFieldId) return true;
 
   const visited = new Set<string>();

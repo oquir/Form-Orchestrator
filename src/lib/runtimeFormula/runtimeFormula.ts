@@ -11,6 +11,11 @@ export interface DerivedResult {
   cycle: string[] | null;
 }
 
+// Resuelve los campos calculados de un ambito en orden topologico, para que cuando le toque a uno
+// sus dependencias ya esten resueltas.
+
+// La formula base corre primero y despues cada regla que aplique pisa el valor, en el orden de la
+// lista. `computed` marca lo que se calculo, que es lo que el simulador pinta como solo lectura.
 export function computeDerivedValues(fields: ExportedField[], base: RuntimeValues): DerivedResult {
   const plan: DerivedPlan = planDerivedFields(fields);
   const byName: Map<string, ExportedField> = new Map(fields.map((field) => [field.name, field]));
@@ -21,6 +26,8 @@ export function computeDerivedValues(fields: ExportedField[], base: RuntimeValue
     const field: ExportedField | undefined = byName.get(name);
     if (!field) continue;
 
+    // Si no hay formula ni regla que aplique, se conserva lo que el usuario escribio. Por eso un
+    // campo calculado solo a veces necesita una formula base que lo devuelva a su valor neutro.
     let next: unknown = values[name];
     let touched = false;
 

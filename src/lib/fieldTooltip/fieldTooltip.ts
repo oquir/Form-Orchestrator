@@ -3,6 +3,10 @@ import { TOOLTIP_CAPABLE_FIELD_TYPES } from "../../constants/fieldTypes";
 import type { CanvasField, FieldTooltip, SavedComponent } from "../../types/field";
 import { emptyRichText, isEmptyRichText } from "../richText/richText";
 
+// La ayuda contextual de un campo. Solo ocho tipos la admiten. El contenido es RichTextContent,
+// igual que el campo rich_text, para reaprovechar el editor, la vista y el saneado de enlaces.
+// Un tooltip activado pero vacio no se exporta: marcar la casilla y no escribir no deja rastro.
+
 export function supportsTooltip(type: string): boolean {
   return TOOLTIP_CAPABLE_FIELD_TYPES.includes(type);
 }

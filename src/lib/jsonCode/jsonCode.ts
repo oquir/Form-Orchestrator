@@ -1,5 +1,9 @@
 import type { JsonLine, JsonModel, JsonSegment, JsonVisibleRow } from "../../types/jsonCode";
 
+// Resaltado y plegado del JSON que se muestra en el lienzo. Es un tokenizador propio y no una
+// libreria porque solo hay que distinguir cuatro cosas sobre un JSON que ya se sabe bien formado.
+
+// La clave se reconoce por los dos puntos que la siguen, que es lo que la separa de un texto.
 const TOKEN_RE: RegExp =
   /("(?:\\.|[^"\\])*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b/g;
 

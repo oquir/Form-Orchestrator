@@ -14,6 +14,8 @@ export function useClickOutside(
       }
     }
 
+    // mousedown y no click: si se espera al click, un menu se cerraria despues de que el boton
+    // de debajo ya recibio la pulsacion.
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [ref, onOutside, enabled]);

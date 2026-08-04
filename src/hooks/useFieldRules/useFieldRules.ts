@@ -7,6 +7,9 @@ import type { CanvasField, ConditionOperator, FieldRule, RuleCondition } from ".
 import type { FieldGraph } from "../../types/fieldGraph";
 import type { UseFieldRulesParams, UseFieldRulesResult } from "./useFieldRules.types";
 
+// Estado del editor de calculos y reglas. Ademas de las altas y bajas, sostiene las guardas que
+// impiden armar una dependencia circular desde la interfaz.
+
 function conditionOn(target: CanvasField, id: string): RuleCondition {
   const operators: ConditionOperator[] = operatorsForFieldType(target.type);
 

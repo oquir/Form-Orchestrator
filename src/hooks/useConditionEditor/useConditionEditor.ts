@@ -10,6 +10,8 @@ import type {
   UseConditionEditorResult,
 } from "./useConditionEditor.types";
 
+// Un solo hook para las dos condiciones de un campo: `kind` decide si se lee y escribe visibleWhen
+// o enableWhen. Comparten operadores, guardas y editor, asi que no hay dos caminos que mantener.
 export function useConditionEditor({
   field,
   otherFields,
@@ -19,6 +21,7 @@ export function useConditionEditor({
   const setFieldVisibleWhen = useFormStore((state) => state.setFieldVisibleWhen);
   const setCondition = kind === "visible" ? setFieldVisibleWhen : setFieldEnableWhen;
   const condition = kind === "visible" ? field.visibleWhen : field.enableWhen;
+  // Hay condicion pero el campo observado ya no existe: se avisa en vez de borrarla en silencio.
   const observed = condition ? (otherFields.find((f) => f.id === condition.fieldId) ?? null) : null;
   const observedIsDead = Boolean(condition && !observed);
   const availableOperators: ConditionOperator[] = observed

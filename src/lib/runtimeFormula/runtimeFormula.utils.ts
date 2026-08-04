@@ -3,6 +3,9 @@ import type { FormulaNode } from "../../types/formula";
 import { collectFormulaRefs, parseFormula } from "../formula/formula";
 import type { DerivedPlan } from "./runtimeFormula.types";
 
+// Planificacion del orden de calculo. Trabaja sobre nombres, no ids: en el export los ids ya se
+// resolvieron. Es el gemelo de fieldGraph, que hace lo mismo del lado del builder sobre el modelo.
+
 export function isDerivedField(field: ExportedField): boolean {
   const hasFormula: boolean = Boolean(field.logic.formula && field.logic.formula.trim() !== "");
   const hasRules: boolean = Boolean(field.logic.rules && field.logic.rules.length > 0);
@@ -10,6 +13,8 @@ export function isDerivedField(field: ExportedField): boolean {
   return hasFormula || hasRules;
 }
 
+// Un campo depende tanto de lo que leen sus formulas como de lo que miran las condiciones de sus
+// reglas: si la condicion observa un campo calculado, ese tiene que resolverse antes.
 export function fieldRefs(field: ExportedField, asts: Map<string, FormulaNode | null>): string[] {
   const refs: string[] = [...collectFormulaRefs(asts.get(field.name) ?? null)];
 
@@ -39,6 +44,8 @@ export function planDerivedFields(fields: ExportedField[]): DerivedPlan {
   const dependents: Map<string, string[]> = new Map();
 
   for (const field of derived) {
+    // Solo cuentan las dependencias hacia otros campos derivados: los que el usuario escribe ya
+    // tienen valor cuando empieza el calculo. Un autorreferencia se ignora para no trabar el plan.
     const own: Set<string> = new Set(
       fieldRefs(field, asts).filter((ref) => names.has(ref) && ref !== field.name),
     );
@@ -68,6 +75,8 @@ export function planDerivedFields(fields: ExportedField[]): DerivedPlan {
     }
   }
 
+  // Kahn: lo que nunca llego a cero dependencias pendientes esta en un ciclo. Queda fuera del
+  // orden en lugar de colarse al final, para que el simulador pueda avisar en vez de dar 0.
   const cycle: string[] = derived
     .map((field) => field.name)
     .filter((name) => !order.includes(name));

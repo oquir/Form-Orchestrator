@@ -2,6 +2,11 @@ import type { Modifier } from "@dnd-kit/core";
 import { getEventCoordinates } from "@dnd-kit/utilities";
 import { GRID_GAP_PX } from "../../constants/grid";
 
+// Medidas del arrastre contra el DOM real. La grilla la dibuja CSS, asi que la unica forma de
+// saber sobre que columna esta el puntero es medir la fila.
+
+// Centra la previsualizacion en el cursor. Sin esto el elemento arrastrado conserva el punto por
+// donde se agarro, y al soltar cerca de un borde se coloca en una columna distinta de la que se ve.
 export const centerOverlayOnCursor: Modifier = ({
   activatorEvent,
   draggingNodeRect,

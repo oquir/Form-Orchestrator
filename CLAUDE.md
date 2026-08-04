@@ -281,6 +281,8 @@ Known wart: `store/formStore.utils.ts` imports `findFieldById` back from `store/
 
 ### Code style
 
-- **No JSDoc / doc-comments.** Explain the why in the commit message, not above the function.
+- **Comments are in Spanish, `//` only — never JSDoc `/** */`.** In TypeScript a JSDoc block restates the types already in the signature: pure noise, and the first thing to rot. Written without accents, matching what is already there.
+- **`src/lib/`, `src/store/` and `src/hooks/` carry a header comment per file** stating the file's *role* and its boundary, plus targeted comments where there is a trap, an invariant the code cannot express, or a decision with a discarded alternative. The bar is deliberately high: **if the comment can be deduced from the line below it, it does not get written** — that is the only thing keeping these from aging into lies. `.types.ts` files of a handful of obvious fields get nothing.
+- `src/components/` is **not** commented as a matter of course. JSX is mostly self-describing, and the density there would cost more than it returns. Add one only when a component hides a real decision.
 - **Explicit type annotations** on local declarations (`const isIntro: boolean = …`), matching the existing files.
 - Biome conventions win over `eslint.config.js` (which isn't wired into a script).

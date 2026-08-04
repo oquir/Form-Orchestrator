@@ -3,15 +3,25 @@ import type { CanvasRow } from "../../types/formStructure";
 import type { FieldPlacement } from "../../types/placement";
 import type { FreeRun } from "./rowLayout.types";
 
+// Reglas de colocacion dentro de una fila, como funciones puras: sin React y sin el store, para
+// poder razonarlas y probarlas solas. Dos decisiones las gobiernan todas:
+// los choques se resuelven deslizando lo que se arrastra hasta el hueco mas cercano, nunca
+// empujando al vecino; y los huecos se conservan, porque cada posicion es explicita.
+// Una fila es una sola linea visual: si no cabe, se rechaza en vez de pasar a un segundo renglon.
+
 export function sortByColumn(fields: CanvasField[]): CanvasField[] {
   return [...fields].sort((a, b) => a.colStart - b.colStart);
 }
 
+// Los tramos libres de la fila. `excludeFieldId` saca de la cuenta al campo que se esta moviendo,
+// para que no se estorbe a si mismo y pueda quedarse donde ya estaba.
 export function getFreeRuns(
   fields: CanvasField[],
   columns: number,
   excludeFieldId?: string,
 ): FreeRun[] {
+  // Indexado por numero de columna empezando en 1, como las lineas de grid de CSS; sobran dos
+  // casillas para no tener que comprobar los bordes en cada vuelta.
   const occupied: boolean[] = new Array(columns + 2).fill(false);
   for (const field of fields) {
     if (field.id === excludeFieldId) continue;
@@ -49,6 +59,9 @@ export function findFirstFit(runs: FreeRun[], colSpan: number): number | null {
   return null;
 }
 
+// El iman: dado donde el usuario solto, devuelve la posicion valida mas cercana. Dentro de cada
+// tramo se acota el inicio deseado a lo que cabe, y despues gana el candidato menos desplazado.
+// Si ningun tramo da el ancho, devuelve null y el drop se rechaza en rojo.
 export function findNearestFit(
   runs: FreeRun[],
   desiredStart: number,
@@ -91,6 +104,9 @@ export function getMaxSpanAt(runs: FreeRun[], colStart: number): number {
   return 1;
 }
 
+// Tres intentos en orden: respetar lo que el usuario pidio deslizandolo al hueco mas cercano,
+// si no hay pedido explicito buscar el primer sitio donde quepa entero, y como ultimo recurso
+// entrar recortado en el tramo mas ancho. Solo si la fila esta llena devuelve null.
 export function resolvePlacement(
   row: CanvasRow,
   colSpan: number,
@@ -115,11 +131,15 @@ export function resolvePlacement(
   return null;
 }
 
+// La unica operacion que rompe la regla de conservar los huecos, y a proposito: cambiar el numero
+// de columnas de una fila es un cambio de maqueta deliberado, asi que se reempaqueta todo pegado.
 export function repackRow(row: CanvasRow, columns: number): CanvasRow {
   const ordered: CanvasField[] = sortByColumn(row.fields);
   let cursor = 1;
 
   const fields: CanvasField[] = ordered.map((field, index) => {
+    // Se reserva una columna para cada campo que todavia falta por colocar: asi al encoger la
+    // fila ninguno se queda fuera, todos se estrechan hasta el minimo de uno.
     const fieldsAfter = ordered.length - index - 1;
     const available = columns - cursor + 1 - fieldsAfter;
     const colSpan = Math.max(1, Math.min(field.colSpan, available));
@@ -158,6 +178,9 @@ export function splitOverflowingRow(row: CanvasRow): CanvasRow[] {
   }));
 }
 
+// Migracion de borradores viejos, anteriores a que existiera colStart. Antes una fila podia
+// desbordar y el navegador la partia en varias lineas; aca cada linea visual pasa a ser una fila
+// de verdad. La ausencia de colStart es la senal de que el borrador es de aquella epoca.
 export function migrateRows(rows: CanvasRow[]): CanvasRow[] {
   const needsMigration = rows.some((row) =>
     row.fields.some((field) => typeof field.colStart !== "number"),

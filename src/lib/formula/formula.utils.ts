@@ -2,6 +2,9 @@ import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "../../constants/formula";
 import type { Cursor, FormulaFunction, FormulaNode, FormulaToken } from "../../types/formula";
 import { DIGIT, FORMULA_OPERATORS, IDENT_PART, IDENT_START, WHITESPACE } from "./formula.constants";
 
+// Tokenizer y descenso recursivo. A diferencia de parseFormula, todo lo de aca SI lanza:
+// es parseFormula quien atrapa y convierte el error en un mensaje para el editor.
+
 export function tokenize(source: string): FormulaToken[] {
   const tokens: FormulaToken[] = [];
   let i = 0;
@@ -60,6 +63,8 @@ export function describeArity(fn: FormulaFunction): string {
   return `entre ${fn.minArgs} y ${fn.maxArgs} argumentos`;
 }
 
+// Un agregado recibe un nombre de campo pelado, no una expresion: lee la columna de un grupo
+// repetible. Que `sumOf(1 + 2)` no compile es a proposito, no una limitacion por resolver.
 export function parseAggregate(cursor: Cursor, callee: string): FormulaNode {
   cursor.index += 1;
   const token: FormulaToken | undefined = peek(cursor);
@@ -114,6 +119,8 @@ export function parsePrimary(cursor: Cursor): FormulaNode {
     return { kind: "number", value: Number.parseFloat(token.text) };
   }
 
+  // Un identificador es una llamada solo si le sigue un parentesis; si no, es el nombre de un
+  // campo. Por eso no hay palabras reservadas: un campo puede llamarse "max" sin chocar.
   if (token.kind === "ident") {
     cursor.index += 1;
     if (isOp(peek(cursor), "(")) return parseCall(cursor, token.text);
@@ -145,6 +152,9 @@ export function parseUnary(cursor: Cursor): FormulaNode {
   return parsePrimary(cursor);
 }
 
+// La precedencia es la cadena de llamadas: expresion (+ -) baja a termino (* /), que baja a
+// unario y a primario. Cambiar quien llama a quien cambia la precedencia del lenguaje.
+// El bucle while, en vez de recursion a la derecha, es lo que da asociatividad por izquierda.
 export function parseTerm(cursor: Cursor): FormulaNode {
   let left: FormulaNode = parseUnary(cursor);
 

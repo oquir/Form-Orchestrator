@@ -1,6 +1,8 @@
 import { MULTI_VALUE_FIELD_TYPES } from "../../constants/fieldTypes";
 import type { ExportedField } from "../../types/exportForm";
 
+// La clave con la que se indexa un error. Un campo suelto va por nombre; uno dentro de un grupo
+// repetible necesita ademas el grupo y la repeticion, porque el mismo nombre aparece en cada fila.
 export function fieldKey(name: string, groupId?: string, index?: number): string {
   return groupId === undefined || index === undefined ? name : `${groupId}:${index}:${name}`;
 }
@@ -9,6 +11,8 @@ export function fieldKey(name: string, groupId?: string, index?: number): string
 // deducirlo de la ausencia de `.optional()`, que es lo unico que puede hacer el consumidor.
 export function isRequiredBySchema(field: ExportedField): boolean {
   const source: string | undefined = field.validations.zodSchema;
+  // El checkbox queda fuera porque buildZodSchema nunca le agrega `.optional()`: sin esta
+  // excepcion todo checkbox se leeria como obligatorio y llevaria asterisco.
   if (!source || field.type === "checkbox") return false;
 
   return !source.trim().endsWith(".optional()");
@@ -31,6 +35,8 @@ export function coerceValue(field: ExportedField, raw: unknown): unknown {
     return Number.isNaN(parsed) ? raw : parsed;
   }
 
+  // El string vacio pasa a undefined para que `.optional()` lo acepte: un input que el usuario
+  // nunca toco y uno que vacio son lo mismo de cara a la validacion.
   if (raw === "" || raw === null) return undefined;
 
   return raw;

@@ -14,6 +14,9 @@ import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
 import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
 
+// Traduccion del modelo interno al contrato de salida. La regla que gobierna todo el archivo:
+// hacia afuera no viaja ningun uuid, cada referencia a un campo se convierte en su nombre.
+
 export function buildNameIndex(rows: CanvasRow[]): Map<string, string> {
   const index: Map<string, string> = new Map();
 
@@ -32,6 +35,8 @@ export function resolveCondition(
 ): ExportedCondition | undefined {
   if (!condition) return undefined;
 
+  // Los operadores de lista guardan el valor como texto separado por comas mientras se edita;
+  // al salir se entrega ya partido en array para que el consumidor no tenga que interpretarlo.
   return {
     field: names.get(condition.fieldId) ?? condition.fieldId,
     operator: condition.operator,
@@ -92,6 +97,8 @@ export function mapRows(rows: CanvasRow[], names: Map<string, string>): Exported
       colStart: field.colStart,
       colSpan: field.colSpan,
       styles: field.styles,
+      // Solo se exporta el schema como texto, nunca las validaciones sueltas: que no haya schema
+      // es justamente como el consumidor sabe que un campo presentacional no valida nada.
       validations: isPresentationalField(field.type) ? {} : { zodSchema: buildZodSchema(field) },
       logic: {
         dependencies: resolveDependencies(field, names),

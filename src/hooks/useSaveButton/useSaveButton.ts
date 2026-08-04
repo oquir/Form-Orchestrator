@@ -4,6 +4,8 @@ import { useFormStore } from "../../store/formStore";
 import { JUST_SAVED_DURATION_MS } from "./useSaveButton.constants";
 import type { UseSaveButtonResult } from "./useSaveButton.types";
 
+// El boton avisa "guardado" tambien cuando guarda el autoguardado, no solo al pulsarlo: por eso
+// observa lastSavedAt en vez de encender el aviso dentro de handleSave.
 export function useSaveButton(): UseSaveButtonResult {
   const markSaved = useFormStore((state) => state.markSaved);
   const lastSavedAt = useFormStore((state) => state.lastSavedAt);

@@ -3,6 +3,8 @@ import type { RuntimeModel, RuntimeSnapshot } from "../../types/formRuntime";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { ARRAY_MARKER, setDeepValue } from "./runtimePayload.utils";
 
+// Arma el objeto que se le mandaria a la API a partir de lo que el usuario lleva escrito.
+// Solo entra lo mapeado y visible: un campo oculto no viaja, aunque tenga valor de antes.
 export function buildPayload(
   model: RuntimeModel,
   snapshot: RuntimeSnapshot,
@@ -22,6 +24,7 @@ export function buildPayload(
         const path: string | null = mappedPath(field);
         if (path === null || !scope.visible[field.name]) continue;
 
+        // El "[]" de la ruta del grupo se cambia por la posicion real de la repeticion.
         setDeepValue(payload, path.replace(ARRAY_MARKER, `[${index}]`), scope.values[field.name]);
       }
     });

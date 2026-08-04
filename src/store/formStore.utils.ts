@@ -17,6 +17,11 @@ import type {
 import type { FieldPlacement } from "../types/placement";
 import type { FormType } from "../types/setup";
 import type { StateSlice } from "../types/store";
+// Constructores, recorridos de todo el lienzo y arranque desde la plantilla.
+
+// Verruga conocida: formStore importa este archivo y este importa findFieldById de vuelta.
+// El ciclo solo funciona porque las declaraciones de funcion se elevan. Bajar findFieldById aca
+// lo arreglaria, pero arrastra a todos los componentes que hoy la importan desde el store.
 import { findFieldById } from "./formStore";
 import { THEME_STORAGE_KEY } from "./formStore.constants";
 
@@ -43,6 +48,8 @@ export function getInitialDarkMode(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+// Los tipos de formulario que no son industria y comercio arrancan en blanco: no hay plantilla,
+// asi que cada paso recibe una fila vacia y el usuario construye desde cero.
 export function buildInitialFormSteps(formType: FormType): FormStep[] {
   const isIndustriaComercio: boolean = formType === "industria_comercio";
   const stepCount: number = isIndustriaComercio ? INDUSTRIA_COMERCIO_FORM_STEPS : 1;
@@ -79,6 +86,8 @@ export function buildInitialIntroSteps(formType: FormType, stepCount: number): I
   });
 }
 
+// Aplica el cambio en los dos lienzos sin averiguar en cual esta el campo. Recorrer de mas es
+// barato y evita que cada accion del store tenga que ramificar por tipo de lienzo.
 export function mapFieldEverywhere(
   slice: StateSlice,
   fieldId: string,
@@ -145,6 +154,8 @@ export function allFieldNames(slice: StateSlice, exceptFieldId?: string): Set<st
   return collectFieldNames(rows, exceptFieldId);
 }
 
+// Un campo recien soltado no trae opciones aunque su tipo las admita: se configuran despues, y
+// solo si el campo se marca excluido del payload. Uno mapeado las recibe del catalogo en runtime.
 export function createEmptyField(
   type: string,
   label: string,

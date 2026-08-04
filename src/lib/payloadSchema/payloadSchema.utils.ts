@@ -1,5 +1,8 @@
 import type { SchemaLeaf, SchemaNode } from "../../types/payloadSchema";
 
+// Aplana el contrato en hojas con su ruta completa. Al entrar en un array cada hoja queda marcada
+// con su arrayPath: es lo que permite ofrecer rutas de item solo a los campos de un grupo atado a
+// ese array, y rutas sueltas al resto.
 export function collectLeaves(
   node: SchemaNode,
   path: string,
