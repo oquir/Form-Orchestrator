@@ -19,5 +19,10 @@ export const NIT_PATTERN: string = "^(?!0)(?!([0-9])\\1+$)[0-9]{6,9}$";
 
 export const DOCUMENTO_MESSAGE: string = "Ingrese un documento válido";
 
+// El mensaje cuelga del .regex(), y la variante de NIT tiene un solo regex: este texto sale igual
+// si escribieron diez digitos, letras o todos iguales. Por eso nombra el DV sin afirmar que ese
+// fue el error -- "sin el digito de verificacion" es una instruccion, no un diagnostico.
+export const NIT_MESSAGE: string = "Ingrese un NIT válido, sin el dígito de verificación";
+
 export const SALDO_NETO: string =
   "total_impuesto_a_cargo - valor_exencion_exoneracion_impuesto - retenciones_a_favor - autorretenciones_a_favor - anticipo_liquidado_anio_anterior + anticipo_anio_siguiente + valor_sancion - saldo_favor_periodo_anterior";

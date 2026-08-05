@@ -16,6 +16,7 @@ import type {
 import {
   DOCUMENTO_MESSAGE,
   DOCUMENTO_PATTERN,
+  NIT_MESSAGE,
   NIT_PATTERN,
   SALDO_NETO,
   TIPO_DOCUMENTO_NIT,
@@ -47,7 +48,7 @@ const SOLO_PERSONA_JURIDICA: TemplateCondition = {
 function nitOverride(tipoDocumentoField: string): TemplateValidationOverride {
   return {
     when: { field: tipoDocumentoField, operator: "equals", value: TIPO_DOCUMENTO_NIT },
-    validations: { pattern: NIT_PATTERN },
+    validations: { pattern: NIT_PATTERN, message: NIT_MESSAGE },
   };
 }
 
