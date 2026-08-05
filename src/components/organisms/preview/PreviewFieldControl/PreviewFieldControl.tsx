@@ -1,6 +1,7 @@
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
-import type { FieldOption } from "../../../../types/field";
+import type { CatalogOption } from "../../../../types/catalog";
 import { RichTextView } from "../../../atoms/RichTextView/RichTextView";
+import { PreviewSearchSelect } from "../PreviewSearchSelect/PreviewSearchSelect";
 import {
   CHIP_ACTIVE_CLASSES,
   CHIP_BASE_CLASSES,
@@ -23,7 +24,7 @@ export function PreviewFieldControl({
   onChange,
 }: PreviewFieldControlProps) {
   const controlClasses = `${CONTROL_BASE_CLASSES} ${invalid ? CONTROL_INVALID_CLASSES : CONTROL_IDLE_CLASSES}`;
-  const options: FieldOption[] = catalogOptions(field, scopeValues, catalogBank);
+  const options: CatalogOption[] = catalogOptions(field, scopeValues, catalogBank);
   const inputId = `preview-${field.name}`;
 
   switch (field.type) {
@@ -84,8 +85,23 @@ export function PreviewFieldControl({
         />
       );
 
-    case "select":
+    // Un search_select existe porque su catalogo es demasiado grande para un desplegable: las 425
+    // actividades por 15 repeticiones eran 6.375 <option> montados de entrada. El buscador tambien
+    // es lo unico que puede mostrar codigo, descripcion y tarifa en columnas separadas.
     case "search_select":
+      return (
+        <PreviewSearchSelect
+          inputId={inputId}
+          label={field.label}
+          options={options}
+          value={value}
+          disabled={disabled}
+          invalid={invalid}
+          onChange={onChange}
+        />
+      );
+
+    case "select":
       return (
         <select
           id={inputId}

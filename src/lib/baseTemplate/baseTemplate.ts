@@ -134,7 +134,7 @@ function buildActividadesStep(): FormStepTemplate {
           {
             name: "tarifa_x_mil",
             type: "number",
-            label: "Tarifa x mil",
+            label: "Tarifa X1000",
             colSpan: 5,
             path: "actividades[].tarifaXMil",
             alwaysDisabled: true,
