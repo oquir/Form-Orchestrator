@@ -29,7 +29,24 @@ export const NIT_PATTERN: string = digitosSinRellenos(6, 9);
 // mas de un contribuyente sigue escribiendo aca.
 export const TELEFONO_PATTERN: string = digitosSinRellenos(7, 10);
 
+// El patron de correo de la spec de HTML5, partido en sus dos mitades para poder leerlo. Lleva dos
+// cambios respecto del original:
+//   - Va anclado con ^ y $. Zod valida con .test(), que busca en cualquier parte del texto: sin
+//     anclas "hola juan@x.com chau" pasaria como correo valido.
+//   - Las clases incluyen A-Z. El original es solo minusculas y aca no hay forma de agregar la
+//     bandera `i`, porque el consumidor arma el RegExp con new RegExp(patron) y sin banderas;
+//     sin esto "Juan@Gmail.com" quedaria rechazado.
+// La bandera /g del original tampoco viaja, y es mejor asi: un regex con /g guarda lastIndex entre
+// llamadas y con .test() daria valido y no valido alternadamente sobre el mismo texto.
+const CORREO_LOCAL: string = "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]";
+
+const CORREO_ETIQUETA: string = "[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?";
+
+export const CORREO_PATTERN: string = `^${CORREO_LOCAL}+(?:\\.${CORREO_LOCAL}+)*@(?:${CORREO_ETIQUETA}\\.)+${CORREO_ETIQUETA}$`;
+
 export const DOCUMENTO_MESSAGE: string = "Ingrese un documento válido";
+
+export const CORREO_MESSAGE: string = "Ingrese un correo válido";
 
 export const TELEFONO_MESSAGE: string = "Ingrese un teléfono válido";
 

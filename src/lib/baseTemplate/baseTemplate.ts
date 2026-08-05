@@ -14,6 +14,8 @@ import type {
   RepeatableGroup,
 } from "../../types/formStructure";
 import {
+  CORREO_MESSAGE,
+  CORREO_PATTERN,
   DOCUMENTO_MESSAGE,
   DOCUMENTO_PATTERN,
   NIT_MESSAGE,
@@ -316,6 +318,8 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 8,
             path: "contribuyente.correo",
             required: true,
+            pattern: CORREO_PATTERN,
+            message: CORREO_MESSAGE,
           },
         ]),
         buildRow([
