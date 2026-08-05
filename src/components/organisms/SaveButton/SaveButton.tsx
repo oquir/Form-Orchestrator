@@ -26,7 +26,7 @@ export function SaveButton() {
           </>
         ) : (
           <>
-            <Save22 size={14} /> Guardar cambios
+            <Save22 size={14} /> Guardar
           </>
         )}
       </button>
