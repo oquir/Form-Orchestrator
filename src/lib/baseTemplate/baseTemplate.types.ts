@@ -1,9 +1,14 @@
-import type { ConditionOperator } from "../../types/field";
+import type { ConditionOperator, FieldValidationRules } from "../../types/field";
 
 export interface TemplateCondition {
   field: string;
   operator: ConditionOperator;
   value?: string | number | boolean;
+}
+
+export interface TemplateValidationOverride {
+  when: TemplateCondition;
+  validations: FieldValidationRules;
 }
 
 export interface TemplateRule {
@@ -21,6 +26,10 @@ export interface FieldSpec {
   excluded?: boolean;
   required?: boolean;
   min?: number;
+  pattern?: string;
+  // Solo se muestra cuando falla el patron: buildZodSchema lo cuelga del .regex().
+  message?: string;
+  validationOverrides?: TemplateValidationOverride[];
   formula?: string;
   alwaysDisabled?: boolean;
   visibleWhen?: TemplateCondition;

@@ -13,8 +13,14 @@ import type {
   IntroStepTemplate,
   RepeatableGroup,
 } from "../../types/formStructure";
-import { SALDO_NETO, TIPO_DOCUMENTO_NIT } from "./baseTemplate.constants";
-import type { TemplateCondition } from "./baseTemplate.types";
+import {
+  DOCUMENTO_MESSAGE,
+  DOCUMENTO_PATTERN,
+  NIT_PATTERN,
+  SALDO_NETO,
+  TIPO_DOCUMENTO_NIT,
+} from "./baseTemplate.constants";
+import type { TemplateCondition, TemplateValidationOverride } from "./baseTemplate.types";
 import { buildRow, resolveTemplateConditions } from "./baseTemplate.utils";
 
 // Los ocho pasos del formulario de industria y comercio, escritos como filas de FieldSpec.
@@ -34,6 +40,16 @@ const SOLO_PERSONA_JURIDICA: TemplateCondition = {
   operator: "equals",
   value: TIPO_DOCUMENTO_NIT,
 };
+
+// El maximo de digitos baja de 10 a 9 cuando el documento es un NIT. Recibe el nombre del selector
+// porque cada bloque tiene el suyo: el contribuyente, el declarante y el responsable no comparten
+// tipo de documento y cada override tiene que observar el de su propio bloque.
+function nitOverride(tipoDocumentoField: string): TemplateValidationOverride {
+  return {
+    when: { field: tipoDocumentoField, operator: "equals", value: TIPO_DOCUMENTO_NIT },
+    validations: { pattern: NIT_PATTERN },
+  };
+}
 
 export function getIndustriaComercioIntroTemplate(): IntroStepTemplate[] {
   return [
@@ -178,6 +194,9 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 7,
             path: "contribuyente.numeroDocumento",
             required: true,
+            pattern: DOCUMENTO_PATTERN,
+            message: DOCUMENTO_MESSAGE,
+            validationOverrides: [nitOverride("tipo_documento")],
           },
           {
             name: "dv",
@@ -740,6 +759,9 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 8,
             path: "declarante.numeroDocumento",
             required: true,
+            pattern: DOCUMENTO_PATTERN,
+            message: DOCUMENTO_MESSAGE,
+            validationOverrides: [nitOverride("tipo_documento_declarante")],
           },
         ]),
         buildRow([
@@ -776,6 +798,9 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             label: "Número de documento del responsable",
             colSpan: 8,
             path: "responsableLegal.numeroDocumento",
+            pattern: DOCUMENTO_PATTERN,
+            message: DOCUMENTO_MESSAGE,
+            validationOverrides: [nitOverride("tipo_documento_responsable")],
           },
         ]),
         buildRow([

@@ -1,8 +1,19 @@
 import { v4 as uuidv4 } from "uuid";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { ApiBinding, CanvasField, FieldCondition, FieldRule } from "../../types/field";
+import type {
+  ApiBinding,
+  CanvasField,
+  FieldCondition,
+  FieldRule,
+  FieldValidationOverride,
+} from "../../types/field";
 import type { CanvasRow } from "../../types/formStructure";
-import type { FieldSpec, TemplateCondition, TemplateRule } from "./baseTemplate.types";
+import type {
+  FieldSpec,
+  TemplateCondition,
+  TemplateRule,
+  TemplateValidationOverride,
+} from "./baseTemplate.types";
 
 export function bindingFor(spec: FieldSpec): ApiBinding | undefined {
   if (spec.path !== undefined) return { kind: "mapped", path: spec.path };
@@ -31,6 +42,22 @@ function pendingRules(rules: TemplateRule[] | undefined): FieldRule[] | undefine
       value: condition.value,
     })),
     effects: [{ id: uuidv4(), kind: "formula" as const, expression: rule.formula }],
+  }));
+}
+
+function pendingOverrides(
+  overrides: TemplateValidationOverride[] | undefined,
+): FieldValidationOverride[] | undefined {
+  if (!overrides || overrides.length === 0) return undefined;
+
+  return overrides.map((override) => ({
+    id: uuidv4(),
+    when: {
+      fieldId: override.when.field,
+      operator: override.when.operator,
+      value: override.when.value,
+    },
+    validations: override.validations,
   }));
 }
 
@@ -68,6 +95,13 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
             : { catalog: field.dataSource.catalog };
         }
 
+        if (field.validations.overrides) {
+          field.validations.overrides = field.validations.overrides.flatMap((override) => {
+            const targetId: string | undefined = idsByName.get(override.when.fieldId);
+            return targetId ? [{ ...override, when: { ...override.when, fieldId: targetId } }] : [];
+          });
+        }
+
         if (field.logic.rules) {
           field.logic.rules = field.logic.rules.map((rule) => ({
             ...rule,
@@ -99,6 +133,11 @@ export function buildRow(specs: FieldSpec[], groupId?: string): CanvasRow {
       validations: {
         ...(spec.required ? { required: true } : {}),
         ...(spec.min === undefined ? {} : { min: spec.min }),
+        ...(spec.pattern === undefined ? {} : { pattern: spec.pattern }),
+        ...(spec.message === undefined ? {} : { message: spec.message }),
+        ...(spec.validationOverrides === undefined
+          ? {}
+          : { overrides: pendingOverrides(spec.validationOverrides) }),
       },
       styles: {},
       logic: {
