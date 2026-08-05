@@ -1,4 +1,9 @@
-import type { CanvasField, FieldOption, FieldValidations } from "../../types/field";
+import type {
+  CanvasField,
+  FieldOption,
+  FieldValidationOverride,
+  FieldValidationRules,
+} from "../../types/field";
 import type { RepeatableGroup } from "../../types/formStructure";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import {
@@ -22,7 +27,34 @@ export function buildGroupZodSchema(group: RepeatableGroup, fields: CanvasField[
 }
 
 export function buildZodSchema(field: CanvasField): string {
-  const v: FieldValidations = field.validations;
+  return buildSchemaFor(field, field.validations);
+}
+
+// El schema de una variante condicional. Las reglas del override se fusionan sobre las de base:
+// declarar solo `pattern` cambia el patron y deja el resto como estaba.
+export function buildOverrideZodSchema(
+  field: CanvasField,
+  override: FieldValidationOverride,
+): string {
+  return buildSchemaFor(field, mergeValidationRules(field.validations, override.validations));
+}
+
+// Se ignoran las claves en undefined en vez de dejar que el spread las escriba: un override que
+// trae `pattern: undefined` quiere decir "no toco el patron", no "borro el de base".
+function mergeValidationRules(
+  base: FieldValidationRules,
+  patch: FieldValidationRules,
+): FieldValidationRules {
+  const merged: FieldValidationRules = { ...base };
+
+  for (const [key, value] of Object.entries(patch)) {
+    if (value !== undefined) (merged as Record<string, unknown>)[key] = value;
+  }
+
+  return merged;
+}
+
+function buildSchemaFor(field: CanvasField, v: FieldValidationRules): string {
   let schema: string;
 
   if (isOptionBasedField(field.type)) {

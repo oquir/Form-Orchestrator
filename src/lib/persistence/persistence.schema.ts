@@ -22,7 +22,7 @@ const richTextContentSchema = z.array(
   }),
 );
 
-const fieldValidationsSchema = z.object({
+const fieldValidationRulesSchema = z.object({
   required: z.boolean().optional(),
   minLength: z.number().optional(),
   maxLength: z.number().optional(),
@@ -74,6 +74,20 @@ const fieldConditionSchema = z.object({
     "isFalsy",
   ]),
   value: z.union([z.string(), z.number(), z.boolean()]).optional(),
+});
+
+// Va despues de fieldConditionSchema porque lo necesita. Sin esta rama un borrador con overrides
+// los perderia al cargar sin decir nada: z.object descarta las claves que no declara.
+const fieldValidationsSchema = fieldValidationRulesSchema.extend({
+  overrides: z
+    .array(
+      z.object({
+        id: z.string(),
+        when: fieldConditionSchema,
+        validations: fieldValidationRulesSchema,
+      }),
+    )
+    .optional(),
 });
 
 const ruleEffectSchema = z.discriminatedUnion("kind", [

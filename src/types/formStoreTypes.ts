@@ -9,6 +9,7 @@ import type {
   FieldRule,
   FieldStyles,
   FieldTooltip,
+  FieldValidationOverride,
   FieldValidations,
   SavedComponent,
 } from "./field";
@@ -89,6 +90,13 @@ export interface FormState {
   setCatalogSource: (catalogId: string, source: CatalogSource) => void;
   clearCatalogEntries: (catalogId: string) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
+  addFieldValidationOverride: (fieldId: string) => void;
+  updateFieldValidationOverride: (
+    fieldId: string,
+    overrideId: string,
+    updates: Partial<FieldValidationOverride>,
+  ) => void;
+  removeFieldValidationOverride: (fieldId: string, overrideId: string) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
   setFieldFormula: (fieldId: string, formula: string) => void;

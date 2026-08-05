@@ -28,6 +28,9 @@ export function hydrateZodSchema(source: string | undefined): HydratedSchema {
   }
 }
 
+// El mapa va indexado por el texto del schema y no por el nombre del campo, porque un campo con
+// variantes condicionales tiene mas de uno y cual aplica depende de lo que el usuario lleve
+// escrito. Como efecto secundario, dos campos con el mismo schema comparten el validador.
 export function hydrateFieldSchemas(fields: ExportedField[]): {
   schemas: Map<string, z.ZodType>;
   issues: RuntimeIssue[];
@@ -36,14 +39,23 @@ export function hydrateFieldSchemas(fields: ExportedField[]): {
   const issues: RuntimeIssue[] = [];
 
   for (const field of fields) {
-    const { schema, error } = hydrateZodSchema(field.validations.zodSchema);
+    const sources: (string | undefined)[] = [
+      field.validations.zodSchema,
+      ...(field.validations.zodSchemaWhen ?? []).map((variant) => variant.zodSchema),
+    ];
 
-    if (error) {
-      issues.push({ kind: "schema", field: field.name, message: error });
-      continue;
+    for (const source of sources) {
+      if (source === undefined || schemas.has(source)) continue;
+
+      const { schema, error } = hydrateZodSchema(source);
+
+      if (error) {
+        issues.push({ kind: "schema", field: field.name, message: error });
+        continue;
+      }
+
+      if (schema) schemas.set(source, schema);
     }
-
-    if (schema) schemas.set(field.name, schema);
   }
 
   return { schemas, issues };

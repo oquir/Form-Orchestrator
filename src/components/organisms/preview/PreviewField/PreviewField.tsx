@@ -59,7 +59,9 @@ export function PreviewField({
         <div className="flex items-center gap-1">
           <label htmlFor={`preview-${field.name}`} className="text-xs font-medium text-fg-soft">
             {field.label}
-            {isRequiredBySchema(field) && <span className="ml-0.5 text-danger">*</span>}
+            {isRequiredBySchema(field, scope.values) && (
+              <span className="ml-0.5 text-danger">*</span>
+            )}
           </label>
           {field.tooltip && <PreviewTooltip tooltip={field.tooltip} label={field.label} />}
         </div>

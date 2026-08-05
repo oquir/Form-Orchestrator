@@ -9,7 +9,7 @@ import type {
 } from "../../types/formRuntime";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { firstZodMessage, hydrateFieldSchemas } from "../zodHydrate/zodHydrate";
-import { coerceValue, fieldKey } from "./runtimeValidation.utils";
+import { coerceValue, effectiveSchemaSource, fieldKey } from "./runtimeValidation.utils";
 
 // Valida todo el formulario contra los schemas de Zod hidratados desde el export.
 // Devuelve dos cosas distintas: `errors` es lo que el usuario hizo mal llenando el formulario,
@@ -44,7 +44,12 @@ function collectErrors(
     // Un campo oculto no se renderiza ni se valida: es la precedencia del contrato.
     if (!scope.visible[field.name]) continue;
 
-    const schema: z.ZodType | undefined = schemas.get(field.name);
+    // El schema se elige con los valores del scope, no con el nombre del campo: uno con variantes
+    // condicionales valida distinto segun lo que haya en el campo que observa.
+    const source: string | undefined = effectiveSchemaSource(field, scope.values);
+    if (source === undefined) continue;
+
+    const schema: z.ZodType | undefined = schemas.get(source);
     if (!schema) continue;
 
     const result = schema.safeParse(coerceValue(field, scope.values[field.name]));

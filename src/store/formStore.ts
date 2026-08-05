@@ -12,6 +12,10 @@ import {
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
 import { createEmptyTooltip, exportableTooltip } from "../lib/fieldTooltip/fieldTooltip";
 import {
+  createValidationOverride,
+  pruneOverridesReferencing,
+} from "../lib/fieldValidationOverride/fieldValidationOverride";
+import {
   clampGroupBounds,
   createRepeatableGroup,
   detachGroup,
@@ -381,6 +385,10 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
               visibleWhen: field.visibleWhen?.fieldId === fieldId ? undefined : field.visibleWhen,
               labelFor: field.labelFor === fieldId ? undefined : field.labelFor,
               dataSource: pruneDataSourceReferencing(field.dataSource, fieldId),
+              validations: {
+                ...field.validations,
+                overrides: pruneOverridesReferencing(field.validations.overrides, fieldId),
+              },
               logic: {
                 ...field.logic,
                 rules: pruneRulesReferencing(field.logic.rules, fieldId),
@@ -569,6 +577,47 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       mapFieldEverywhere(state, fieldId, (field) => ({
         ...field,
         validations: { ...field.validations, ...updates },
+      })),
+    ),
+  addFieldValidationOverride: (fieldId) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        validations: {
+          ...field.validations,
+          overrides: [...(field.validations.overrides ?? []), createValidationOverride()],
+        },
+      })),
+    ),
+  updateFieldValidationOverride: (fieldId, overrideId, updates) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        validations: {
+          ...field.validations,
+          overrides: (field.validations.overrides ?? []).map((override) =>
+            override.id === overrideId
+              ? {
+                  ...override,
+                  ...updates,
+                  // Las reglas se fusionan en vez de reemplazarse: el panel manda un campo por vez.
+                  validations: { ...override.validations, ...updates.validations },
+                }
+              : override,
+          ),
+        },
+      })),
+    ),
+  removeFieldValidationOverride: (fieldId, overrideId) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        validations: {
+          ...field.validations,
+          overrides: (field.validations.overrides ?? []).filter(
+            (override) => override.id !== overrideId,
+          ),
+        },
       })),
     ),
   updateFieldStyles: (fieldId, updates) =>

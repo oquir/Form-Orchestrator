@@ -1,16 +1,22 @@
 ﻿import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
-import { useFormStore } from "../../../../store/formStore";
+import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldValidations } from "../../../../types/field";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPreview/GeneratedSchemaPreview";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
+import { ValidationOverridesEditor } from "../ValidationOverridesEditor/ValidationOverridesEditor";
 import { toNumberOrUndefined } from "./ValidationsPanel.utils";
 
 export function ValidationsPanel({ field }: { field: CanvasField }) {
   const updateFieldValidations = useFormStore((state) => state.updateFieldValidations);
+  const formSteps = useFormStore((state) => state.formSteps);
   const v: FieldValidations = field.validations;
+  // Mismo criterio que LogicPanel: solo campos con valor, y nunca el propio.
+  const candidates: CanvasField[] = getAllFields(formSteps.flatMap((step) => step.rows)).filter(
+    (candidate) => candidate.id !== field.id && !isPresentationalField(candidate.type),
+  );
   const isNumeric = field.type === "number" || field.type === "calculated";
   const isTextLike = field.type === "text" || field.type === "textarea" || field.type === "select";
 
@@ -109,6 +115,8 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
       )}
 
       <GeneratedSchemaPreview schema={buildZodSchema(field)} />
+
+      <ValidationOverridesEditor field={field} candidates={candidates} />
     </div>
   );
 }

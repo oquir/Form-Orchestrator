@@ -1,6 +1,8 @@
 import type { RichTextContent } from "./richText";
 
-export interface FieldValidations {
+// Lo que una condicion puede cambiar. Vive aparte de FieldValidations para que un override no
+// pueda anidar otros overrides: una sola capa, sin recursion que resolver.
+export interface FieldValidationRules {
   required?: boolean;
   minLength?: number;
   maxLength?: number;
@@ -8,6 +10,19 @@ export interface FieldValidations {
   max?: number;
   pattern?: string;
   message?: string;
+}
+
+// Cuando `when` se cumple, estas reglas se fusionan sobre las de base. Lo que el override no
+// declara se hereda: uno que solo trae `pattern` no se lleva por delante el `required` de abajo.
+export interface FieldValidationOverride {
+  id: string;
+  when: FieldCondition;
+  validations: FieldValidationRules;
+}
+
+export interface FieldValidations extends FieldValidationRules {
+  // En orden: gana el primero que se cumpla. El consumidor aplica la misma regla.
+  overrides?: FieldValidationOverride[];
 }
 
 export interface FieldStyles {

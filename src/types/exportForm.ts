@@ -26,6 +26,19 @@ export interface ExportedRule {
   effects: RuleEffect[];
 }
 
+export interface ExportedValidationVariant {
+  when: ExportedCondition;
+  zodSchema: string;
+}
+
+// El consumidor recorre `zodSchemaWhen` en orden y se queda con el primero cuya condicion se
+// cumpla; si ninguna se cumple, valida con `zodSchema`. La ausencia de `zodSchema` sigue siendo
+// como sabe que un campo presentacional no valida nada.
+export interface ExportedValidations {
+  zodSchema?: string;
+  zodSchemaWhen?: ExportedValidationVariant[];
+}
+
 export interface ExportedLogic {
   dependencies: string[];
   typeScript: string;
@@ -41,7 +54,7 @@ export interface ExportedField {
   colStart: number;
   colSpan: number;
   styles: FieldStyles;
-  validations: { zodSchema?: string };
+  validations: ExportedValidations;
   logic: ExportedLogic;
   title?: string;
   options?: FieldOption[];

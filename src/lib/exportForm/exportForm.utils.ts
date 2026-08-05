@@ -4,6 +4,8 @@ import type {
   ExportedRow,
   ExportedRule,
   ExportedStep,
+  ExportedValidations,
+  ExportedValidationVariant,
 } from "../../types/exportForm";
 import type { CanvasField, FieldCondition, FieldDataSource } from "../../types/field";
 import type { CanvasRow, FormStep } from "../../types/formStructure";
@@ -12,7 +14,11 @@ import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
 import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
-import { buildGroupZodSchema, buildZodSchema } from "../zodSchema/zodSchema";
+import {
+  buildGroupZodSchema,
+  buildOverrideZodSchema,
+  buildZodSchema,
+} from "../zodSchema/zodSchema";
 
 // Traduccion del modelo interno al contrato de salida. La regla que gobierna todo el archivo:
 // hacia afuera no viaja ningun uuid, cada referencia a un campo se convierte en su nombre.
@@ -43,6 +49,30 @@ export function resolveCondition(
     value: operatorTakesList(condition.operator)
       ? parseConditionList(condition.value)
       : condition.value,
+  };
+}
+
+// Un override cuya condicion apunta a un campo que ya no existe se descarta entero, igual que
+// resolveCondition hace con visibleWhen: exportar una variante que nunca se puede evaluar seria
+// darle al consumidor una regla muerta que igual tiene que recorrer.
+export function resolveValidations(
+  field: CanvasField,
+  names: Map<string, string>,
+): ExportedValidations {
+  if (isPresentationalField(field.type)) return {};
+
+  const variants: ExportedValidationVariant[] = (field.validations.overrides ?? []).flatMap(
+    (override) => {
+      const when: ExportedCondition | undefined = resolveCondition(override.when, names);
+      if (!when || !names.has(override.when.fieldId)) return [];
+
+      return [{ when, zodSchema: buildOverrideZodSchema(field, override) }];
+    },
+  );
+
+  return {
+    zodSchema: buildZodSchema(field),
+    ...(variants.length > 0 ? { zodSchemaWhen: variants } : {}),
   };
 }
 
@@ -99,7 +129,7 @@ export function mapRows(rows: CanvasRow[], names: Map<string, string>): Exported
       styles: field.styles,
       // Solo se exporta el schema como texto, nunca las validaciones sueltas: que no haya schema
       // es justamente como el consumidor sabe que un campo presentacional no valida nada.
-      validations: isPresentationalField(field.type) ? {} : { zodSchema: buildZodSchema(field) },
+      validations: resolveValidations(field, names),
       logic: {
         dependencies: resolveDependencies(field, names),
         typeScript: field.logic.typeScript,
