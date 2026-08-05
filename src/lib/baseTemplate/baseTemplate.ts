@@ -19,6 +19,8 @@ import {
   NIT_MESSAGE,
   NIT_PATTERN,
   SALDO_NETO,
+  TELEFONO_MESSAGE,
+  TELEFONO_PATTERN,
   TIPO_DOCUMENTO_NIT,
 } from "./baseTemplate.constants";
 import type { TemplateCondition, TemplateValidationOverride } from "./baseTemplate.types";
@@ -304,6 +306,8 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: 8,
             path: "contribuyente.telefono",
             required: true,
+            pattern: TELEFONO_PATTERN,
+            message: TELEFONO_MESSAGE,
           },
           {
             name: "correo_electronico",
