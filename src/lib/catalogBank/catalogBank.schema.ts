@@ -4,6 +4,8 @@ const catalogEntrySchema = z.object({
   id: z.string(),
   label: z.string(),
   parentId: z.string().optional(),
+  code: z.string().optional(),
+  tarifa: z.number().optional(),
 });
 
 const storedCatalogSchema = z.object({

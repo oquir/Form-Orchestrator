@@ -9,7 +9,7 @@ import {
   CATALOG_TIPOS_PERSONA,
   CATALOG_TIPOS_SANCION,
 } from "../../constants/catalog";
-import type { FieldOption } from "../../types/field";
+import type { CatalogOption } from "../../types/catalog";
 import {
   ACTIVIDADES,
   DEPARTAMENTOS,
@@ -24,7 +24,7 @@ import {
 
 export const MOCK_OPTION_COUNT = 3;
 
-export const MOCK_CATALOGS: Record<string, (parent?: string) => FieldOption[]> = {
+export const MOCK_CATALOGS: Record<string, (parent?: string) => CatalogOption[]> = {
   [CATALOG_DEPARTAMENTOS]: () => DEPARTAMENTOS,
   [CATALOG_MUNICIPIOS]: (parent) => (parent ? (MUNICIPIOS_POR_DEPARTAMENTO[parent] ?? []) : []),
   [CATALOG_TIPOS_DOCUMENTO]: () => TIPOS_DOCUMENTO,
@@ -40,7 +40,7 @@ export const MOCK_CATALOGS: Record<string, (parent?: string) => FieldOption[]> =
 // que el campo esta mapeado. Vive solo aca, el contrato no cambia. Las entradas que ya tienen
 // catalogo declarado se comparten en vez de copiarse, para que no se separen con el tiempo: siguen
 // aca porque cubren a los campos que el autor cree a mano sin declarar dataSource.
-export const MOCK_BY_LEAF: Record<string, FieldOption[]> = {
+export const MOCK_BY_LEAF: Record<string, CatalogOption[]> = {
   idTipoDocumento: TIPOS_DOCUMENTO,
   idTipoPersona: TIPOS_PERSONA,
   idPeriodoAnual: PERIODOS_ANUALES,

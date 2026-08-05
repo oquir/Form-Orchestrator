@@ -48,6 +48,8 @@ function CatalogCard({ catalog, stored }: CatalogCardProps) {
   const [idKey, setIdKey] = useState<string>(DEFAULT_ID_KEY);
   const [labelKey, setLabelKey] = useState<string>(DEFAULT_LABEL_KEY);
   const [parentKey, setParentKey] = useState<string>("");
+  const [codeKey, setCodeKey] = useState<string>("");
+  const [tarifaKey, setTarifaKey] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   const entries: CatalogEntry[] = stored?.entries ?? [];
@@ -55,12 +57,13 @@ function CatalogCard({ catalog, stored }: CatalogCardProps) {
   const isCustom: boolean = loaded && stored?.source === "custom";
 
   function load(): void {
-    const result: CatalogParseResult = parseCatalogPaste(
-      raw,
-      idKey,
-      labelKey,
-      catalog.requiresParent && parentKey.trim() ? parentKey.trim() : undefined,
-    );
+    const result: CatalogParseResult = parseCatalogPaste(raw, {
+      id: idKey,
+      label: labelKey,
+      parent: catalog.requiresParent && parentKey.trim() ? parentKey.trim() : undefined,
+      code: codeKey.trim() || undefined,
+      tarifa: tarifaKey.trim() || undefined,
+    });
 
     if (result.error) {
       setError(result.error);
@@ -164,6 +167,32 @@ function CatalogCard({ catalog, stored }: CatalogCardProps) {
               />
             </label>
           )}
+
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex flex-col gap-1">
+              <span className={HINT_CLASSES}>Campo del código (opcional)</span>
+              <input
+                value={codeKey}
+                onChange={(event) => setCodeKey(event.target.value)}
+                placeholder="Ej. codigoCIIU"
+                className={INPUT_CLASSES}
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className={HINT_CLASSES}>Campo de la tarifa (opcional)</span>
+              <input
+                value={tarifaKey}
+                onChange={(event) => setTarifaKey(event.target.value)}
+                placeholder="Ej. tarifaXMil"
+                className={INPUT_CLASSES}
+              />
+            </label>
+          </div>
+
+          <p className={HINT_CLASSES}>
+            Las dos últimas solo las usa el buscador de un campo tipo “Selector con búsqueda”: el
+            código encabeza cada fila y la tarifa se muestra al costado como 4X1000.
+          </p>
 
           {error && <p className={ERROR_CLASSES}>{error}</p>}
 

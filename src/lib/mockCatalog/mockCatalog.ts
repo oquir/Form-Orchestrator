@@ -1,6 +1,6 @@
-import type { CatalogBank } from "../../types/catalog";
+import type { CatalogBank, CatalogOption } from "../../types/catalog";
 import type { ExportedField } from "../../types/exportForm";
-import type { FieldDataSource, FieldOption } from "../../types/field";
+import type { FieldDataSource } from "../../types/field";
 import type { RuntimeValues } from "../../types/formRuntime";
 import { catalogEntriesFor, usesCustomCatalog } from "../catalogBank/catalogBank";
 import { isOptionBasedField } from "../fieldOptions/fieldOptions";
@@ -13,7 +13,7 @@ export function catalogOptions(
   field: ExportedField,
   values: RuntimeValues = {},
   bank: CatalogBank = {},
-): FieldOption[] {
+): CatalogOption[] {
   if (field.options && field.options.length > 0) return field.options;
 
   const source: FieldDataSource | undefined = field.dataSource;
@@ -45,12 +45,16 @@ export function catalogOptions(
 
 // Lo que el autor cargo en el banco manda: si el catalogo esta activo se usa entero, aunque el
 // filtro por padre no devuelva nada. Mezclarlo con el dato de mentira daria listas incoherentes.
-function fromCatalog(catalogId: string, bank: CatalogBank, parentId?: string): FieldOption[] {
+function fromCatalog(catalogId: string, bank: CatalogBank, parentId?: string): CatalogOption[] {
   if (usesCustomCatalog(bank, catalogId)) {
-    return catalogEntriesFor(bank, catalogId, parentId).map((entry) => ({
-      id: entry.id,
-      label: entry.label,
-    }));
+    return catalogEntriesFor(bank, catalogId, parentId).map(
+      (entry): CatalogOption => ({
+        id: entry.id,
+        label: entry.label,
+        code: entry.code,
+        tarifa: entry.tarifa,
+      }),
+    );
   }
 
   const catalog = MOCK_CATALOGS[catalogId];
@@ -59,7 +63,7 @@ function fromCatalog(catalogId: string, bank: CatalogBank, parentId?: string): F
 }
 
 // Un catalogo declarado sin datos de mentira igual tiene que dejar llenar el formulario.
-function placeholderOptions(prefix: string): FieldOption[] {
+function placeholderOptions(prefix: string): CatalogOption[] {
   return Array.from({ length: MOCK_OPTION_COUNT }, (_, index) => ({
     id: `${prefix}-${index + 1}`,
     label: `${prefix} ${index + 1}`,

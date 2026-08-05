@@ -2,6 +2,7 @@ import type {
   CatalogBank,
   CatalogEntry,
   CatalogParseResult,
+  CatalogPasteKeys,
   StoredCatalog,
 } from "../../types/catalog";
 import { CATALOG_BANK_KEY } from "./catalogBank.constants";
@@ -45,12 +46,7 @@ export function catalogEntriesFor(
 
 // Convierte la respuesta cruda de un endpoint en opciones. Para 1.100 municipios pegar el JSON es
 // la unica via sensata; teclear id y etiqueta fila por fila no lo hace nadie.
-export function parseCatalogPaste(
-  raw: string,
-  idKey: string,
-  labelKey: string,
-  parentKey?: string,
-): CatalogParseResult {
+export function parseCatalogPaste(raw: string, keys: CatalogPasteKeys): CatalogParseResult {
   if (raw.trim() === "") return { entries: [], error: "Pegá la respuesta del endpoint." };
 
   let parsed: unknown;
@@ -65,16 +61,38 @@ export function parseCatalogPaste(
 
   const entries: CatalogEntry[] = [];
   for (const item of items) {
-    const id: string | undefined = readKey(item, idKey);
+    const id: string | undefined = readKey(item, keys.id);
     if (id === undefined) continue;
 
-    const parentId: string | undefined = parentKey ? readKey(item, parentKey) : undefined;
-    entries.push({ id, label: readKey(item, labelKey) ?? id, ...(parentId ? { parentId } : {}) });
+    const parentId: string | undefined = keys.parent ? readKey(item, keys.parent) : undefined;
+    const code: string | undefined = keys.code ? readKey(item, keys.code) : undefined;
+    // Una tarifa que no es numero se descarta en vez de viajar como NaN: el distintivo simplemente
+    // no se dibuja, que es lo mismo que pasa cuando el volcado no trae la columna.
+    const tarifa: number | undefined = keys.tarifa
+      ? toTarifa(readKey(item, keys.tarifa))
+      : undefined;
+
+    entries.push({
+      id,
+      label: readKey(item, keys.label) ?? id,
+      ...(parentId ? { parentId } : {}),
+      ...(code ? { code } : {}),
+      ...(tarifa !== undefined ? { tarifa } : {}),
+    });
   }
 
   if (entries.length === 0) {
-    return { entries: [], error: `Ningún elemento traía el campo “${idKey}”.` };
+    return { entries: [], error: `Ningún elemento traía el campo “${keys.id}”.` };
   }
 
   return { entries, error: null };
+}
+
+function toTarifa(raw: string | undefined): number | undefined {
+  if (raw === undefined) return undefined;
+
+  // Coma decimal: los volcados de tarifas vienen con punto, pero el que pega puede traer otra cosa.
+  const parsed: number = Number(raw.replace(",", "."));
+
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
