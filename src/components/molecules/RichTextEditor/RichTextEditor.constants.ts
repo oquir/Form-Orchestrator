@@ -1,4 +1,4 @@
-import type { RichTextCommand } from "./RichTextEditor.types";
+import type { RichTextCommand } from "../../../types/richText";
 
 export const EDITOR_CLASSES: string =
   "min-h-24 w-full rounded-md border border-border bg-field px-2 py-1.5 text-xs text-fg outline-none focus:border-brand-border [&_a]:text-brand-fg [&_a]:underline";
@@ -20,5 +20,3 @@ export const FORMAT_BUTTONS: { command: RichTextCommand; label: string; title: s
   { command: "italic", label: "C", title: "Cursiva" },
   { command: "underline", label: "S", title: "Subrayado" },
 ];
-
-export const INVALID_URL_MESSAGE = "Solo se permiten enlaces http, https o mailto.";

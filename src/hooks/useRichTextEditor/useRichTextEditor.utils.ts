@@ -1,6 +1,6 @@
-import { emptyRichText } from "../../../lib/richText/richText";
-import { safeHref } from "../../../lib/richText/richText.utils";
-import type { RichTextContent, RichTextLeaf } from "../../../types/richText";
+import { emptyRichText } from "../../lib/richText/richText";
+import { safeHref } from "../../lib/richText/richText.utils";
+import type { RichTextContent, RichTextLeaf } from "../../types/richText";
 
 function wrap(tag: string, child: Node): Node {
   const element: HTMLElement = document.createElement(tag);
