@@ -6,6 +6,7 @@ import {
   CATALOG_PERIODOS_ANUALES,
   CATALOG_TIPOS_DECLARACION,
   CATALOG_TIPOS_DOCUMENTO,
+  CATALOG_TIPOS_PERSONA,
 } from "../../constants/catalog";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type {
@@ -182,6 +183,20 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
       title: "Datos",
       subtitle: "Contribuyente",
       rows: [
+        // El catalogo se llama tipos_persona pero su endpoint es ListaTipoPersonaNoConvencional:
+        // no es natural contra juridica, son consorcio o union temporal y patrimonio autonomo. De
+        // ahi que el campo vaya arriba del documento y no al lado, y que no sea obligatorio: el
+        // contribuyente que no es ninguna de las dos cosas lo deja sin marcar.
+        buildRow([
+          {
+            name: "tipo_persona_no_convencional",
+            type: "toggle_group",
+            label: "Si no es persona natural ni persona jurídica marque",
+            colSpan: GRID_BASE_COLUMNS,
+            path: "contribuyente.idTipoPersona",
+            dataSource: { catalog: CATALOG_TIPOS_PERSONA },
+          },
+        ]),
         buildRow([
           {
             name: "tipo_documento",
@@ -205,7 +220,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
           },
           {
             name: "dv",
-            type: "number",
+            type: "calculated",
             label: "DV",
             colSpan: 3,
             path: "contribuyente.digitoVerificacion",
@@ -371,11 +386,12 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_ingresos_ordinarios",
-            type: "number",
+            type: "calculated",
             label:
               "10. Total Ingresos Ordinarios y Extraordinarios en Este Municipio (Renglón 8-9)",
             colSpan: GRID_BASE_COLUMNS,
             path: "baseGravable.totalIngresosOrdinarios",
+            alwaysDisabled: true,
             formula: "total_ingresos_nacionales - ingresos_fuera_municipio",
           },
         ]),
@@ -439,10 +455,11 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_ingresos_gravables",
-            type: "number",
+            type: "calculated",
             label: "16. TOTAL INGRESOS GRAVABLES (Renglón 10 Menos 11, 12, 13, 14 y 15)",
             colSpan: GRID_BASE_COLUMNS,
             path: "baseGravable.totalIngresosGravables",
+            alwaysDisabled: true,
             formula:
               "total_ingresos_ordinarios - ingresos_devoluciones_descuentos - ingresos_exportaciones - ingresos_venta_activos - ingresos_excluidos_no_gravados - ingresos_exentos_municipio",
           },
@@ -456,7 +473,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_impuesto",
-            type: "number",
+            type: "calculated",
             label: "17. Total Impuesto",
             colSpan: GRID_BASE_COLUMNS,
             excluded: true,
@@ -489,20 +506,22 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_impuesto_industria_comercio",
-            type: "number",
+            type: "calculated",
             label: "20. Total Impuesto de Industria y Comercio (Renglón 17 + 19)",
             colSpan: GRID_BASE_COLUMNS,
             excluded: true,
+            alwaysDisabled: true,
             formula: "total_impuesto + impuesto_ley_56",
           },
         ]),
         buildRow([
           {
             name: "impuesto_avisos_tableros",
-            type: "number",
+            type: "calculated",
             label: "21. Impuesto de Avisos y Tableros (15% Renglón 20)",
             colSpan: GRID_BASE_COLUMNS,
             path: "impuestoACargo.impuestoAvisosTableros",
+            alwaysDisabled: true,
             formula: "total_impuesto_industria_comercio * 0.15",
           },
         ]),
@@ -544,10 +563,11 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_impuesto_a_cargo",
-            type: "number",
+            type: "calculated",
             label: "25. Total Impuesto a Cargo (Renglón 20 + 21 + 22 + 23 + 24)",
             colSpan: GRID_BASE_COLUMNS,
             path: "impuestoACargo.totalImpuestoACargo",
+            alwaysDisabled: true,
             formula:
               "total_impuesto_industria_comercio + impuesto_avisos_tableros + pago_unidades_sector_financiero + sobretasa_bomberil + sobretasa_seguridad",
           },
@@ -642,21 +662,23 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_saldo_a_cargo",
-            type: "number",
+            type: "calculated",
             label: "33. Total Saldo a Cargo (Renglón 25 - 26 - 27 - 28 - 29 + 30 + 31 - 32)",
             colSpan: GRID_BASE_COLUMNS,
             path: "totalDeclaracion.totalSaldoACargo",
+            alwaysDisabled: true,
             formula: `max(${SALDO_NETO}, 0)`,
           },
         ]),
         buildRow([
           {
             name: "total_saldo_a_favor",
-            type: "number",
+            type: "calculated",
             label:
               "34. Total Saldo a Favor (Renglón 25 - 26 - 27 - 28 - 29 + 30 + 31 - 32) si el resultado es menor a cero",
             colSpan: GRID_BASE_COLUMNS,
             path: "totalDeclaracion.totalSaldoAFavor",
+            alwaysDisabled: true,
             formula: `max(-(${SALDO_NETO}), 0)`,
           },
         ]),
@@ -702,10 +724,11 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_a_pagar",
-            type: "number",
+            type: "calculated",
             label: "38. Total a Pagar (Renglón 35 - 36 + 37)",
             colSpan: GRID_BASE_COLUMNS,
             path: "totalDeclaracion.totalDeclaracion",
+            alwaysDisabled: true,
             formula: "valor_a_pagar - descuento_pronto_pago + interes_mora",
           },
         ]),
@@ -729,10 +752,11 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         buildRow([
           {
             name: "total_a_pagar_con_aporte_voluntario",
-            type: "number",
+            type: "calculated",
             label: "40. Total a Pagar Con Pago Voluntario (Renglón 38 + 39)",
             colSpan: GRID_BASE_COLUMNS,
             excluded: true,
+            alwaysDisabled: true,
             formula: "total_a_pagar + valor_aporte_voluntario",
           },
         ]),
