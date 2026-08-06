@@ -7,8 +7,8 @@ import type { PreviewGroupBandProps } from "./PreviewGroupBand.types";
 export function PreviewGroupBand({ groupId, rows, preview }: PreviewGroupBandProps) {
   const group: ExportedRepeatableGroup | undefined = preview.model.groupsById.get(groupId);
   const scopes: RuntimeScope[] = preview.snapshot.groups[groupId] ?? [];
-  const canAdd: boolean = scopes.length < (group?.max ?? 15);
-  const canRemove: boolean = scopes.length > (group?.min ?? 1);
+  const canAdd = scopes.length < (group?.max ?? 15);
+  const canRemove = scopes.length > (group?.min ?? 1);
 
   return (
     <section className="rounded-lg border border-border bg-surface-sunken p-3">
