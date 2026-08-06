@@ -25,6 +25,7 @@ function App() {
     return (
       <DraftRecoveryModal
         draft={draftRecovery.draft}
+        renamed={draftRecovery.renamed}
         onRestore={draftRecovery.restore}
         onDiscard={draftRecovery.discard}
       />
@@ -32,7 +33,7 @@ function App() {
   }
 
   if (!isSetupComplete) {
-    return <SetupWizardModal />;
+    return <SetupWizardModal draftWasInvalid={draftRecovery.wasInvalid} />;
   }
 
   return <FormBuilder />;

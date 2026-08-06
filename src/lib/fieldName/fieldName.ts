@@ -1,4 +1,5 @@
 import type { CanvasRow } from "../../types/formStructure";
+import type { FieldRename } from "../../types/persistenceTypes";
 import { FALLBACK_NAME } from "./fieldName.constants";
 
 // El nombre tecnico es la identidad del campo hacia afuera: con el se referencian las formulas,
@@ -41,19 +42,34 @@ export function collectFieldNames(rows: CanvasRow[], exceptFieldId?: string): Se
   return names;
 }
 
-export function migrateFieldNames(rows: CanvasRow[], taken: Set<string>): CanvasRow[] {
+// Segunda linea de defensa del nombre unico, detras del editor. Un borrador editado a mano desde
+// las devtools, o guardado por una version anterior a la regla, puede traer dos campos con el
+// mismo nombre; antes se les creia y entraban los dos.
+//
+// Renombrar el repetido no arregla las formulas que lo referenciaban -- con dos campos homonimos
+// ya eran ambiguas, porque el export indexa por nombre y un Map se queda con uno solo. Lo que si
+// hace es volver el conflicto deterministico y visible: el primero conserva el nombre, asi que las
+// referencias siguen apuntando a un campo real, y el segundo queda reportado en `renamed` para que
+// quien carga el borrador sepa que revisar.
+export function migrateFieldNames(
+  rows: CanvasRow[],
+  taken: Set<string>,
+  renamed: FieldRename[] = [],
+): CanvasRow[] {
   return rows.map((row) => ({
     ...row,
     fields: row.fields.map((field) => {
-      if (field.name) {
-        taken.add(field.name);
-        return field;
-      }
-
-      const name: string = uniqueFieldName(slugifyFieldName(field.label), taken);
+      const candidate: string = field.name ? field.name : slugifyFieldName(field.label);
+      const name: string = uniqueFieldName(candidate, taken);
       taken.add(name);
 
-      return { ...field, name };
+      // Solo es un renombre si el campo ya traia nombre: rellenar el de uno que venia sin el es
+      // una migracion y no hay nada que revisar.
+      if (field.name && name !== field.name) {
+        renamed.push({ from: field.name, to: name, label: field.label });
+      }
+
+      return field.name === name ? field : { ...field, name };
     }),
   }));
 }

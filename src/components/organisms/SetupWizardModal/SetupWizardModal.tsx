@@ -6,8 +6,9 @@ import { BinaryChoiceToggle } from "../../molecules/BinaryChoiceToggle/BinaryCho
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
 import { SelectableOptionCard } from "../../molecules/SelectableOptionCard/SelectableOptionCard";
 import { FORM_TYPES } from "./SetupWizardModal.constants";
+import type { SetupWizardModalProps } from "./SetupWizardModal.types";
 
-export function SetupWizardModal() {
+export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalProps) {
   const {
     step,
     formType,
@@ -28,6 +29,18 @@ export function SetupWizardModal() {
       <h2 className="mb-4 text-lg font-semibold text-slate-800 dark:text-neutral-100">
         {step === 1 ? "Tipo de formulario" : "Modal de entrada"}
       </h2>
+
+      {draftWasInvalid && (
+        <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 dark:border-red-500/40 dark:bg-red-500/10">
+          <p className="text-[11px] font-medium text-red-700 dark:text-red-400">
+            El borrador guardado no tenía una estructura válida y se descartó.
+          </p>
+          <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+            Pasa cuando el almacenamiento del navegador se edita a mano o quedó de una versión
+            anterior del builder. Se empieza de cero para no cargar un proyecto corrupto.
+          </p>
+        </div>
+      )}
 
       {step === 1 && (
         <div className="flex flex-col gap-2">

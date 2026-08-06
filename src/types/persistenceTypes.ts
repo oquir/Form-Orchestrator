@@ -9,3 +9,16 @@ export interface DraftPayload {
   setupConfig: SetupConfig;
   savedAt: string;
 }
+
+export interface FieldRename {
+  from: string;
+  to: string;
+  label: string;
+}
+
+// "vacio" y "invalido" se separan porque no son lo mismo: no haber guardado nunca es normal, y un
+// borrador que no valida es algo que hay que borrar y contar. Antes los dos devolvian null.
+export type DraftLoad =
+  | { status: "empty" }
+  | { status: "invalid" }
+  | { status: "ok"; draft: DraftPayload; renamed: FieldRename[] };

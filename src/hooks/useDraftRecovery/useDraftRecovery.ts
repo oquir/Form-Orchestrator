@@ -2,32 +2,56 @@ import { useEffect, useState } from "react";
 import { clearDraft, loadDraft } from "../../lib/persistence/persistence";
 import { useFormStore } from "../../store/formStore";
 import type { DraftRecovery, DraftRecoveryStatus } from "../../types/draftRecovery";
-import type { DraftPayload } from "../../types/persistenceTypes";
+import type { DraftLoad } from "../../types/persistenceTypes";
+import { NOTHING_PENDING } from "./useDraftRecovery.constants";
+import type { PendingDraft } from "./useDraftRecovery.types";
 
 // Corre antes que el asistente de configuracion: si hay borrador guardado se ofrece recuperarlo.
 export function useDraftRecovery(): DraftRecovery {
   const restoreDraft = useFormStore((state) => state.restoreDraft);
-  // Tres estados en una variable: undefined es "todavia no se miro", null es "no hay borrador" y
-  // un objeto es "hay uno esperando respuesta". Sin el undefined, el primer render mostraria el
-  // asistente un instante antes de descubrir que habia borrador.
-  const [pendingDraft, setPendingDraft] = useState<DraftPayload | null | undefined>(undefined);
+  // null es "todavia no se miro". Sin ese estado el primer render mostraria el asistente un
+  // instante antes de descubrir que habia borrador.
+  const [pending, setPending] = useState<PendingDraft | null>(null);
 
   useEffect(() => {
-    setPendingDraft(loadDraft());
+    const result: DraftLoad = loadDraft();
+
+    // Un borrador que no valida se borra en el acto. Dejarlo seria releerlo y rechazarlo en cada
+    // arranque, y el objeto manipulado sobreviviria a la sesion que lo detecto. Al store nunca
+    // llega: solo restoreDraft lo escribe, y ese camino exige status "ok".
+    if (result.status === "invalid") {
+      clearDraft();
+      setPending({ draft: null, renamed: [], wasInvalid: true });
+      return;
+    }
+
+    if (result.status === "empty") {
+      setPending(NOTHING_PENDING);
+      return;
+    }
+
+    setPending({ draft: result.draft, renamed: result.renamed, wasInvalid: false });
   }, []);
 
   const status: DraftRecoveryStatus =
-    pendingDraft === undefined ? "loading" : pendingDraft ? "recovering" : "ready";
+    pending === null ? "loading" : pending.draft ? "recovering" : "ready";
 
   function restore(): void {
-    if (pendingDraft) restoreDraft(pendingDraft);
-    setPendingDraft(null);
+    if (pending?.draft) restoreDraft(pending.draft);
+    setPending(NOTHING_PENDING);
   }
 
   function discard(): void {
     clearDraft();
-    setPendingDraft(null);
+    setPending(NOTHING_PENDING);
   }
 
-  return { status, draft: pendingDraft, restore, discard };
+  return {
+    status,
+    draft: pending?.draft ?? null,
+    renamed: pending?.renamed ?? [],
+    wasInvalid: pending?.wasInvalid ?? false,
+    restore,
+    discard,
+  };
 }
