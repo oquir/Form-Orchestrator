@@ -24,10 +24,12 @@ export function FormulaInput({
     () => new Set(candidates.map((candidate) => candidate.name)),
     [candidates],
   );
+
   const validation: FormulaValidation = useMemo(
     () => validateFormula(value, knownNames),
     [value, knownNames],
   );
+
   const referencesSelf = selfName !== undefined && validation.refs.includes(selfName);
 
   function insertName(name: string): void {

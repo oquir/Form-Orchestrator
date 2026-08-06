@@ -1,7 +1,5 @@
 import { CATALOGS, findCatalog } from "../../../../constants/catalog";
 import { useFormStore } from "../../../../store/formStore";
-import type { CatalogDefinition } from "../../../../types/catalog";
-import type { FieldDataSource } from "../../../../types/field";
 import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
 import {
   HINT_CLASSES,
@@ -14,11 +12,11 @@ import type { FieldDataSourceEditorProps } from "./FieldDataSourceEditor.types";
 export function FieldDataSourceEditor({ field, candidates }: FieldDataSourceEditorProps) {
   const updateFieldDataSource = useFormStore((state) => state.updateFieldDataSource);
 
-  const source: FieldDataSource | undefined = field.dataSource;
-  const catalog: CatalogDefinition | undefined = source ? findCatalog(source.catalog) : undefined;
-  const parentIsDead: boolean =
+  const source = field.dataSource;
+  const catalog = source ? findCatalog(source.catalog) : undefined;
+  const parentIsDead =
     source?.dependsOn !== undefined && !candidates.some((c) => c.id === source.dependsOn);
-  const needsParent: boolean = Boolean(catalog?.requiresParent) && source?.dependsOn === undefined;
+  const needsParent = Boolean(catalog?.requiresParent) && source?.dependsOn === undefined;
 
   function toggle(checked: boolean): void {
     updateFieldDataSource(field.id, checked ? { catalog: CATALOGS[0].id } : null);

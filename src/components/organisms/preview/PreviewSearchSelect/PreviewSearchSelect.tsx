@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import { Magnifier, Xmark } from "reicon-react";
-import type { CatalogOption } from "../../../../types/catalog";
+import { usePreviewSearchSelect } from "../../../../hooks/usePreviewSearchSelect/usePreviewSearchSelect";
 import {
   FOOTER_BUTTON_CLASSES,
   OPTION_BUTTON_CLASSES,
@@ -11,7 +10,7 @@ import {
   TRIGGER_INVALID_CLASSES,
 } from "./PreviewSearchSelect.constants";
 import type { PreviewSearchSelectProps } from "./PreviewSearchSelect.types";
-import { filterOptions, findSelected, formatTarifa, optionText } from "./PreviewSearchSelect.utils";
+import { formatTarifa, optionText } from "./PreviewSearchSelect.utils";
 
 export function PreviewSearchSelect({
   inputId,
@@ -22,36 +21,7 @@ export function PreviewSearchSelect({
   invalid,
   onChange,
 }: PreviewSearchSelectProps) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [query, setQuery] = useState<string>("");
-  const searchRef = useRef<HTMLInputElement>(null);
-
-  const selected: CatalogOption | null = findSelected(options, value);
-  // Cerrado no se filtra nada: es justamente lo que evita las 6.375 opciones montadas de golpe.
-  const results: CatalogOption[] = useMemo(
-    () => (isOpen ? filterOptions(options, query) : []),
-    [isOpen, options, query],
-  );
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Por ref y no con autoFocus, que Biome prohibe sin distinguir este caso del que le preocupa.
-    searchRef.current?.focus();
-
-    function onKeyDown(event: KeyboardEvent): void {
-      if (event.key === "Escape") setIsOpen(false);
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isOpen]);
-
-  function choose(option: CatalogOption | null): void {
-    onChange(option ? option.id : "");
-    setIsOpen(false);
-  }
+  const search = usePreviewSearchSelect({ options, value, onChange });
 
   return (
     <>
@@ -59,19 +29,16 @@ export function PreviewSearchSelect({
         id={inputId}
         type="button"
         disabled={disabled}
-        onClick={() => {
-          setQuery("");
-          setIsOpen(true);
-        }}
+        onClick={search.open}
         className={`${TRIGGER_BASE_CLASSES} ${invalid ? TRIGGER_INVALID_CLASSES : TRIGGER_IDLE_CLASSES}`}
       >
-        <span className={`truncate ${selected ? "text-fg" : "text-fg-muted"}`}>
-          {selected ? optionText(selected) : "Buscar…"}
+        <span className={`truncate ${search.selected ? "text-fg" : "text-fg-muted"}`}>
+          {search.selected ? optionText(search.selected) : "Buscar…"}
         </span>
         <Magnifier size={14} weight="Filled" />
       </button>
 
-      {isOpen && (
+      {search.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div
             role="dialog"
@@ -89,29 +56,29 @@ export function PreviewSearchSelect({
                 <Magnifier size={14} weight="Filled" />
               </span>
               <input
-                ref={searchRef}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                ref={search.searchRef}
+                value={search.query}
+                onChange={(event) => search.setQuery(event.target.value)}
                 placeholder="Buscar por código o descripción…"
                 aria-label={`Buscar ${label}`}
                 className={SEARCH_INPUT_CLASSES}
               />
             </div>
 
-            {results.length === 0 ? (
+            {search.results.length === 0 ? (
               <p className="flex-1 px-5 py-6 text-sm text-fg-subtle">
-                No encontré ninguna opción para “{query}”.
+                No encontré ninguna opción para “{search.query}”.
               </p>
             ) : (
               <ul className="min-h-0 flex-1 list-none divide-y divide-border overflow-auto">
-                {results.map((option) => (
+                {search.results.map((option) => (
                   <li
                     key={option.id}
-                    className={option.id === selected?.id ? "bg-brand-surface" : undefined}
+                    className={option.id === search.selected?.id ? "bg-brand-surface" : undefined}
                   >
                     <button
                       type="button"
-                      onClick={() => choose(option)}
+                      onClick={() => search.choose(option)}
                       className={OPTION_BUTTON_CLASSES}
                     >
                       <span className="min-w-0">
@@ -133,24 +100,20 @@ export function PreviewSearchSelect({
 
             <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-border px-4 py-3">
               <span className="text-[11px] text-fg-subtle">
-                {results.length} de {options.length}
+                {search.results.length} de {options.length}
               </span>
               <div className="flex items-center gap-2">
-                {selected && (
+                {search.selected && (
                   <button
                     type="button"
-                    onClick={() => choose(null)}
+                    onClick={() => search.choose(null)}
                     className={`${FOOTER_BUTTON_CLASSES} flex items-center gap-1`}
                   >
                     <Xmark size={12} weight="Filled" />
                     Quitar
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className={FOOTER_BUTTON_CLASSES}
-                >
+                <button type="button" onClick={search.close} className={FOOTER_BUTTON_CLASSES}>
                   Cancelar
                 </button>
               </div>

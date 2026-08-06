@@ -12,3 +12,5 @@ export interface RichTextParagraph {
 }
 
 export type RichTextContent = RichTextParagraph[];
+
+export type RichTextCommand = "bold" | "italic" | "underline";
