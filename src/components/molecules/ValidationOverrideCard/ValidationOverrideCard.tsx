@@ -11,7 +11,7 @@ import { ConditionFieldSelect } from "../ConditionFieldSelect/ConditionFieldSele
 import { ConditionOperatorSelect } from "../ConditionOperatorSelect/ConditionOperatorSelect";
 import { ConditionValueInput } from "../ConditionValueInput/ConditionValueInput";
 import { LabeledInput } from "../LabeledInput/LabeledInput";
-import { CARD_CLASSES } from "./ValidationOverrideCard.constants";
+import { CARD_CLASSES, POSITION_BADGE_CLASSES } from "./ValidationOverrideCard.constants";
 import type { ValidationOverrideCardProps } from "./ValidationOverrideCard.types";
 import { toNumberOrUndefined } from "./ValidationOverrideCard.utils";
 
@@ -41,9 +41,10 @@ export function ValidationOverrideCard({
   return (
     <div className={CARD_CLASSES}>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-medium text-slate-500 dark:text-neutral-400">
-          Cuando #{position}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={POSITION_BADGE_CLASSES}>#{position}</span>
+          <span className="text-[11px] font-medium text-fg-soft">Cuando</span>
+        </div>
         <button
           type="button"
           onClick={() => removeOverride(field.id, override.id)}
@@ -54,32 +55,37 @@ export function ValidationOverrideCard({
         </button>
       </div>
 
-      <ConditionFieldSelect
-        label="Campo observado"
-        condition={override.when}
-        otherFields={candidates}
-        observedIsDead={override.when.fieldId !== "" && observed === undefined}
-        onChange={(fieldId) => {
-          const next: CanvasField | undefined = candidates.find(
-            (candidate) => candidate.id === fieldId,
-          );
-          const operators: ConditionOperator[] = operatorsForFieldType(next?.type ?? "text");
-          const operator: ConditionOperator = operators.includes(override.when.operator)
-            ? override.when.operator
-            : operators[0];
+      <TwoColumnFieldGroup>
+        <ConditionFieldSelect
+          label="Campo observado"
+          condition={override.when}
+          otherFields={candidates}
+          observedIsDead={override.when.fieldId !== "" && observed === undefined}
+          onChange={(fieldId) => {
+            const next: CanvasField | undefined = candidates.find(
+              (candidate) => candidate.id === fieldId,
+            );
+            const operators: ConditionOperator[] = operatorsForFieldType(next?.type ?? "text");
+            const operator: ConditionOperator = operators.includes(override.when.operator)
+              ? override.when.operator
+              : operators[0];
 
-          updateOverride(field.id, override.id, { when: { ...override.when, fieldId, operator } });
-        }}
-      />
+            updateOverride(field.id, override.id, {
+              when: { ...override.when, fieldId, operator },
+            });
+          }}
+        />
 
-      <ConditionOperatorSelect
-        operator={override.when.operator}
-        availableOperators={availableOperators}
-        operatorLabels={OPERATOR_LABELS}
-        onChange={(operator) =>
-          updateOverride(field.id, override.id, { when: { ...override.when, operator } })
-        }
-      />
+        <ConditionOperatorSelect
+          label="Operador"
+          operator={override.when.operator}
+          availableOperators={availableOperators}
+          operatorLabels={OPERATOR_LABELS}
+          onChange={(operator) =>
+            updateOverride(field.id, override.id, { when: { ...override.when, operator } })
+          }
+        />
+      </TwoColumnFieldGroup>
 
       {operatorNeedsValue(override.when.operator) && (
         <ConditionValueInput
@@ -91,11 +97,9 @@ export function ValidationOverrideCard({
         />
       )}
 
-      <hr className="border-slate-200 dark:border-neutral-700" />
-
       {isTextLike && (
         <>
-          <TwoColumnFieldGroup legend="Longitud">
+          <TwoColumnFieldGroup>
             <LabeledInput
               id={`override-min-length-${override.id}`}
               label="Longitud mín."
@@ -120,7 +124,7 @@ export function ValidationOverrideCard({
             value={override.validations.pattern ?? ""}
             onChange={(event) => setRule({ pattern: event.target.value || undefined })}
             placeholder="Hereda la de arriba"
-            className="font-mono"
+            tone="code"
           />
 
           <LabeledInput
@@ -134,7 +138,7 @@ export function ValidationOverrideCard({
       )}
 
       {isNumeric && (
-        <TwoColumnFieldGroup legend="Rango de valores">
+        <TwoColumnFieldGroup>
           <LabeledInput
             id={`override-min-${override.id}`}
             label="Valor mín."

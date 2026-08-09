@@ -1,12 +1,14 @@
-﻿import { CodeBlock } from "../../atoms/CodeBlock/CodeBlock";
+import { CodeBlock } from "../../atoms/CodeBlock/CodeBlock";
+import { CopyIconButton } from "../../atoms/CopyIconButton/CopyIconButton";
+import { PanelSection } from "../PanelSection/PanelSection";
 
 export function GeneratedSchemaPreview({ schema }: { schema: string }) {
   return (
-    <div>
-      <p className="mb-1 text-xs font-medium text-slate-500 dark:text-neutral-400">
-        Esquema Zod generado
-      </p>
+    <PanelSection
+      title="Esquema Zod generado"
+      aside={<CopyIconButton value={schema} title="Copiar el esquema" />}
+    >
       <CodeBlock>{schema}</CodeBlock>
-    </div>
+    </PanelSection>
   );
 }

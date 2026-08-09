@@ -1,11 +1,12 @@
-﻿import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
+import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
 import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldValidations } from "../../../../types/field";
-import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
+import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPreview/GeneratedSchemaPreview";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ValidationOverridesEditor } from "../ValidationOverridesEditor/ValidationOverridesEditor";
 import { toNumberOrUndefined } from "./ValidationsPanel.utils";
 
@@ -19,6 +20,9 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
   );
   const isNumeric = field.type === "number" || field.type === "calculated";
   const isTextLike = field.type === "text" || field.type === "textarea" || field.type === "select";
+  // Un checkbox no tiene nada basico que declarar: no lleva "requerido" -su esquema es z.boolean()
+  // y buildZodSchema nunca le agrega .optional()- ni longitud ni rango. La seccion quedaria vacia.
+  const showsBasicRules: boolean = field.type !== "checkbox";
 
   if (isPresentationalField(field.type)) {
     return (
@@ -29,56 +33,87 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {field.type !== "checkbox" && (
-        // biome-ignore lint/a11y/noLabelWithoutControl: Checkbox renders a nested <input type="checkbox">
-        <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-neutral-200">
-          <Checkbox
-            checked={v.required ?? false}
-            onChange={(event) =>
-              updateFieldValidations(field.id, { required: event.target.checked })
-            }
-          />
-          Campo requerido
-        </label>
+    <div className="flex flex-col gap-3">
+      {showsBasicRules && (
+        <PanelSection title="Reglas básicas">
+          {field.type !== "checkbox" && (
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-fg">Campo requerido</span>
+              <ToggleSwitch
+                checked={v.required ?? false}
+                onChange={(checked) => updateFieldValidations(field.id, { required: checked })}
+                label="Marcar el campo como requerido"
+              />
+            </div>
+          )}
+
+          {isTextLike && (
+            <TwoColumnFieldGroup legend="Longitud">
+              <LabeledInput
+                id="min-length"
+                label="Mínimo"
+                type="number"
+                min={0}
+                placeholder="—"
+                value={v.minLength ?? ""}
+                onChange={(event) =>
+                  updateFieldValidations(field.id, {
+                    minLength: toNumberOrUndefined(event.target.value),
+                  })
+                }
+              />
+              <LabeledInput
+                id="max-length"
+                label="Máximo"
+                type="number"
+                min={0}
+                placeholder="—"
+                value={v.maxLength ?? ""}
+                onChange={(event) =>
+                  updateFieldValidations(field.id, {
+                    maxLength: toNumberOrUndefined(event.target.value),
+                  })
+                }
+              />
+            </TwoColumnFieldGroup>
+          )}
+
+          {isNumeric && (
+            <TwoColumnFieldGroup legend="Rango de valores">
+              <LabeledInput
+                id="min-value"
+                label="Mínimo"
+                type="number"
+                placeholder="—"
+                value={v.min ?? ""}
+                onChange={(event) =>
+                  updateFieldValidations(field.id, { min: toNumberOrUndefined(event.target.value) })
+                }
+              />
+              <LabeledInput
+                id="max-value"
+                label="Máximo"
+                type="number"
+                placeholder="—"
+                value={v.max ?? ""}
+                onChange={(event) =>
+                  updateFieldValidations(field.id, { max: toNumberOrUndefined(event.target.value) })
+                }
+              />
+            </TwoColumnFieldGroup>
+          )}
+        </PanelSection>
       )}
 
       {isTextLike && (
-        <>
-          <TwoColumnFieldGroup legend="Longitud">
-            <LabeledInput
-              id="min-length"
-              label="Longitud mín."
-              type="number"
-              min={0}
-              value={v.minLength ?? ""}
-              onChange={(event) =>
-                updateFieldValidations(field.id, {
-                  minLength: toNumberOrUndefined(event.target.value),
-                })
-              }
-            />
-            <LabeledInput
-              id="max-length"
-              label="Longitud máx."
-              type="number"
-              min={0}
-              value={v.maxLength ?? ""}
-              onChange={(event) =>
-                updateFieldValidations(field.id, {
-                  maxLength: toNumberOrUndefined(event.target.value),
-                })
-              }
-            />
-          </TwoColumnFieldGroup>
-
+        <PanelSection title="Formato y mensaje">
           <LabeledInput
             id="pattern"
             label="Expresión regular"
             value={v.pattern ?? ""}
             onChange={(event) => updateFieldValidations(field.id, { pattern: event.target.value })}
             placeholder="^[0-9]+-[0-9]$"
-            className="font-mono"
+            tone="code"
           />
 
           <LabeledInput
@@ -88,30 +123,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
             onChange={(event) => updateFieldValidations(field.id, { message: event.target.value })}
             placeholder="Formato inválido"
           />
-        </>
-      )}
-
-      {isNumeric && (
-        <TwoColumnFieldGroup legend="Rango de valores">
-          <LabeledInput
-            id="min-value"
-            label="Valor mín."
-            type="number"
-            value={v.min ?? ""}
-            onChange={(event) =>
-              updateFieldValidations(field.id, { min: toNumberOrUndefined(event.target.value) })
-            }
-          />
-          <LabeledInput
-            id="max-value"
-            label="Valor máx."
-            type="number"
-            value={v.max ?? ""}
-            onChange={(event) =>
-              updateFieldValidations(field.id, { max: toNumberOrUndefined(event.target.value) })
-            }
-          />
-        </TwoColumnFieldGroup>
+        </PanelSection>
       )}
 
       <GeneratedSchemaPreview schema={buildZodSchema(field)} />
