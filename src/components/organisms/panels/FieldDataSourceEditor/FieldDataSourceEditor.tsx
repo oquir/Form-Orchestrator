@@ -1,6 +1,7 @@
 import { CATALOGS, findCatalog } from "../../../../constants/catalog";
 import { useFormStore } from "../../../../store/formStore";
-import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
+import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import {
   HINT_CLASSES,
   NO_PARENT_VALUE,
@@ -35,20 +36,20 @@ export function FieldDataSourceEditor({ field, candidates }: FieldDataSourceEdit
   }
 
   return (
-    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-neutral-700">
-      {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox renders a nested <input type="checkbox"> */}
-      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-neutral-200">
-        <Checkbox
+    <PanelSection
+      title="Origen de opciones"
+      aside={
+        <ToggleSwitch
           checked={source !== undefined}
-          onChange={(event) => toggle(event.target.checked)}
+          onChange={toggle}
+          label="Las opciones vienen de un catálogo"
         />
-        Las opciones vienen de un catálogo
-      </label>
-
+      }
+    >
       {source === undefined ? (
         <p className={HINT_CLASSES}>
-          Marcálo si el aplicativo que recibe el JSON tiene que pedir estas opciones a un catálogo.
-          Queda escrito en el export, así no hay que pactarlo de palabra.
+          Encendélo si el aplicativo que recibe el JSON tiene que pedir estas opciones a un
+          catálogo. Queda escrito en el export, así no hay que pactarlo de palabra.
         </p>
       ) : (
         <>
@@ -102,6 +103,6 @@ export function FieldDataSourceEditor({ field, candidates }: FieldDataSourceEdit
           </p>
         </>
       )}
-    </div>
+    </PanelSection>
   );
 }

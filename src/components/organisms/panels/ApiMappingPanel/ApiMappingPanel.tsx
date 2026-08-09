@@ -9,10 +9,17 @@ import type { CanvasField } from "../../../../types/field";
 import type { OptionsSetup } from "../../../../types/formStoreTypes";
 import type { RepeatableGroup } from "../../../../types/formStructure";
 import type { SchemaLeaf } from "../../../../types/payloadSchema";
-import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
+import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { ApiPathSelect } from "../../../molecules/ApiPathSelect/ApiPathSelect";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { FieldOptionsModal } from "../../FieldOptionsModal/FieldOptionsModal";
 import { FieldDataSourceEditor } from "../FieldDataSourceEditor/FieldDataSourceEditor";
+import {
+  ERROR_CLASSES,
+  HINT_CLASSES,
+  NOTE_CLASSES,
+  WARNING_CLASSES,
+} from "./ApiMappingPanel.constants";
 
 export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const updateFieldApiBinding = useFormStore((state) => state.updateFieldApiBinding);
@@ -71,63 +78,69 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox renders a nested <input type="checkbox"> */}
-      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-neutral-200">
-        <Checkbox
-          checked={isExcluded}
-          onChange={(event) => handleExcludedToggle(event.target.checked)}
-        />
-        Excluir del payload (uso interno del formulario)
-      </label>
-
-      {isExcluded && (
-        <p className="text-[11px] text-slate-400 dark:text-neutral-500">
-          Este campo no se enviará al objeto final aunque participe en cálculos o condiciones.
-          {allowsManualOptions(field) &&
-            " Si lo volvés a incluir en el payload, las opciones que cargaste se descartan."}
-        </p>
-      )}
-
-      {!isExcluded && group !== null && (
-        <p className="rounded border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-300">
-          {awaitsGroupArrayPath
-            ? `Este campo vive dentro del grupo repetible “${group.title}”. Elegí primero a qué arreglo del payload corresponde el grupo.`
-            : `Este campo se envía una vez por cada ${group.title.toLowerCase()}, dentro de ${group.arrayPath}[].`}
-        </p>
-      )}
-
-      {!isExcluded && !awaitsGroupArrayPath && (
-        <>
-          <ApiPathSelect
-            path={path}
-            leaves={leaves}
-            isOrphan={isOrphan}
-            isHostPath={isHostPath}
-            onChange={handlePathChange}
+    <div className="flex flex-col gap-3">
+      <PanelSection
+        title="Destino en el payload"
+        aside={
+          <ToggleSwitch
+            checked={isExcluded}
+            onChange={handleExcludedToggle}
+            label="Excluir el campo del payload"
           />
-
-          {isHostPath && (
-            <p className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
-              Esta ruta la define el aplicativo que recibe el JSON, no el formulario. Reasigná o
-              excluí el campo.
-            </p>
+        }
+      >
+        <p className={HINT_CLASSES}>
+          {isExcluded ? (
+            <>
+              Excluido: no se enviará al objeto final aunque participe en cálculos o condiciones.
+              {allowsManualOptions(field) &&
+                " Si lo volvés a incluir, las opciones que cargaste se descartan."}
+            </>
+          ) : (
+            "Apagá el interruptor de la derecha solo si el campo es de uso interno del formulario y no viaja a la API."
           )}
+        </p>
 
-          {isOrphan && (
-            <p className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
-              Esta ruta ya no existe en el objeto de la API. Reasigná o excluí el campo.
-            </p>
-          )}
+        {!isExcluded && group !== null && (
+          <p className={NOTE_CLASSES}>
+            {awaitsGroupArrayPath
+              ? `Este campo vive dentro del grupo repetible “${group.title}”. Elegí primero a qué arreglo del payload corresponde el grupo.`
+              : `Este campo se envía una vez por cada ${group.title.toLowerCase()}, dentro de ${group.arrayPath}[].`}
+          </p>
+        )}
 
-          {showTypeMismatch && (
-            <p className="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400">
-              El tipo del campo ({field.type}) no coincide con el tipo esperado en la API (
-              {resolvedType}).
-            </p>
-          )}
-        </>
-      )}
+        {!isExcluded && !awaitsGroupArrayPath && (
+          <>
+            <ApiPathSelect
+              path={path}
+              leaves={leaves}
+              isOrphan={isOrphan}
+              isHostPath={isHostPath}
+              onChange={handlePathChange}
+            />
+
+            {isHostPath && (
+              <p className={ERROR_CLASSES}>
+                Esta ruta la define el aplicativo que recibe el JSON, no el formulario. Reasigná o
+                excluí el campo.
+              </p>
+            )}
+
+            {isOrphan && (
+              <p className={ERROR_CLASSES}>
+                Esta ruta ya no existe en el objeto de la API. Reasigná o excluí el campo.
+              </p>
+            )}
+
+            {showTypeMismatch && (
+              <p className={WARNING_CLASSES}>
+                El tipo del campo ({field.type}) no coincide con el tipo esperado en la API (
+                {resolvedType}).
+              </p>
+            )}
+          </>
+        )}
+      </PanelSection>
 
       {isOptionBasedField(field.type) && (
         <FieldDataSourceEditor field={field} candidates={dataSourceCandidates} />
