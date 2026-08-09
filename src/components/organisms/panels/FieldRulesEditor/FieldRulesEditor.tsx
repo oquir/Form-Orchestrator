@@ -12,10 +12,12 @@ import { ConditionFieldSelect } from "../../../molecules/ConditionFieldSelect/Co
 import { ConditionOperatorSelect } from "../../../molecules/ConditionOperatorSelect/ConditionOperatorSelect";
 import { ConditionValueInput } from "../../../molecules/ConditionValueInput/ConditionValueInput";
 import { FormulaInput } from "../../../molecules/FormulaInput/FormulaInput";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { RuleEffectRow } from "../../../molecules/RuleEffectRow/RuleEffectRow";
 import {
   ADD_LINK_CLASSES,
   BASE_FORMULA_HINT,
+  COUNT_CLASSES,
   MOVE_BUTTON_CLASSES,
   REMOVE_BUTTON_CLASSES,
   RULES_HINT,
@@ -30,7 +32,7 @@ export function FieldRulesEditor({ field, candidates }: FieldRulesEditorProps) {
     return (
       <li
         key={rule.id}
-        className="flex flex-col gap-2 rounded-md border border-border bg-surface-sunken p-3"
+        className="flex flex-col gap-2 rounded-md border border-border bg-surface p-3"
       >
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-medium text-fg-muted">Regla {index + 1}</span>
@@ -174,50 +176,51 @@ export function FieldRulesEditor({ field, candidates }: FieldRulesEditorProps) {
   }
 
   return (
-    <section
-      aria-labelledby="field-rules-heading"
-      className="flex flex-col gap-3 border-t border-border pt-4"
-    >
-      <h3 id="field-rules-heading" className="text-xs font-medium text-fg-muted">
-        Cálculo del campo
-      </h3>
+    <>
+      <PanelSection title="Cálculo del campo">
+        <FormulaInput
+          id="field-base-formula"
+          label="Fórmula base"
+          value={rules.formula}
+          candidates={candidates}
+          selfName={field.name}
+          placeholder="ingresos_ordinarios - ingresos_fuera_municipio"
+          onChange={rules.setFormula}
+        />
 
-      <FormulaInput
-        id="field-base-formula"
-        label="Fórmula base"
-        value={rules.formula}
-        candidates={candidates}
-        selfName={field.name}
-        placeholder="ingresos_ordinarios - ingresos_fuera_municipio"
-        onChange={rules.setFormula}
-      />
+        <p className="text-[11px] text-fg-subtle">{BASE_FORMULA_HINT}</p>
+      </PanelSection>
 
-      <p className="text-[11px] text-fg-subtle">{BASE_FORMULA_HINT}</p>
+      <PanelSection
+        title="Reglas condicionales"
+        aside={
+          rules.rules.length > 0 ? (
+            <span className={COUNT_CLASSES}>{rules.rules.length}</span>
+          ) : null
+        }
+      >
+        {rules.rules.length === 0 ? (
+          <p className="text-[11px] text-fg-subtle">
+            {rules.canAddRule
+              ? "Sin reglas. El campo usa siempre la fórmula base."
+              : "Agregá otros campos al lienzo para poder condicionar el cálculo de este."}
+          </p>
+        ) : (
+          <>
+            <p className="text-[11px] text-fg-subtle">{RULES_HINT}</p>
+            <ul className="flex list-none flex-col gap-3">{rules.rules.map(renderRule)}</ul>
+          </>
+        )}
 
-      <div className="flex items-center justify-between border-t border-border-subtle pt-3">
-        <h4 className="text-xs font-medium text-fg-muted">Reglas condicionales</h4>
         <button
           type="button"
           onClick={rules.addRule}
           disabled={!rules.canAddRule}
-          className={ADD_LINK_CLASSES}
+          className={`${ADD_LINK_CLASSES} self-start`}
         >
           + Agregar regla
         </button>
-      </div>
-
-      {rules.rules.length === 0 ? (
-        <p className="text-[11px] text-fg-subtle">
-          {rules.canAddRule
-            ? "Sin reglas. El campo usa siempre la fórmula base."
-            : "Agregá otros campos al lienzo para poder condicionar el cálculo de este."}
-        </p>
-      ) : (
-        <>
-          <p className="text-[11px] text-fg-subtle">{RULES_HINT}</p>
-          <ul className="flex list-none flex-col gap-3">{rules.rules.map(renderRule)}</ul>
-        </>
-      )}
-    </section>
+      </PanelSection>
+    </>
   );
 }

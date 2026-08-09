@@ -1,10 +1,13 @@
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
+import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { DependencyCheckboxRow } from "../../../molecules/DependencyCheckboxRow/DependencyCheckboxRow";
 import { LabeledTextarea } from "../../../molecules/LabeledTextarea/LabeledTextarea";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ConditionEditor } from "../ConditionEditor/ConditionEditor";
 import { FieldRulesEditor } from "../FieldRulesEditor/FieldRulesEditor";
+import { COUNT_CLASSES, HINT_CLASSES } from "./LogicPanel.constants";
 
 export function LogicPanel({ field }: { field: CanvasField }) {
   const formSteps = useFormStore((state) => state.formSteps);
@@ -17,14 +20,15 @@ export function LogicPanel({ field }: { field: CanvasField }) {
     (candidate) => candidate.id !== field.id && !isPresentationalField(candidate.type),
   );
   const isAlwaysDisabled = Boolean(field.alwaysDisabled);
+  const dependencyCount: number = field.logic.dependencies.length;
 
   // Un campo presentacional no tiene valor: se puede ocultar, pero no habilitar,
   // ni calcular, ni observar desde una regla.
   if (isPresentationalField(field.type)) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <ConditionEditor field={field} otherFields={otherFields} kind="visible" />
-        <p className="text-xs text-fg-subtle">
+        <p className={HINT_CLASSES}>
           Este campo solo muestra contenido, así que no tiene habilitación condicional, fórmula ni
           reglas.
         </p>
@@ -33,22 +37,22 @@ export function LogicPanel({ field }: { field: CanvasField }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <label className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 p-2 text-xs text-slate-600 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300">
-        <input
-          type="checkbox"
-          checked={isAlwaysDisabled}
-          onChange={(event) => updateField(field.id, { alwaysDisabled: event.target.checked })}
-          className="mt-0.5 accent-orange-500"
-        />
-        <span className="flex flex-col gap-0.5">
-          <span className="font-medium">Siempre deshabilitado (solo lectura)</span>
-          <span className="text-[11px] text-slate-400 dark:text-neutral-500">
-            El campo se muestra pero el usuario no puede editarlo. Útil para valores calculados o
-            informativos.
-          </span>
-        </span>
-      </label>
+    <div className="flex flex-col gap-3">
+      <PanelSection
+        title="Solo lectura"
+        aside={
+          <ToggleSwitch
+            checked={isAlwaysDisabled}
+            onChange={(checked) => updateField(field.id, { alwaysDisabled: checked })}
+            label="Dejar el campo siempre deshabilitado"
+          />
+        }
+      >
+        <p className={HINT_CLASSES}>
+          El campo se muestra pero el usuario no puede editarlo. Útil para valores calculados o
+          informativos.
+        </p>
+      </PanelSection>
 
       <ConditionEditor field={field} otherFields={otherFields} kind="visible" />
 
@@ -58,21 +62,19 @@ export function LogicPanel({ field }: { field: CanvasField }) {
 
       <FieldRulesEditor field={field} candidates={otherFields} />
 
-      <section aria-labelledby="logic-dependencies-heading">
-        <h3
-          id="logic-dependencies-heading"
-          className="mb-1 text-xs font-medium text-slate-500 dark:text-neutral-400"
-        >
-          Depende de (para el script)
-        </h3>
-        <p className="mb-2 text-xs text-slate-400 dark:text-neutral-500">
+      <PanelSection
+        title="Depende de (para el script)"
+        aside={
+          dependencyCount > 0 ? <span className={COUNT_CLASSES}>{dependencyCount}</span> : null
+        }
+      >
+        <p className={HINT_CLASSES}>
           Marca campos cuyo valor lee el script TS de abajo. La condición de habilitación se maneja
           arriba, no acá.
         </p>
+
         {otherFields.length === 0 ? (
-          <p className="text-xs text-slate-300 dark:text-neutral-600">
-            No hay otros campos en el lienzo todavía.
-          </p>
+          <p className={HINT_CLASSES}>No hay otros campos en el lienzo todavía.</p>
         ) : (
           <ul className="flex list-none flex-col gap-1.5">
             {otherFields.map((candidate) => (
@@ -87,20 +89,23 @@ export function LogicPanel({ field }: { field: CanvasField }) {
             ))}
           </ul>
         )}
-      </section>
+      </PanelSection>
 
-      <LabeledTextarea
-        id="logic-typescript"
-        label="Script TypeScript"
-        variant="code"
-        rows={8}
-        value={field.logic.typeScript}
-        onChange={(event) => updateFieldLogic(field.id, { typeScript: event.target.value })}
-        placeholder={
-          "onChange(val => {\n  if (val > getFieldValue('otro_campo')) {\n    alert('No puede ser mayor');\n  }\n});"
-        }
-        spellCheck={false}
-      />
+      <PanelSection title="Script TypeScript">
+        <LabeledTextarea
+          id="logic-typescript"
+          label="Script TypeScript"
+          labelHidden
+          variant="code"
+          rows={8}
+          value={field.logic.typeScript}
+          onChange={(event) => updateFieldLogic(field.id, { typeScript: event.target.value })}
+          placeholder={
+            "onChange(val => {\n  if (val > getFieldValue('otro_campo')) {\n    alert('No puede ser mayor');\n  }\n});"
+          }
+          spellCheck={false}
+        />
+      </PanelSection>
     </div>
   );
 }

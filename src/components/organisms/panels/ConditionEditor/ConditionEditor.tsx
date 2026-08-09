@@ -1,9 +1,10 @@
 import { OPERATOR_LABELS } from "../../../../constants/conditions";
 import { useConditionEditor } from "../../../../hooks/useConditionEditor/useConditionEditor";
-import { ConditionActivationToggle } from "../../../molecules/ConditionActivationToggle/ConditionActivationToggle";
+import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { ConditionFieldSelect } from "../../../molecules/ConditionFieldSelect/ConditionFieldSelect";
 import { ConditionOperatorSelect } from "../../../molecules/ConditionOperatorSelect/ConditionOperatorSelect";
 import { ConditionValueInput } from "../../../molecules/ConditionValueInput/ConditionValueInput";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { CONDITION_COPY } from "./ConditionEditor.constants";
 import type { ConditionEditorProps } from "./ConditionEditor.types";
 
@@ -21,18 +22,19 @@ export function ConditionEditor({ field, otherFields, kind }: ConditionEditorPro
   } = useConditionEditor({ field, otherFields, kind });
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">
-      <ConditionActivationToggle
-        label={CONDITION_COPY[kind].label}
-        checked={Boolean(condition)}
-        disabled={otherFields.length === 0}
-        onChange={handleActivationChange}
-      />
-
+    <PanelSection
+      title={CONDITION_COPY[kind].label}
+      aside={
+        <ToggleSwitch
+          checked={Boolean(condition)}
+          disabled={otherFields.length === 0}
+          onChange={handleActivationChange}
+          label={`Activar ${CONDITION_COPY[kind].label.toLowerCase()}`}
+        />
+      }
+    >
       {otherFields.length === 0 && !condition && (
-        <p className="text-[11px] text-slate-400 dark:text-neutral-500">
-          {CONDITION_COPY[kind].emptyHint}
-        </p>
+        <p className="text-[11px] text-fg-subtle">{CONDITION_COPY[kind].emptyHint}</p>
       )}
 
       {condition && (
@@ -67,6 +69,6 @@ export function ConditionEditor({ field, otherFields, kind }: ConditionEditorPro
           )}
         </>
       )}
-    </div>
+    </PanelSection>
   );
 }

@@ -10,6 +10,9 @@ export const ADD_LINK_CLASSES: string =
 export const SMALL_SELECT_CLASSES: string =
   "rounded-md border border-border bg-field px-2 py-1 text-xs text-fg outline-none focus:border-brand-border";
 
+export const COUNT_CLASSES: string =
+  "rounded-md border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-fg-muted";
+
 export const BASE_FORMULA_HINT: string =
   "Se aplica cuando ninguna regla de abajo coincide. Dejálo vacío si el valor siempre sale de una regla.";
 
