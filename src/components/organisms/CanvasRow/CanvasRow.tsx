@@ -1,32 +1,74 @@
-import { useDroppable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { Xmark } from "reicon-react";
 import { useFormStore } from "../../../store/formStore";
 import { IconButton } from "../../atoms/IconButton/IconButton";
+import { RowDragHandle } from "../../atoms/RowDragHandle/RowDragHandle";
 import { CanvasFieldChip } from "../../molecules/CanvasFieldChip/CanvasFieldChip";
 import { RowZoneOverlay } from "../../molecules/RowZoneOverlay/RowZoneOverlay";
 import { RowColumnsMenu } from "../../organisms/RowColumnsMenu/RowColumnsMenu";
 import type { CanvasRowProps } from "./CanvasRow.types";
 
-export function CanvasRow({ row, linkedLabels, onFieldContextMenu }: CanvasRowProps) {
-  const { setNodeRef, isOver } = useDroppable({ id: row.id, data: { rowId: row.id } });
+export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }: CanvasRowProps) {
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: row.id, data: { rowId: row.id } });
+  const {
+    listeners,
+    attributes,
+    setNodeRef: setDragRef,
+    isDragging,
+  } = useDraggable({ id: row.id, data: { source: "canvas-row", row } });
   const selectedFieldId = useFormStore((state) => state.selectedFieldId);
   const selectField = useFormStore((state) => state.selectField);
   const removeRow = useFormStore((state) => state.removeRow);
   const dragPlacement = useFormStore((state) => state.dragPlacement);
+  const rowDropTarget = useFormStore((state) => state.rowDropTarget);
+  const isRowDragActive = useFormStore((state) => state.rowDrag !== null);
   const zonePlacement = dragPlacement?.rowId === row.id ? dragPlacement : null;
+  // El hueco que se abre ya dice donde va a caer, asi que la linea solo hace falta para avisar de
+  // que ahi no puede ir: una fila de un grupo intentando salirse de el.
+  const rejected = rowDropTarget?.rowId === row.id && !rowDropTarget.isValid;
+
+  function setRefs(node: HTMLLIElement | null): void {
+    setDropRef(node);
+    setDragRef(node);
+  }
 
   return (
     <li
-      ref={setNodeRef}
+      ref={setRefs}
       data-canvas-row=""
       data-row-id={row.id}
-      style={{ gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))` }}
-      className={`relative col-span-16 grid gap-3 rounded-md border-2 border-dashed p-3 transition-colors ${
+      style={{
+        gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))`,
+        transform: offsetY === 0 ? undefined : `translateY(${offsetY}px)`,
+      }}
+      // La clase de transicion depende del mismo estado que el transform, asi que al soltar las dos
+      // desaparecen en el mismo commit: el navegador no tiene que animar la vuelta a cero y la fila
+      // no pega el salto de deshacer el desplazamiento que ya se convirtio en su sitio real.
+      className={`group/row relative col-span-16 grid gap-3 rounded-md border-2 border-dashed p-3 ${
+        isRowDragActive
+          ? "transition-transform duration-200 ease-[cubic-bezier(0.34,1.6,0.5,1)]"
+          : "transition-colors"
+      } ${
+        // Invisible y no atenuada: las vecinas se corren justo su alto y pasarian por encima de un
+        // fantasma. El hueco que queda es la propia fila, que ahora vuela con el cursor.
+        isDragging ? "opacity-0" : ""
+      } ${
         isOver
           ? "border-slate-400 bg-slate-50 dark:border-neutral-500 dark:bg-neutral-800/60"
           : "border-slate-200 dark:border-neutral-700"
       }`}
     >
+      <RowDragHandle listeners={listeners} attributes={attributes} />
+
+      {rejected && (
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute inset-x-0 z-20 h-1 rounded-full bg-red-500 dark:bg-red-400 ${
+            rowDropTarget.edge === "before" ? "-top-2" : "-bottom-2"
+          }`}
+        />
+      )}
+
       <RowColumnsMenu rowId={row.id} columns={row.columns} />
 
       <IconButton

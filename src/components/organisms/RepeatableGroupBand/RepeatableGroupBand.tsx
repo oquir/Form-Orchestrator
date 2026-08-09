@@ -1,3 +1,4 @@
+import { useDroppable } from "@dnd-kit/core";
 import { Layers, Plus, Xmark } from "reicon-react";
 import { PAYLOAD_SCHEMA } from "../../../constants/payloadSchema";
 import { arrayPaths } from "../../../lib/payloadSchema/payloadSchema";
@@ -16,15 +17,36 @@ export function RepeatableGroupBand({
   group,
   rows,
   linkedLabels,
+  offsetY = 0,
+  rowOffsets,
   onFieldContextMenu,
 }: RepeatableGroupBandProps) {
   const updateGroup = useFormStore((state) => state.updateGroup);
   const addRowToGroup = useFormStore((state) => state.addRowToGroup);
   const removeGroup = useFormStore((state) => state.removeGroup);
+  const isRowDragActive = useFormStore((state) => state.rowDrag !== null);
   const paths: string[] = arrayPaths(PAYLOAD_SCHEMA);
 
+  // La banda solo es zona de soltar mientras se arrastra una fila. Apagada el resto del tiempo,
+  // no puede competir con las filas de dentro por el drop de un campo: es estructural y no depende
+  // de que dnd-kit prefiera el droppable mas chico.
+  const { setNodeRef } = useDroppable({
+    id: `band-${group.id}`,
+    data: { bandGroupId: group.id },
+    disabled: !isRowDragActive,
+  });
+
   return (
-    <li className={BAND_CLASSES}>
+    <li
+      ref={setNodeRef}
+      data-band-id={group.id}
+      style={{ transform: offsetY === 0 ? undefined : `translateY(${offsetY}px)` }}
+      className={`${BAND_CLASSES} ${
+        isRowDragActive
+          ? "transition-transform duration-200 ease-[cubic-bezier(0.34,1.6,0.5,1)]"
+          : ""
+      }`}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <span className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
           <Layers size={14} weight="Filled" />
@@ -112,6 +134,7 @@ export function RepeatableGroupBand({
             key={row.id}
             row={row}
             linkedLabels={linkedLabels}
+            offsetY={rowOffsets?.get(row.id) ?? 0}
             onFieldContextMenu={onFieldContextMenu}
           />
         ))}
