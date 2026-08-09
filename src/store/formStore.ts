@@ -12,6 +12,12 @@ import {
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
 import { createEmptyTooltip, exportableTooltip } from "../lib/fieldTooltip/fieldTooltip";
 import {
+  canTransfer,
+  collectCrossingRefs,
+  planLanding,
+  transferGroup,
+} from "../lib/fieldTransfer/fieldTransfer";
+import {
   createValidationOverride,
   pruneOverridesReferencing,
 } from "../lib/fieldValidationOverride/fieldValidationOverride";
@@ -30,6 +36,7 @@ import {
   resolvePlacement,
   sortByColumn,
 } from "../lib/rowLayout/rowLayout";
+import { reorderRows } from "../lib/rowOrder/rowOrder";
 import type { CatalogBank } from "../types/catalog";
 import type { CanvasField, SavedComponent } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
@@ -45,15 +52,19 @@ import type { StateSlice } from "../types/store";
 import { NO_GROUPS, NO_ROWS, THEME_STORAGE_KEY } from "./formStore.constants";
 import {
   allFieldNames,
+  allRows,
   buildInitialFormSteps,
   buildInitialIntroSteps,
   createEmptyField,
   createEmptyRow,
   createOptions,
+  crossingNotice,
   findAnyField,
   getInitialDarkMode,
   mapFieldEverywhere,
   mapRowEverywhere,
+  rowsAcrossFrom,
+  rowsOfTarget,
 } from "./formStore.utils";
 
 // El unico store de la aplicacion. Sostiene los dos lienzos a la vez -formSteps y las pantallas
@@ -96,10 +107,20 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   isSimulatorOpen: false,
   sidebarTab: "fields",
   dragPlacement: null,
+  rowDropTarget: null,
+  rowDrag: null,
+  draggingFieldId: null,
+  hoveredTransferTarget: null,
+  transferNotice: null,
   isDarkMode: getInitialDarkMode(),
   lastSavedAt: null,
   catalogBank: loadCatalogBank(),
   setDragPlacement: (placement) => set({ dragPlacement: placement }),
+  setRowDropTarget: (target) => set({ rowDropTarget: target }),
+  setRowDrag: (drag) => set({ rowDrag: drag }),
+  setDraggingFieldId: (fieldId) => set({ draggingFieldId: fieldId }),
+  setHoveredTransferTarget: (target) => set({ hoveredTransferTarget: target }),
+  dismissTransferNotice: () => set({ transferNotice: null }),
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
   setSimulatorOpen: (open) => set({ isSimulatorOpen: open }),
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
@@ -263,6 +284,106 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         })),
       },
     })),
+  // Reordenar es solo cambiar de sitio dentro de `rows[]`: el orden de las filas no se guarda en
+  // ningun campo, es el del arreglo. Por eso ni la persistencia ni la exportacion se enteran.
+  // Se aplica al paso que contiene la fila; si el destino esta en otro, reorderRows lo rechaza.
+  moveRow: (rowId, target) =>
+    set((state) => ({
+      formSteps: state.formSteps.map((step) =>
+        step.rows.some((row) => row.id === rowId)
+          ? { ...step, rows: reorderRows(step.rows, rowId, target) }
+          : step,
+      ),
+      introModal: {
+        steps: state.introModal.steps.map((step) =>
+          step.rows.some((row) => row.id === rowId)
+            ? { ...step, rows: reorderRows(step.rows, rowId, target) }
+            : step,
+        ),
+      },
+    })),
+  // Mudar de paso no toca el nombre. allFieldNames ya es global a los dos lienzos, asi que el name
+  // y el id viajan intactos y ninguna referencia por id se rompe: lo unico que cambia es en que
+  // pantalla se dibuja. El rodeo por el Almacen si renombraba, porque copiaba en vez de mudar.
+  moveFieldToStep: (fieldId, target) =>
+    set((state) => {
+      const moving: CanvasField[] = transferGroup(allRows(state), fieldId);
+      if (moving.length === 0) return state;
+
+      const targetRows: CanvasRow[] = rowsOfTarget(state, target);
+      if (targetRows.some((row) => row.fields.some((field) => field.id === fieldId))) return state;
+
+      const movingIds = new Set<string>(moving.map((field) => field.id));
+      const strip = (rows: CanvasRow[]): CanvasRow[] =>
+        rows.map((row) => {
+          const kept = row.fields.filter((field) => !movingIds.has(field.id));
+
+          return kept.length === row.fields.length ? row : { ...row, fields: kept };
+        });
+
+      // El destino se limpia antes de plantar: la etiqueta enlazada podia vivir ya en este paso, y
+      // sin esto planLanding la duplicaria en vez de moverla.
+      const landed: CanvasRow[] = planLanding(strip(targetRows), moving, createEmptyRow);
+      const notice: string | null = crossingNotice(
+        collectCrossingRefs(rowsAcrossFrom(state, target), moving),
+      );
+
+      return {
+        formSteps: state.formSteps.map((step) =>
+          target.type === "formStep" && step.stepId === target.stepId
+            ? { ...step, rows: landed }
+            : { ...step, rows: strip(step.rows) },
+        ),
+        introModal: {
+          steps: state.introModal.steps.map((step) =>
+            target.type === "introStep" && step.stepId === target.stepId
+              ? { ...step, rows: landed }
+              : { ...step, rows: strip(step.rows) },
+          ),
+        },
+        // Sin esto el campo desaparece de la pantalla y no hay forma de saber si llego.
+        activeCanvas: target,
+        selectedFieldId: fieldId,
+        transferNotice: notice,
+      };
+    }),
+  // La fila se muda entera y se agrega al final: sus campos ya caben en ella, es la misma fila. La
+  // posicion se ajusta despues reordenando, que ya se puede arrastrando.
+  moveRowToStep: (rowId, target) =>
+    set((state) => {
+      const row = findRowById(state, rowId);
+      if (!row) return state;
+
+      // Misma regla que al reordenar: una fila no sale de su grupo arrastrandola, y el grupo vive
+      // en el paso de origen. canTransfer dice lo mismo para pintar la pestana como rechazada.
+      if (!canTransfer([row], { kind: "row", rowId }).allowed) return state;
+
+      const targetRows: CanvasRow[] = rowsOfTarget(state, target);
+      if (targetRows.some((candidate) => candidate.id === rowId)) return state;
+
+      const notice: string | null = crossingNotice(
+        collectCrossingRefs(rowsAcrossFrom(state, target), row.fields),
+      );
+      const strip = (rows: CanvasRow[]): CanvasRow[] =>
+        rows.filter((candidate) => candidate.id !== rowId);
+
+      return {
+        formSteps: state.formSteps.map((step) =>
+          target.type === "formStep" && step.stepId === target.stepId
+            ? { ...step, rows: [...step.rows, row] }
+            : { ...step, rows: strip(step.rows) },
+        ),
+        introModal: {
+          steps: state.introModal.steps.map((step) =>
+            target.type === "introStep" && step.stepId === target.stepId
+              ? { ...step, rows: [...step.rows, row] }
+              : { ...step, rows: strip(step.rows) },
+          ),
+        },
+        activeCanvas: target,
+        transferNotice: notice,
+      };
+    }),
   addGroupToActiveStep: () =>
     set((state) => {
       if (state.activeCanvas.type !== "formStep") return state;

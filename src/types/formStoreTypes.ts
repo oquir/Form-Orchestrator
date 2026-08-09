@@ -15,7 +15,13 @@ import type {
 } from "./field";
 import type { FieldTypeDef } from "./fieldTypes";
 import type { FormStep, IntroModalState, RepeatableGroup } from "./formStructure";
-import type { CanvasTarget, DragPlacement, FieldPlacement } from "./placement";
+import type {
+  CanvasTarget,
+  DragPlacement,
+  FieldPlacement,
+  RowDragState,
+  RowDropTarget,
+} from "./placement";
 import type { RichTextContent } from "./richText";
 import type { FormType, SetupConfig } from "./setup";
 import type { SidebarTab } from "./ui";
@@ -39,7 +45,17 @@ export interface FormState {
   lastSavedAt: string | null;
   catalogBank: CatalogBank;
   dragPlacement: DragPlacement | null;
+  rowDropTarget: RowDropTarget | null;
+  rowDrag: RowDragState | null;
+  draggingFieldId: string | null;
+  hoveredTransferTarget: CanvasTarget | null;
+  transferNotice: string | null;
   setDragPlacement: (placement: DragPlacement | null) => void;
+  setRowDropTarget: (target: RowDropTarget | null) => void;
+  setRowDrag: (drag: RowDragState | null) => void;
+  setDraggingFieldId: (fieldId: string | null) => void;
+  setHoveredTransferTarget: (target: CanvasTarget | null) => void;
+  dismissTransferNotice: () => void;
   setSidebarOpen: (open: boolean) => void;
   setSimulatorOpen: (open: boolean) => void;
   setSidebarTab: (tab: SidebarTab) => void;
@@ -62,6 +78,9 @@ export interface FormState {
   removeIntroModalStep: (stepId: string) => void;
   addRowToActiveCanvas: () => void;
   removeRow: (rowId: string) => void;
+  moveRow: (rowId: string, target: RowDropTarget) => void;
+  moveFieldToStep: (fieldId: string, target: CanvasTarget) => void;
+  moveRowToStep: (rowId: string, target: CanvasTarget) => void;
   addGroupToActiveStep: () => void;
   addRowToGroup: (groupId: string) => void;
   updateGroup: (groupId: string, updates: Partial<Omit<RepeatableGroup, "id">>) => void;

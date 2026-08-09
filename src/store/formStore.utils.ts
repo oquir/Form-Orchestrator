@@ -14,7 +14,7 @@ import type {
   IntroModalStep,
   IntroStepTemplate,
 } from "../types/formStructure";
-import type { FieldPlacement } from "../types/placement";
+import type { CanvasTarget, FieldPlacement } from "../types/placement";
 import type { FormType } from "../types/setup";
 import type { StateSlice } from "../types/store";
 // Constructores, recorridos de todo el lienzo y arranque desde la plantilla.
@@ -24,6 +24,34 @@ import type { StateSlice } from "../types/store";
 // lo arreglaria, pero arrastra a todos los componentes que hoy la importan desde el store.
 import { findFieldById } from "./formStore";
 import { THEME_STORAGE_KEY } from "./formStore.constants";
+
+export function crossingNotice(labels: string[]): string | null {
+  if (labels.length === 0) return null;
+
+  return `Quedaron enlaces cruzados entre el modal de entrada y el formulario (${labels.join(", ")}). Siguen funcionando al llenar el formulario, pero el panel de Lógica no los va a ofrecer para editar.`;
+}
+
+export function allRows(state: StateSlice): CanvasRow[] {
+  return [
+    ...state.formSteps.flatMap((step) => step.rows),
+    ...state.introModal.steps.flatMap((step) => step.rows),
+  ];
+}
+
+export function rowsOfTarget(state: StateSlice, target: CanvasTarget): CanvasRow[] {
+  const steps: { stepId: string; rows: CanvasRow[] }[] =
+    target.type === "formStep" ? state.formSteps : state.introModal.steps;
+
+  return steps.find((step) => step.stepId === target.stepId)?.rows ?? [];
+}
+
+// El otro lado de la frontera modal / formulario respecto del destino. Es lo que hay que mirar para
+// saber que referencias quedan cruzadas despues de la mudanza.
+export function rowsAcrossFrom(state: StateSlice, target: CanvasTarget): CanvasRow[] {
+  return target.type === "formStep"
+    ? state.introModal.steps.flatMap((step) => step.rows)
+    : state.formSteps.flatMap((step) => step.rows);
+}
 
 export function findAnyField(state: StateSlice, fieldId: string): CanvasField | null {
   for (const step of state.formSteps) {
