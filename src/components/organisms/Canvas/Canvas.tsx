@@ -4,6 +4,7 @@ import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
 import { TabButtonGroup } from "../../molecules/TabButtonGroup/TabButtonGroup";
+import { TransferNotice } from "../../molecules/TransferNotice/TransferNotice";
 import { SaveButton } from "../../organisms/SaveButton/SaveButton";
 import { CanvasAddGroupButton } from "../CanvasAddGroupButton/CanvasAddGroupButton";
 import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
@@ -90,6 +91,7 @@ export function Canvas() {
       {isCanvasView && (
         <>
           <CanvasTabs />
+          <TransferNotice />
           <StepTitleEditor />
         </>
       )}
