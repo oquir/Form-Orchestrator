@@ -1,7 +1,14 @@
-import type { Modifier } from "@dnd-kit/core";
+import type { CollisionDetection, Modifier } from "@dnd-kit/core";
+import { pointerWithin, rectIntersection } from "@dnd-kit/core";
 import { getEventCoordinates } from "@dnd-kit/utilities";
 import { GRID_GAP_PX } from "../../constants/grid";
-import type { DragPlacement } from "../../types/placement";
+import type {
+  CanvasTarget,
+  DragPlacement,
+  RowDragState,
+  RowDropEdge,
+  RowDropTarget,
+} from "../../types/placement";
 
 // Medidas del arrastre contra el DOM real. La grilla la dibuja CSS, asi que la unica forma de
 // saber sobre que columna esta el puntero es medir la fila.
@@ -30,8 +37,52 @@ export const centerOverlayOnCursor: Modifier = ({
   };
 };
 
+// Manda el puntero, y solo si no esta sobre nada se cae al solape de rectangulos.
+//
+// La deteccion por rectangulos de dnd-kit compara el rectangulo del overlay con el de cada zona, y
+// desde que se arrastra la fila entera ese rectangulo mide lo que la fila: al subirlo a las
+// pestanas las tapa todas de una vez. Para una pestana enteramente cubierta el cociente se reduce
+// a suArea/areaDelOverlay, asi que ganaba la pestana mas ancha de las tapadas y el puntero no
+// pintaba nada. El respaldo por rectangulos se conserva porque perdona los huecos entre filas,
+// donde el puntero no esta dentro de ninguna.
+export const pointerFirstCollision: CollisionDetection = (args) => {
+  const byPointer = pointerWithin(args);
+
+  return byPointer.length > 0 ? byPointer : rectIntersection(args);
+};
+
+export function sameCanvasTarget(a: CanvasTarget | null, b: CanvasTarget | null): boolean {
+  if (a === null || b === null) return a === b;
+
+  return a.type === b.type && a.stepId === b.stepId;
+}
+
 export function getRowElement(rowId: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[data-row-id="${rowId}"]`);
+}
+
+export function getBandElement(groupId: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`[data-band-id="${groupId}"]`);
+}
+
+// Se mide al empezar el arrastre y no despues: en cuanto las demas filas empiezan a apartarse, el
+// alto que hay que dejar libre es el que la fila tenia antes de que nada se moviera.
+export function measureRow(rowId: string): RowDragState | null {
+  const element: HTMLElement | null = getRowElement(rowId);
+  if (!element) return null;
+
+  const rect: DOMRect = element.getBoundingClientRect();
+
+  return { rowId, width: rect.width, height: rect.height };
+}
+
+// Por que mitad del elemento cae el puntero. Es el gemelo en Y de getColumnAtPointer: al reordenar
+// filas la unica pregunta es si la fila arrastrada va encima o debajo de la que hay debajo del
+// cursor, y eso lo decide el punto medio.
+export function getDropEdgeAtPointer(element: HTMLElement, pointerY: number): RowDropEdge {
+  const rect: DOMRect = element.getBoundingClientRect();
+
+  return pointerY < rect.top + rect.height / 2 ? "before" : "after";
 }
 
 // Comparacion por valor: el placement se recalcula en cada movimiento del puntero y sale un objeto
@@ -46,6 +97,13 @@ export function samePlacement(a: DragPlacement | null, b: DragPlacement | null):
     a.mode === b.mode &&
     a.isValid === b.isValid
   );
+}
+
+// Por valor y por la misma razon que samePlacement: se recalcula en cada movimiento del puntero.
+export function sameRowDropTarget(a: RowDropTarget | null, b: RowDropTarget | null): boolean {
+  if (a === null || b === null) return a === b;
+
+  return a.rowId === b.rowId && a.edge === b.edge && a.isValid === b.isValid;
 }
 
 export function getColumnAtPointer(

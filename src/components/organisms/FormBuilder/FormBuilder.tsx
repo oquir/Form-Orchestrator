@@ -16,8 +16,15 @@ const FormSimulator = lazy(() =>
 );
 
 export function FormBuilder() {
-  const { sensors, activeDrag, overlayModifiers, handleDragStart, handleDragMove, handleDragEnd } =
-    useDragAndDrop();
+  const {
+    sensors,
+    activeDrag,
+    collisionDetection,
+    overlayModifiers,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+  } = useDragAndDrop();
   const isSimulatorOpen = useFormStore((state) => state.isSimulatorOpen);
 
   // El simulador se lleva la pantalla entera: sin sidebar, sin lienzo y sin drag and drop.
@@ -32,12 +39,19 @@ export function FormBuilder() {
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
     >
       <AppLayout sidebar={<Sidebar />} canvas={<Canvas />} />
-      <DragOverlay modifiers={overlayModifiers} style={OVERLAY_STYLE}>
+      {/* Sin animacion de caida para una fila: dnd-kit la devuelve volando al sitio donde empezo,
+          que ya no es el suyo. El hueco se abrio antes, asi que la fila ya esta donde toca. */}
+      <DragOverlay
+        modifiers={overlayModifiers}
+        style={OVERLAY_STYLE}
+        dropAnimation={activeDrag?.source === "canvas-row" ? null : undefined}
+      >
         {activeDrag ? <DragPreview activeDrag={activeDrag} /> : null}
       </DragOverlay>
     </DndContext>

@@ -1,4 +1,5 @@
 import type {
+  CollisionDetection,
   DragEndEvent,
   DragMoveEvent,
   DragStartEvent,
@@ -11,6 +12,7 @@ import type { ActiveDrag } from "./activeDrag";
 export interface DragAndDropReturn {
   sensors: SensorDescriptor<SensorOptions>[];
   activeDrag: ActiveDrag | null;
+  collisionDetection: CollisionDetection;
   overlayModifiers: Modifier[];
   handleDragStart: (event: DragStartEvent) => void;
   handleDragMove: (event: DragMoveEvent) => void;
