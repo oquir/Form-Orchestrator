@@ -9,8 +9,11 @@ import { useFormStore } from "../../../../store/formStore";
 import type { CatalogEntry, CatalogParseResult } from "../../../../types/catalog";
 import { Button } from "../../../atoms/Button/Button";
 import { BinaryChoiceToggle } from "../../../molecules/BinaryChoiceToggle/BinaryChoiceToggle";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import {
-  CARD_CLASSES,
+  ACTION_CLASSES,
+  BADGE_EMPTY_CLASSES,
+  BADGE_LOADED_CLASSES,
   ERROR_CLASSES,
   HINT_CLASSES,
   INPUT_CLASSES,
@@ -23,7 +26,7 @@ export function CatalogsPanel() {
   const catalogBank = useFormStore((state) => state.catalogBank);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <p className={HINT_CLASSES}>
         Las opciones que el simulador ofrece en cada campo de catálogo. Cada uno elige entre los
         datos de prueba que trae el simulador y los que cargues vos; cambiar de uno a otro no borra
@@ -55,6 +58,7 @@ function CatalogCard({ catalog, stored }: CatalogCardProps) {
   const entries: CatalogEntry[] = stored?.entries ?? [];
   const loaded: boolean = entries.length > 0;
   const isCustom: boolean = loaded && stored?.source === "custom";
+  const badge: string = loaded ? `${entries.length} opciones` : "Sin cargar";
 
   function load(): void {
     const result: CatalogParseResult = parseCatalogPaste(raw, {
@@ -77,22 +81,17 @@ function CatalogCard({ catalog, stored }: CatalogCardProps) {
   }
 
   return (
-    <div className={CARD_CLASSES}>
+    <PanelSection
+      title={catalog.label}
+      aside={<span className={loaded ? BADGE_LOADED_CLASSES : BADGE_EMPTY_CLASSES}>{badge}</span>}
+    >
       <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">
-            {catalog.label}
-          </p>
-          <p className={HINT_CLASSES}>
-            {loaded ? `${entries.length} opciones cargadas` : "Sin cargar"}
-            {catalog.requiresParent && " · se consulta por un campo padre"}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="shrink-0 text-xs font-medium text-orange-600 hover:cursor-pointer hover:text-orange-500 dark:text-orange-500"
-        >
+        <p className={HINT_CLASSES}>
+          {catalog.requiresParent
+            ? "Se consulta por un campo padre"
+            : "Se consulta completo, sin filtro"}
+        </p>
+        <button type="button" onClick={() => setIsOpen(!isOpen)} className={ACTION_CLASSES}>
           {isOpen ? "Cerrar" : loaded ? "Reemplazar" : "Cargar"}
         </button>
       </div>
@@ -196,11 +195,11 @@ function CatalogCard({ catalog, stored }: CatalogCardProps) {
 
           {error && <p className={ERROR_CLASSES}>{error}</p>}
 
-          <Button variant="primary" onClick={load} className="px-3 py-1 text-xs">
+          <Button variant="primary" onClick={load} className="self-start px-3 py-1 text-xs">
             Cargar opciones
           </Button>
         </>
       )}
-    </div>
+    </PanelSection>
   );
 }
