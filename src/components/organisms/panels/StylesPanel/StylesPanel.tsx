@@ -1,59 +1,66 @@
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldStyles } from "../../../../types/field";
+import { Input } from "../../../atoms/Input/Input";
 import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { ColorPickerField } from "../../../molecules/ColorPickerField/ColorPickerField";
-import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
+import { PxInput } from "../../../molecules/PxInput/PxInput";
 
 export function StylesPanel({ field }: { field: CanvasField }) {
   const updateFieldStyles = useFormStore((state) => state.updateFieldStyles);
   const s: FieldStyles = field.styles;
 
   return (
-    <div className="flex flex-col gap-4">
-      <LabeledInput
-        id="custom-classes"
-        label="Clases CSS (Tailwind)"
-        value={s.customClasses ?? ""}
-        onChange={(event) => updateFieldStyles(field.id, { customClasses: event.target.value })}
-        placeholder="font-bold text-right"
-        className="font-mono"
-      />
+    <div className="flex flex-col gap-3">
+      <PanelSection title="Clases CSS (Tailwind)">
+        <Input
+          id="custom-classes"
+          aria-label="Clases CSS de Tailwind"
+          value={s.customClasses ?? ""}
+          onChange={(event) => updateFieldStyles(field.id, { customClasses: event.target.value })}
+          placeholder="font-bold text-right"
+          spellCheck={false}
+          tone="code"
+        />
+      </PanelSection>
 
-      <TwoColumnFieldGroup legend="Márgenes">
-        <LabeledInput
-          id="margin-top"
-          label="Margen superior"
-          value={s.marginTop ?? ""}
-          onChange={(event) => updateFieldStyles(field.id, { marginTop: event.target.value })}
-          placeholder="10px"
-        />
-        <LabeledInput
-          id="margin-bottom"
-          label="Margen inferior"
-          value={s.marginBottom ?? ""}
-          onChange={(event) => updateFieldStyles(field.id, { marginBottom: event.target.value })}
-          placeholder="10px"
-        />
-      </TwoColumnFieldGroup>
+      <PanelSection title="Márgenes">
+        <TwoColumnFieldGroup>
+          <PxInput
+            id="margin-top"
+            label="Superior"
+            value={s.marginTop ?? ""}
+            onChange={(value) => updateFieldStyles(field.id, { marginTop: value })}
+          />
+          <PxInput
+            id="margin-bottom"
+            label="Inferior"
+            value={s.marginBottom ?? ""}
+            onChange={(value) => updateFieldStyles(field.id, { marginBottom: value })}
+          />
+        </TwoColumnFieldGroup>
+      </PanelSection>
 
-      <TwoColumnFieldGroup legend="Colores">
-        <ColorPickerField
-          id="background-color"
-          label="Color de fondo"
-          value={s.backgroundColor ?? ""}
-          defaultColor="#ffffff"
-          placeholder="#f3f4f6"
-          onChange={(value) => updateFieldStyles(field.id, { backgroundColor: value })}
-        />
-        <ColorPickerField
-          id="text-color"
-          label="Color de texto"
-          value={s.textColor ?? ""}
-          defaultColor="#0f172a"
-          placeholder="#0f172a"
-          onChange={(value) => updateFieldStyles(field.id, { textColor: value })}
-        />
-      </TwoColumnFieldGroup>
+      <PanelSection title="Colores">
+        <TwoColumnFieldGroup>
+          <ColorPickerField
+            id="background-color"
+            label="Fondo"
+            value={s.backgroundColor ?? ""}
+            defaultColor="#ffffff"
+            placeholder="#F3F4F6"
+            onChange={(value) => updateFieldStyles(field.id, { backgroundColor: value })}
+          />
+          <ColorPickerField
+            id="text-color"
+            label="Texto"
+            value={s.textColor ?? ""}
+            defaultColor="#0f172a"
+            placeholder="#0F172A"
+            onChange={(value) => updateFieldStyles(field.id, { textColor: value })}
+          />
+        </TwoColumnFieldGroup>
+      </PanelSection>
     </div>
   );
 }
