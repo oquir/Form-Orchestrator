@@ -47,11 +47,15 @@ export function Sidebar() {
         <PanelHeader
           title={activeTabDef?.label ?? ""}
           subtitle={
-            activeTab === "fields"
-              ? "Arrastra un campo al lienzo"
-              : selectedField
-                ? `Editando: ${selectedField.label}`
-                : "Selecciona un campo en el lienzo para editarlo"
+            activeTab === "fields" ? (
+              "Arrastra un campo al lienzo"
+            ) : selectedField ? (
+              <>
+                Editando <code className="font-mono text-fg-muted">{selectedField.name}</code>
+              </>
+            ) : (
+              "Selecciona un campo en el lienzo para editarlo"
+            )
           }
         />
 
