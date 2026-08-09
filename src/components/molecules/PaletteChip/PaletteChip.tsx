@@ -1,6 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
+import { FIELD_TYPE_ICONS } from "../../../constants/fieldTypeIcons";
 import type { FieldTypeDef } from "../../../types/fieldTypes";
-import { FIELD_TYPE_ICONS } from "./PaletteChip.constants";
 
 export function PaletteChip({ fieldType }: { fieldType: FieldTypeDef }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({

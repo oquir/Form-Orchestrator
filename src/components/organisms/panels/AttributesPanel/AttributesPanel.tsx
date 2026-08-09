@@ -15,14 +15,17 @@ import {
   useFormStore,
 } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
+import { FieldIdentityCard } from "../../../molecules/FieldIdentityCard/FieldIdentityCard";
 import { FieldNameInput } from "../../../molecules/FieldNameInput/FieldNameInput";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/LabeledRangeSlider";
 import { LabelTargetSelect } from "../../../molecules/LabelTargetSelect/LabelTargetSelect";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor";
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FieldTooltipEditor } from "../FieldTooltipEditor/FieldTooltipEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
+import { SOURCE_BADGE_CLASSES, SOURCE_LINK_CLASSES } from "./AttributesPanel.constants";
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
@@ -47,69 +50,95 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       : "Etiqueta";
 
   return (
-    <div className="flex flex-col gap-4">
-      <LabeledInput id="field-type" label="Tipo" value={field.type} disabled />
+    <div className="flex flex-col gap-3">
+      <FieldIdentityCard field={field} linkedLabel={linkedLabel} />
 
-      <div className="flex flex-col gap-1">
-        <LabeledInput
-          id="field-label"
-          label={labelFieldLabel}
-          value={linkedLabel ? linkedLabel.label : field.label}
-          disabled={linkedLabel !== null}
-          onChange={(event) => updateField(field.id, { label: event.target.value })}
-        />
-        {linkedLabel && (
-          <span className="text-[11px] text-fg-subtle">
-            La aporta la etiqueta ligada. Editála seleccionando ese campo en el lienzo.
-          </span>
+      <PanelSection title="General">
+        <div className="flex flex-col gap-1">
+          <LabeledInput
+            id="field-label"
+            label={labelFieldLabel}
+            value={linkedLabel ? linkedLabel.label : field.label}
+            disabled={linkedLabel !== null}
+            onChange={(event) => updateField(field.id, { label: event.target.value })}
+          />
+          {linkedLabel && (
+            <span className="text-[11px] text-fg-subtle">
+              La aporta la etiqueta ligada. Editála seleccionando ese campo en el lienzo.
+            </span>
+          )}
+        </div>
+
+        {isRichText && (
+          <RichTextEditor
+            key={field.id}
+            value={field.content}
+            onChange={(content) => setFieldContent(field.id, content)}
+          />
         )}
-      </div>
 
-      {isRichText && (
-        <RichTextEditor
-          key={field.id}
-          value={field.content}
-          onChange={(content) => setFieldContent(field.id, content)}
+        {isPresentational && !isRichText && (
+          <LabelTargetSelect
+            value={field.labelFor}
+            candidates={labelTargetCandidates(getAllFields(activeRows), field.id)}
+            onChange={(targetFieldId) => setFieldLabelFor(field.id, targetFieldId)}
+          />
+        )}
+
+        <FieldNameInput key={field.id} field={field} />
+      </PanelSection>
+
+      <PanelSection
+        title="Diseño"
+        aside={
+          <span className="text-[11px] tabular-nums text-fg-muted">
+            {field.colSpan} / {rowColumns} · desde col {field.colStart}
+          </span>
+        }
+      >
+        <LabeledRangeSlider
+          id="field-colspan"
+          label="Ancho en columnas"
+          min={1}
+          max={maxSpan}
+          value={field.colSpan}
+          onChange={(value) => updateField(field.id, { colSpan: value })}
+          minLabel="1 col"
+          maxLabel={`${maxSpan} col`}
         />
-      )}
-
-      {isPresentational && !isRichText && (
-        <LabelTargetSelect
-          value={field.labelFor}
-          candidates={labelTargetCandidates(getAllFields(activeRows), field.id)}
-          onChange={(targetFieldId) => setFieldLabelFor(field.id, targetFieldId)}
-        />
-      )}
-
-      <FieldNameInput key={field.id} field={field} />
-
-      <LabeledRangeSlider
-        id="field-colspan"
-        label={`Columnas (${field.colSpan}/${rowColumns}) · desde col ${field.colStart}`}
-        min={1}
-        max={maxSpan}
-        value={field.colSpan}
-        onChange={(value) => updateField(field.id, { colSpan: value })}
-      />
+      </PanelSection>
 
       {canEditOptions && <FieldOptionsEditor field={field} />}
 
       {isOptionBased && !canEditOptions && (
-        <div className="flex flex-col items-start gap-2 border-t border-slate-200 pt-4 dark:border-neutral-700">
-          <p className="text-sm font-medium text-slate-700 dark:text-neutral-200">Opciones</p>
-          <p className="text-xs text-slate-400 dark:text-neutral-500">
-            {field.dataSource
-              ? `Las carga el aplicativo que recibe el JSON consultando el catálogo “${field.dataSource.catalog}”. Para definirlas a mano hay que quitar ese catálogo.`
-              : "Las carga el aplicativo que recibe el JSON consultando la base de datos según la ruta mapeada. Si este campo no sale de un catálogo, marcálo como excluido del payload y vas a poder definirlas a mano."}
+        <PanelSection
+          title="Origen de opciones"
+          aside={
+            <span className={SOURCE_BADGE_CLASSES}>
+              {field.dataSource ? "Catálogo" : "Base de datos"}
+            </span>
+          }
+        >
+          <p className="text-xs text-fg-muted">
+            {field.dataSource ? (
+              <>
+                Las carga el aplicativo consultando el catálogo{" "}
+                <code className="font-mono text-fg">{field.dataSource.catalog}</code>. Para
+                definirlas a mano hay que quitar ese catálogo.
+              </>
+            ) : (
+              "Las carga el aplicativo según la ruta mapeada. Si este campo no sale de un catálogo, marcálo como excluido del payload y vas a poder definirlas a mano."
+            )}
           </p>
+
           <button
             type="button"
             onClick={() => setSidebarTab("apiMapping")}
-            className="text-xs font-medium text-orange-600 hover:cursor-pointer hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400"
+            className={SOURCE_LINK_CLASSES}
           >
-            Ir a Mapeo API
+            Ir a Mapeo API →
           </button>
-        </div>
+        </PanelSection>
       )}
 
       {field.type === "file" && <FileOptionsEditor field={field} />}

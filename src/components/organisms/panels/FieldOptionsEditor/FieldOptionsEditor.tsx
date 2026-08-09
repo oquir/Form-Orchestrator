@@ -3,7 +3,9 @@ import { useFormStore } from "../../../../store/formStore";
 import type { FieldOption } from "../../../../types/field";
 import { IconButton } from "../../../atoms/IconButton/IconButton";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import {
+  COUNT_CLASSES,
   MIN_OPTIONS,
   OPTION_INPUT_CLASSES,
   REMOVE_OPTION_CLASSES,
@@ -20,7 +22,7 @@ export function FieldOptionsEditor({ field }: FieldOptionsEditorProps) {
   const canRemove: boolean = options.length > MIN_OPTIONS;
 
   return (
-    <div className="flex flex-col gap-4 border-t border-slate-200 pt-4 dark:border-neutral-700">
+    <PanelSection title="Opciones" aside={<span className={COUNT_CLASSES}>{options.length}</span>}>
       <LabeledInput
         id="field-options-title"
         label="Título del grupo (opcional)"
@@ -29,9 +31,9 @@ export function FieldOptionsEditor({ field }: FieldOptionsEditorProps) {
       />
 
       <fieldset className="m-0 border-0 p-0">
-        <legend className="mb-2 p-0 text-sm font-medium text-slate-700 dark:text-neutral-200">
-          Opciones
-        </legend>
+        {/* El rotulo de la seccion ya dice "Opciones": visible seria decirlo dos veces, pero el
+            fieldset necesita su legend para que el lector de pantalla agrupe las entradas. */}
+        <legend className="sr-only">Opciones</legend>
         <ul className="flex list-none flex-col gap-2">
           {options.map((option, index) => (
             <li key={option.id} className="flex items-center gap-2">
@@ -72,9 +74,9 @@ export function FieldOptionsEditor({ field }: FieldOptionsEditorProps) {
         </button>
       </fieldset>
 
-      <p className="text-xs text-slate-400 dark:text-neutral-500">
+      <p className="text-xs text-fg-subtle">
         {getOptionsHint(field.type, Boolean(field.validations.required))}
       </p>
-    </div>
+    </PanelSection>
   );
 }

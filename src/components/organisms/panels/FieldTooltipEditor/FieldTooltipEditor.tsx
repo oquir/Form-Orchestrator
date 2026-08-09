@@ -1,8 +1,9 @@
 import { TOOLTIP_POSITIONS } from "../../../../constants/fieldTooltip";
 import { useFormStore } from "../../../../store/formStore";
 import type { FieldTooltip } from "../../../../types/field";
-import { Checkbox } from "../../../atoms/Checkbox/Checkbox";
+import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor";
 import {
   POSITION_ACTIVE_CLASSES,
@@ -17,20 +18,16 @@ export function FieldTooltipEditor({ field }: FieldTooltipEditorProps) {
   const tooltip: FieldTooltip | undefined = field.tooltip;
 
   return (
-    <div className="flex flex-col gap-3 border-t border-border pt-4">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-medium text-fg">Tooltip de ayuda</p>
-        {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox renderiza un <input type="checkbox"> anidado */}
-        <label className="flex items-center gap-1.5 text-[11px] text-fg-muted">
-          <Checkbox
-            checked={tooltip !== undefined}
-            onChange={(event) => updateFieldTooltip(field.id, event.target.checked ? {} : null)}
-            className="accent-orange-500"
-          />
-          Activar
-        </label>
-      </div>
-
+    <PanelSection
+      title="Tooltip de ayuda"
+      aside={
+        <ToggleSwitch
+          checked={tooltip !== undefined}
+          onChange={(checked) => updateFieldTooltip(field.id, checked ? {} : null)}
+          label="Activar el tooltip de ayuda"
+        />
+      }
+    >
       {!tooltip && (
         <p className="text-xs text-fg-subtle">
           Agrega un ícono de información junto a la etiqueta. El contribuyente ve el mensaje al
@@ -85,6 +82,6 @@ export function FieldTooltipEditor({ field }: FieldTooltipEditorProps) {
           />
         </>
       )}
-    </div>
+    </PanelSection>
   );
 }

@@ -1,4 +1,5 @@
 import { useFormStore } from "../../../../store/formStore";
+import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { FILE_FORMAT_PRESETS } from "./FileOptionsEditor.constants";
 import type { FileOptionsEditorProps } from "./FileOptionsEditor.types";
 import { togglePreset } from "./FileOptionsEditor.utils";
@@ -9,7 +10,7 @@ export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
   const formatsText = config.acceptedFormats.join(", ");
 
   return (
-    <div className="flex flex-col gap-4 border-t border-slate-200 pt-4 dark:border-neutral-700">
+    <PanelSection title="Archivo">
       <div className="flex flex-col gap-2">
         <label
           htmlFor="field-file-formats"
@@ -83,6 +84,6 @@ export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
           className="w-24 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
         />
       </div>
-    </div>
+    </PanelSection>
   );
 }
