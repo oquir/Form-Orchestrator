@@ -8,6 +8,8 @@ export function LabeledRangeSlider({
   max,
   value,
   onChange,
+  minLabel,
+  maxLabel,
 }: LabeledRangeSliderProps) {
   return (
     <div>
@@ -19,8 +21,14 @@ export function LabeledRangeSlider({
         max={max}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full cursor-grab active:cursor-grabbing"
+        className="w-full cursor-grab accent-brand active:cursor-grabbing"
       />
+      {(minLabel || maxLabel) && (
+        <div className="flex justify-between text-[10px] text-fg-subtle">
+          <span>{minLabel}</span>
+          <span>{maxLabel}</span>
+        </div>
+      )}
     </div>
   );
 }

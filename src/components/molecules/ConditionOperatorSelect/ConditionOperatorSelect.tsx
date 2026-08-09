@@ -1,6 +1,7 @@
 import type { ConditionOperatorSelectProps } from "./ConditionOperatorSelect.types";
 
 export function ConditionOperatorSelect({
+  label = "…y el valor",
   operator,
   availableOperators,
   operatorLabels,
@@ -8,7 +9,7 @@ export function ConditionOperatorSelect({
 }: ConditionOperatorSelectProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] text-slate-500 dark:text-neutral-400">…y el valor</span>
+      <span className="text-[11px] text-slate-500 dark:text-neutral-400">{label}</span>
       <select
         value={operator}
         onChange={(event) => onChange(event.target.value as typeof operator)}

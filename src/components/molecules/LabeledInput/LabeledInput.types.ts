@@ -1,6 +1,6 @@
-import type { InputHTMLAttributes } from "react";
+import type { InputProps } from "../../atoms/Input/Input.types";
 
-export interface LabeledInputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface LabeledInputProps extends InputProps {
   id: string;
   label: string;
 }
