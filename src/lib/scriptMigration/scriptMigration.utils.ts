@@ -1,5 +1,5 @@
-import type { FormulaNode } from "../../types/formula";
 import { AGGREGATE_TO_HELPER, PRECEDENCE, UNARY_PRECEDENCE } from "./scriptMigration.constants";
+import type { FormulaNode } from "./scriptMigration.types";
 
 // Impresor del AST de formula como expresion JS. El resultado lo va a leer y editar una persona,
 // asi que no alcanza con que sea correcto: tiene que salir con la forma en que estaba escrito.

@@ -1,27 +1,21 @@
 import type { ExportedField } from "../../types/exportForm";
-import type { FormulaNode } from "../../types/formula";
-import { collectFormulaRefs, parseFormula } from "../formula/formula";
-import type { DerivedPlan } from "./runtimeFormula.types";
+import type { DerivedPlan } from "./runtimeDerived.types";
 
 // Planificacion del orden de calculo. Trabaja sobre nombres, no ids: en el export los ids ya se
 // resolvieron. Es el gemelo de fieldGraph, que hace lo mismo del lado del builder sobre el modelo.
 
 export function isDerivedField(field: ExportedField): boolean {
   const hasScript: boolean = Boolean(field.logic.script);
-  const hasFormula: boolean = Boolean(field.logic.formula && field.logic.formula.trim() !== "");
   const hasRules: boolean = Boolean(field.logic.rules && field.logic.rules.length > 0);
 
-  return hasScript || hasFormula || hasRules;
+  return hasScript || hasRules;
 }
 
-// Un campo depende de lo que lee su script, de lo que leen sus formulas y de lo que miran las
-// condiciones de sus reglas: si la condicion observa un campo calculado, ese va antes.
-// Las dependencias del script llegan ya resueltas en `reads`, calculadas al exportar.
-export function fieldRefs(field: ExportedField, asts: Map<string, FormulaNode | null>): string[] {
-  const refs: string[] = [
-    ...(field.logic.script?.reads ?? []),
-    ...collectFormulaRefs(asts.get(field.name) ?? null),
-  ];
+// Un campo depende de lo que lee su script, de lo que leen los scripts de sus reglas y de lo que
+// miran las condiciones de esas reglas: si la condicion observa un campo calculado, ese va antes.
+// Todo llega ya resuelto en `reads`, calculado al exportar.
+export function fieldRefs(field: ExportedField): string[] {
+  const refs: string[] = [...(field.logic.script?.reads ?? [])];
 
   for (const rule of field.logic.rules ?? []) {
     for (const condition of rule.when) refs.push(condition.field);
@@ -36,21 +30,15 @@ export function fieldRefs(field: ExportedField, asts: Map<string, FormulaNode | 
 
 export function planDerivedFields(fields: ExportedField[]): DerivedPlan {
   const derived: ExportedField[] = fields.filter(isDerivedField);
-  const asts: Map<string, FormulaNode | null> = new Map();
-
-  for (const field of derived) {
-    asts.set(field.name, field.logic.formula ? parseFormula(field.logic.formula).ast : null);
-  }
-
   const names: Set<string> = new Set(derived.map((field) => field.name));
   const dependsOn: Map<string, Set<string>> = new Map();
   const dependents: Map<string, string[]> = new Map();
 
   for (const field of derived) {
     // Solo cuentan las dependencias hacia otros campos derivados: los que el usuario escribe ya
-    // tienen valor cuando empieza el calculo. Un autorreferencia se ignora para no trabar el plan.
+    // tienen valor cuando empieza el calculo. Una autorreferencia se ignora para no trabar el plan.
     const own: Set<string> = new Set(
-      fieldRefs(field, asts).filter((ref) => names.has(ref) && ref !== field.name),
+      fieldRefs(field).filter((ref) => names.has(ref) && ref !== field.name),
     );
     dependsOn.set(field.name, own);
 
@@ -78,11 +66,10 @@ export function planDerivedFields(fields: ExportedField[]): DerivedPlan {
     }
   }
 
-  // Kahn: lo que nunca llego a cero dependencias pendientes esta en un ciclo. Queda fuera del
-  // orden en lugar de colarse al final, para que el simulador pueda avisar en vez de dar 0.
+  // Kahn: lo que nunca llego a cero dependencias pendientes esta en un ciclo.
   const cycle: string[] = derived
     .map((field) => field.name)
     .filter((name) => !order.includes(name));
 
-  return { order, cycle: cycle.length > 0 ? cycle : null, asts };
+  return { order, cycle: cycle.length > 0 ? cycle : null };
 }

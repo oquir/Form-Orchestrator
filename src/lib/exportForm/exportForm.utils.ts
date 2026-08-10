@@ -78,10 +78,6 @@ export function resolveValidations(
   };
 }
 
-export function resolveDependencies(field: CanvasField, names: Map<string, string>): string[] {
-  return field.logic.dependencies.map((id) => names.get(id) ?? id);
-}
-
 // El script se compila aca y no del lado del consumidor: {campo} no es JS, y hacer que cada
 // consumidor implemente el recorrido que distingue codigo de texto seria repartir la parte
 // delicada. Sale ya en JS, con las dependencias que declara al leerlas.
@@ -169,9 +165,6 @@ export function mapRows(
       validations: resolveValidations(field, names),
       logic: {
         script: resolveScript(field, knownNames),
-        dependencies: resolveDependencies(field, names),
-        typeScript: field.logic.typeScript,
-        formula: field.logic.formula,
         rules: resolveRules(field, names, knownNames),
       },
       title: field.title,

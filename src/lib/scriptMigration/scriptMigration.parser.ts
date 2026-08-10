@@ -1,11 +1,22 @@
-import { FORMULA_AGGREGATES, FORMULA_FUNCTIONS } from "../../constants/formula";
-import type { Cursor, FormulaFunction, FormulaNode, FormulaToken } from "../../types/formula";
-import { DIGIT, FORMULA_OPERATORS, IDENT_PART, IDENT_START, WHITESPACE } from "./formula.constants";
+import {
+  AGGREGATE_TO_HELPER,
+  DIGIT,
+  FORMULA_ARITY,
+  FORMULA_OPERATORS,
+  IDENT_PART,
+  IDENT_START,
+  WHITESPACE,
+} from "./scriptMigration.constants";
+import type { Cursor, FormulaArity, FormulaNode, FormulaToken } from "./scriptMigration.types";
 
-// Tokenizer y descenso recursivo. A diferencia de parseFormula, todo lo de aca SI lanza:
-// es parseFormula quien atrapa y convierte el error en un mensaje para el editor.
+// Tokenizer y descenso recursivo del lenguaje de formulas. Estaba en lib/formula, que era la
+// implementacion de un lenguaje vivo; ahora es solo el lector del formato muerto, y por eso se
+// mudo aca junto al impresor. Del original quedo la mitad: el evaluador se fue entero, porque
+// nadie vuelve a calcular una formula, solo a traducirla.
+//
+// Todo lo de aca lanza; es parseFormula quien atrapa y devuelve null.
 
-export function tokenize(source: string): FormulaToken[] {
+function tokenize(source: string): FormulaToken[] {
   const tokens: FormulaToken[] = [];
   let i = 0;
 
@@ -43,29 +54,23 @@ export function tokenize(source: string): FormulaToken[] {
       continue;
     }
 
-    throw new Error(`Carácter no válido "${char}" en la posición ${i + 1}.`);
+    throw new Error(`Carácter no válido "${char}".`);
   }
 
   return tokens;
 }
 
-export function peek(cursor: Cursor): FormulaToken | undefined {
+function peek(cursor: Cursor): FormulaToken | undefined {
   return cursor.tokens[cursor.index];
 }
 
-export function isOp(token: FormulaToken | undefined, text: string): boolean {
+function isOp(token: FormulaToken | undefined, text: string): boolean {
   return token !== undefined && token.kind === "op" && token.text === text;
 }
 
-export function describeArity(fn: FormulaFunction): string {
-  if (fn.maxArgs === Number.POSITIVE_INFINITY) return `al menos ${fn.minArgs} argumento(s)`;
-  if (fn.minArgs === fn.maxArgs) return `${fn.minArgs} argumento(s)`;
-  return `entre ${fn.minArgs} y ${fn.maxArgs} argumentos`;
-}
-
-// Un agregado recibe un nombre de campo pelado, no una expresion: lee la columna de un grupo
-// repetible. Que `sumOf(1 + 2)` no compile es a proposito, no una limitacion por resolver.
-export function parseAggregate(cursor: Cursor, callee: string): FormulaNode {
+// Un agregado recibia un nombre de campo pelado, no una expresion: leia la columna de un grupo
+// repetible. Que sumOf(1 + 2) no compilara era a proposito.
+function parseAggregate(cursor: Cursor, callee: string): FormulaNode {
   cursor.index += 1;
   const token: FormulaToken | undefined = peek(cursor);
 
@@ -81,12 +86,12 @@ export function parseAggregate(cursor: Cursor, callee: string): FormulaNode {
   return { kind: "aggregate", fn: callee, ref: token.text };
 }
 
-export function parseCall(cursor: Cursor, callee: string): FormulaNode {
-  if (FORMULA_AGGREGATES[callee]) return parseAggregate(cursor, callee);
+function parseCall(cursor: Cursor, callee: string): FormulaNode {
+  if (AGGREGATE_TO_HELPER[callee]) return parseAggregate(cursor, callee);
 
-  const fn: FormulaFunction | undefined = FORMULA_FUNCTIONS[callee];
+  const arity: FormulaArity | undefined = FORMULA_ARITY[callee];
 
-  if (!fn) throw new Error(`La función "${callee}" no existe.`);
+  if (!arity) throw new Error(`La función "${callee}" no existe.`);
 
   cursor.index += 1;
   const args: FormulaNode[] = [];
@@ -102,14 +107,14 @@ export function parseCall(cursor: Cursor, callee: string): FormulaNode {
   if (!isOp(peek(cursor), ")")) throw new Error(`Falta cerrar el paréntesis de "${callee}".`);
   cursor.index += 1;
 
-  if (args.length < fn.minArgs || args.length > fn.maxArgs) {
-    throw new Error(`"${callee}" espera ${describeArity(fn)} y recibió ${args.length}.`);
+  if (args.length < arity.minArgs || args.length > arity.maxArgs) {
+    throw new Error(`"${callee}" recibió ${args.length} argumento(s).`);
   }
 
   return { kind: "call", callee, args };
 }
 
-export function parsePrimary(cursor: Cursor): FormulaNode {
+function parsePrimary(cursor: Cursor): FormulaNode {
   const token: FormulaToken | undefined = peek(cursor);
 
   if (!token) throw new Error("La fórmula termina de forma inesperada.");
@@ -119,8 +124,8 @@ export function parsePrimary(cursor: Cursor): FormulaNode {
     return { kind: "number", value: Number.parseFloat(token.text) };
   }
 
-  // Un identificador es una llamada solo si le sigue un parentesis; si no, es el nombre de un
-  // campo. Por eso no hay palabras reservadas: un campo puede llamarse "max" sin chocar.
+  // Un identificador era una llamada solo si le seguia un parentesis; si no, el nombre de un
+  // campo. Por eso no habia palabras reservadas: un campo podia llamarse "max" sin chocar.
   if (token.kind === "ident") {
     cursor.index += 1;
     if (isOp(peek(cursor), "(")) return parseCall(cursor, token.text);
@@ -135,10 +140,10 @@ export function parsePrimary(cursor: Cursor): FormulaNode {
     return inner;
   }
 
-  throw new Error(`No se esperaba "${token.text}" en la posición ${token.pos + 1}.`);
+  throw new Error(`No se esperaba "${token.text}".`);
 }
 
-export function parseUnary(cursor: Cursor): FormulaNode {
+function parseUnary(cursor: Cursor): FormulaNode {
   if (isOp(peek(cursor), "-")) {
     cursor.index += 1;
     return { kind: "unary", operator: "-", operand: parseUnary(cursor) };
@@ -153,9 +158,9 @@ export function parseUnary(cursor: Cursor): FormulaNode {
 }
 
 // La precedencia es la cadena de llamadas: expresion (+ -) baja a termino (* /), que baja a
-// unario y a primario. Cambiar quien llama a quien cambia la precedencia del lenguaje.
-// El bucle while, en vez de recursion a la derecha, es lo que da asociatividad por izquierda.
-export function parseTerm(cursor: Cursor): FormulaNode {
+// unario y a primario. El bucle while, en vez de recursion a la derecha, es lo que da la
+// asociatividad por izquierda que el impresor despues da por sentada.
+function parseTerm(cursor: Cursor): FormulaNode {
   let left: FormulaNode = parseUnary(cursor);
 
   while (isOp(peek(cursor), "*") || isOp(peek(cursor), "/")) {
@@ -167,7 +172,7 @@ export function parseTerm(cursor: Cursor): FormulaNode {
   return left;
 }
 
-export function parseExpression(cursor: Cursor): FormulaNode {
+function parseExpression(cursor: Cursor): FormulaNode {
   let left: FormulaNode = parseTerm(cursor);
 
   while (isOp(peek(cursor), "+") || isOp(peek(cursor), "-")) {
@@ -177,4 +182,19 @@ export function parseExpression(cursor: Cursor): FormulaNode {
   }
 
   return left;
+}
+
+// Nunca lanza: null es "esto no se puede traducir", y quien llama deja el campo como estaba.
+export function parseFormula(source: string): FormulaNode | null {
+  const trimmed: string = source.trim();
+  if (trimmed.length === 0) return null;
+
+  try {
+    const cursor: Cursor = { tokens: tokenize(trimmed), index: 0 };
+    const ast: FormulaNode = parseExpression(cursor);
+
+    return peek(cursor) ? null : ast;
+  } catch {
+    return null;
+  }
 }

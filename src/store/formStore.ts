@@ -749,13 +749,6 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         styles: { ...field.styles, ...updates },
       })),
     ),
-  updateFieldLogic: (fieldId, updates) =>
-    set((state) =>
-      mapFieldEverywhere(state, fieldId, (field) => ({
-        ...field,
-        logic: { ...field.logic, ...updates },
-      })),
-    ),
   // Un script en blanco se guarda como ausente y no como cadena vacia: asi "este campo no se
   // calcula" es una sola cosa en el modelo y el export no lleva la clave.
   setFieldScript: (fieldId, script) =>
@@ -766,13 +759,6 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       })),
     ),
   setFormScript: (script) => set({ formScript: script }),
-  setFieldFormula: (fieldId, formula) =>
-    set((state) =>
-      mapFieldEverywhere(state, fieldId, (field) => ({
-        ...field,
-        logic: { ...field.logic, formula: formula.trim().length > 0 ? formula : undefined },
-      })),
-    ),
   addFieldRule: (fieldId) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
@@ -808,21 +794,6 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         ...field,
         logic: { ...field.logic, rules: moveRule(field.logic.rules ?? [], ruleId, offset) },
       })),
-    ),
-  toggleFieldDependency: (fieldId, dependsOnFieldId) =>
-    set((state) =>
-      mapFieldEverywhere(state, fieldId, (field) => {
-        const alreadyDependsOn = field.logic.dependencies.includes(dependsOnFieldId);
-        return {
-          ...field,
-          logic: {
-            ...field.logic,
-            dependencies: alreadyDependsOn
-              ? field.logic.dependencies.filter((id) => id !== dependsOnFieldId)
-              : [...field.logic.dependencies, dependsOnFieldId],
-          },
-        };
-      }),
     ),
   updateFieldFileConfig: (fieldId, updates) =>
     set((state) =>

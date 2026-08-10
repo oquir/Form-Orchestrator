@@ -2,11 +2,12 @@ import type { CanvasField } from "../../types/field";
 import type { FieldGraph } from "../../types/fieldGraph";
 import { collectRuleRefs, ruleScriptSources } from "../fieldRule/fieldRule";
 import type { TopologicalResult } from "./fieldGraph.types";
-import { formulaRefIds, scriptRefIds } from "./fieldGraph.utils";
+import { scriptRefIds } from "./fieldGraph.utils";
 
 // Un unico grafo de dependencias entre campos. Existe porque las relaciones estan repartidas en
-// siete sitios distintos del modelo y hay que mirarlas juntas: un ciclo puede cruzarlos.
-// `logic.typeScript` sigue fuera a proposito: es la cadena opaca que el script vino a reemplazar.
+// cuatro sitios distintos del modelo y hay que mirarlas juntas: un ciclo puede cruzarlos. Eran
+// siete hasta que el script se comio a la formula, a las dependencias declaradas a mano y al
+// typeScript que nunca se ejecutaba.
 
 export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   const index: Map<string, string> = new Map();
@@ -18,8 +19,8 @@ export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   return index;
 }
 
-// Las siete fuentes de aristas, todas normalizadas a ids. Formulas y scripts referencian campos
-// por nombre, de ahi el indice byName: sin el, un ref quedaria fuera del grafo sin avisar.
+// Las cuatro fuentes de aristas, todas normalizadas a ids. Los scripts referencian campos por
+// nombre, de ahi el indice byName: sin el, un ref quedaria fuera del grafo sin avisar.
 export function fieldDependencies(
   field: CanvasField,
   byName: Map<string, string>,
@@ -29,9 +30,7 @@ export function fieldDependencies(
     ...(field.visibleWhen ? [field.visibleWhen.fieldId] : []),
     ...(field.enableWhen ? [field.enableWhen.fieldId] : []),
     ...collectRuleRefs(field.logic.rules),
-    ...field.logic.dependencies,
     ...scriptRefIds(field.logic.script, byName, knownNames),
-    ...formulaRefIds(field.logic.formula, byName),
     ...ruleScriptSources(field.logic.rules).flatMap((source) =>
       scriptRefIds(source, byName, knownNames),
     ),

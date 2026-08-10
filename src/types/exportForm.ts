@@ -55,9 +55,6 @@ export interface ExportedScript {
 
 export interface ExportedLogic {
   script?: ExportedScript;
-  dependencies: string[];
-  typeScript: string;
-  formula?: string;
   rules?: ExportedRule[];
 }
 

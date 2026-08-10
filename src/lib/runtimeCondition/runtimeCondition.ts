@@ -1,6 +1,6 @@
+import { toScriptNumber } from "../../constants/fieldScript";
 import type { ExportedCondition } from "../../types/exportForm";
 import type { RuntimeValues } from "../../types/formRuntime";
-import { toFormulaNumber } from "../formula/formula";
 import {
   isEmptyValue,
   isTruthyValue,
@@ -37,9 +37,9 @@ export function evaluateCondition(
     case "notEquals":
       return !looseEquals(observed, expected);
     case "greaterThan":
-      return toFormulaNumber(observed) > toFormulaNumber(expected);
+      return toScriptNumber(observed) > toScriptNumber(expected);
     case "lessThan":
-      return toFormulaNumber(observed) < toFormulaNumber(expected);
+      return toScriptNumber(observed) < toScriptNumber(expected);
     case "startsWith":
       return toComparableText(observed).startsWith(toComparableText(expected));
     case "endsWith":

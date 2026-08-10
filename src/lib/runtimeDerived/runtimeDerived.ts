@@ -1,11 +1,10 @@
 import type { ExportedField, ExportedRule } from "../../types/exportForm";
 import type { RuntimeIssue, RuntimeModel, RuntimeValues } from "../../types/formRuntime";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
-import { evaluateFormula } from "../formula/formula";
 import { evaluateConditions } from "../runtimeCondition/runtimeCondition";
 import { coerceForScript, coerceValues, runFieldScript } from "../scriptRuntime/scriptRuntime";
-import type { DerivedPlan } from "./runtimeFormula.types";
-import { planDerivedFields } from "./runtimeFormula.utils";
+import type { DerivedPlan } from "./runtimeDerived.types";
+import { planDerivedFields } from "./runtimeDerived.utils";
 
 export interface DerivedResult {
   values: RuntimeValues;
@@ -17,9 +16,8 @@ export interface DerivedResult {
 // Resuelve los campos calculados de un ambito en orden topologico, para que cuando le toque a uno
 // sus dependencias ya esten resueltas.
 
-// Primero el script -- o la formula, mientras queden campos sin migrar -- y despues cada regla que
-// aplique pisa el valor, en el orden de la lista. `computed` marca lo que se calculo, que es lo que
-// el simulador pinta como solo lectura.
+// Primero el script del campo y despues cada regla que aplique, pisando el valor en el orden de la
+// lista. `computed` marca lo que se calculo, que es lo que el simulador pinta como solo lectura.
 export function computeDerivedValues(
   fields: ExportedField[],
   base: RuntimeValues,
@@ -35,38 +33,40 @@ export function computeDerivedValues(
   const computed: Record<string, boolean> = {};
   const issues: RuntimeIssue[] = [];
 
+  // undefined es "no toques lo que escribio el usuario": ni se asigna ni cuenta como calculado,
+  // asi que el campo sigue siendo suyo. Vale igual para el script del campo y para un efecto.
+  function apply(run: ScriptRunResult, name: string, current: unknown): [unknown, boolean] {
+    if (run.error) {
+      issues.push({ kind: "script", field: name, message: run.error });
+      return [current, false];
+    }
+
+    return run.value === undefined ? [current, false] : [run.value, true];
+  }
+
   for (const name of plan.order) {
     const field: ExportedField | undefined = byName.get(name);
     if (!field) continue;
 
-    // Si no hay script, formula ni regla que aplique, se conserva lo que el usuario escribio. Por
-    // eso un campo calculado solo a veces necesita una base que lo devuelva a su valor neutro.
+    // Si no hay script ni regla que aplique, se conserva lo que el usuario escribio. Por eso un
+    // campo calculado solo a veces necesita una base que lo devuelva a su valor neutro.
     let next: unknown = values[name];
     let touched = false;
 
-    const script = field.logic.script;
-    const ast = plan.asts.get(name) ?? null;
-
-    if (script) {
-      const run: ScriptRunResult = runFieldScript(
-        script.compiled,
-        model.prelude,
-        scriptValues,
-        scriptValues[name],
-        index,
+    if (field.logic.script) {
+      const [value, changed] = apply(
+        runFieldScript(
+          field.logic.script.compiled,
+          model.prelude,
+          scriptValues,
+          scriptValues[name],
+          index,
+        ),
+        name,
+        next,
       );
-
-      if (run.error) {
-        issues.push({ kind: "script", field: name, message: run.error });
-      } else if (run.value !== undefined) {
-        // undefined es "no toques lo que escribio el usuario", asi que ni se asigna ni cuenta
-        // como calculado: el campo sigue siendo suyo.
-        next = run.value;
-        touched = true;
-      }
-    } else if (ast) {
-      next = evaluateFormula(ast, values);
-      touched = true;
+      next = value;
+      touched = touched || changed;
     }
 
     for (const rule of field.logic.rules ?? []) {
@@ -79,25 +79,19 @@ export function computeDerivedValues(
           continue;
         }
 
-        // Un efecto corre por el mismo camino que el script del campo, incluido el undefined:
-        // una regla que se cumple pero no devuelve nada deja el valor como estaba.
-        const run: ScriptRunResult = runFieldScript(
-          effect.script.compiled,
-          model.prelude,
-          scriptValues,
-          scriptValues[name],
-          index,
+        const [value, changed] = apply(
+          runFieldScript(
+            effect.script.compiled,
+            model.prelude,
+            scriptValues,
+            scriptValues[name],
+            index,
+          ),
+          name,
+          next,
         );
-
-        if (run.error) {
-          issues.push({ kind: "script", field: name, message: run.error });
-          continue;
-        }
-
-        if (run.value === undefined) continue;
-
-        next = run.value;
-        touched = true;
+        next = value;
+        touched = touched || changed;
       }
     }
 

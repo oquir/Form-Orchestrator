@@ -12,7 +12,7 @@ import type {
   RuntimeSnapshot,
   RuntimeValues,
 } from "../../types/formRuntime";
-import { computeDerivedValues, type DerivedResult } from "../runtimeFormula/runtimeFormula";
+import { computeDerivedValues, type DerivedResult } from "../runtimeDerived/runtimeDerived";
 import { buildScope, emptyItem, groupColumns } from "./formRuntime.utils";
 
 // El corazon del simulador. Solo consume el JSON exportado, nunca el store: si algo no se puede
@@ -80,10 +80,10 @@ export function createInitialState(model: RuntimeModel): PreviewState {
   return { values: {}, groups };
 }
 
-// Tres pasadas, y el orden no es negociable: evaluateFormula lee un ref suelto como escalar pero
-// sumOf(campo) espera un array bajo esa misma clave, asi que las columnas del grupo tienen que
-// estar aplanadas en el root antes de resolverlo. Juntar esto en una sola pasada hace que los
-// totales de la declaracion den 0 sin que nada falle a la vista.
+// Tres pasadas, y el orden no es negociable: dentro de un grupo {campo} es el escalar de esa fila,
+// pero desde el root el mismo nombre tiene que ser el array con la columna entera, asi que las
+// columnas del grupo tienen que estar aplanadas en el root antes de resolverlo. Juntar esto en una
+// sola pasada hace que los totales de la declaracion den 0 sin que nada falle a la vista.
 export function resolveRuntime(model: RuntimeModel, state: PreviewState): RuntimeSnapshot {
   // Pasada 1: los grupos con los valores crudos del root, para poder alimentar los agregados.
   const firstPass: Record<string, RuntimeValues[]> = resolveGroupValues(model, state, state.values);

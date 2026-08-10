@@ -33,14 +33,11 @@ export interface FieldStyles {
   textColor?: string;
 }
 
+// El calculo de un campo vive en un solo lugar: `script`, codigo con {campo} para leer a los
+// demas. Las reglas siguen aparte porque no son otro lenguaje sino una estructura declarativa
+// encima del mismo: condicion mas efecto, y el efecto habla este script.
 export interface FieldLogic {
-  // El calculo del campo escrito como codigo, con {campo} para leer a los demas. Reemplaza a
-  // `formula`, que junto con `typeScript` y `dependencies` sigue en pie solo hasta que la
-  // plantilla y los borradores esten migrados: los tres se van cuando nadie mas los lea.
   script?: string;
-  dependencies: string[];
-  typeScript: string;
-  formula?: string;
   rules?: FieldRule[];
 }
 

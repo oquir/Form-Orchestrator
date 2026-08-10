@@ -140,12 +140,7 @@ export function buildRow(specs: FieldSpec[], groupId?: string): CanvasRow {
           : { overrides: pendingOverrides(spec.validationOverrides) }),
       },
       styles: {},
-      logic: {
-        script: spec.script,
-        dependencies: [],
-        typeScript: "",
-        rules: pendingRules(spec.rules),
-      },
+      logic: { script: spec.script, rules: pendingRules(spec.rules) },
       alwaysDisabled: spec.alwaysDisabled,
       apiBinding: bindingFor(spec),
       visibleWhen: pendingCondition(spec.visibleWhen),

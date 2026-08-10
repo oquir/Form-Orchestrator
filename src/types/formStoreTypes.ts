@@ -5,7 +5,6 @@ import type {
   FieldCondition,
   FieldDataSource,
   FieldFileConfig,
-  FieldLogic,
   FieldRule,
   FieldStyles,
   FieldTooltip,
@@ -121,10 +120,8 @@ export interface FormState {
   ) => void;
   removeFieldValidationOverride: (fieldId: string, overrideId: string) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
-  updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
   setFieldScript: (fieldId: string, script: string) => void;
   setFormScript: (script: string) => void;
-  setFieldFormula: (fieldId: string, formula: string) => void;
   addFieldRule: (fieldId: string) => void;
   updateFieldRule: (
     fieldId: string,
@@ -135,7 +132,6 @@ export interface FormState {
   reorderFieldRule: (fieldId: string, ruleId: string, offset: number) => void;
   updateFieldFileConfig: (fieldId: string, updates: Partial<FieldFileConfig>) => void;
   updateFieldTooltip: (fieldId: string, updates: Partial<FieldTooltip> | null) => void;
-  toggleFieldDependency: (fieldId: string, dependsOnFieldId: string) => void;
   addFieldOption: (fieldId: string) => void;
   removeFieldOption: (fieldId: string, optionId: string) => void;
   updateFieldOptionLabel: (fieldId: string, optionId: string, label: string) => void;

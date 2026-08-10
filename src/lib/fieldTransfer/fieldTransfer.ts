@@ -119,8 +119,8 @@ export function collectCrossingRefs(otherSideRows: CanvasRow[], moving: CanvasFi
   return [...labels];
 }
 
-// Las mismas seis fuentes que removeField limpia al borrar un campo. Las referencias de formula van
-// por nombre y no por id, asi que no entran aqui: el nombre viaja con el campo y no se rompe.
+// Las mismas fuentes por id que removeField limpia al borrar un campo. Las referencias de un
+// script van por nombre y no por id, asi que no entran aqui: el nombre viaja con el campo.
 function referencedIds(field: CanvasField): string[] {
   const ids: string[] = [];
 
@@ -128,8 +128,6 @@ function referencedIds(field: CanvasField): string[] {
   if (field.visibleWhen) ids.push(field.visibleWhen.fieldId);
   if (field.labelFor) ids.push(field.labelFor);
   if (field.dataSource?.dependsOn) ids.push(field.dataSource.dependsOn);
-
-  ids.push(...field.logic.dependencies);
 
   for (const rule of field.logic.rules ?? []) {
     for (const condition of rule.when) ids.push(condition.fieldId);

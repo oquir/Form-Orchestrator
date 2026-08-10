@@ -108,11 +108,10 @@ const fieldRuleSchema = z.object({
   effects: z.array(ruleEffectSchema),
 });
 
+// `dependencies`, `typeScript` y `formula` ya no se declaran: z.object descarta lo que no conoce,
+// asi que un borrador viejo entra sin ellos y esas claves mueren solas al volver a guardar.
 const fieldLogicSchema = z.object({
   script: z.string().optional(),
-  dependencies: z.array(z.string()),
-  typeScript: z.string(),
-  formula: z.string().optional(),
   rules: z.array(fieldRuleSchema).optional(),
 });
 

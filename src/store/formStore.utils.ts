@@ -199,7 +199,7 @@ export function createEmptyField(
     colSpan: placement.colSpan,
     validations: {},
     styles: {},
-    logic: { dependencies: [], typeScript: "" },
+    logic: {},
   };
 
   if (type === "file") {

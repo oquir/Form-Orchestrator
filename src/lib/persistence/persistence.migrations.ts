@@ -52,29 +52,45 @@ function mapDraftFields(draft: LooseDraft, migrate: FieldMigration): LooseDraft 
   };
 }
 
+// Una formula que no parsea no se tira ni se lleva puesto el borrador entero: se conserva como
+// comentario dentro del script, donde el autor la ve y la puede terminar de escribir. El campo
+// deja de calcular -- undefined conserva lo que escriba el usuario -- en vez de inventar un valor.
+//
+// El caso es real y no defensivo: el editor de formulas guardaba lo que se tipeara aunque no
+// compilara, asi que un autoguardado a mitad de una palabra deja exactamente esto. Descartar el
+// borrador entero por un campo a medio escribir seria un castigo desproporcionado, y dejarlo caer
+// en silencio -- que es lo que hace Zod ahora que el esquema ya no declara `formula` -- es peor.
+function preservedFormula(formula: string): string {
+  const quoted: string = formula
+    .split("\n")
+    .map((line) => `// ${line}`)
+    .join("\n");
+
+  return `// Esta formula no se pudo traducir al migrar. Reescribila como script:\n${quoted}\nreturn undefined;`;
+}
+
 function formulaToScriptField(field: LooseDraft): LooseDraft {
   const logic: unknown = field.logic;
   if (!isRecord(logic) || typeof logic.formula !== "string") return field;
 
-  const script: string | null = formulaToScript(logic.formula);
-  if (script === null) return field;
-
   const { formula, ...rest } = logic;
 
-  return { ...field, logic: { ...rest, script } };
+  return {
+    ...field,
+    logic: { ...rest, script: formulaToScript(formula) ?? preservedFormula(formula) },
+  };
 }
 
-// Un efecto que no se puede convertir se deja como estaba: Zod lo rechaza y el borrador entero se
-// descarta, que es preferible a cargar una regla que pisaria el valor con cualquier cosa.
 function formulaToScriptEffect(effect: unknown): unknown {
   if (!isRecord(effect) || effect.kind !== "formula" || typeof effect.expression !== "string") {
     return effect;
   }
 
-  const source: string | null = formulaToScript(effect.expression);
-  if (source === null) return effect;
-
-  return { id: effect.id, kind: "script", source };
+  return {
+    id: effect.id,
+    kind: "script",
+    source: formulaToScript(effect.expression) ?? preservedFormula(effect.expression),
+  };
 }
 
 function ruleFormulasToScripts(field: LooseDraft): LooseDraft {
