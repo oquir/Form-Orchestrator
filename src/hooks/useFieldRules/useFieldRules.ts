@@ -22,7 +22,6 @@ function conditionOn(target: CanvasField, id: string): RuleCondition {
 }
 
 export function useFieldRules({ field, candidates }: UseFieldRulesParams): UseFieldRulesResult {
-  const setFieldFormula = useFormStore((state) => state.setFieldFormula);
   const addFieldRule = useFormStore((state) => state.addFieldRule);
   const updateFieldRule = useFormStore((state) => state.updateFieldRule);
   const removeFieldRule = useFormStore((state) => state.removeFieldRule);
@@ -58,9 +57,7 @@ export function useFieldRules({ field, candidates }: UseFieldRulesParams): UseFi
 
   return {
     rules,
-    formula: field.logic.formula ?? "",
     canAddRule: candidates.length > 0,
-    setFormula: (formula) => setFieldFormula(field.id, formula),
     addRule: () => addFieldRule(field.id),
     removeRule: (ruleId) => removeFieldRule(field.id, ruleId),
     moveRule: (ruleId, offset) => reorderFieldRule(field.id, ruleId, offset),

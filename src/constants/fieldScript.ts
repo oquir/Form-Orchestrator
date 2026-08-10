@@ -76,6 +76,8 @@ export const SCRIPT_HELPERS: Record<string, (...args: unknown[]) => number> = {
   dvNit: (...args) => digitoVerificacion(toScriptNumber(args[0])),
 };
 
+export const SCRIPT_HELPER_NAMES: string[] = Object.keys(SCRIPT_HELPERS);
+
 // El objeto de valores no se nombra nunca a mano: {campo} se compila a __v["campo"]. El guion
 // bajo doble es para que no choque con una variable del autor.
 export const SCRIPT_VALUES_PARAM: string = "__v";

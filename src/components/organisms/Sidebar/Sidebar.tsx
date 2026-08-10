@@ -5,6 +5,7 @@ import { FieldPalette } from "../FieldPalette/FieldPalette";
 import { ApiMappingPanel } from "../panels/ApiMappingPanel/ApiMappingPanel";
 import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
 import { CatalogsPanel } from "../panels/CatalogsPanel/CatalogsPanel";
+import { FormScriptEditor } from "../panels/FormScriptEditor/FormScriptEditor";
 import { LibraryPanel } from "../panels/LibraryPanel/LibraryPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
@@ -53,6 +54,8 @@ export function Sidebar() {
               <>
                 Editando <code className="font-mono text-fg-muted">{selectedField.name}</code>
               </>
+            ) : activeTab === "logic" ? (
+              "Sin campo seleccionado: funciones compartidas por todos los scripts"
             ) : (
               "Selecciona un campo en el lienzo para editarlo"
             )
@@ -64,13 +67,17 @@ export function Sidebar() {
           {activeTab !== "fields" &&
             activeTab !== "library" &&
             activeTab !== "catalogs" &&
+            activeTab !== "logic" &&
             !selectedField && <p>Sin campo seleccionado.</p>}
           {selectedField && activeTab === "attributes" && <AttributesPanel field={selectedField} />}
           {selectedField && activeTab === "validations" && (
             <ValidationsPanel field={selectedField} />
           )}
           {selectedField && activeTab === "styles" && <StylesPanel field={selectedField} />}
-          {selectedField && activeTab === "logic" && <LogicPanel field={selectedField} />}
+          {/* Con campo, el script de ese campo; sin campo, el del formulario. Es la misma
+              convencion que ya usan las pestañas que funcionan sin seleccion. */}
+          {activeTab === "logic" &&
+            (selectedField ? <LogicPanel field={selectedField} /> : <FormScriptEditor />)}
           {selectedField && activeTab === "apiMapping" && <ApiMappingPanel field={selectedField} />}
           {activeTab === "library" && <LibraryPanel selectedField={selectedField} />}
           {activeTab === "catalogs" && <CatalogsPanel />}

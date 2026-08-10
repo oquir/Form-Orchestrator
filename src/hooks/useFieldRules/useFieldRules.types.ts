@@ -7,9 +7,7 @@ export interface UseFieldRulesParams {
 
 export interface UseFieldRulesResult {
   rules: FieldRule[];
-  formula: string;
   canAddRule: boolean;
-  setFormula: (formula: string) => void;
   addRule: () => void;
   removeRule: (ruleId: string) => void;
   moveRule: (ruleId: string, offset: number) => void;
