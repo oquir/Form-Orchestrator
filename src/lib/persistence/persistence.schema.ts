@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { safeHref } from "../richText/richText.utils";
+import { DRAFT_SCHEMA_VERSION } from "./persistence.constants";
 
 // Forma del borrador guardado. Ademas de validar, sanea: aca esta el tercer paso de safeHref,
 // despues del editor y del serializador. Hace falta porque un borrador se puede manipular a mano
@@ -108,6 +109,7 @@ const fieldRuleSchema = z.object({
 });
 
 const fieldLogicSchema = z.object({
+  script: z.string().optional(),
   dependencies: z.array(z.string()),
   typeScript: z.string(),
   formula: z.string().optional(),
@@ -184,9 +186,13 @@ const setupConfigSchema = z.object({
   introModalSteps: z.number(),
 });
 
+// La version va como literal y no como numero: un borrador que la cadena de migraciones no pudo
+// llevar hasta la actual tiene que ser rechazado aca, no cargado a medias.
 export const draftPayloadSchema = z.object({
+  schemaVersion: z.literal(DRAFT_SCHEMA_VERSION),
   formSteps: z.array(stepSchema),
   introModal: z.object({ steps: z.array(stepSchema) }),
+  formScript: z.string(),
   savedComponents: z.array(savedComponentSchema),
   setupConfig: setupConfigSchema,
   savedAt: z.string(),

@@ -21,6 +21,7 @@ export function useKeyboardShortcuts() {
         saveDraft({
           formSteps: state.formSteps,
           introModal: state.introModal,
+          formScript: state.formScript,
           savedComponents: state.savedComponents,
           setupConfig: state.setupConfig,
         });

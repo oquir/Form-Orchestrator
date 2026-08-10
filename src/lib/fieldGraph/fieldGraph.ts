@@ -2,11 +2,11 @@ import type { CanvasField } from "../../types/field";
 import type { FieldGraph } from "../../types/fieldGraph";
 import { collectRuleRefs, ruleFormulaExpressions } from "../fieldRule/fieldRule";
 import type { TopologicalResult } from "./fieldGraph.types";
-import { formulaRefIds } from "./fieldGraph.utils";
+import { formulaRefIds, scriptRefIds } from "./fieldGraph.utils";
 
 // Un unico grafo de dependencias entre campos. Existe porque las relaciones estan repartidas en
-// seis sitios distintos del modelo y hay que mirarlas juntas: un ciclo puede cruzarlos.
-// `logic.typeScript` queda fuera a proposito: es una cadena opaca que el builder no sabe leer.
+// siete sitios distintos del modelo y hay que mirarlas juntas: un ciclo puede cruzarlos.
+// `logic.typeScript` sigue fuera a proposito: es la cadena opaca que el script vino a reemplazar.
 
 export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   const index: Map<string, string> = new Map();
@@ -18,14 +18,19 @@ export function buildNameToIdIndex(fields: CanvasField[]): Map<string, string> {
   return index;
 }
 
-// Las seis fuentes de aristas, todas normalizadas a ids. Las formulas referencian campos por
-// nombre, de ahi el indice byName: sin el, un ref quedaria fuera del grafo sin avisar.
-export function fieldDependencies(field: CanvasField, byName: Map<string, string>): string[] {
+// Las siete fuentes de aristas, todas normalizadas a ids. Formulas y scripts referencian campos
+// por nombre, de ahi el indice byName: sin el, un ref quedaria fuera del grafo sin avisar.
+export function fieldDependencies(
+  field: CanvasField,
+  byName: Map<string, string>,
+  knownNames: Set<string>,
+): string[] {
   const candidates: string[] = [
     ...(field.visibleWhen ? [field.visibleWhen.fieldId] : []),
     ...(field.enableWhen ? [field.enableWhen.fieldId] : []),
     ...collectRuleRefs(field.logic.rules),
     ...field.logic.dependencies,
+    ...scriptRefIds(field.logic.script, byName, knownNames),
     ...formulaRefIds(field.logic.formula, byName),
     ...ruleFormulaExpressions(field.logic.rules).flatMap((expression) =>
       formulaRefIds(expression, byName),
@@ -47,6 +52,9 @@ export function fieldDependencies(field: CanvasField, byName: Map<string, string
 export function buildFieldGraph(fields: CanvasField[]): FieldGraph {
   const byId: Map<string, CanvasField> = new Map(fields.map((field) => [field.id, field]));
   const byName: Map<string, string> = buildNameToIdIndex(fields);
+  // Se arma una vez y no por campo: el compilador del script la consulta para cada {x} y armarla
+  // adentro del bucle volveria cuadratica la construccion del grafo.
+  const knownNames: Set<string> = new Set(byName.keys());
   const edges: Map<string, string[]> = new Map();
 
   for (const field of fields) {
@@ -54,7 +62,7 @@ export function buildFieldGraph(fields: CanvasField[]): FieldGraph {
     // campo borrado meteria un nodo fantasma y el orden topologico no cerraria nunca.
     edges.set(
       field.id,
-      fieldDependencies(field, byName).filter((id) => byId.has(id)),
+      fieldDependencies(field, byName, knownNames).filter((id) => byId.has(id)),
     );
   }
 

@@ -23,6 +23,7 @@ export function Canvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
+  const formScript = useFormStore((state) => state.formScript);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const setSimulatorOpen = useFormStore((state) => state.setSimulatorOpen);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
@@ -78,7 +79,7 @@ export function Canvas() {
           </button>
           <button
             type="button"
-            onClick={() => downloadFormExport(formSteps, setupConfig, introSteps)}
+            onClick={() => downloadFormExport(formSteps, setupConfig, introSteps, formScript)}
             className="rounded-md bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400 cursor-pointer"
           >
             Exportar JSON

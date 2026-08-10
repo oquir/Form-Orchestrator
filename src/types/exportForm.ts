@@ -39,7 +39,17 @@ export interface ExportedValidations {
   zodSchemaWhen?: ExportedValidationVariant[];
 }
 
+// `compiled` es cuerpo de funcion listo para new Function, precedido del preludio del formulario
+// si lo hay. `source` viaja solo para poder reeditarlo: ejecutarlo seria un error, porque {campo}
+// no es JS. `reads` son los nombres que lee, para poder ordenar el calculo sin volver a parsear.
+export interface ExportedScript {
+  source: string;
+  compiled: string;
+  reads: string[];
+}
+
 export interface ExportedLogic {
+  script?: ExportedScript;
   dependencies: string[];
   typeScript: string;
   formula?: string;
@@ -112,6 +122,9 @@ export interface ExportedSetupConfig {
 
 export interface ExportedFormSchema {
   gridBaseColumns: number;
+  // Funciones y constantes compartidas por todos los scripts. Va una sola vez y no repetido
+  // dentro de cada `compiled`: quien ejecute lo antepone al cuerpo del campo.
+  prelude?: string;
   steps: ExportedStep[];
 }
 

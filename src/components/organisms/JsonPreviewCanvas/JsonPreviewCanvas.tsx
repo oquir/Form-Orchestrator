@@ -8,11 +8,12 @@ export function JsonPreviewCanvas() {
   const formSteps = useFormStore((state) => state.formSteps);
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
+  const formScript = useFormStore((state) => state.formScript);
   const [copied, setCopied] = useState<boolean>(false);
 
   const json: string = useMemo(
-    () => JSON.stringify(buildFormExport(formSteps, setupConfig, introSteps), null, 2),
-    [formSteps, setupConfig, introSteps],
+    () => JSON.stringify(buildFormExport(formSteps, setupConfig, introSteps, formScript), null, 2),
+    [formSteps, setupConfig, introSteps, formScript],
   );
 
   const handleCopy = async (): Promise<void> => {

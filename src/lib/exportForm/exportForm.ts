@@ -11,6 +11,7 @@ export function buildFormExport(
   formSteps: FormStep[],
   setupConfig: SetupConfig,
   introModalSteps: IntroModalStep[],
+  formScript: string,
 ): FormExport {
   // El indice cubre los dos lienzos a la vez porque los ids se traducen a nombres al salir:
   // hacia afuera un campo se identifica por su nombre tecnico, nunca por su uuid.
@@ -19,6 +20,10 @@ export function buildFormExport(
     ...introModalSteps.flatMap((step) => step.rows),
   ];
   const names: Map<string, string> = buildNameIndex(allRows);
+  // El compilador del script necesita saber que nombres existen para decidir que {x} es un campo
+  // y que {x} es JS del autor. Se arma una vez y baja a cada paso.
+  const knownNames: Set<string> = new Set(names.values());
+  const prelude: string = formScript.trim();
 
   return {
     projectMeta: {
@@ -35,14 +40,15 @@ export function buildFormExport(
               stepId: step.stepId,
               title: step.title,
               subtitle: step.subtitle || undefined,
-              rows: mapRows(step.rows, names),
+              rows: mapRows(step.rows, names, knownNames),
             })),
           }
         : undefined,
     },
     formSchema: {
       gridBaseColumns: GRID_BASE_COLUMNS,
-      steps: formSteps.map((step) => mapFormStep(step, names)),
+      prelude: prelude.length > 0 ? prelude : undefined,
+      steps: formSteps.map((step) => mapFormStep(step, names, knownNames)),
     },
   };
 }
@@ -51,8 +57,9 @@ export function downloadFormExport(
   formSteps: FormStep[],
   setupConfig: SetupConfig,
   introModalSteps: IntroModalStep[],
+  formScript: string,
 ): void {
-  const data: FormExport = buildFormExport(formSteps, setupConfig, introModalSteps);
+  const data: FormExport = buildFormExport(formSteps, setupConfig, introModalSteps, formScript);
   const blob: Blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const anchor: HTMLAnchorElement = document.createElement("a");

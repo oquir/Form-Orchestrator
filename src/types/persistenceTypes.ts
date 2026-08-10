@@ -3,8 +3,10 @@ import type { FormStep, IntroModalState } from "./formStructure";
 import type { SetupConfig } from "./setup";
 
 export interface DraftPayload {
+  schemaVersion: number;
   formSteps: FormStep[];
   introModal: IntroModalState;
+  formScript: string;
   savedComponents: SavedComponent[];
   setupConfig: SetupConfig;
   savedAt: string;

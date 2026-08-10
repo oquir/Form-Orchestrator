@@ -34,6 +34,10 @@ export interface OptionsSetup {
 export interface FormState {
   formSteps: FormStep[];
   introModal: IntroModalState;
+  // Preludio: funciones y constantes que todos los scripts de campo ven en ambito. No lee campos
+  // -- {campo} no vale aca -- porque fuera de todo ambito, y sobre todo dentro de un grupo
+  // repetible, esa pregunta no tiene una respuesta unica.
+  formScript: string;
   activeCanvas: CanvasTarget;
   selectedFieldId: string | null;
   savedComponents: SavedComponent[];
@@ -118,6 +122,8 @@ export interface FormState {
   removeFieldValidationOverride: (fieldId: string, overrideId: string) => void;
   updateFieldStyles: (fieldId: string, updates: Partial<FieldStyles>) => void;
   updateFieldLogic: (fieldId: string, updates: Partial<Pick<FieldLogic, "typeScript">>) => void;
+  setFieldScript: (fieldId: string, script: string) => void;
+  setFormScript: (script: string) => void;
   setFieldFormula: (fieldId: string, formula: string) => void;
   addFieldRule: (fieldId: string) => void;
   updateFieldRule: (
@@ -139,6 +145,7 @@ export interface FormState {
   restoreDraft: (draft: {
     formSteps: FormStep[];
     introModal: IntroModalState;
+    formScript: string;
     savedComponents: SavedComponent[];
     setupConfig: SetupConfig;
   }) => void;

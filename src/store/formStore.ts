@@ -94,6 +94,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     },
   ],
   introModal: { steps: [] },
+  formScript: "",
   activeCanvas: { type: "formStep", stepId: "step-1" },
   selectedFieldId: null,
   savedComponents: [],
@@ -755,6 +756,16 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         logic: { ...field.logic, ...updates },
       })),
     ),
+  // Un script en blanco se guarda como ausente y no como cadena vacia: asi "este campo no se
+  // calcula" es una sola cosa en el modelo y el export no lleva la clave.
+  setFieldScript: (fieldId, script) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        logic: { ...field.logic, script: script.trim().length > 0 ? script : undefined },
+      })),
+    ),
+  setFormScript: (script) => set({ formScript: script }),
   setFieldFormula: (fieldId, formula) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
@@ -925,6 +936,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     set({
       formSteps: draft.formSteps,
       introModal: draft.introModal,
+      formScript: draft.formScript,
       savedComponents: draft.savedComponents,
       setupConfig: draft.setupConfig,
       activeCanvas: { type: "formStep", stepId: draft.formSteps[0].stepId },

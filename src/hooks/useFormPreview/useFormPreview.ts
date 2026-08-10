@@ -20,12 +20,13 @@ export function useFormPreview(): FormPreviewApi {
   const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
   const catalogBank = useFormStore((state) => state.catalogBank);
+  const formScript = useFormStore((state) => state.formScript);
 
   // El simulador solo ve el JSON exportado. Si algo falta en el contrato, se rompe aca igual
   // que se romperia en el aplicativo que lo consume.
   const model: RuntimeModel = useMemo(
-    () => buildRuntimeModel(buildFormExport(formSteps, setupConfig, introSteps)),
-    [formSteps, setupConfig, introSteps],
+    () => buildRuntimeModel(buildFormExport(formSteps, setupConfig, introSteps, formScript)),
+    [formSteps, setupConfig, introSteps, formScript],
   );
 
   const [state, setState] = useState<PreviewState>(() => createInitialState(model));

@@ -14,8 +14,9 @@ export function useSaveButton(): UseSaveButtonResult {
   const previousSavedAtRef = useRef<string | null>(lastSavedAt);
 
   function handleSave(): void {
-    const { formSteps, introModal, savedComponents, setupConfig } = useFormStore.getState();
-    saveDraft({ formSteps, introModal, savedComponents, setupConfig });
+    const { formSteps, introModal, formScript, savedComponents, setupConfig } =
+      useFormStore.getState();
+    saveDraft({ formSteps, introModal, formScript, savedComponents, setupConfig });
     markSaved();
   }
 

@@ -3,6 +3,7 @@ import type {
   ExportedRepeatableGroup,
   ExportedRow,
   ExportedRule,
+  ExportedScript,
   ExportedStep,
   ExportedValidations,
   ExportedValidationVariant,
@@ -12,6 +13,7 @@ import type { CanvasRow, FormStep } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
+import { compileScript } from "../fieldScript/fieldScript";
 import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
 import {
@@ -80,6 +82,24 @@ export function resolveDependencies(field: CanvasField, names: Map<string, strin
   return field.logic.dependencies.map((id) => names.get(id) ?? id);
 }
 
+// El script se compila aca y no del lado del consumidor: {campo} no es JS, y hacer que cada
+// consumidor implemente el recorrido que distingue codigo de texto seria repartir la parte
+// delicada. Sale ya en JS, con las dependencias que declara al leerlas.
+export function resolveScript(
+  field: CanvasField,
+  knownNames: Set<string>,
+): ExportedScript | undefined {
+  // Un campo presentacional no tiene valor que calcular, igual que no tiene validaciones.
+  if (isPresentationalField(field.type)) return undefined;
+
+  const source: string = field.logic.script ?? "";
+  if (source.trim().length === 0) return undefined;
+
+  const { code, reads } = compileScript(source, knownNames);
+
+  return { source, compiled: code, reads };
+}
+
 export function resolveRules(
   field: CanvasField,
   names: Map<string, string>,
@@ -114,7 +134,11 @@ export function resolveDataSource(
   };
 }
 
-export function mapRows(rows: CanvasRow[], names: Map<string, string>): ExportedRow[] {
+export function mapRows(
+  rows: CanvasRow[],
+  names: Map<string, string>,
+  knownNames: Set<string>,
+): ExportedRow[] {
   return rows.map((row) => ({
     rowId: row.id,
     columns: row.columns,
@@ -131,6 +155,7 @@ export function mapRows(rows: CanvasRow[], names: Map<string, string>): Exported
       // es justamente como el consumidor sabe que un campo presentacional no valida nada.
       validations: resolveValidations(field, names),
       logic: {
+        script: resolveScript(field, knownNames),
         dependencies: resolveDependencies(field, names),
         typeScript: field.logic.typeScript,
         formula: field.logic.formula,
@@ -165,12 +190,16 @@ export function mapGroups(step: FormStep): ExportedRepeatableGroup[] | undefined
   }));
 }
 
-export function mapFormStep(step: FormStep, names: Map<string, string>): ExportedStep {
+export function mapFormStep(
+  step: FormStep,
+  names: Map<string, string>,
+  knownNames: Set<string>,
+): ExportedStep {
   return {
     stepId: step.stepId,
     title: step.title,
     subtitle: step.subtitle || undefined,
-    rows: mapRows(step.rows, names),
+    rows: mapRows(step.rows, names, knownNames),
     groups: mapGroups(step),
   };
 }
