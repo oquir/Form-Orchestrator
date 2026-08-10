@@ -37,6 +37,14 @@
 
   --ui-success: var(--color-emerald-600);
   --ui-info: var(--color-sky-600);
+
+  /* Coloreado del editor de scripts. Va como tokens y no dentro del tema de CodeMirror para que
+     el modo oscuro salga por el mismo camino que el resto de la app. */
+  --ui-code-keyword: var(--color-violet-600);
+  --ui-code-string: var(--color-emerald-700);
+  --ui-code-number: var(--color-sky-700);
+  --ui-code-comment: var(--color-slate-400);
+  --ui-code-fn: var(--color-blue-600);
 }
 
 .dark {
@@ -74,6 +82,12 @@
 
   --ui-success: var(--color-emerald-400);
   --ui-info: var(--color-sky-400);
+
+  --ui-code-keyword: var(--color-violet-400);
+  --ui-code-string: var(--color-emerald-400);
+  --ui-code-number: var(--color-sky-400);
+  --ui-code-comment: var(--color-neutral-500);
+  --ui-code-fn: var(--color-blue-400);
 }
 
 @theme inline {

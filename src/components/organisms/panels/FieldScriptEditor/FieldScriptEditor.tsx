@@ -64,6 +64,7 @@ export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps)
         label="Script"
         value={source}
         rows={8}
+        knownNames={knownNames}
         placeholder={SCRIPT_PLACEHOLDER}
         insertCandidates={candidates}
         onChange={(next) => setFieldScript(field.id, next)}

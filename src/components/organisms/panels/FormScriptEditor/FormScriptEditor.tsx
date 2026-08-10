@@ -41,6 +41,7 @@ export function FormScriptEditor() {
         label="Funciones compartidas"
         value={formScript}
         rows={12}
+        knownNames={knownNames}
         placeholder={PRELUDE_PLACEHOLDER}
         onChange={setFormScript}
       />
