@@ -1,5 +1,9 @@
 # Especificación del Proyecto: Orquestador y Constructor de Formularios Dinámicos (Form Orquestator)
 
+> **Este documento es la especificación original y se deja tal cual fue escrita.** No describe el estado actual del código: es la referencia de intención, y sobre todo de la forma del JSON destino. Donde la implementación difiere, manda `CLAUDE.md`.
+>
+> La diferencia más grande está en el punto 4 y en el ejemplo de JSON: el `logic` real es `{script?, rules?}`, no `{dependencies, typeScript}`. El cálculo de un campo se escribe como código —lo que pedía el punto 4— pero con `{campo}` en vez de `getFieldValue('campo')`, y el editor terminó siendo CodeMirror y no Monaco. El camino fue de ida y vuelta: primero se construyó un lenguaje de fórmulas propio que esta especificación no pedía, y después se reemplazó por el script, que es lo que estaba escrito acá desde el principio.
+
 ## 1. Descripción General
 Desarrollar una aplicación web interactiva que actúe como un orquestador para la creación de formularios paso a paso (step-by-step). El sistema debe permitir la construcción visual mediante `Drag and Drop` (DnD), inyección de lógica personalizada (TS), manejo de campos dependientes, sistema de grillas personalizable y almacenamiento temporal. El resultado final del flujo debe ser la compilación de toda la configuración en un único archivo JSON estructural.
 

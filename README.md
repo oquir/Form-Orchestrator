@@ -11,9 +11,9 @@ El caso de uso que guía el diseño es el **autoliquidable de Industria y Comerc
 - **@dnd-kit** para drag-and-drop (paleta → fila, Almacén de Partes → fila, campo → fila)
 - **react-hook-form** + **zod 4** para la validación de los campos generados (los schemas Zod se generan dinámicamente por campo y se guardan como string, ej. `"z.number().min(0)"`)
 - **Tailwind v4** (vía `@tailwindcss/vite`) para todo el estilado — sin CSS-in-JS. Modo oscuro por clase, con tokens de tema en `src/index.css`
+- **CodeMirror 6** (`@codemirror/*`) para el editor de scripts, cargado bajo demanda
 - **uuid** para generar ids de campos/filas/steps
 - **reicon-react** para íconos
-- **@uiw/react-json-view** para las vistas de JSON (`JsonPreviewCanvas` y `PayloadPreviewCanvas`)
 - **Biome** como linter/formatter (2 espacios, comillas dobles, semicolons, 100 cols, organiza imports)
 
 Package manager: **bun**. No usar npm/yarn/pnpm.
@@ -41,6 +41,7 @@ Un único store de Zustand, `src/store/formStore.ts` (`useFormStore`), con los c
 - `formSteps`: los steps del formulario principal, cada uno con `stepId`, `title`, `subtitle` opcional, sus `rows` y sus `groups` opcionales.
 - `introModal.steps`: steps de un modal introductorio opcional, con la misma forma pero **sin** grupos.
 - `activeCanvas`: qué canvas se está editando (`{ type: "formStep", stepId }` o `{ type: "introStep", stepId }`).
+- `formScript`: el preludio, funciones y constantes compartidas por todos los scripts de campo.
 - `selectedFieldId`, `savedComponents` (Almacén de Partes), `setupConfig`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `isDarkMode`, `lastSavedAt`.
 
 Las mutaciones de campos y filas se aplican de forma uniforme sobre cualquier canvas que contenga el id objetivo, vía `mapRowEverywhere`/`mapFieldEverywhere`, así el mismo código edita tanto el formulario principal como los steps del modal.
@@ -66,13 +67,13 @@ Manteniendo **Shift** mientras arrastrás elegís la columna de inicio; con **Sh
 > Un `X.types.ts` o `X.constants.ts` es **privado a su carpeta**. En cuanto algo de afuera lo importa, la declaración pasa a `src/types/` o `src/constants/`. Ambas direcciones están auditadas en cero.
 
 - **`atoms/`** — primitivas sin lógica de negocio: `Button`, `Input`, `TextArea`, `Label`, `Checkbox`, `CodeBlock`, `IconButton`, `FieldTypeBadge`, `FieldDragHandle`, `FieldResizeHandle`, `DashedAddButton`, `ModalShell`, `ModalActions`, `TwoColumnFieldGroup`, `WizardFooterActions`, `RichTextView`.
-- **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledTextarea`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `FormulaInput`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `ConditionActivationToggle`, `DependencyCheckboxRow`, `GeneratedSchemaPreview`, `SaveFieldForm`, `SavedComponentListItem`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`.
-- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `ApiMappingPanel`, `LibraryPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`).
+- **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `ScriptInput`, `ScriptEditor`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `GeneratedSchemaPreview`, `SaveFieldForm`, `SavedComponentListItem`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `PanelSection`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `JsonCode`, `TooltipBubble`, `PreviewTooltip`, `TransferNotice`, `ValidationOverrideCard`.
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `FieldScriptEditor`, `FormScriptEditor`, `ApiMappingPanel`, `LibraryPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`).
 - **`layout/AppLayout.tsx`** — shell de dos columnas, fuera de la jerarquía atómica porque es el layout raíz.
 
 ### Layout de dos columnas
 
-- **Sidebar izquierdo** (`organisms/Sidebar/`): un rail vertical de íconos (`SidebarTabRail`, incluye el toggle de modo oscuro) más el panel correspondiente. Las pestañas son Campos, Atributos, Validaciones, Estilos, Lógica, Mapeo API y Almacén. Al hacer clic sobre la pestaña ya activa, el panel se colapsa; el rail siempre queda visible.
+- **Sidebar izquierdo** (`organisms/Sidebar/`): un rail vertical de íconos (`SidebarTabRail`, incluye el toggle de modo oscuro) más el panel correspondiente. Las pestañas son Campos, Atributos, Validaciones, Estilos, Lógica, Mapeo API, Almacén y Catálogos. Campos, Almacén, Catálogos y Lógica funcionan sin ningún campo seleccionado — en Lógica, sin selección, se edita el preludio del formulario. Al hacer clic sobre la pestaña ya activa, el panel se colapsa; el rail siempre queda visible.
 - **Canvas derecho** (`organisms/Canvas/`): una grilla por fila (`@dnd-kit` `useDroppable`), tabs para cambiar entre steps del formulario y del modal, editor de título/subtítulo, control de columnas por fila, redimensionado de campos por arrastre y menú contextual por campo. El encabezado trae el botón de guardar, "Ver JSON" (`JsonPreviewCanvas`, vista previa en vivo del export), la vista de cobertura del contrato (`PayloadPreviewCanvas`) y "Exportar JSON".
 
 El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; el `DndContext`/`DragOverlay` los arma `organisms/FormBuilder/`, que es lo único que envuelve al `AppLayout`.
@@ -85,7 +86,8 @@ Cada hook vive en su propia carpeta, igual que los componentes:
 
 - **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S), `useDraftRecovery`.
 - **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`.
-- **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`.
+- **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useRichTextEditor`, `useJsonCode`.
+- **Simulador** — `useFormPreview` (el único que toca el store, y solo para alimentar el export), `usePreviewNavigation`, `usePreviewSearchSelect`.
 - **Genéricos** — `useClickOutside`.
 
 ### Tipos de campo
@@ -100,7 +102,7 @@ Se declaran en `FIELD_TYPES` (`src/constants/fieldTypes.ts`) y se agrupan por ca
 
 ### Campos presentacionales
 
-Los tipos de la categoría Contenido **no reciben ningún valor**: solo muestran texto. Conservan estilos, tamaño, posición y visibilidad condicional; no tienen validaciones, no se mapean al payload, no generan schema Zod y no aparecen como candidatos de condición ni de fórmula. El predicado es `isPresentationalField` (`src/lib/fieldKind/`).
+Los tipos de la categoría Contenido **no reciben ningún valor**: solo muestran texto. Conservan estilos, tamaño, posición y visibilidad condicional; no tienen validaciones, no se mapean al payload, no generan schema Zod y no aparecen como candidatos de condición ni de script. El predicado es `isPresentationalField` (`src/lib/fieldKind/`).
 
 - **`label`** — una etiqueta suelta que puede **ligarse a un campo** vía `labelFor`. El campo ligado deja de mostrar su propia etiqueta. La relación es 1:1 y se limpia sola si borrás el campo destino.
 - **`rich_text`** — un bloque de texto con negrita, cursiva, subrayado y enlaces. **El contenido se guarda estructurado, no como HTML**, así el consumidor lo pinta con componentes y nunca necesita `dangerouslySetInnerHTML`. El serializador funciona como sanitizador: recorre el DOM con lista blanca, y los enlaces solo admiten `http`, `https` y `mailto`.
@@ -123,13 +125,32 @@ Un grupo repetible es una **marca sobre la fila** (`CanvasRow.groupId`), no un c
 
 Cada grupo lleva `min`, `max` y un `arrayPath` que lo ata a un arreglo del contrato (por defecto 1 a 15 sobre `actividades`, la regla de ICA, pero es parametrizable). Sacar un campo del grupo limpia su mapeo, porque una ruta dentro del item no significa nada afuera.
 
-### Fórmulas y reglas
+### Cálculo: el script del campo
 
-`src/lib/formula/` implementa un pequeño lenguaje aritmético propio — tokenizador más descenso recursivo, **sin `eval`**. Funciones: `abs`, `min`, `max`, `sum`, `round`, `floor`, `ceil`. Agregaciones sobre un grupo repetible: `sumOf(campo)` y `countOf(campo)`.
+**El valor de un campo se calcula en un solo lugar: `logic.script`**, JavaScript con `{campo}` para leer otros campos.
 
-Además de la fórmula, un campo puede llevar **reglas** (`FieldRule`): un conjunto de condiciones y los efectos que se aplican si se cumplen (una fórmula o un valor constante).
+```js
+return {total_ingresos_nacionales} - {ingresos_fuera_municipio};
+```
 
-`src/lib/fieldGraph/` unifica **seis** fuentes de dependencias en un solo grafo —`visibleWhen`, `enableWhen`, las condiciones de las reglas, las referencias dentro de las fórmulas de las reglas, las de `logic.formula` y `logic.dependencies`— y detecta ciclos, que es lo que impide armar un cálculo circular desde la interfaz.
+Antes había tres mecanismos compitiendo por la misma pregunta: un lenguaje aritmético propio, un editor de reglas y un textarea de "script TypeScript" que se exportaba y nunca se ejecutaba. Ahora hay uno.
+
+El contrato:
+
+- **`return` da el valor del campo. `return undefined` deja lo que haya escrito el usuario** — el campo no queda marcado como calculado y sigue siendo editable.
+- En ámbito: `value` (el valor actual del campo), `index` (la repetición dentro de un grupo) y los helpers `num`, `sum`, `count`, `abs`, `min`, `max`, `round`, `floor`, `ceil`, `dvNit`.
+- Dentro de un grupo repetible, `{hermano}` es el escalar de esa fila; desde afuera, `{columna}` es el arreglo completo. `sum` aplana arreglos, así que un total de columna es `sum({impuesto_actividad})`.
+- Un resultado no finito sale como `null`, que es como se comporta la división por cero.
+
+**Solo se sustituye `{x}` cuando `x` es el nombre de un campo que existe.** Esa única regla es la que deja convivir la sintaxis con JavaScript: un `const {a} = obj` queda intacto. Por eso una referencia desconocida es un **aviso y no un error** — no hay forma de distinguir un typo de una desestructuración.
+
+El **preludio** (`formScript`) es del formulario entero: funciones y constantes que todos los scripts ven en ámbito, para los cálculos que se repiten en varios renglones. Se edita en la pestaña Lógica sin ningún campo seleccionado. **No puede leer campos**: los valores entran por parámetro.
+
+Las **reglas** (`FieldRule`) sobrevivieron a propósito: no son otro lenguaje sino una estructura declarativa —condición más efecto— y su efecto habla el mismo script. Corren **después** del script del campo y pisan lo que haya devuelto, en el orden de la lista.
+
+`src/lib/fieldGraph/` unifica **cuatro** fuentes de dependencias en un solo grafo —`visibleWhen`, `enableWhen`, las condiciones de las reglas y las referencias `{campo}` del script y de los efectos— y detecta ciclos. En el editor de script el ciclo se **avisa**, no se bloquea: es texto libre y trabar la escritura a mitad de una palabra sería pelearse con quien escribe.
+
+El editor es **CodeMirror 6** con resaltado, autocompletado de campos al escribir `{` y subrayado de las referencias que no existen. Va detrás de un `React.lazy`: son 457 kB que no se bajan hasta abrir la pestaña Lógica, con el textarea de siempre como respaldo mientras tanto.
 
 ### Condiciones
 
@@ -167,7 +188,9 @@ En el simulador, la etiqueta **"Catálogo simulado"** debajo de un campo indica 
 
 ### Persistencia
 
-`src/hooks/useAutosave/` + `src/lib/persistence/`: autoguarda el store en `localStorage` cada 3 minutos una vez completado el setup, y `Ctrl/Cmd+S` hace lo mismo. `DraftRecoveryModal` ofrece restaurar o descartar el borrador al iniciar. El borrador se **valida con Zod** antes de usarse: si no cuadra, se descarta en vez de corromper el estado.
+`src/hooks/useAutosave/` + `src/lib/persistence/`: autoguarda el store en `localStorage` cada 3 minutos una vez completado el setup, y `Ctrl/Cmd+S` hace lo mismo. `DraftRecoveryModal` ofrece restaurar o descartar el borrador al iniciar.
+
+El borrador lleva **versión de esquema** y se **migra antes de validarse con Zod**: un borrador guardado por una versión anterior de la app se actualiza en vez de perderse. Si aun así no cuadra, se descarta entero en vez de corromper el estado — y se avisa, no se pierde en silencio.
 
 ### Setup inicial
 
@@ -175,7 +198,7 @@ En el simulador, la etiqueta **"Catálogo simulado"** debajo de un campo indica 
 
 ### Simulador
 
-El botón **Simulador**, al lado de "Exportar JSON", abre el formulario funcionando a pantalla completa: sin sidebar ni lienzo, como lo vería el contribuyente. Controles reales, condiciones que prenden y apagan campos, fórmulas que liquidan, grupos repetibles con agregar y quitar, y el payload de la API armándose en vivo en el panel lateral.
+El botón **Simulador**, al lado de "Exportar JSON", abre el formulario funcionando a pantalla completa: sin sidebar ni lienzo, como lo vería el contribuyente. Controles reales, condiciones que prenden y apagan campos, scripts que liquidan, grupos repetibles con agregar y quitar, y el payload de la API armándose en vivo en el panel lateral.
 
 Lo importante es de dónde saca los datos: **consume el JSON exportado y nada más**. No lee el store del builder. Si algo falta en el contrato, el simulador se rompe igual que se rompería el aplicativo que recibe el JSON, así que sirve de prueba viva y no solo de demo.
 
@@ -184,26 +207,25 @@ La validación es **por paso**: "Siguiente" valida únicamente los campos de esa
 Tres cosas que el simulador deja a la vista:
 
 - Los campos con opciones mapeadas no traen opciones en el JSON, porque las inyecta el consumidor desde el catálogo. El simulador genera tres opciones falsas y las marca como **catálogo simulado**.
-- `logic.typeScript` **no se ejecuta**: es código arbitrario y no dice nada sobre si el formulario está bien armado.
 - **No aplica los estilos del campo** — ver los gaps conocidos más abajo.
 
 ### Exportación
 
 `src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.
 
-Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (incluidas `formula` y `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `enableWhen` y `visibleWhen`.
+Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
 
 Dos detalles del contrato:
 
-- Los ids de campo en condiciones, reglas, dependencias y `labelFor` salen **resueltos a nombre**, así el consumidor no necesita el mapa de uuids.
+- Los ids de campo en condiciones, reglas y `labelFor` salen **resueltos a nombre**, así el consumidor no necesita el mapa de uuids.
+- El `script` sale **compilado a JS**, con `{campo}` ya sustituido, más la fuente original para poder reeditarla y la lista de campos que lee. El consumidor solo necesita `new Function`.
 - `validations.zodSchema` es **opcional**: los campos presentacionales lo omiten, y su ausencia es cómo el consumidor sabe que ahí no hay nada que validar.
 
 ## Gaps conocidos / no implementado
 
-- No hay editor de código estilo Monaco para la tab de Lógica — `LogicPanel` edita `logic.typeScript` como string plano. Todo el resto de esa pestaña (fórmula, reglas, condiciones) sí tiene interfaz.
-- `logic.typeScript` se exporta como string crudo; el consumidor necesita `new Function()`/`eval` para ejecutarlo. **Esto define el límite de confianza del archivo**: cualquiera que le pueda entregar un JSON al consumidor obtiene ejecución de código en él. Es una decisión coordinada, no una restricción de API pública.
-- No hay versionado de schema en el borrador de `localStorage`; si cambia la forma del store, los borradores viejos se descartan al cargar. Se pierde el trabajo guardado, en silencio.
-- **Renglón 35 (`valor_a_pagar`) no tiene fórmula**, así que la cadena de liquidación se corta ahí: el renglón 33 calcula un total que el 38 nunca recoge. Falta definir de dónde sale.
+- El `script` se exporta compilado a JS y el consumidor lo ejecuta con `new Function`. **Esto define el límite de confianza del archivo**: cualquiera que le pueda entregar un JSON al consumidor obtiene ejecución de código en él. Es una decisión coordinada, no una restricción de API pública.
+- **Un bucle infinito en un script congela la pestaña.** No hay defensa barata en el hilo principal; la salida real sería un Web Worker con timeout. Riesgo asumido: quien escribe el script es quien lo prueba.
+- **Renglón 35 (`valor_a_pagar`) no tiene cálculo**, así que la cadena de liquidación se corta ahí: el renglón 33 calcula un total que el 38 nunca recoge. Falta definir de dónde sale.
 - **`dataSource` solo lo usan `departamento` y `municipio`.** Los demás selects de catálogo (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `clasificacion_contribuyente`, el `search_select` de actividad) siguen dependiendo de que el consumidor infiera el catálogo desde `apiBinding.path`. Declararlos es una entrada en `CATALOGS` y un check en el panel de mapeo, pero antes hay que acordar los nombres de catálogo con el otro proyecto. Sigue abierto: `FieldOption.id` es un uuid, así que una opción escrita a mano no tiene id de catálogo que enviar.
 - Los selects mapeados a hojas `number` muestran una advertencia **`⚠ tipo`** permanente (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `municipio`, `clasificacion_contribuyente` y el `search_select` de actividad). El id de catálogo es numérico, pero `fieldMatchesSchemaType` no deja que un tipo con opciones case con `number`.
 - Un campo del formulario no puede condicionar contra un campo del modal introductorio: la lista de candidatos sale solo de `formSteps`.
