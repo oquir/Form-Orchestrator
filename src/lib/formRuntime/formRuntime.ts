@@ -6,6 +6,7 @@ import type {
 } from "../../types/exportForm";
 import type {
   PreviewState,
+  RuntimeIssue,
   RuntimeModel,
   RuntimeScope,
   RuntimeSnapshot,
@@ -57,6 +58,7 @@ export function buildRuntimeModel(exported: FormExport): RuntimeModel {
     introSteps,
     hasIntroModal: exported.setupConfig.hasIntroModal && introSteps.length > 0,
     gridBaseColumns: exported.formSchema.gridBaseColumns,
+    prelude: exported.formSchema.prelude ?? "",
     fieldsByName,
     groupsById,
     groupIdByFieldName,
@@ -88,7 +90,7 @@ export function resolveRuntime(model: RuntimeModel, state: PreviewState): Runtim
 
   // Pasada 2: el root ya ve las columnas del grupo como arrays (sumOf/countOf).
   const rootBase: RuntimeValues = { ...state.values, ...groupColumns(model, firstPass) };
-  const rootDerived: DerivedResult = computeDerivedValues(model.rootFields, rootBase);
+  const rootDerived: DerivedResult = computeDerivedValues(model.rootFields, rootBase, model);
 
   // Pasada 3: los grupos se recalculan con el root ya resuelto.
   const finalGroups: Record<string, RuntimeValues[]> = resolveGroupValues(
@@ -99,6 +101,7 @@ export function resolveRuntime(model: RuntimeModel, state: PreviewState): Runtim
 
   const groups: Record<string, RuntimeScope[]> = {};
   const cycles: string[] = [...(rootDerived.cycle ?? [])];
+  const issues: RuntimeIssue[] = [...rootDerived.issues];
 
   for (const [groupId, fields] of model.groupFields) {
     groups[groupId] = (state.groups[groupId] ?? []).map((_, index) => {
@@ -106,8 +109,9 @@ export function resolveRuntime(model: RuntimeModel, state: PreviewState): Runtim
         ...rootDerived.values,
         ...(finalGroups[groupId]?.[index] ?? {}),
       };
-      const derived: DerivedResult = computeDerivedValues(fields, base);
+      const derived: DerivedResult = computeDerivedValues(fields, base, model, index);
       if (derived.cycle) cycles.push(...derived.cycle);
+      issues.push(...derived.issues);
 
       return buildScope(fields, derived.values, derived.computed);
     });
@@ -117,7 +121,25 @@ export function resolveRuntime(model: RuntimeModel, state: PreviewState): Runtim
     root: buildScope(model.rootFields, rootDerived.values, rootDerived.computed),
     groups,
     cycle: cycles.length > 0 ? [...new Set(cycles)] : null,
+    issues: dedupeIssues(issues),
   };
+}
+
+// Un script roto dentro de un grupo falla una vez por repeticion, y el mismo calculo pasa por tres
+// pasadas: sin esto, un error se listaria cuarenta y cinco veces sobre quince actividades.
+function dedupeIssues(issues: RuntimeIssue[]): RuntimeIssue[] {
+  const seen = new Set<string>();
+  const unique: RuntimeIssue[] = [];
+
+  for (const issue of issues) {
+    const key: string = `${issue.kind}|${issue.field ?? ""}|${issue.message}`;
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    unique.push(issue);
+  }
+
+  return unique;
 }
 
 // Un ambito por repeticion, no una bolsa comun: cada fila del grupo resuelve a sus hermanas de
@@ -131,9 +153,14 @@ function resolveGroupValues(
   const resolved: Record<string, RuntimeValues[]> = {};
 
   for (const [groupId, fields] of model.groupFields) {
-    resolved[groupId] = (state.groups[groupId] ?? []).map((item) => {
+    resolved[groupId] = (state.groups[groupId] ?? []).map((item, index) => {
       // La fila pisa al root: un campo del grupo gana al campo suelto que se llame igual.
-      const derived: DerivedResult = computeDerivedValues(fields, { ...rootValues, ...item });
+      const derived: DerivedResult = computeDerivedValues(
+        fields,
+        { ...rootValues, ...item },
+        model,
+        index,
+      );
       const scoped: RuntimeValues = {};
 
       // Solo se devuelven las columnas del grupo; los valores del root vuelven por su lado.

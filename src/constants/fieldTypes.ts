@@ -10,6 +10,10 @@ export const OPTION_BASED_FIELD_TYPES: string[] = [
 
 export const MULTI_VALUE_FIELD_TYPES: string[] = ["checkbox_group"];
 
+// Los que llevan numero. `calculated` y `number` son el mismo comportamiento; lo unico que hace
+// de verdad a un campo de solo lectura es alwaysDisabled.
+export const NUMERIC_FIELD_TYPES: string[] = ["number", "calculated"];
+
 export const PRESENTATIONAL_FIELD_TYPES: string[] = ["label", "rich_text"];
 
 export const TOOLTIP_CAPABLE_FIELD_TYPES: string[] = [

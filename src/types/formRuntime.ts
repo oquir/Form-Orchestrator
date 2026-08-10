@@ -13,6 +13,9 @@ export interface RuntimeSnapshot {
   root: RuntimeScope;
   groups: Record<string, RuntimeScope[]>;
   cycle: string[] | null;
+  // Lo que fallo al calcular. Viaja en el snapshot y no en la validacion porque se descubre
+  // ejecutando, no validando; validateRuntime lo junta con el resto para mostrarlo en un solo sitio.
+  issues: RuntimeIssue[];
 }
 
 export interface PreviewState {
@@ -25,6 +28,7 @@ export interface RuntimeModel {
   introSteps: ExportedStep[];
   hasIntroModal: boolean;
   gridBaseColumns: number;
+  prelude: string;
   fieldsByName: Map<string, ExportedField>;
   groupsById: Map<string, ExportedRepeatableGroup>;
   groupIdByFieldName: Map<string, string>;
@@ -34,7 +38,7 @@ export interface RuntimeModel {
 }
 
 export interface RuntimeIssue {
-  kind: "cycle" | "schema" | "regex" | "typescript";
+  kind: "cycle" | "schema" | "regex" | "script";
   field?: string;
   message: string;
 }

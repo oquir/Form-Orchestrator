@@ -89,3 +89,9 @@ export const SCRIPT_PARAM_NAMES: string[] = [
   ...SCRIPT_CONTEXT_PARAMS,
   ...Object.keys(SCRIPT_HELPERS),
 ];
+
+// La contraparte de los nombres de arriba, derivada del mismo objeto para que no puedan
+// desalinearse: si se declararan por separado, agregar un helper en un lado y no en el otro
+// correria todos los argumentos siguientes sin que nada avise.
+export const SCRIPT_HELPER_VALUES: ((...args: unknown[]) => number)[] =
+  Object.values(SCRIPT_HELPERS);

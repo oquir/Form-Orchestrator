@@ -7,16 +7,21 @@ import type { DerivedPlan } from "./runtimeFormula.types";
 // resolvieron. Es el gemelo de fieldGraph, que hace lo mismo del lado del builder sobre el modelo.
 
 export function isDerivedField(field: ExportedField): boolean {
+  const hasScript: boolean = Boolean(field.logic.script);
   const hasFormula: boolean = Boolean(field.logic.formula && field.logic.formula.trim() !== "");
   const hasRules: boolean = Boolean(field.logic.rules && field.logic.rules.length > 0);
 
-  return hasFormula || hasRules;
+  return hasScript || hasFormula || hasRules;
 }
 
-// Un campo depende tanto de lo que leen sus formulas como de lo que miran las condiciones de sus
-// reglas: si la condicion observa un campo calculado, ese tiene que resolverse antes.
+// Un campo depende de lo que lee su script, de lo que leen sus formulas y de lo que miran las
+// condiciones de sus reglas: si la condicion observa un campo calculado, ese va antes.
+// Las dependencias del script llegan ya resueltas en `reads`, calculadas al exportar.
 export function fieldRefs(field: ExportedField, asts: Map<string, FormulaNode | null>): string[] {
-  const refs: string[] = [...collectFormulaRefs(asts.get(field.name) ?? null)];
+  const refs: string[] = [
+    ...(field.logic.script?.reads ?? []),
+    ...collectFormulaRefs(asts.get(field.name) ?? null),
+  ];
 
   for (const rule of field.logic.rules ?? []) {
     for (const condition of rule.when) refs.push(condition.field);

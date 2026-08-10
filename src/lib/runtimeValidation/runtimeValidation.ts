@@ -27,7 +27,7 @@ export function validateRuntime(model: RuntimeModel, snapshot: RuntimeSnapshot):
     });
   }
 
-  return { errors, issues: [...issues, ...cycleIssues(snapshot)] };
+  return { errors, issues: [...issues, ...snapshot.issues, ...cycleIssues(snapshot)] };
 }
 
 function collectErrors(
