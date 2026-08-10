@@ -31,7 +31,7 @@ import { buildRow, resolveTemplateConditions } from "./baseTemplate.utils";
 
 // Los ocho pasos del formulario de industria y comercio, escritos como filas de FieldSpec.
 // Es el unico tipo de formulario con plantilla; los demas arrancan con una fila vacia.
-// Los renglones calculados llevan formula y alwaysDisabled, y la cadena de liquidacion sube de la
+// Los renglones calculados llevan script y alwaysDisabled, y la cadena de liquidacion sube de la
 // base gravable al total a pagar. SALDO_NETO es la subexpresion que comparten el 33 y el 34.
 
 // Un NIT identifica a una persona juridica: no tiene nombres ni apellidos que capturar.
@@ -168,7 +168,7 @@ function buildActividadesStep(): FormStepTemplate {
             colSpan: 5,
             path: "actividades[].valorImpuestoActividad",
             alwaysDisabled: true,
-            formula: "round(ingresos_gravados * tarifa_x_mil / 1000)",
+            script: "return round({ingresos_gravados} * {tarifa_x_mil} / 1000);",
           },
         ],
         group.id,
@@ -227,12 +227,12 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             required: true,
             alwaysDisabled: true,
             // La base en 0 evita que un DV calculado quede pegado al cambiar de tipo de documento.
-            formula: "0",
+            script: "return 0;",
             rules: [
               {
                 label: "Digito de verificacion del NIT",
                 when: [SOLO_PERSONA_JURIDICA],
-                formula: "dvNit(numero_documento)",
+                script: "return dvNit({numero_documento});",
               },
             ],
           },
@@ -392,7 +392,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "baseGravable.totalIngresosOrdinarios",
             alwaysDisabled: true,
-            formula: "total_ingresos_nacionales - ingresos_fuera_municipio",
+            script: "return {total_ingresos_nacionales} - {ingresos_fuera_municipio};",
           },
         ]),
         buildRow([
@@ -460,8 +460,8 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "baseGravable.totalIngresosGravables",
             alwaysDisabled: true,
-            formula:
-              "total_ingresos_ordinarios - ingresos_devoluciones_descuentos - ingresos_exportaciones - ingresos_venta_activos - ingresos_excluidos_no_gravados - ingresos_exentos_municipio",
+            script:
+              "return {total_ingresos_ordinarios} - {ingresos_devoluciones_descuentos} - {ingresos_exportaciones} - {ingresos_venta_activos} - {ingresos_excluidos_no_gravados} - {ingresos_exentos_municipio};",
           },
         ]),
       ],
@@ -478,7 +478,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             excluded: true,
             alwaysDisabled: true,
-            formula: "sumOf(impuesto_actividad)",
+            script: "return sum({impuesto_actividad});",
           },
         ]),
         buildRow([
@@ -511,7 +511,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             excluded: true,
             alwaysDisabled: true,
-            formula: "total_impuesto + impuesto_ley_56",
+            script: "return {total_impuesto} + {impuesto_ley_56};",
           },
         ]),
         buildRow([
@@ -522,7 +522,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "impuestoACargo.impuestoAvisosTableros",
             alwaysDisabled: true,
-            formula: "total_impuesto_industria_comercio * 0.15",
+            script: "return {total_impuesto_industria_comercio} * 0.15;",
           },
         ]),
         buildRow([
@@ -568,8 +568,8 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "impuestoACargo.totalImpuestoACargo",
             alwaysDisabled: true,
-            formula:
-              "total_impuesto_industria_comercio + impuesto_avisos_tableros + pago_unidades_sector_financiero + sobretasa_bomberil + sobretasa_seguridad",
+            script:
+              "return {total_impuesto_industria_comercio} + {impuesto_avisos_tableros} + {pago_unidades_sector_financiero} + {sobretasa_bomberil} + {sobretasa_seguridad};",
           },
         ]),
       ],
@@ -667,7 +667,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "totalDeclaracion.totalSaldoACargo",
             alwaysDisabled: true,
-            formula: `max(${SALDO_NETO}, 0)`,
+            script: `return max(${SALDO_NETO}, 0);`,
           },
         ]),
         buildRow([
@@ -679,7 +679,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "totalDeclaracion.totalSaldoAFavor",
             alwaysDisabled: true,
-            formula: `max(-(${SALDO_NETO}), 0)`,
+            script: `return max(-(${SALDO_NETO}), 0);`,
           },
         ]),
       ],
@@ -729,7 +729,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             path: "totalDeclaracion.totalDeclaracion",
             alwaysDisabled: true,
-            formula: "valor_a_pagar - descuento_pronto_pago + interes_mora",
+            script: "return {valor_a_pagar} - {descuento_pronto_pago} + {interes_mora};",
           },
         ]),
       ],
@@ -757,7 +757,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             colSpan: GRID_BASE_COLUMNS,
             excluded: true,
             alwaysDisabled: true,
-            formula: "total_a_pagar + valor_aporte_voluntario",
+            script: "return {total_a_pagar} + {valor_aporte_voluntario};",
           },
         ]),
         buildRow([

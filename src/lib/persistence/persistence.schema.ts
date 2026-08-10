@@ -92,7 +92,7 @@ const fieldValidationsSchema = fieldValidationRulesSchema.extend({
 });
 
 const ruleEffectSchema = z.discriminatedUnion("kind", [
-  z.object({ id: z.string(), kind: z.literal("formula"), expression: z.string() }),
+  z.object({ id: z.string(), kind: z.literal("script"), source: z.string() }),
   z.object({
     id: z.string(),
     kind: z.literal("constant"),

@@ -89,8 +89,11 @@ export interface RuleCondition extends FieldCondition {
   id: string;
 }
 
+// El efecto habla el mismo lenguaje que `logic.script` -- {campo} y un return que da el valor --
+// y no el de formulas. Las reglas siguen siendo una estructura declarativa, pero un solo lenguaje
+// de calculo en todo el aplicativo: dos era el problema que este cambio vino a sacar.
 export type RuleEffect =
-  | { id: string; kind: "formula"; expression: string }
+  | { id: string; kind: "script"; source: string }
   | { id: string; kind: "constant"; value: string | number | boolean };
 
 export interface FieldRule {

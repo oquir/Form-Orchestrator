@@ -1,7 +1,7 @@
 import type { ExportedField, ExportedRule } from "../../types/exportForm";
 import type { RuntimeIssue, RuntimeModel, RuntimeValues } from "../../types/formRuntime";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
-import { evaluateFormula, parseFormula } from "../formula/formula";
+import { evaluateFormula } from "../formula/formula";
 import { evaluateConditions } from "../runtimeCondition/runtimeCondition";
 import { coerceForScript, coerceValues, runFieldScript } from "../scriptRuntime/scriptRuntime";
 import type { DerivedPlan } from "./runtimeFormula.types";
@@ -73,10 +73,30 @@ export function computeDerivedValues(
       if (!ruleMatches(rule, values)) continue;
 
       for (const effect of rule.effects) {
-        next =
-          effect.kind === "constant"
-            ? effect.value
-            : evaluateFormula(parseFormula(effect.expression).ast, values);
+        if (effect.kind === "constant") {
+          next = effect.value;
+          touched = true;
+          continue;
+        }
+
+        // Un efecto corre por el mismo camino que el script del campo, incluido el undefined:
+        // una regla que se cumple pero no devuelve nada deja el valor como estaba.
+        const run: ScriptRunResult = runFieldScript(
+          effect.script.compiled,
+          model.prelude,
+          scriptValues,
+          scriptValues[name],
+          index,
+        );
+
+        if (run.error) {
+          issues.push({ kind: "script", field: name, message: run.error });
+          continue;
+        }
+
+        if (run.value === undefined) continue;
+
+        next = run.value;
         touched = true;
       }
     }

@@ -64,11 +64,43 @@ function formulaToScriptField(field: LooseDraft): LooseDraft {
   return { ...field, logic: { ...rest, script } };
 }
 
+// Un efecto que no se puede convertir se deja como estaba: Zod lo rechaza y el borrador entero se
+// descarta, que es preferible a cargar una regla que pisaria el valor con cualquier cosa.
+function formulaToScriptEffect(effect: unknown): unknown {
+  if (!isRecord(effect) || effect.kind !== "formula" || typeof effect.expression !== "string") {
+    return effect;
+  }
+
+  const source: string | null = formulaToScript(effect.expression);
+  if (source === null) return effect;
+
+  return { id: effect.id, kind: "script", source };
+}
+
+function ruleFormulasToScripts(field: LooseDraft): LooseDraft {
+  const logic: unknown = field.logic;
+  if (!isRecord(logic) || !Array.isArray(logic.rules)) return field;
+
+  return {
+    ...field,
+    logic: {
+      ...logic,
+      rules: logic.rules.map((rule) => {
+        if (!isRecord(rule) || !Array.isArray(rule.effects)) return rule;
+
+        return { ...rule, effects: rule.effects.map(formulaToScriptEffect) };
+      }),
+    },
+  };
+}
+
 const MIGRATIONS: Record<number, DraftMigration> = {
   // 1 -> 2: aparece el preludio del formulario.
   1: (draft) => ({ ...draft, formScript: "" }),
   // 2 -> 3: la formula pasa a ser un script.
   2: (draft) => mapDraftFields(draft, formulaToScriptField),
+  // 3 -> 4: los efectos de regla dejan la formula y hablan el mismo lenguaje que el campo.
+  3: (draft) => mapDraftFields(draft, ruleFormulasToScripts),
 };
 
 // Un hueco en la cadena corta el recorrido y devuelve el borrador con su version vieja, que es

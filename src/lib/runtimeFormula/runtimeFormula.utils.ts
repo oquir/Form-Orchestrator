@@ -27,9 +27,7 @@ export function fieldRefs(field: ExportedField, asts: Map<string, FormulaNode | 
     for (const condition of rule.when) refs.push(condition.field);
 
     for (const effect of rule.effects) {
-      if (effect.kind === "formula") {
-        refs.push(...collectFormulaRefs(parseFormula(effect.expression).ast));
-      }
+      if (effect.kind === "script") refs.push(...effect.script.reads);
     }
   }
 

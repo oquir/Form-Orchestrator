@@ -41,7 +41,7 @@ function pendingRules(rules: TemplateRule[] | undefined): FieldRule[] | undefine
       operator: condition.operator,
       value: condition.value,
     })),
-    effects: [{ id: uuidv4(), kind: "formula" as const, expression: rule.formula }],
+    effects: [{ id: uuidv4(), kind: "script" as const, source: rule.script }],
   }));
 }
 
@@ -141,9 +141,9 @@ export function buildRow(specs: FieldSpec[], groupId?: string): CanvasRow {
       },
       styles: {},
       logic: {
+        script: spec.script,
         dependencies: [],
         typeScript: "",
-        formula: spec.formula,
         rules: pendingRules(spec.rules),
       },
       alwaysDisabled: spec.alwaysDisabled,

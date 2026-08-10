@@ -7,7 +7,6 @@ import type {
   FieldOption,
   FieldStyles,
   FieldTooltip,
-  RuleEffect,
 } from "./field";
 import type { RichTextContent } from "./richText";
 import type { FormType } from "./setup";
@@ -18,12 +17,18 @@ export interface ExportedCondition {
   value?: FieldCondition["value"] | string[];
 }
 
+// El efecto de script sale compilado igual que el del campo, y con la misma forma: para el
+// consumidor son el mismo tipo de cosa y se ejecutan por el mismo camino.
+export type ExportedRuleEffect =
+  | { id: string; kind: "script"; script: ExportedScript }
+  | { id: string; kind: "constant"; value: string | number | boolean };
+
 export interface ExportedRule {
   id: string;
   label?: string;
   matchAll: boolean;
   when: ExportedCondition[];
-  effects: RuleEffect[];
+  effects: ExportedRuleEffect[];
 }
 
 export interface ExportedValidationVariant {

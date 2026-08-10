@@ -14,7 +14,7 @@ export interface TemplateValidationOverride {
 export interface TemplateRule {
   label?: string;
   when: TemplateCondition[];
-  formula: string;
+  script: string;
 }
 
 export interface FieldSpec {
@@ -30,7 +30,7 @@ export interface FieldSpec {
   // Solo se muestra cuando falla el patron: buildZodSchema lo cuelga del .regex().
   message?: string;
   validationOverrides?: TemplateValidationOverride[];
-  formula?: string;
+  script?: string;
   alwaysDisabled?: boolean;
   visibleWhen?: TemplateCondition;
   enableWhen?: TemplateCondition;

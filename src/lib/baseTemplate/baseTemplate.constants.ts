@@ -55,5 +55,7 @@ export const TELEFONO_MESSAGE: string = "Ingrese un teléfono válido";
 // fue el error -- "sin el digito de verificacion" es una instruccion, no un diagnostico.
 export const NIT_MESSAGE: string = "Ingrese un NIT válido, sin el dígito de verificación";
 
+// El neto sin recortar, que comparten los renglones 33 y 34: uno lo toma en positivo y el otro
+// en negativo. Va como expresion suelta -- sin return -- porque se interpola dentro de max(...).
 export const SALDO_NETO: string =
-  "total_impuesto_a_cargo - valor_exencion_exoneracion_impuesto - retenciones_a_favor - autorretenciones_a_favor - anticipo_liquidado_anio_anterior + anticipo_anio_siguiente + valor_sancion - saldo_favor_periodo_anterior";
+  "{total_impuesto_a_cargo} - {valor_exencion_exoneracion_impuesto} - {retenciones_a_favor} - {autorretenciones_a_favor} - {anticipo_liquidado_anio_anterior} + {anticipo_anio_siguiente} + {valor_sancion} - {saldo_favor_periodo_anterior}";

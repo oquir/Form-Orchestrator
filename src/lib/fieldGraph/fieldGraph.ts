@@ -1,6 +1,6 @@
 import type { CanvasField } from "../../types/field";
 import type { FieldGraph } from "../../types/fieldGraph";
-import { collectRuleRefs, ruleFormulaExpressions } from "../fieldRule/fieldRule";
+import { collectRuleRefs, ruleScriptSources } from "../fieldRule/fieldRule";
 import type { TopologicalResult } from "./fieldGraph.types";
 import { formulaRefIds, scriptRefIds } from "./fieldGraph.utils";
 
@@ -32,8 +32,8 @@ export function fieldDependencies(
     ...field.logic.dependencies,
     ...scriptRefIds(field.logic.script, byName, knownNames),
     ...formulaRefIds(field.logic.formula, byName),
-    ...ruleFormulaExpressions(field.logic.rules).flatMap((expression) =>
-      formulaRefIds(expression, byName),
+    ...ruleScriptSources(field.logic.rules).flatMap((source) =>
+      scriptRefIds(source, byName, knownNames),
     ),
   ];
 

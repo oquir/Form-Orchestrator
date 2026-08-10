@@ -5,7 +5,7 @@ import {
   operatorNeedsValue,
   operatorsForFieldType,
 } from "../../../../lib/fieldCondition/fieldCondition";
-import { createConstantEffect, createFormulaEffect } from "../../../../lib/fieldRule/fieldRule";
+import { createConstantEffect, createScriptEffect } from "../../../../lib/fieldRule/fieldRule";
 import type { CanvasField, FieldRule } from "../../../../types/field";
 import { IconButton } from "../../../atoms/IconButton/IconButton";
 import { ConditionFieldSelect } from "../../../molecules/ConditionFieldSelect/ConditionFieldSelect";
@@ -25,6 +25,7 @@ import type { FieldRulesEditorProps } from "./FieldRulesEditor.types";
 
 export function FieldRulesEditor({ field, candidates }: FieldRulesEditorProps) {
   const rules = useFieldRules({ field, candidates });
+  const knownNames: Set<string> = new Set([field, ...candidates].map((entry) => entry.name));
 
   function renderRule(rule: FieldRule, index: number) {
     return (
@@ -146,7 +147,7 @@ export function FieldRulesEditor({ field, candidates }: FieldRulesEditorProps) {
               key={effect.id}
               effect={effect}
               candidates={candidates}
-              selfName={field.name}
+              knownNames={knownNames}
               onChange={(next) => rules.updateEffect(rule.id, effect.id, next)}
               onRemove={() => rules.removeEffect(rule.id, effect.id)}
             />
@@ -156,10 +157,10 @@ export function FieldRulesEditor({ field, candidates }: FieldRulesEditorProps) {
         <div className="flex gap-3">
           <button
             type="button"
-            onClick={() => rules.addEffect(rule.id, createFormulaEffect())}
+            onClick={() => rules.addEffect(rule.id, createScriptEffect())}
             className={ADD_LINK_CLASSES}
           >
-            + Fórmula
+            + Cálculo
           </button>
           <button
             type="button"

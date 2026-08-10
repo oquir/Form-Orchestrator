@@ -85,6 +85,12 @@ export function resolveDependencies(field: CanvasField, names: Map<string, strin
 // El script se compila aca y no del lado del consumidor: {campo} no es JS, y hacer que cada
 // consumidor implemente el recorrido que distingue codigo de texto seria repartir la parte
 // delicada. Sale ya en JS, con las dependencias que declara al leerlas.
+function compileSource(source: string, knownNames: Set<string>): ExportedScript {
+  const { code, reads } = compileScript(source, knownNames);
+
+  return { source, compiled: code, reads };
+}
+
 export function resolveScript(
   field: CanvasField,
   knownNames: Set<string>,
@@ -95,14 +101,13 @@ export function resolveScript(
   const source: string = field.logic.script ?? "";
   if (source.trim().length === 0) return undefined;
 
-  const { code, reads } = compileScript(source, knownNames);
-
-  return { source, compiled: code, reads };
+  return compileSource(source, knownNames);
 }
 
 export function resolveRules(
   field: CanvasField,
   names: Map<string, string>,
+  knownNames: Set<string>,
 ): ExportedRule[] | undefined {
   if (!field.logic.rules || field.logic.rules.length === 0) return undefined;
 
@@ -117,7 +122,15 @@ export function resolveRules(
         ? parseConditionList(condition.value)
         : condition.value,
     })),
-    effects: rule.effects,
+    effects: rule.effects.map((effect) =>
+      effect.kind === "constant"
+        ? effect
+        : {
+            id: effect.id,
+            kind: "script" as const,
+            script: compileSource(effect.source, knownNames),
+          },
+    ),
   }));
 }
 
@@ -159,7 +172,7 @@ export function mapRows(
         dependencies: resolveDependencies(field, names),
         typeScript: field.logic.typeScript,
         formula: field.logic.formula,
-        rules: resolveRules(field, names),
+        rules: resolveRules(field, names, knownNames),
       },
       title: field.title,
       options: exportableOptions(field),

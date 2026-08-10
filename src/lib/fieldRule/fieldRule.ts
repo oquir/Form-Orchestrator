@@ -1,16 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 import type { FieldRule, RuleEffect } from "../../types/field";
 
-// Manipulacion de las reglas de un campo. El orden de la lista es semantico: al evaluar, la
-// formula base corre primero y despues cada regla que aplique pisa el valor, en este orden.
+// Manipulacion de las reglas de un campo. El orden de la lista es semantico: al evaluar, el script
+// del campo corre primero y despues cada regla que aplique pisa el valor, en este orden.
 // Condiciones y efectos llevan id propio para poder listarlos y reordenarlos sin usar el indice.
 
 export function createFieldRule(): FieldRule {
   return { id: uuidv4(), matchAll: true, when: [], effects: [] };
 }
 
-export function createFormulaEffect(): RuleEffect {
-  return { id: uuidv4(), kind: "formula", expression: "" };
+export function createScriptEffect(): RuleEffect {
+  return { id: uuidv4(), kind: "script", source: "" };
 }
 
 export function createConstantEffect(): RuleEffect {
@@ -75,14 +75,14 @@ export function collectRuleRefs(rules: FieldRule[] | undefined): string[] {
   return refs;
 }
 
-export function ruleFormulaExpressions(rules: FieldRule[] | undefined): string[] {
-  const expressions: string[] = [];
+export function ruleScriptSources(rules: FieldRule[] | undefined): string[] {
+  const sources: string[] = [];
 
   for (const rule of rules ?? []) {
     for (const effect of rule.effects) {
-      if (effect.kind === "formula") expressions.push(effect.expression);
+      if (effect.kind === "script") sources.push(effect.source);
     }
   }
 
-  return expressions;
+  return sources;
 }

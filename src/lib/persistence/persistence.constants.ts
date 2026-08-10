@@ -5,4 +5,5 @@ export const DRAFT_KEY: string = "form-orchestrator-draft";
 //   1: sin version, todo lo anterior al preludio.
 //   2: aparece formScript.
 //   3: logic.formula se convierte en logic.script.
-export const DRAFT_SCHEMA_VERSION: number = 3;
+//   4: el efecto de regla deja la formula y pasa a ser un script.
+export const DRAFT_SCHEMA_VERSION: number = 4;
