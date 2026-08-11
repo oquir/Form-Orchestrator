@@ -1,3 +1,4 @@
+import { allowsNegative } from "../../../../lib/fieldSign/fieldSign";
 import { useFormStore } from "../../../../store/formStore";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
@@ -6,6 +7,7 @@ import type { NumberOptionsEditorProps } from "./NumberOptionsEditor.types";
 export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
   const setFieldRounding = useFormStore((state) => state.setFieldRounding);
   const setFieldFormatted = useFormStore((state) => state.setFieldFormatted);
+  const setFieldAllowsNegative = useFormStore((state) => state.setFieldAllowsNegative);
 
   return (
     <PanelSection title="Número">
@@ -36,6 +38,20 @@ export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
         Muestra 1.000 en vez de 1000 y 1,5 en vez de 1.5, al salir del campo. Esto sí es solo
         presentación: el valor guardado y el que viaja en el payload siguen siendo el número. Al
         volver a entrar al campo se ve sin puntos, para poder editarlo.
+      </p>
+
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm text-fg">Admite negativos</span>
+        <ToggleSwitch
+          checked={allowsNegative(field)}
+          onChange={(checked) => setFieldAllowsNegative(field.id, checked)}
+          label="Permitir valores negativos en este campo"
+        />
+      </div>
+      <p className="text-[10px] text-fg-subtle">
+        Apagado, no deja escribir el signo menos y recorta a 0 cualquier resultado negativo de un
+        script o una regla. Recorta el valor, no solo lo que se ve: un total a pagar de −1.000.000
+        se guarda como 0 y así lo lee el campo de abajo.
       </p>
     </PanelSection>
   );

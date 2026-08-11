@@ -133,6 +133,7 @@ export interface FormState {
   updateFieldFileConfig: (fieldId: string, updates: Partial<FieldFileConfig>) => void;
   setFieldRounding: (fieldId: string, rounding: boolean) => void;
   setFieldFormatted: (fieldId: string, formatted: boolean) => void;
+  setFieldAllowsNegative: (fieldId: string, allows: boolean) => void;
   updateFieldTooltip: (fieldId: string, updates: Partial<FieldTooltip> | null) => void;
   addFieldOption: (fieldId: string) => void;
   removeFieldOption: (fieldId: string, optionId: string) => void;

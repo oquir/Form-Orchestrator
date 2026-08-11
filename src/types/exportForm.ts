@@ -81,6 +81,8 @@ export interface ExportedField {
   tooltip?: FieldTooltip;
   rounding?: boolean;
   formatted?: boolean;
+  // Solo aparece cuando vale false. Si no viene, el campo admite negativos.
+  allowsNegative?: boolean;
 }
 
 export interface ExportedRepeatableGroup {

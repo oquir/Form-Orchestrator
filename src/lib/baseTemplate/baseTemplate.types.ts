@@ -38,6 +38,14 @@ export interface FieldSpec {
   dataSource?: TemplateDataSource;
 }
 
+// Las tres reglas numericas de la plantilla, cada una con su alcance propio. El formato no lleva
+// lista porque va en todos; las otras dos si, y por lados opuestos: el redondeo nombra a los que
+// quedan afuera y el signo a los calculados que quedan adentro.
+export interface NumericDefaults {
+  roundingExceptions: string[];
+  clampedCalculated: string[];
+}
+
 export interface TemplateDataSource {
   catalog: string;
   dependsOn?: string;

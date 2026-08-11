@@ -137,6 +137,9 @@ export interface CanvasField {
   // Mostrar el valor con punto de miles y coma decimal. Es solo presentacion: el valor guardado
   // sigue siendo un numero, nunca el texto formateado. Ver lib/numberFormat.
   formatted?: boolean;
+  // Ausente significa que SI admite negativos: solo el false restringe. La polaridad va al reves
+  // que las dos de arriba a proposito, para no poner a recortar los borradores ya guardados.
+  allowsNegative?: boolean;
 }
 
 export interface SavedComponent {
@@ -159,4 +162,5 @@ export interface SavedComponent {
   tooltip?: FieldTooltip;
   rounding?: boolean;
   formatted?: boolean;
+  allowsNegative?: boolean;
 }

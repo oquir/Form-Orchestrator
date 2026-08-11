@@ -11,6 +11,7 @@ import type { CanvasRow } from "../../types/formStructure";
 import { supportsRounding } from "../fieldRounding/fieldRounding";
 import type {
   FieldSpec,
+  NumericDefaults,
   TemplateCondition,
   TemplateRule,
   TemplateValidationOverride,
@@ -119,18 +120,21 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
   return steps;
 }
 
-// Prende las dos propiedades numericas sobre el paso entero en vez de campo por campo. Son reglas
-// del formulario completo, y declararlas treinta y pico de veces significaria que el renglon
-// numero treinta y seis se agrega sin ellas y nadie lo nota.
+// Prende las tres propiedades numericas sobre el paso entero en vez de campo por campo. Son
+// reglas del formulario completo, y declararlas treinta y pico de veces significaria que el
+// renglon numero treinta y seis se agrega sin ellas y nadie lo nota.
 //
-// El formato va en todos los numericos sin excepcion: hasta una tarifa de 1,5 y un conteo de
-// establecimientos se leen mejor con la convencion local. El redondeo si tiene excepciones -- los
-// campos que no llevan plata -- y por eso es el unico que recibe una lista.
+// Cada una tiene su alcance:
+//   formato   -- todos. Hasta una tarifa de 1,5 se lee mejor con la convencion local.
+//   redondeo  -- todos menos los que no llevan plata, que van en roundingExceptions.
+//   signo     -- todos los `number`, que ya declaraban min: 0, y solo los calculados nombrados
+//                en clampedCalculated, que son los que de verdad pueden dar negativo.
 export function applyNumericDefaults<T extends { rows: CanvasRow[] }>(
   steps: T[],
-  roundingExceptions: string[],
+  defaults: NumericDefaults,
 ): T[] {
-  const skip: Set<string> = new Set(roundingExceptions);
+  const skipRounding: Set<string> = new Set(defaults.roundingExceptions);
+  const clamped: Set<string> = new Set(defaults.clampedCalculated);
 
   for (const step of steps) {
     for (const row of step.rows) {
@@ -138,7 +142,8 @@ export function applyNumericDefaults<T extends { rows: CanvasRow[] }>(
         if (!supportsRounding(field.type)) continue;
 
         field.formatted = true;
-        if (!skip.has(field.name)) field.rounding = true;
+        if (!skipRounding.has(field.name)) field.rounding = true;
+        if (field.type === "number" || clamped.has(field.name)) field.allowsNegative = false;
       }
     }
   }

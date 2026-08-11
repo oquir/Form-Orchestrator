@@ -150,6 +150,7 @@ const canvasFieldSchema = z.object({
   // asi que el borrador guardaria el redondeo y al recargar volveria sin el y sin un solo aviso.
   rounding: z.boolean().optional(),
   formatted: z.boolean().optional(),
+  allowsNegative: z.boolean().optional(),
 });
 
 const canvasRowSchema = z.object({

@@ -15,6 +15,7 @@ import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
 import { exportableRounding } from "../fieldRounding/fieldRounding";
 import { compileScript } from "../fieldScript/fieldScript";
+import { exportableAllowsNegative } from "../fieldSign/fieldSign";
 import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
 import { exportableFormatting } from "../numberFormat/numberFormat";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
@@ -182,6 +183,7 @@ export function mapRows(
       tooltip: exportableTooltip(field),
       rounding: exportableRounding(field),
       formatted: exportableFormatting(field),
+      allowsNegative: exportableAllowsNegative(field),
     })),
   }));
 }

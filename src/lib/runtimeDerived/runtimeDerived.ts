@@ -2,6 +2,7 @@ import type { ExportedField, ExportedRule } from "../../types/exportForm";
 import type { RuntimeIssue, RuntimeModel, RuntimeValues } from "../../types/formRuntime";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
 import { applyRounding } from "../fieldRounding/fieldRounding";
+import { clampNegative } from "../fieldSign/fieldSign";
 import { evaluateConditions } from "../runtimeCondition/runtimeCondition";
 import { coerceForScript, coerceValues, runFieldScript } from "../scriptRuntime/scriptRuntime";
 import type { DerivedPlan } from "./runtimeDerived.types";
@@ -10,6 +11,7 @@ import { planDerivedFields } from "./runtimeDerived.utils";
 export interface DerivedResult {
   values: RuntimeValues;
   computed: Record<string, boolean>;
+  clamped: Record<string, boolean>;
   cycle: string[] | null;
   issues: RuntimeIssue[];
 }
@@ -32,6 +34,7 @@ export function computeDerivedValues(
   // calculado es dependencia del siguiente, y tiene que llegarle ya con su tipo.
   const scriptValues: RuntimeValues = coerceValues(values, model);
   const computed: Record<string, boolean> = {};
+  const clamped: Record<string, boolean> = {};
   const issues: RuntimeIssue[] = [];
 
   // undefined es "no toques lo que escribio el usuario": ni se asigna ni cuenta como calculado,
@@ -102,14 +105,22 @@ export function computeDerivedValues(
     //
     // Solo si algo lo produjo. Un campo calculado cuyo script devolvio undefined sigue siendo del
     // usuario, y a lo que el usuario escribe lo redondea el blur del simulador.
-    if (touched) next = applyRounding(field, next);
+    if (touched) {
+      next = applyRounding(field, next);
+
+      // El recorte va despues del redondeo y antes de publicar, igual que el: si se recortara
+      // mas tarde el campo de abajo leeria el negativo que en pantalla ya no esta.
+      const clamp = clampNegative(field, next);
+      next = clamp.value;
+      if (clamp.clamped) clamped[name] = true;
+    }
 
     values[name] = next;
     scriptValues[name] = coerceForScript(next, field.type);
     if (touched) computed[name] = true;
   }
 
-  return { values, computed, cycle: plan.cycle, issues };
+  return { values, computed, clamped, cycle: plan.cycle, issues };
 }
 
 function ruleMatches(rule: ExportedRule, values: RuntimeValues): boolean {

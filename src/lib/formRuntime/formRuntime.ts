@@ -113,12 +113,17 @@ export function resolveRuntime(model: RuntimeModel, state: PreviewState): Runtim
       if (derived.cycle) cycles.push(...derived.cycle);
       issues.push(...derived.issues);
 
-      return buildScope(fields, derived.values, derived.computed);
+      return buildScope(fields, derived.values, derived.computed, derived.clamped);
     });
   }
 
   return {
-    root: buildScope(model.rootFields, rootDerived.values, rootDerived.computed),
+    root: buildScope(
+      model.rootFields,
+      rootDerived.values,
+      rootDerived.computed,
+      rootDerived.clamped,
+    ),
     groups,
     cycle: cycles.length > 0 ? [...new Set(cycles)] : null,
     issues: dedupeIssues(issues),

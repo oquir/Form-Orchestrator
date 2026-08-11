@@ -15,6 +15,7 @@ import type {
   RepeatableGroup,
 } from "../../types/formStructure";
 import {
+  CALCULATED_WITHOUT_NEGATIVE,
   CORREO_MESSAGE,
   CORREO_PATTERN,
   DOCUMENTO_MESSAGE,
@@ -894,6 +895,9 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
         ],
       },
     ]),
-    FIELDS_WITHOUT_ROUNDING,
+    {
+      roundingExceptions: FIELDS_WITHOUT_ROUNDING,
+      clampedCalculated: CALCULATED_WITHOUT_NEGATIVE,
+    },
   );
 }

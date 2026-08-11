@@ -11,6 +11,7 @@ import {
 } from "../lib/fieldOptions/fieldOptions";
 import { exportableRounding } from "../lib/fieldRounding/fieldRounding";
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
+import { exportableAllowsNegative } from "../lib/fieldSign/fieldSign";
 import { createEmptyTooltip, exportableTooltip } from "../lib/fieldTooltip/fieldTooltip";
 import {
   canTransfer,
@@ -824,6 +825,15 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         formatted: formatted || undefined,
       })),
     ),
+  // Esta guarda el false y borra el true, al reves que las dos de arriba: aca lo que hay que
+  // decir es la restriccion, porque admitir negativos es el default.
+  setFieldAllowsNegative: (fieldId, allows) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        allowsNegative: allows ? undefined : false,
+      })),
+    ),
   updateFieldTooltip: (fieldId, updates) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
@@ -880,6 +890,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       tooltip: exportableTooltip(field),
       rounding: exportableRounding(field),
       formatted: exportableFormatting(field),
+      allowsNegative: exportableAllowsNegative(field),
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -916,6 +927,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         tooltip: component.tooltip ? { ...component.tooltip } : undefined,
         rounding: component.rounding,
         formatted: component.formatted,
+        allowsNegative: component.allowsNegative,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

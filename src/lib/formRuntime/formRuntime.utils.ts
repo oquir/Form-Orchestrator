@@ -63,6 +63,7 @@ export function buildScope(
   fields: ExportedField[],
   values: RuntimeValues,
   computed: Record<string, boolean>,
+  clamped: Record<string, boolean>,
 ): RuntimeScope {
   const visible: Record<string, boolean> = {};
   const disabled: Record<string, boolean> = {};
@@ -75,7 +76,7 @@ export function buildScope(
       Boolean(field.alwaysDisabled) || !evaluateCondition(field.enableWhen, values);
   }
 
-  return { values, visible, disabled, computed };
+  return { values, visible, disabled, computed, clamped };
 }
 
 export function emptyItem(fields: ExportedField[]): RuntimeValues {

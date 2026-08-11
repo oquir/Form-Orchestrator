@@ -7,6 +7,9 @@ export interface RuntimeScope {
   visible: Record<string, boolean>;
   disabled: Record<string, boolean>;
   computed: Record<string, boolean>;
+  // Los que dieron negativo en un campo que no los admite y quedaron en 0. Es solo del simulador
+  // -- no viaja en el export -- y existe para que el 0 no aparezca sin explicacion.
+  clamped: Record<string, boolean>;
 }
 
 export interface RuntimeSnapshot {

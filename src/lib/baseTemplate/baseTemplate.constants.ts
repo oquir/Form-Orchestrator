@@ -71,6 +71,25 @@ export const FIELDS_WITHOUT_ROUNDING: string[] = [
   "generacion_energia_kw",
 ];
 
+// Los unicos calculados que pueden dar negativo, y por eso los unicos que se recortan a 0. Los
+// `number` se marcan todos sin lista: los veintiseis ya declaraban min: 0, salvo la tarifa, que
+// tampoco es negativa nunca.
+//
+// Los otros ocho calculados quedan afuera porque no hace falta: seis son sumas de no-negativos
+// -- el impuesto de actividad, el total impuesto, el de avisos y tableros, el total a cargo --
+// y los renglones 33 y 34 ya vienen recortados por su propio max(..., 0).
+export const CALCULATED_WITHOUT_NEGATIVE: string[] = [
+  // r10 = ingresos nacionales - ingresos fuera del municipio.
+  "total_ingresos_ordinarios",
+  // r16 = el 10 menos las cinco deducciones. Es el caso tipico: deducciones mayores al ingreso.
+  "total_ingresos_gravables",
+  // r36 = el 35 menos el descuento por pronto pago mas los intereses de mora. Un total a pagar
+  // negativo no existe en la declaracion: si pago de mas, eso es el saldo a favor del 34.
+  "total_a_pagar",
+  // r40 = el 36 mas el aporte voluntario, negativo solo si lo es el 36.
+  "total_a_pagar_con_aporte_voluntario",
+];
+
 // El neto sin recortar, que comparten los renglones 33 y 34: uno lo toma en positivo y el otro
 // en negativo. Va como expresion suelta -- sin return -- porque se interpola dentro de max(...).
 export const SALDO_NETO: string =

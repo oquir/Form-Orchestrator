@@ -79,8 +79,12 @@ export function parseFormattedNumber(text: string): number | null {
 // Lo que se puede tipear. Al pasar de type="number" a type="text" se pierde el rechazo nativo,
 // asi que la lista blanca se escribe aca -- y termina siendo mas estricta que la del navegador,
 // que aceptaba "1e5" como numero valido de punto flotante.
-export function sanitizeNumericInput(raw: string): string {
-  const negative: boolean = raw.trimStart().startsWith("-");
+//
+// `allowNegative` llega como booleano y no como el campo entero para que este archivo siga siendo
+// solo sobre texto: quien decide la politica de signo es lib/fieldSign. Cuando es falso el menos
+// se descarta como cualquier otro caracter, asi que tampoco entra pegando desde el portapapeles.
+export function sanitizeNumericInput(raw: string, allowNegative = true): string {
+  const negative: boolean = allowNegative && raw.trimStart().startsWith("-");
   const body: string = raw.replace(/[^\d.,]/g, "");
 
   // Una sola coma. Con dos el texto dejaria de parsear y no habria numero que guardar, asi que se
