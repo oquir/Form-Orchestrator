@@ -68,7 +68,7 @@ Manteniendo **Shift** mientras arrastrás elegís la columna de inicio; con **Sh
 
 - **`atoms/`** — primitivas sin lógica de negocio: `Button`, `Input`, `TextArea`, `Label`, `Checkbox`, `CodeBlock`, `IconButton`, `FieldTypeBadge`, `FieldDragHandle`, `FieldResizeHandle`, `DashedAddButton`, `ModalShell`, `ModalActions`, `TwoColumnFieldGroup`, `WizardFooterActions`, `RichTextView`.
 - **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `ScriptInput`, `ScriptEditor`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `GeneratedSchemaPreview`, `SaveFieldForm`, `SavedComponentListItem`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `PanelSection`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `JsonCode`, `TooltipBubble`, `PreviewTooltip`, `TransferNotice`, `ValidationOverrideCard`.
-- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `FieldScriptEditor`, `FormScriptEditor`, `ApiMappingPanel`, `LibraryPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`).
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `FieldScriptEditor`, `FormScriptEditor`, `ApiMappingPanel`, `LibraryPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`, `NumberOptionsEditor`).
 - **`layout/AppLayout.tsx`** — shell de dos columnas, fuera de la jerarquía atómica porque es el layout raíz.
 
 ### Layout de dos columnas
@@ -118,6 +118,23 @@ Lo que debe hacer el consumidor: si el campo trae `tooltip`, dibujar un **ícono
 En el lienzo del builder el ícono aparece igual, pero la burbuja se previsualiza al pasar el mouse por el campo completo, para poder juzgar la posición elegida sin tener que apuntarle al ícono.
 
 Un tooltip cuyo contenido queda vacío **no se exporta**: `exportableTooltip` lo descarta, igual que `exportableOptions` con las opciones.
+
+### Redondeo al millar
+
+Un campo `number` o `calculated` puede declarar `rounding: true` y su valor se **aproxima al múltiplo de mil más cercano**: `499` baja a `0`, `500` sube a `1.000`, `1.499` baja a `1.000`. Es la regla que aplica toda declaración tributaria a sus renglones. Se prende con un switch en la pestaña Atributos y el predicado es `supportsRounding` (`src/lib/fieldRounding/`).
+
+**Cambia el valor, no cómo se ve.** Lo que se guarda, lo que leen los demás campos y lo que viaja en el payload es el número ya aproximado; no hay un valor "crudo" guardado en paralelo.
+
+Se aplica en dos momentos, según quién produjo el valor:
+
+- Lo que **escribe el usuario** se redondea al salir del campo. Aproximar en cada tecla haría imposible tipear.
+- Lo que **produce un script o una regla** se redondea apenas se calcula, y ese es el valor que lee el campo de abajo. Un campo calculado va deshabilitado y un input deshabilitado nunca dispara blur, así que este es su único camino.
+
+Es un booleano y no un múltiplo configurable a propósito: en los formularios que existen el redondeo siempre fue al millar o no existió. El múltiplo vive en una constante de la librería.
+
+Dos detalles que importan: un campo vacío **no** se convierte en `0` al salir de él, y los negativos se aproximan por magnitud, así que un saldo a favor de `−1.500` va a `−2.000` igual que uno a cargo va a `2.000`.
+
+En la plantilla de ICA está prendido en los 34 renglones de valor. Quedan afuera cuatro campos numéricos que no son plata: `tarifa_x_mil` y `dv` (redondeados darían `0`), `numero_establecimientos` (un conteo) y `generacion_energia_kw` (renglón 18, pero son kilovatios de capacidad instalada).
 
 ### Grupos repetibles
 
@@ -213,7 +230,7 @@ Tres cosas que el simulador deja a la vista:
 
 `src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.
 
-Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
+Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
 
 Dos detalles del contrato:
 
