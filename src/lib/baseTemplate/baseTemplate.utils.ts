@@ -8,6 +8,7 @@ import type {
   FieldValidationOverride,
 } from "../../types/field";
 import type { CanvasRow } from "../../types/formStructure";
+import { supportsRounding } from "../fieldRounding/fieldRounding";
 import type {
   FieldSpec,
   TemplateCondition,
@@ -111,6 +112,26 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
             }),
           }));
         }
+      }
+    }
+  }
+
+  return steps;
+}
+
+// Prende el redondeo sobre el paso entero en vez de campo por campo. La regla es del formulario
+// completo -- todo renglon de valor se aproxima al millar -- y declararla treinta y pico de veces
+// significaria que el renglon numero treinta y seis se agrega sin ella y nadie lo nota.
+export function applyRoundingToTemplate<T extends { rows: CanvasRow[] }>(
+  steps: T[],
+  exceptions: string[],
+): T[] {
+  const skip: Set<string> = new Set(exceptions);
+
+  for (const step of steps) {
+    for (const row of step.rows) {
+      for (const field of row.fields) {
+        if (supportsRounding(field.type) && !skip.has(field.name)) field.rounding = true;
       }
     }
   }

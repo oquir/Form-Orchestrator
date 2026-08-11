@@ -55,6 +55,22 @@ export const TELEFONO_MESSAGE: string = "Ingrese un teléfono válido";
 // fue el error -- "sin el digito de verificacion" es una instruccion, no un diagnostico.
 export const NIT_MESSAGE: string = "Ingrese un NIT válido, sin el dígito de verificación";
 
+// Los campos numericos de la declaracion que NO llevan plata. Todo renglon de valor se aproxima
+// al millar, asi que lo que se escribe a mano son las excepciones y no los treinta y pico que si
+// redondean: un renglon nuevo entra redondeando, que es lo correcto por defecto, y el que no
+// deberia hacerlo se agrega aca.
+export const FIELDS_WITHOUT_ROUNDING: string[] = [
+  // Una tarifa del 4 por mil aproximada al millar es 0, y con ella todo impuesto de actividad.
+  "tarifa_x_mil",
+  // El digito de verificacion va de 0 a 9.
+  "dv",
+  // Un conteo de establecimientos, no un valor.
+  "numero_establecimientos",
+  // Es un renglon numerado -- el 18 -- pero lo que lleva son kilovatios de capacidad instalada y
+  // no pesos, y la regla de aproximar al millar habla de valores.
+  "generacion_energia_kw",
+];
+
 // El neto sin recortar, que comparten los renglones 33 y 34: uno lo toma en positivo y el otro
 // en negativo. Va como expresion suelta -- sin return -- porque se interpola dentro de max(...).
 export const SALDO_NETO: string =
