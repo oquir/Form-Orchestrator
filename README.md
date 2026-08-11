@@ -208,7 +208,7 @@ Los campos con opciones solo admiten opciones escritas a mano **cuando están ex
 
 ### De dónde salen las opciones (`dataSource`)
 
-`dataSource` es `{catalog, dependsOn?}` y responde **de dónde salen las opciones**, mientras que `apiBinding` responde **si el valor viaja en el payload**. Son preguntas independientes: `departamento` está excluido (la API solo quiere `idCiudad`, porque el municipio ya implica el departamento) y aun así necesita consultar el catálogo `departamentos`.
+`dataSource` es `{catalog, dependsOn?, fills?}` y responde **de dónde salen las opciones**, mientras que `apiBinding` responde **si el valor viaja en el payload**. Son preguntas independientes: `departamento` está excluido (la API solo quiere `idCiudad`, porque el municipio ya implica el departamento) y aun así necesita consultar el catálogo `departamentos`.
 
 Precedencia que aplica el consumidor, en este orden:
 
@@ -219,6 +219,28 @@ Precedencia que aplica el consumidor, en este orden:
 `options[]` y `dataSource` **nunca viajan juntos**: `allowsManualOptions` devuelve `false` en cuanto hay catálogo, así que el export descarta las opciones y el schema Zod cae a `z.string()` en vez de congelar valores viejos. El catálogo se elige de una lista cerrada (`CATALOGS` en `src/constants/catalog.ts`), no se escribe a mano, por la misma razón que la ruta se elige de `PAYLOAD_SCHEMA`.
 
 El par real hoy es `departamento` → `municipio`: el segundo declara `{catalog:"municipios", dependsOn:"departamento"}` y un `enableWhen` con `isNotEmpty`, así que arranca deshabilitado y su catálogo se consulta filtrado.
+
+#### Rellenar otros campos (`fills`)
+
+Hay campos que **no se escriben: se llenan solos** con datos de la opción elegida. El código CIIU y la tarifa de una actividad son eso — el contribuyente elige la actividad en el buscador y los dos campos, que están en solo lectura, muestran lo que trae el catálogo.
+
+Eso se declara en el campo que **origina** la selección:
+
+```json
+"dataSource": {
+  "catalog": "actividades",
+  "fills": [
+    { "column": "code",   "field": "codigo_actividad" },
+    { "column": "tarifa", "field": "tarifa_x_mil" }
+  ]
+}
+```
+
+Las columnas son las que devuelve el catálogo (`id`, `label`, `code`, `tarifa`) y el destino viaja por nombre. Se declara en el origen y no en los destinos por la misma razón que `labelFor`: un solo dueño, sin dos puntas que mantener sincronizadas.
+
+Lo que debe hacer el consumidor: al elegir una opción, copiar esas columnas a esos campos **de la misma repetición**; al limpiar la selección, vaciarlos. Si una columna no viene, el destino se vacía — dejar la tarifa de la actividad anterior es peor que no mostrar nada, porque el impuesto se seguiría calculando con ella.
+
+Se edita desde la pestaña Atributos, en la sección Origen de opciones.
 
 ### Banco de catálogos
 
@@ -272,6 +294,7 @@ Dos detalles del contrato:
 - **Renglón 35 (`valor_a_pagar`) no tiene cálculo**, así que la cadena de liquidación se corta ahí: el renglón 33 calcula un total que el 38 nunca recoge. Falta definir de dónde sale.
 - **`dataSource` solo lo usan `departamento` y `municipio`.** Los demás selects de catálogo (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `clasificacion_contribuyente`, el `search_select` de actividad) siguen dependiendo de que el consumidor infiera el catálogo desde `apiBinding.path`. Declararlos es una entrada en `CATALOGS` y un check en el panel de mapeo, pero antes hay que acordar los nombres de catálogo con el otro proyecto. Sigue abierto: `FieldOption.id` es un uuid, así que una opción escrita a mano no tiene id de catálogo que enviar.
 - Los selects mapeados a hojas `number` muestran una advertencia **`⚠ tipo`** permanente (`periodoAnio`, `idPeriodoAnual`, `idTipoDeclaracion`, `tipo_documento`, `municipio`, `clasificacion_contribuyente` y el `search_select` de actividad). El id de catálogo es numérico, pero `fieldMatchesSchemaType` no deja que un tipo con opciones case con `number`.
+- **La tarifa de la actividad llega vacía, y ya no es por el mecanismo.** `dataSource.fills` está construido y el código CIIU se llena bien; lo que falta son los datos: la conversión del volcado se comió la columna `tarifaXMil` y las 425 actividades no la traen. Hasta que se regenere el catálogo o se peguen las tarifas en la pestaña **Catálogos**, `impuesto_actividad` sigue dando 0. Comprobado que con una tarifa cargada la cadena calcula. **No inventar tarifas para tapar el hueco.**
 - Un campo del formulario no puede condicionar contra un campo del modal introductorio: la lista de candidatos sale solo de `formSteps`.
 - `validations.pattern` no se valida donde se escribe. Ya no puede ejecutar nada, pero una expresión regular inválida hace fallar la construcción del schema del lado del consumidor.
 - **El simulador no aplica `styles`.** Los estilos viajan en el JSON y el lienzo sí los pinta, pero el simulador dibuja controles genéricos: un campo con fondo amarillo se ve amarillo en el lienzo y gris en el simulador. Los cuatro que van por `style` (`marginTop`, `marginBottom`, `backgroundColor`, `textColor`) son un arreglo corto; `customClasses` no, por lo de abajo.
