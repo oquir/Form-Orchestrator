@@ -131,6 +131,9 @@ export interface CanvasField {
   labelFor?: string;
   content?: RichTextContent;
   tooltip?: FieldTooltip;
+  // Aproximar al millar mas cercano. Es un booleano y no un multiplo porque en los formularios
+  // que existen nunca aparecio otro redondeo; el multiplo vive en lib/fieldRounding.
+  rounding?: boolean;
 }
 
 export interface SavedComponent {
@@ -151,4 +154,5 @@ export interface SavedComponent {
   apiBinding?: ApiBinding;
   dataSource?: FieldDataSource;
   tooltip?: FieldTooltip;
+  rounding?: boolean;
 }

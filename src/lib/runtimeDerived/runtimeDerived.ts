@@ -1,6 +1,7 @@
 import type { ExportedField, ExportedRule } from "../../types/exportForm";
 import type { RuntimeIssue, RuntimeModel, RuntimeValues } from "../../types/formRuntime";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
+import { applyRounding } from "../fieldRounding/fieldRounding";
 import { evaluateConditions } from "../runtimeCondition/runtimeCondition";
 import { coerceForScript, coerceValues, runFieldScript } from "../scriptRuntime/scriptRuntime";
 import type { DerivedPlan } from "./runtimeDerived.types";
@@ -94,6 +95,14 @@ export function computeDerivedValues(
         touched = touched || changed;
       }
     }
+
+    // El redondeo va antes de publicar el valor, no despues: el campo de abajo lo lee de
+    // scriptValues en la misma pasada, y aproximarlo mas tarde dejaria la cadena de renglones con
+    // dos verdades -- una en pantalla y otra en el calculo siguiente.
+    //
+    // Solo si algo lo produjo. Un campo calculado cuyo script devolvio undefined sigue siendo del
+    // usuario, y a lo que el usuario escribe lo redondea el blur del simulador.
+    if (touched) next = applyRounding(field, next);
 
     values[name] = next;
     scriptValues[name] = coerceForScript(next, field.type);

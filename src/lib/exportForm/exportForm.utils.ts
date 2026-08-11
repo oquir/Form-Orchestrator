@@ -13,6 +13,7 @@ import type { CanvasRow, FormStep } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
+import { exportableRounding } from "../fieldRounding/fieldRounding";
 import { compileScript } from "../fieldScript/fieldScript";
 import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
@@ -178,6 +179,7 @@ export function mapRows(
       labelFor: field.labelFor ? (names.get(field.labelFor) ?? field.labelFor) : undefined,
       content: field.content,
       tooltip: exportableTooltip(field),
+      rounding: exportableRounding(field),
     })),
   }));
 }

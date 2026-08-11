@@ -9,6 +9,7 @@ import {
   exportableOptions,
   isOptionBasedField,
 } from "../lib/fieldOptions/fieldOptions";
+import { exportableRounding } from "../lib/fieldRounding/fieldRounding";
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
 import { createEmptyTooltip, exportableTooltip } from "../lib/fieldTooltip/fieldTooltip";
 import {
@@ -806,6 +807,15 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         },
       })),
     ),
+  // Apagarlo borra la clave en vez de guardar false: ausente y false son lo mismo, y una sola de
+  // las dos formas mantiene limpios el borrador y el JSON exportado.
+  setFieldRounding: (fieldId, rounding) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        rounding: rounding || undefined,
+      })),
+    ),
   updateFieldTooltip: (fieldId, updates) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
@@ -860,6 +870,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       visibleWhen: field.visibleWhen,
       apiBinding: field.apiBinding,
       tooltip: exportableTooltip(field),
+      rounding: exportableRounding(field),
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -894,6 +905,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         visibleWhen: component.visibleWhen ? { ...component.visibleWhen } : undefined,
         apiBinding: component.apiBinding ? { ...component.apiBinding } : undefined,
         tooltip: component.tooltip ? { ...component.tooltip } : undefined,
+        rounding: component.rounding,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

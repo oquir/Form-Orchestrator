@@ -6,6 +6,7 @@ import {
   labelTargetCandidates,
 } from "../../../../lib/fieldKind/fieldKind";
 import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
+import { supportsRounding } from "../../../../lib/fieldRounding/fieldRounding";
 import { supportsTooltip } from "../../../../lib/fieldTooltip/fieldTooltip";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
 import {
@@ -25,6 +26,7 @@ import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FieldTooltipEditor } from "../FieldTooltipEditor/FieldTooltipEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
+import { NumberOptionsEditor } from "../NumberOptionsEditor/NumberOptionsEditor";
 import { SOURCE_BADGE_CLASSES, SOURCE_LINK_CLASSES } from "./AttributesPanel.constants";
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
@@ -142,6 +144,8 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       )}
 
       {field.type === "file" && <FileOptionsEditor field={field} />}
+
+      {supportsRounding(field.type) && <NumberOptionsEditor field={field} />}
 
       {supportsTooltip(field.type) && <FieldTooltipEditor field={field} />}
     </div>

@@ -79,6 +79,7 @@ export interface ExportedField {
   labelFor?: string;
   content?: RichTextContent;
   tooltip?: FieldTooltip;
+  rounding?: boolean;
 }
 
 export interface ExportedRepeatableGroup {

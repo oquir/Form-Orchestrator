@@ -146,6 +146,9 @@ const canvasFieldSchema = z.object({
   labelFor: z.string().optional(),
   content: richTextContentSchema.optional(),
   tooltip: fieldTooltipSchema.optional(),
+  // Sin esta linea la propiedad se pierde sola: z.object descarta lo que el esquema no declara,
+  // asi que el borrador guardaria el redondeo y al recargar volveria sin el y sin un solo aviso.
+  rounding: z.boolean().optional(),
 });
 
 const canvasRowSchema = z.object({

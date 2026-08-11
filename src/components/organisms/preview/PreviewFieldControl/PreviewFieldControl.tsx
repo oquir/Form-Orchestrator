@@ -1,3 +1,4 @@
+import { applyRounding } from "../../../../lib/fieldRounding/fieldRounding";
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
 import type { CatalogOption } from "../../../../types/catalog";
 import { RichTextView } from "../../../atoms/RichTextView/RichTextView";
@@ -46,6 +47,11 @@ export function PreviewFieldControl({
         />
       );
 
+    // El redondeo se aplica al salir del campo y no mientras se escribe: aproximar cada tecla
+    // dejaria imposible tipear un numero. Un calculado no llega aca -- va deshabilitado y un input
+    // deshabilitado no dispara blur -- y por eso el valor que produce un script lo redondea
+    // runtimeDerived. El onChange que recibimos ya viene atado a su grupo y su repeticion, asi que
+    // esto tambien funciona adentro de un grupo repetible.
     case "number":
     case "calculated":
       return (
@@ -55,6 +61,10 @@ export function PreviewFieldControl({
           disabled={disabled}
           value={toInputValue(value)}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={(event) => {
+            const rounded: unknown = applyRounding(field, event.target.value);
+            if (rounded !== event.target.value) onChange(rounded);
+          }}
           className={controlClasses}
         />
       );
