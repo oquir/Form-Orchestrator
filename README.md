@@ -150,6 +150,24 @@ Un punto es siempre separador de miles, nunca decimal, que es lo que hace que `1
 
 En la plantilla de ICA está prendido en los 38 campos numéricos, incluidos los cuatro que no redondean: una tarifa de `1,5` también se lee mejor así.
 
+### Decimales
+
+`decimals` dice **cuántos decimales muestra y deja teclear** un campo numérico. Sin declarar, muestra los que traiga (hasta 4). Con `0`, la coma no se puede escribir. Con `1`, una tarifa de 6 se muestra `6,0`.
+
+| valor | `decimals` | se ve |
+|---|---|---|
+| `1000` | 0 | `1.000` |
+| `1000` | 2 | `1.000,00` |
+| `6` | 1 | `6,0` |
+| `7.5` | 1 | `7,5` |
+| `6` | *sin declarar* | `6` |
+
+**Rellenar con ceros es presentación; recortar cambia el valor.** Mostrar `6` como `6,0` no puede mentir, porque son el mismo número. Mostrar `1234,56` como `1.235` guardando `1234,56` sí mentiría, así que el recorte redondea el valor de verdad, igual que el redondeo al millar.
+
+Un detalle práctico: con `decimals: 0`, pegar `1234,56` da `1234` — se corta **en** la coma, no se le saca la coma, que daría `123456` y sería el valor equivocado por dos órdenes de magnitud.
+
+En la plantilla de ICA todos los numéricos van en `0` —la declaración no lleva decimales en ningún renglón— y `tarifa_x_mil` es la única en `1`, para que la columna se lea pareja: `4,0 / 7,5 / 6,0`.
+
 ### Valores negativos
 
 Un campo `number` o `calculated` puede declarar que **no admite negativos**, y eso se hace valer en dos lugares distintos, porque hay dos maneras de que aparezca un negativo:
@@ -279,7 +297,7 @@ Tres cosas que el simulador deja a la vista:
 
 `src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.
 
-Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `formatted`, `allowsNegative`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
+Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `formatted`, `allowsNegative`, `decimals`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
 
 Dos detalles del contrato:
 
