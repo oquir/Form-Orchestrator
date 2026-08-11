@@ -150,6 +150,19 @@ Un punto es siempre separador de miles, nunca decimal, que es lo que hace que `1
 
 En la plantilla de ICA está prendido en los 38 campos numéricos, incluidos los cuatro que no redondean: una tarifa de `1,5` también se lee mejor así.
 
+### Valores negativos
+
+Un campo `number` o `calculated` puede declarar que **no admite negativos**, y eso se hace valer en dos lugares distintos, porque hay dos maneras de que aparezca un negativo:
+
+- **Al escribir** — no deja tipear el signo menos, ni pegarlo desde el portapapeles.
+- **Al calcular** — si el script da negativo, el valor se **recorta a 0**. Tu ejemplo: `1.000.000 − 2.000.000` da `−1.000.000` y el campo guarda `0`.
+
+Igual que el redondeo, **recorta el valor y no solo la vista**: mostrar `0` mientras se guarda `−1.000.000` dejaría la pantalla y el payload diciendo cosas distintas, y el campo de abajo leería el negativo que nadie ve. Cuando esto pasa el simulador lo avisa bajo el campo, para que un `0` no aparezca sin explicación.
+
+**Ojo con la polaridad, que es al revés que las otras dos propiedades numéricas:** `allowsNegative` **ausente significa que sí admite**. Solo `allowsNegative: false` restringe. Es a propósito — si la ausencia restringiera, todo borrador ya guardado y todo campo recién soltado de la paleta empezarían a recortar en silencio.
+
+En la plantilla de ICA lo tienen apagado 30 de los 38 campos numéricos: los 26 `number` (25 ya declaraban `min: 0`, y la tarifa tampoco es negativa nunca) y los cuatro calculados que pueden dar negativo de verdad — renglones 10, 16, 36 y 40. Los otros ocho quedan libres: seis son sumas de no-negativos y los renglones 33 y 34 ya se recortan solos con su `max(…, 0)`.
+
 ### Grupos repetibles
 
 Un grupo repetible es una **marca sobre la fila** (`CanvasRow.groupId`), no un contenedor anidado. Gracias a eso el drag-and-drop, el redimensionado y todas las reglas de posicionamiento siguen funcionando dentro del grupo sin ningún cambio: los campos de una actividad se mueven y reordenan libremente.
@@ -244,7 +257,7 @@ Tres cosas que el simulador deja a la vista:
 
 `src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.
 
-Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `formatted`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
+Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `formatted`, `allowsNegative`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
 
 Dos detalles del contrato:
 
