@@ -44,6 +44,8 @@ export interface FieldSpec {
 export interface NumericDefaults {
   roundingExceptions: string[];
   clampedCalculated: string[];
+  decimals: number;
+  decimalsByField: Record<string, number>;
 }
 
 // Como FieldDataSource, pero apuntando a los campos por nombre: los uuid recien existen despues

@@ -2,12 +2,14 @@ import { allowsNegative } from "../../../../lib/fieldSign/fieldSign";
 import { useFormStore } from "../../../../store/formStore";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
+import { DECIMAL_CHOICES } from "./NumberOptionsEditor.constants";
 import type { NumberOptionsEditorProps } from "./NumberOptionsEditor.types";
 
 export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
   const setFieldRounding = useFormStore((state) => state.setFieldRounding);
   const setFieldFormatted = useFormStore((state) => state.setFieldFormatted);
   const setFieldAllowsNegative = useFormStore((state) => state.setFieldAllowsNegative);
+  const setFieldDecimals = useFormStore((state) => state.setFieldDecimals);
 
   return (
     <PanelSection title="Número">
@@ -38,6 +40,35 @@ export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
         Muestra 1.000 en vez de 1000 y 1,5 en vez de 1.5, al salir del campo. Esto sí es solo
         presentación: el valor guardado y el que viaja en el payload siguen siendo el número. Al
         volver a entrar al campo se ve sin puntos, para poder editarlo.
+      </p>
+
+      <div className="flex items-center justify-between gap-2">
+        <label htmlFor="field-decimals" className="text-sm text-fg">
+          Decimales
+        </label>
+        <select
+          id="field-decimals"
+          value={field.decimals ?? ""}
+          onChange={(event) =>
+            setFieldDecimals(
+              field.id,
+              event.target.value === "" ? null : Number(event.target.value),
+            )
+          }
+          className="rounded-md border border-border bg-field px-2 py-1 text-xs text-fg outline-none focus:border-brand-border"
+        >
+          <option value="">Los que traiga</option>
+          {DECIMAL_CHOICES.map((choice) => (
+            <option key={choice} value={choice}>
+              {choice}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p className="text-[10px] text-fg-subtle">
+        Con 0 la coma no se puede escribir y el valor se redondea a entero. Con 1 una tarifa de 6 se
+        muestra 6,0, para que la columna quede pareja. Rellenar con ceros es solo presentación, pero
+        recortar decimales sí cambia el valor guardado.
       </p>
 
       <div className="flex items-center justify-between gap-2">

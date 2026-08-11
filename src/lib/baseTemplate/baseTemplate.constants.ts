@@ -90,6 +90,16 @@ export const CALCULATED_WITHOUT_NEGATIVE: string[] = [
   "total_a_pagar_con_aporte_voluntario",
 ];
 
+// La declaracion no lleva decimales en ningun renglon: los de plata se aproximan al millar, el DV
+// es un digito, los establecimientos se cuentan y los kilovatios vienen enteros.
+export const TEMPLATE_DECIMALS: number = 0;
+
+// La unica excepcion. Una tarifa puede ser 4, 7,5 o 6, y declarando un decimal la columna se lee
+// pareja -- 4,0 / 7,5 / 6,0 -- en vez de saltar entre enteros y decimales.
+export const DECIMALS_BY_FIELD: Record<string, number> = {
+  tarifa_x_mil: 1,
+};
+
 // El neto sin recortar, que comparten los renglones 33 y 34: uno lo toma en positivo y el otro
 // en negativo. Va como expresion suelta -- sin return -- porque se interpola dentro de max(...).
 export const SALDO_NETO: string =

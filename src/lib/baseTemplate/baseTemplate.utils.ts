@@ -143,6 +143,8 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
 //   redondeo  -- todos menos los que no llevan plata, que van en roundingExceptions.
 //   signo     -- todos los `number`, que ya declaraban min: 0, y solo los calculados nombrados
 //                en clampedCalculated, que son los que de verdad pueden dar negativo.
+//   decimales -- todos el mismo, salvo los de decimalsByField. La declaracion no lleva decimales
+//                en ningun renglon; la tarifa es la unica excepcion.
 export function applyNumericDefaults<T extends { rows: CanvasRow[] }>(
   steps: T[],
   defaults: NumericDefaults,
@@ -156,6 +158,7 @@ export function applyNumericDefaults<T extends { rows: CanvasRow[] }>(
         if (!supportsRounding(field.type)) continue;
 
         field.formatted = true;
+        field.decimals = defaults.decimalsByField[field.name] ?? defaults.decimals;
         if (!skipRounding.has(field.name)) field.rounding = true;
         if (field.type === "number" || clamped.has(field.name)) field.allowsNegative = false;
       }

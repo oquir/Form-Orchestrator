@@ -4,4 +4,5 @@
 export interface RoundableField {
   type: string;
   rounding?: boolean;
+  decimals?: number;
 }

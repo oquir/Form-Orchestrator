@@ -152,6 +152,9 @@ export interface CanvasField {
   // Ausente significa que SI admite negativos: solo el false restringe. La polaridad va al reves
   // que las dos de arriba a proposito, para no poner a recortar los borradores ya guardados.
   allowsNegative?: boolean;
+  // Cuantos decimales muestra y deja teclear. Ausente = los que traiga, hasta el tope de la lib.
+  // Recorta el valor ademas de rellenarlo al mostrar; ver lib/fieldRounding.
+  decimals?: number;
 }
 
 export interface SavedComponent {
@@ -175,4 +178,5 @@ export interface SavedComponent {
   rounding?: boolean;
   formatted?: boolean;
   allowsNegative?: boolean;
+  decimals?: number;
 }

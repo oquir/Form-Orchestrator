@@ -1,7 +1,7 @@
 import type { ExportedField, ExportedRule } from "../../types/exportForm";
 import type { RuntimeIssue, RuntimeModel, RuntimeValues } from "../../types/formRuntime";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
-import { applyRounding } from "../fieldRounding/fieldRounding";
+import { applyDecimals, applyRounding } from "../fieldRounding/fieldRounding";
 import { clampNegative } from "../fieldSign/fieldSign";
 import { evaluateConditions } from "../runtimeCondition/runtimeCondition";
 import { coerceForScript, coerceValues, runFieldScript } from "../scriptRuntime/scriptRuntime";
@@ -106,7 +106,7 @@ export function computeDerivedValues(
     // Solo si algo lo produjo. Un campo calculado cuyo script devolvio undefined sigue siendo del
     // usuario, y a lo que el usuario escribe lo redondea el blur del simulador.
     if (touched) {
-      next = applyRounding(field, next);
+      next = applyDecimals(field, applyRounding(field, next));
 
       // El recorte va despues del redondeo y antes de publicar, igual que el: si se recortara
       // mas tarde el campo de abajo leeria el negativo que en pantalla ya no esta.

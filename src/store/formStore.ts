@@ -9,7 +9,7 @@ import {
   exportableOptions,
   isOptionBasedField,
 } from "../lib/fieldOptions/fieldOptions";
-import { exportableRounding } from "../lib/fieldRounding/fieldRounding";
+import { exportableDecimals, exportableRounding } from "../lib/fieldRounding/fieldRounding";
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
 import { exportableAllowsNegative } from "../lib/fieldSign/fieldSign";
 import { createEmptyTooltip, exportableTooltip } from "../lib/fieldTooltip/fieldTooltip";
@@ -825,6 +825,14 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         formatted: formatted || undefined,
       })),
     ),
+  // null es "los que traiga": la ausencia de la clave es un estado con sentido, no un cero.
+  setFieldDecimals: (fieldId, decimals) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        decimals: decimals ?? undefined,
+      })),
+    ),
   // Esta guarda el false y borra el true, al reves que las dos de arriba: aca lo que hay que
   // decir es la restriccion, porque admitir negativos es el default.
   setFieldAllowsNegative: (fieldId, allows) =>
@@ -891,6 +899,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       rounding: exportableRounding(field),
       formatted: exportableFormatting(field),
       allowsNegative: exportableAllowsNegative(field),
+      decimals: exportableDecimals(field),
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -928,6 +937,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         rounding: component.rounding,
         formatted: component.formatted,
         allowsNegative: component.allowsNegative,
+        decimals: component.decimals,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

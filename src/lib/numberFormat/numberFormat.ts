@@ -32,19 +32,23 @@ export function exportableFormatting(field: FormattableField): boolean | undefin
   return field.formatted && supportsFormatting(field.type) ? true : undefined;
 }
 
-// Agrupa la parte entera de a tres. Los decimales solo aparecen si los hay: 1000 se muestra
-// "1.000" y no "1.000,00", que es lo que se espera de un renglon de la declaracion.
-export function formatNumber(value: number): string {
+// Agrupa la parte entera de a tres. Sin `decimals` declarado los decimales solo aparecen si los
+// hay -- 1000 se muestra "1.000" y no "1.000,00" -- y con `decimals` se muestran siempre esos, con
+// sus ceros: una tarifa de 6 sale "6,0" y la columna queda pareja con la de 7,5.
+//
+// Rellenar con ceros no puede mentir, porque 6 y 6,0 son el mismo numero. Recortar si podria, y
+// por eso el recorte no vive aca sino en applyDecimals, que cambia el valor de verdad.
+export function formatNumber(value: number, decimals?: number): string {
   if (!Number.isFinite(value)) return "";
   if (Math.abs(value) >= MAX_FORMATTABLE) return String(value);
 
   // toFixed antes de recortar los ceros es lo que mata la cola de la coma flotante: 0.1 + 0.2
   // llega como 0.30000000000000004 y sale "0,3".
-  const fixed: string = Math.abs(value).toFixed(MAX_DISPLAY_DECIMALS);
-  const [whole, decimals] = fixed.split(".");
-  const trimmed: string = decimals.replace(/0+$/, "");
+  const fixed: string = Math.abs(value).toFixed(decimals ?? MAX_DISPLAY_DECIMALS);
+  const [whole, rest] = fixed.split(".");
+  const shown: string = decimals === undefined ? (rest ?? "").replace(/0+$/, "") : (rest ?? "");
   const grouped: string = whole.replace(/\B(?=(\d{3})+(?!\d))/g, GROUP_SEPARATOR);
-  const body: string = trimmed.length > 0 ? `${grouped}${DECIMAL_SEPARATOR}${trimmed}` : grouped;
+  const body: string = shown.length > 0 ? `${grouped}${DECIMAL_SEPARATOR}${shown}` : grouped;
 
   // value < 0 es falso para -0, asi que el cero negativo sale "0" y no "-0".
   return value < 0 ? `-${body}` : body;
@@ -83,21 +87,27 @@ export function parseFormattedNumber(text: string): number | null {
 // `allowNegative` llega como booleano y no como el campo entero para que este archivo siga siendo
 // solo sobre texto: quien decide la politica de signo es lib/fieldSign. Cuando es falso el menos
 // se descarta como cualquier otro caracter, asi que tampoco entra pegando desde el portapapeles.
-export function sanitizeNumericInput(raw: string, allowNegative = true): string {
+export function sanitizeNumericInput(raw: string, allowNegative = true, decimals?: number): string {
   const negative: boolean = allowNegative && raw.trimStart().startsWith("-");
   const body: string = raw.replace(/[^\d.,]/g, "");
 
   // Una sola coma. Con dos el texto dejaria de parsear y no habria numero que guardar, asi que se
   // impide escribirlas en vez de descartar el valor despues.
   const first: number = body.indexOf(DECIMAL_SEPARATOR);
+  if (first === -1) return negative ? `-${body}` : body;
+
+  const whole: string = body.slice(0, first);
+  const rest: string = body
+    .slice(first + 1)
+    .split(DECIMAL_SEPARATOR)
+    .join("");
+
+  // Con decimals en 0 se corta EN la coma, no solo se le saca la coma: pegar "1234,56" tiene que
+  // dar 1234 y no 123456, que seria el valor equivocado por dos ordenes de magnitud.
   const single: string =
-    first === -1
-      ? body
-      : body.slice(0, first + 1) +
-        body
-          .slice(first + 1)
-          .split(DECIMAL_SEPARATOR)
-          .join("");
+    decimals === 0
+      ? whole
+      : `${whole}${DECIMAL_SEPARATOR}${decimals === undefined ? rest : rest.slice(0, decimals)}`;
 
   return negative ? `-${single}` : single;
 }
@@ -124,5 +134,5 @@ export function formatForDisplay(field: FormattableField, value: unknown): strin
   const parsed: number | null =
     typeof value === "number" ? value : parseFormattedNumber(String(value));
 
-  return parsed === null ? String(value) : formatNumber(parsed);
+  return parsed === null ? String(value) : formatNumber(parsed, field.decimals);
 }

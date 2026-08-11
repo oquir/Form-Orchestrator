@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { applyRounding } from "../../../../lib/fieldRounding/fieldRounding";
+import { applyDecimals, applyRounding } from "../../../../lib/fieldRounding/fieldRounding";
 import { allowsNegative, clampNegative } from "../../../../lib/fieldSign/fieldSign";
 import {
   formatForDisplay,
@@ -37,7 +37,11 @@ export function PreviewNumberInput({
       value={draft ?? formatForDisplay(field, value)}
       onFocus={() => setDraft(toEditableText(value))}
       onChange={(event) => {
-        const clean: string = sanitizeNumericInput(event.target.value, allowsNegative(field));
+        const clean: string = sanitizeNumericInput(
+          event.target.value,
+          allowsNegative(field),
+          field.decimals,
+        );
         setDraft(clean);
         // Lo que sale al estado es siempre un numero, nunca el texto: un "1.000" filtrado hasta
         // aca viajaria al payload como string y los scripts lo leerian como 1.
@@ -48,10 +52,17 @@ export function PreviewNumberInput({
         // esta guarda un blur programatico vaciaria el campo.
         if (draft === null) return;
 
-        // El filtro ya impide tipear el menos, asi que el recorte de aca casi nunca hace nada.
-        // Se deja igual: si la unica barrera fuera el teclado, cualquier otro camino hasta el
-        // valor se saltaria la regla y el min: 0 recien lo cazaria al validar.
-        const rounded: unknown = applyRounding(field, parseFormattedNumber(draft) ?? "");
+        // Las tres reglas de valor en fila: millar, decimales y signo, en el mismo orden que en
+        // runtimeDerived. Entre las dos primeras el orden da igual -- un multiplo de mil ya no
+        // tiene decimales -- pero se deja fijo para no tener que volver a razonarlo.
+        //
+        // El recorte de signo casi nunca hace nada aca, porque el filtro ya impide tipear el menos.
+        // Se deja igual: si la unica barrera fuera el teclado, cualquier otro camino hasta el valor
+        // se saltaria la regla y el min: 0 recien lo cazaria al validar.
+        const rounded: unknown = applyDecimals(
+          field,
+          applyRounding(field, parseFormattedNumber(draft) ?? ""),
+        );
         const next: unknown = clampNegative(field, rounded).value;
         setDraft(null);
         if (next !== value) onChange(next);

@@ -83,6 +83,7 @@ export interface ExportedField {
   formatted?: boolean;
   // Solo aparece cuando vale false. Si no viene, el campo admite negativos.
   allowsNegative?: boolean;
+  decimals?: number;
 }
 
 export interface ExportedRepeatableGroup {

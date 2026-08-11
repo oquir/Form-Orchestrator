@@ -18,6 +18,7 @@ import {
   CALCULATED_WITHOUT_NEGATIVE,
   CORREO_MESSAGE,
   CORREO_PATTERN,
+  DECIMALS_BY_FIELD,
   DOCUMENTO_MESSAGE,
   DOCUMENTO_PATTERN,
   FIELDS_WITHOUT_ROUNDING,
@@ -26,6 +27,7 @@ import {
   SALDO_NETO,
   TELEFONO_MESSAGE,
   TELEFONO_PATTERN,
+  TEMPLATE_DECIMALS,
   TIPO_DOCUMENTO_NIT,
 } from "./baseTemplate.constants";
 import type { TemplateCondition, TemplateValidationOverride } from "./baseTemplate.types";
@@ -906,6 +908,8 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
     {
       roundingExceptions: FIELDS_WITHOUT_ROUNDING,
       clampedCalculated: CALCULATED_WITHOUT_NEGATIVE,
+      decimals: TEMPLATE_DECIMALS,
+      decimalsByField: DECIMALS_BY_FIELD,
     },
   );
 }

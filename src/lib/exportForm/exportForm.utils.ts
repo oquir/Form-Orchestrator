@@ -13,7 +13,7 @@ import type { CanvasRow, FormStep } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
-import { exportableRounding } from "../fieldRounding/fieldRounding";
+import { exportableDecimals, exportableRounding } from "../fieldRounding/fieldRounding";
 import { compileScript } from "../fieldScript/fieldScript";
 import { exportableAllowsNegative } from "../fieldSign/fieldSign";
 import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
@@ -193,6 +193,7 @@ export function mapRows(
       rounding: exportableRounding(field),
       formatted: exportableFormatting(field),
       allowsNegative: exportableAllowsNegative(field),
+      decimals: exportableDecimals(field),
     })),
   }));
 }
