@@ -119,19 +119,26 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
   return steps;
 }
 
-// Prende el redondeo sobre el paso entero en vez de campo por campo. La regla es del formulario
-// completo -- todo renglon de valor se aproxima al millar -- y declararla treinta y pico de veces
-// significaria que el renglon numero treinta y seis se agrega sin ella y nadie lo nota.
-export function applyRoundingToTemplate<T extends { rows: CanvasRow[] }>(
+// Prende las dos propiedades numericas sobre el paso entero en vez de campo por campo. Son reglas
+// del formulario completo, y declararlas treinta y pico de veces significaria que el renglon
+// numero treinta y seis se agrega sin ellas y nadie lo nota.
+//
+// El formato va en todos los numericos sin excepcion: hasta una tarifa de 1,5 y un conteo de
+// establecimientos se leen mejor con la convencion local. El redondeo si tiene excepciones -- los
+// campos que no llevan plata -- y por eso es el unico que recibe una lista.
+export function applyNumericDefaults<T extends { rows: CanvasRow[] }>(
   steps: T[],
-  exceptions: string[],
+  roundingExceptions: string[],
 ): T[] {
-  const skip: Set<string> = new Set(exceptions);
+  const skip: Set<string> = new Set(roundingExceptions);
 
   for (const step of steps) {
     for (const row of step.rows) {
       for (const field of row.fields) {
-        if (supportsRounding(field.type) && !skip.has(field.name)) field.rounding = true;
+        if (!supportsRounding(field.type)) continue;
+
+        field.formatted = true;
+        if (!skip.has(field.name)) field.rounding = true;
       }
     }
   }

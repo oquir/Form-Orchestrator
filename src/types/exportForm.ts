@@ -80,6 +80,7 @@ export interface ExportedField {
   content?: RichTextContent;
   tooltip?: FieldTooltip;
   rounding?: boolean;
+  formatted?: boolean;
 }
 
 export interface ExportedRepeatableGroup {

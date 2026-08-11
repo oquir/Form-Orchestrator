@@ -16,6 +16,7 @@ import { exportableOptions } from "../fieldOptions/fieldOptions";
 import { exportableRounding } from "../fieldRounding/fieldRounding";
 import { compileScript } from "../fieldScript/fieldScript";
 import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
+import { exportableFormatting } from "../numberFormat/numberFormat";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
 import {
   buildGroupZodSchema,
@@ -180,6 +181,7 @@ export function mapRows(
       content: field.content,
       tooltip: exportableTooltip(field),
       rounding: exportableRounding(field),
+      formatted: exportableFormatting(field),
     })),
   }));
 }

@@ -22,6 +22,7 @@ import {
   createValidationOverride,
   pruneOverridesReferencing,
 } from "../lib/fieldValidationOverride/fieldValidationOverride";
+import { exportableFormatting } from "../lib/numberFormat/numberFormat";
 import {
   clampGroupBounds,
   createRepeatableGroup,
@@ -807,13 +808,20 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         },
       })),
     ),
-  // Apagarlo borra la clave en vez de guardar false: ausente y false son lo mismo, y una sola de
+  // Apagarlos borra la clave en vez de guardar false: ausente y false son lo mismo, y una sola de
   // las dos formas mantiene limpios el borrador y el JSON exportado.
   setFieldRounding: (fieldId, rounding) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
         ...field,
         rounding: rounding || undefined,
+      })),
+    ),
+  setFieldFormatted: (fieldId, formatted) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        formatted: formatted || undefined,
       })),
     ),
   updateFieldTooltip: (fieldId, updates) =>
@@ -871,6 +879,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       apiBinding: field.apiBinding,
       tooltip: exportableTooltip(field),
       rounding: exportableRounding(field),
+      formatted: exportableFormatting(field),
     };
     set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
   },
@@ -906,6 +915,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         apiBinding: component.apiBinding ? { ...component.apiBinding } : undefined,
         tooltip: component.tooltip ? { ...component.tooltip } : undefined,
         rounding: component.rounding,
+        formatted: component.formatted,
       };
       return {
         ...mapRowEverywhere(state, rowId, (row) => ({

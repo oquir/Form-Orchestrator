@@ -5,6 +5,7 @@ import type { NumberOptionsEditorProps } from "./NumberOptionsEditor.types";
 
 export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
   const setFieldRounding = useFormStore((state) => state.setFieldRounding);
+  const setFieldFormatted = useFormStore((state) => state.setFieldFormatted);
 
   return (
     <PanelSection title="Número">
@@ -21,6 +22,20 @@ export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
         no solo cómo se ve, así que es el número redondeado el que se guarda y el que viaja en el
         payload. Si lo escribe el usuario se aplica al salir del campo; si lo produce un script o
         una regla, apenas se calcula.
+      </p>
+
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm text-fg">Separar miles y decimales</span>
+        <ToggleSwitch
+          checked={Boolean(field.formatted)}
+          onChange={(checked) => setFieldFormatted(field.id, checked)}
+          label="Mostrar el valor con punto de miles y coma decimal"
+        />
+      </div>
+      <p className="text-[10px] text-fg-subtle">
+        Muestra 1.000 en vez de 1000 y 1,5 en vez de 1.5, al salir del campo. Esto sí es solo
+        presentación: el valor guardado y el que viaja en el payload siguen siendo el número. Al
+        volver a entrar al campo se ve sin puntos, para poder editarlo.
       </p>
     </PanelSection>
   );

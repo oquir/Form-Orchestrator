@@ -28,7 +28,7 @@ import {
   TIPO_DOCUMENTO_NIT,
 } from "./baseTemplate.constants";
 import type { TemplateCondition, TemplateValidationOverride } from "./baseTemplate.types";
-import { applyRoundingToTemplate, buildRow, resolveTemplateConditions } from "./baseTemplate.utils";
+import { applyNumericDefaults, buildRow, resolveTemplateConditions } from "./baseTemplate.utils";
 
 // Los ocho pasos del formulario de industria y comercio, escritos como filas de FieldSpec.
 // Es el unico tipo de formulario con plantilla; los demas arrancan con una fila vacia.
@@ -179,7 +179,7 @@ function buildActividadesStep(): FormStepTemplate {
 }
 
 export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
-  return applyRoundingToTemplate(
+  return applyNumericDefaults(
     resolveTemplateConditions([
       {
         title: "Datos",

@@ -134,6 +134,9 @@ export interface CanvasField {
   // Aproximar al millar mas cercano. Es un booleano y no un multiplo porque en los formularios
   // que existen nunca aparecio otro redondeo; el multiplo vive en lib/fieldRounding.
   rounding?: boolean;
+  // Mostrar el valor con punto de miles y coma decimal. Es solo presentacion: el valor guardado
+  // sigue siendo un numero, nunca el texto formateado. Ver lib/numberFormat.
+  formatted?: boolean;
 }
 
 export interface SavedComponent {
@@ -155,4 +158,5 @@ export interface SavedComponent {
   dataSource?: FieldDataSource;
   tooltip?: FieldTooltip;
   rounding?: boolean;
+  formatted?: boolean;
 }
