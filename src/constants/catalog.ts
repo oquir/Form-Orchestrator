@@ -1,4 +1,4 @@
-import type { CatalogDefinition } from "../types/catalog";
+import type { CatalogColumn, CatalogDefinition } from "../types/catalog";
 
 // Nombres de catalogo del contrato: el consumidor los traduce a su endpoint real.
 export const CATALOG_DEPARTAMENTOS: string = "departamentos";
@@ -34,6 +34,15 @@ export const CATALOGS: CatalogDefinition[] = [
   { id: CATALOG_TIPOS_SANCION, label: "Tipos de sanción" },
   { id: CATALOG_JUEGOS_PERMITIDOS, label: "Juegos permitidos" },
   { id: CATALOG_ACTIVIDADES, label: "Actividades" },
+];
+
+// Las columnas que se pueden copiar a otro campo, ordenadas por lo que se usa de verdad: el
+// codigo y la tarifa son el caso real, la etiqueta y el id existen porque no cuestan nada.
+export const CATALOG_COLUMNS: { id: CatalogColumn; label: string }[] = [
+  { id: "code", label: "Código" },
+  { id: "tarifa", label: "Tarifa" },
+  { id: "label", label: "Etiqueta" },
+  { id: "id", label: "Id" },
 ];
 
 export function findCatalog(id: string): CatalogDefinition | undefined {

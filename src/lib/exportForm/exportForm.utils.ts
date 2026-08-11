@@ -8,7 +8,7 @@ import type {
   ExportedValidations,
   ExportedValidationVariant,
 } from "../../types/exportForm";
-import type { CanvasField, FieldCondition, FieldDataSource } from "../../types/field";
+import type { CanvasField, CatalogFill, FieldCondition, FieldDataSource } from "../../types/field";
 import type { CanvasRow, FormStep } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
@@ -140,9 +140,18 @@ export function resolveDataSource(
   const source: FieldDataSource | undefined = field.dataSource;
   if (!source) return undefined;
 
+  // Un relleno cuyo destino ya no existe se descarta entero, igual que un override que apunta a
+  // un campo borrado: dejarlo seria mandarle al consumidor una instruccion de copiar a la nada.
+  const fills: CatalogFill[] | undefined = source.fills?.flatMap((fill) => {
+    const name: string | undefined = names.get(fill.field);
+
+    return name ? [{ column: fill.column, field: name }] : [];
+  });
+
   return {
     catalog: source.catalog,
     dependsOn: source.dependsOn ? (names.get(source.dependsOn) ?? source.dependsOn) : undefined,
+    fills: fills && fills.length > 0 ? fills : undefined,
   };
 }
 

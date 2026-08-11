@@ -18,6 +18,11 @@ export interface CatalogOption extends FieldOption {
   tarifa?: number;
 }
 
+// Las columnas de una opcion que se pueden copiar a otro campo. Se derivan de CatalogOption a
+// proposito: agregarle una columna al catalogo la ofrece sola, sin una segunda lista que se olvide
+// de crecer con la primera.
+export type CatalogColumn = keyof CatalogOption;
+
 export interface CatalogEntry extends CatalogOption {
   // Solo en catalogos parametrizados: a que valor del padre pertenece esta opcion.
   parentId?: string;

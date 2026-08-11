@@ -1,3 +1,4 @@
+import type { CatalogColumn } from "./catalog";
 import type { RichTextContent } from "./richText";
 
 // Lo que una condicion puede cambiar. Vive aparte de FieldValidations para que un override no
@@ -103,11 +104,22 @@ export interface FieldRule {
 
 export type ApiBinding = { kind: "mapped"; path: string } | { kind: "excluded" };
 
+// Que columna de la opcion elegida se copia a que campo. Vive en el campo que ORIGINA la
+// seleccion y no en los que se llenan: un solo dueno, sin dos puntas que mantener sincronizadas,
+// igual que labelFor.
+export interface CatalogFill {
+  column: CatalogColumn;
+  // Id del campo destino; se resuelve a nombre al exportar, como dependsOn.
+  field: string;
+}
+
 // Que catalogo alimenta las opciones del campo. `dependsOn` guarda el id del campo que
 // parametriza la consulta (departamento -> municipios) y se resuelve a nombre al exportar.
+// `fills` es lo que hace que al elegir una actividad se llenen solos su codigo CIIU y su tarifa.
 export interface FieldDataSource {
   catalog: string;
   dependsOn?: string;
+  fills?: CatalogFill[];
 }
 
 export interface CanvasField {

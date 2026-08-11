@@ -23,6 +23,7 @@ import { LabeledRangeSlider } from "../../../molecules/LabeledRangeSlider/Labele
 import { LabelTargetSelect } from "../../../molecules/LabelTargetSelect/LabelTargetSelect";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor";
+import { CatalogFillsEditor } from "../CatalogFillsEditor/CatalogFillsEditor";
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FieldTooltipEditor } from "../FieldTooltipEditor/FieldTooltipEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
@@ -140,6 +141,8 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
           >
             Ir a Mapeo API →
           </button>
+
+          {field.dataSource && <CatalogFillsEditor field={field} />}
         </PanelSection>
       )}
 

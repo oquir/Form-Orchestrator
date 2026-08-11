@@ -3,7 +3,9 @@ import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type {
   ApiBinding,
   CanvasField,
+  CatalogFill,
   FieldCondition,
+  FieldDataSource,
   FieldRule,
   FieldValidationOverride,
 } from "../../types/field";
@@ -94,7 +96,19 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
           const parentId: string | undefined = idsByName.get(field.dataSource.dependsOn);
           field.dataSource = parentId
             ? { ...field.dataSource, dependsOn: parentId }
-            : { catalog: field.dataSource.catalog };
+            : { ...field.dataSource, dependsOn: undefined };
+        }
+
+        const source: FieldDataSource | undefined = field.dataSource;
+
+        if (source?.fills) {
+          const fills: CatalogFill[] = source.fills.flatMap((fill) => {
+            const targetId: string | undefined = idsByName.get(fill.field);
+
+            return targetId ? [{ ...fill, field: targetId }] : [];
+          });
+
+          field.dataSource = { ...source, fills: fills.length > 0 ? fills : undefined };
         }
 
         if (field.validations.overrides) {

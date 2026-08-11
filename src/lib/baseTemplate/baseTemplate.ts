@@ -131,7 +131,15 @@ function buildActividadesStep(): FormStepTemplate {
             colSpan: 10,
             path: "actividades[].idActividad",
             required: true,
-            dataSource: { catalog: CATALOG_ACTIVIDADES },
+            // El codigo y la tarifa no se tipean: salen de la actividad elegida. Los dos campos
+            // van alwaysDisabled y se llenan solos al seleccionar, aca y en el consumidor.
+            dataSource: {
+              catalog: CATALOG_ACTIVIDADES,
+              fills: [
+                { column: "code", field: "codigo_actividad" },
+                { column: "tarifa", field: "tarifa_x_mil" },
+              ],
+            },
           },
           {
             name: "codigo_actividad",

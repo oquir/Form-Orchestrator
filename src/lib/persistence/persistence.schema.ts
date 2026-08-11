@@ -123,6 +123,9 @@ const apiBindingSchema = z.discriminatedUnion("kind", [
 const fieldDataSourceSchema = z.object({
   catalog: z.string(),
   dependsOn: z.string().optional(),
+  fills: z
+    .array(z.object({ column: z.enum(["id", "label", "code", "tarifa"]), field: z.string() }))
+    .optional(),
 });
 
 const canvasFieldSchema = z.object({

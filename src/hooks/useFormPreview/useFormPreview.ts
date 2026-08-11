@@ -1,15 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { hasFills, resolveFills } from "../../lib/catalogFill/catalogFill";
 import { buildFormExport } from "../../lib/exportForm/exportForm";
 import {
   buildRuntimeModel,
   createInitialState,
   resolveRuntime,
 } from "../../lib/formRuntime/formRuntime";
+import { catalogOptions } from "../../lib/mockCatalog/mockCatalog";
 import { buildPayload } from "../../lib/runtimePayload/runtimePayload";
 import { validateRuntime } from "../../lib/runtimeValidation/runtimeValidation";
 import { useFormStore } from "../../store/formStore";
+import type { ExportedField } from "../../types/exportForm";
 import type { FormPreviewApi } from "../../types/formPreview";
-import type { PreviewState, RuntimeModel, RuntimeSnapshot } from "../../types/formRuntime";
+import type {
+  PreviewState,
+  RuntimeModel,
+  RuntimeSnapshot,
+  RuntimeValues,
+} from "../../types/formRuntime";
 import { emptyGroupItem, reconcileState } from "./useFormPreview.utils";
 
 // El unico sitio donde el simulador toca el store, y solo para alimentar a buildFormExport.
@@ -42,18 +50,41 @@ export function useFormPreview(): FormPreviewApi {
   const validation = useMemo(() => validateRuntime(model, snapshot), [model, snapshot]);
   const payload = useMemo(() => buildPayload(model, snapshot), [model, snapshot]);
 
-  const setValue = useCallback((name: string, value: unknown, groupId?: string, index?: number) => {
-    setState((previous) => {
-      if (groupId === undefined || index === undefined) {
-        return { ...previous, values: { ...previous.values, [name]: value } };
-      }
+  const setValue = useCallback(
+    (name: string, value: unknown, groupId?: string, index?: number) => {
+      setState((previous) => {
+        const item: RuntimeValues =
+          groupId !== undefined && index !== undefined
+            ? (previous.groups[groupId]?.[index] ?? {})
+            : {};
+        const field: ExportedField | undefined = model.fieldsByName.get(name);
 
-      const items = [...(previous.groups[groupId] ?? [])];
-      items[index] = { ...items[index], [name]: value };
+        // Las columnas de la opcion elegida se copian a sus campos hermanos, y se copian al mismo
+        // ambito: sin eso, elegir la actividad de la fila 3 llenaria la tarifa de la fila 1.
+        //
+        // El catalogo se arma solo cuando el campo declara rellenos. catalogOptions sobre
+        // actividades construye 425 opciones y esto corre en cada tecla de cada campo.
+        const filled: RuntimeValues =
+          field && hasFills(field)
+            ? resolveFills(
+                field,
+                value,
+                catalogOptions(field, { ...previous.values, ...item }, catalogBank),
+              )
+            : {};
 
-      return { ...previous, groups: { ...previous.groups, [groupId]: items } };
-    });
-  }, []);
+        if (groupId === undefined || index === undefined) {
+          return { ...previous, values: { ...previous.values, [name]: value, ...filled } };
+        }
+
+        const items = [...(previous.groups[groupId] ?? [])];
+        items[index] = { ...items[index], [name]: value, ...filled };
+
+        return { ...previous, groups: { ...previous.groups, [groupId]: items } };
+      });
+    },
+    [model, catalogBank],
+  );
 
   const addGroupItem = useCallback(
     (groupId: string) => {

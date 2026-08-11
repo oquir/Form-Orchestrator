@@ -1,4 +1,4 @@
-import type { ConditionOperator, FieldValidationRules } from "../../types/field";
+import type { CatalogFill, ConditionOperator, FieldValidationRules } from "../../types/field";
 
 export interface TemplateCondition {
   field: string;
@@ -46,7 +46,10 @@ export interface NumericDefaults {
   clampedCalculated: string[];
 }
 
+// Como FieldDataSource, pero apuntando a los campos por nombre: los uuid recien existen despues
+// de buildRow, y resolveTemplateConditions los traduce.
 export interface TemplateDataSource {
   catalog: string;
   dependsOn?: string;
+  fills?: CatalogFill[];
 }
