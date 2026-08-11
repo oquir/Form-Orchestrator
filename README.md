@@ -136,6 +136,20 @@ Dos detalles que importan: un campo vacío **no** se convierte en `0` al salir d
 
 En la plantilla de ICA está prendido en los 34 renglones de valor. Quedan afuera cuatro campos numéricos que no son plata: `tarifa_x_mil` y `dv` (redondeados darían `0`), `numero_establecimientos` (un conteo) y `generacion_energia_kw` (renglón 18, pero son kilovatios de capacidad instalada).
 
+### Separador de miles y decimales
+
+Un campo `number` o `calculated` puede declarar `formatted: true` y su valor se **muestra con punto de miles y coma decimal**: `1000` se ve `1.000` y `1.5` se ve `1,5`. Se prende con un switch en la pestaña Atributos, al lado del redondeo.
+
+**Esto sí es solo presentación**, a diferencia del redondeo: el texto formateado **nunca sale del input**. El estado guarda un número de verdad y el `1.000` existe solo en pantalla, mientras el campo no está enfocado. No es un detalle de estilo — `buildPayload` mete el valor en el JSON sin parsearlo y los scripts lo leen con `parseFloat`, y `parseFloat("1.000")` es `1`. Un valor formateado que se filtrara al estado sería un error de tres órdenes de magnitud, en silencio.
+
+Al enfocar el campo se ve sin agrupar (`1000`), para poder editarlo; al salir se vuelve a formatear.
+
+Un detalle que sorprende: **el input no puede ser `type="number"`**. Por spec de HTML el valor tiene que ser un número de punto flotante válido, donde el punto es el separador **decimal**: ahí `"1.000"` vale uno y `"1.000,5"` es inválido y deja el campo en blanco. El control es `type="text"` con `inputMode="decimal"` —el teclado numérico del celular sigue apareciendo— y un filtro propio que solo deja pasar dígitos, punto, coma y un menos adelante. Ese filtro es **más estricto** que el rechazo nativo, que aceptaba la `e` de la notación científica.
+
+Un punto es siempre separador de miles, nunca decimal, que es lo que hace que `1.000` sean mil. La contra conocida: quien tipee `1.5` con la costumbre inglesa obtiene `15`.
+
+En la plantilla de ICA está prendido en los 38 campos numéricos, incluidos los cuatro que no redondean: una tarifa de `1,5` también se lee mejor así.
+
 ### Grupos repetibles
 
 Un grupo repetible es una **marca sobre la fila** (`CanvasRow.groupId`), no un contenedor anidado. Gracias a eso el drag-and-drop, el redimensionado y todas las reglas de posicionamiento siguen funcionando dentro del grupo sin ningún cambio: los campos de una actividad se mueven y reordenan libremente.
@@ -230,7 +244,7 @@ Tres cosas que el simulador deja a la vista:
 
 `src/lib/exportForm/` (`downloadFormExport`/`buildFormExport`) serializa todo a un único JSON descargable: `projectMeta`, `setupConfig.introModal` y `formSchema.steps[]`, cada step con sus `rows[].fields[]` y sus `groups[]`.
 
-Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
+Cada campo exporta `colStart`, `colSpan`, `styles`, `validations.zodSchema`, `logic` (el `script` y las `rules`), `options`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `formatted`, `enableWhen` y `visibleWhen`. El preludio del formulario viaja una sola vez en `formSchema.prelude`.
 
 Dos detalles del contrato:
 
