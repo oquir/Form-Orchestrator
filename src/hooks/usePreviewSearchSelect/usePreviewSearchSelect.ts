@@ -53,8 +53,11 @@ export function usePreviewSearchSelect({
     },
     close: () => setIsOpen(false),
     setQuery,
+    // Elegir es lo unico que se puede hacer aca: el modal no tiene como dejar el campo vacio.
+    // Cambiar de actividad es elegir otra, y si de verdad sobra se borra la fila entera del grupo.
+    // La primera no se puede borrar -- min: 1 -- porque una empresa sin ninguna actividad no existe.
     choose: (option) => {
-      onChange(option ? option.id : "");
+      onChange(option.id);
       setIsOpen(false);
     },
   };

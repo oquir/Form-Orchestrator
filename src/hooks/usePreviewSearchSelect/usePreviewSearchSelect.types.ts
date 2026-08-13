@@ -16,5 +16,5 @@ export interface UsePreviewSearchSelectResult {
   open: () => void;
   close: () => void;
   setQuery: (query: string) => void;
-  choose: (option: CatalogOption | null) => void;
+  choose: (option: CatalogOption) => void;
 }

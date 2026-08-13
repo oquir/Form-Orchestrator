@@ -1,4 +1,4 @@
-import { Magnifier, Xmark } from "reicon-react";
+import { Magnifier } from "reicon-react";
 import { usePreviewSearchSelect } from "../../../../hooks/usePreviewSearchSelect/usePreviewSearchSelect";
 import {
   FOOTER_BUTTON_CLASSES,
@@ -102,21 +102,9 @@ export function PreviewSearchSelect({
               <span className="text-[11px] text-fg-subtle">
                 {search.results.length} de {options.length}
               </span>
-              <div className="flex items-center gap-2">
-                {search.selected && (
-                  <button
-                    type="button"
-                    onClick={() => search.choose(null)}
-                    className={`${FOOTER_BUTTON_CLASSES} flex items-center gap-1`}
-                  >
-                    <Xmark size={12} weight="Filled" />
-                    Quitar
-                  </button>
-                )}
-                <button type="button" onClick={search.close} className={FOOTER_BUTTON_CLASSES}>
-                  Cancelar
-                </button>
-              </div>
+              <button type="button" onClick={search.close} className={FOOTER_BUTTON_CLASSES}>
+                Cancelar
+              </button>
             </footer>
           </div>
         </div>
