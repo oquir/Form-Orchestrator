@@ -14,5 +14,8 @@ export const OPTION_BUTTON_CLASSES: string =
 export const TARIFA_BADGE_CLASSES: string =
   "shrink-0 rounded-full bg-warning-surface px-2 py-0.5 text-[11px] font-semibold text-warning";
 
+export const TARIFA_MISSING_CLASSES: string =
+  "shrink-0 rounded-full bg-surface-raised px-2 py-0.5 text-[11px] font-medium text-fg-subtle";
+
 export const FOOTER_BUTTON_CLASSES: string =
   "rounded-md border border-border px-3 py-1.5 text-xs text-fg-soft transition-colors hover:cursor-pointer hover:bg-surface-raised";

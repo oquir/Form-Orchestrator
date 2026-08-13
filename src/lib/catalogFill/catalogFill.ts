@@ -1,4 +1,4 @@
-import type { CatalogOption } from "../../types/catalog";
+import type { CatalogColumn, CatalogOption } from "../../types/catalog";
 import type { ExportedField } from "../../types/exportForm";
 import type { CatalogFill } from "../../types/field";
 import type { RuntimeValues } from "../../types/formRuntime";
@@ -13,6 +13,13 @@ import type { RuntimeValues } from "../../types/formRuntime";
 
 export function hasFills(field: ExportedField): boolean {
   return (field.dataSource?.fills?.length ?? 0) > 0;
+}
+
+// Que el campo declare que llena una columna es la unica senal de que esa columna importa para
+// este catalogo. Con ella el buscador distingue "esta actividad no trae tarifa" -- un dato que
+// falta, y hay que verlo -- de "este catalogo no tiene tarifas", donde no habria nada que avisar.
+export function fillsColumn(field: ExportedField, column: CatalogColumn): boolean {
+  return (field.dataSource?.fills ?? []).some((fill) => fill.column === column);
 }
 
 // Devuelve los valores a escribir, indexados por nombre de campo. Quien llama los mezcla en el

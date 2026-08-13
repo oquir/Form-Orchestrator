@@ -5,6 +5,7 @@ import {
   OPTION_BUTTON_CLASSES,
   SEARCH_INPUT_CLASSES,
   TARIFA_BADGE_CLASSES,
+  TARIFA_MISSING_CLASSES,
   TRIGGER_BASE_CLASSES,
   TRIGGER_IDLE_CLASSES,
   TRIGGER_INVALID_CLASSES,
@@ -19,6 +20,7 @@ export function PreviewSearchSelect({
   value,
   disabled,
   invalid,
+  showsTarifa,
   onChange,
 }: PreviewSearchSelectProps) {
   const search = usePreviewSearchSelect({ options, value, onChange });
@@ -89,8 +91,10 @@ export function PreviewSearchSelect({
                         )}
                         <span className="block text-sm text-fg">{option.label}</span>
                       </span>
-                      {option.tarifa !== undefined && (
+                      {option.tarifa !== undefined ? (
                         <span className={TARIFA_BADGE_CLASSES}>{formatTarifa(option.tarifa)}</span>
+                      ) : (
+                        showsTarifa && <span className={TARIFA_MISSING_CLASSES}>sin tarifa</span>
                       )}
                     </button>
                   </li>

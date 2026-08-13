@@ -1,3 +1,4 @@
+import { fillsColumn } from "../../../../lib/catalogFill/catalogFill";
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
 import type { CatalogOption } from "../../../../types/catalog";
 import { RichTextView } from "../../../atoms/RichTextView/RichTextView";
@@ -104,6 +105,7 @@ export function PreviewFieldControl({
           value={value}
           disabled={disabled}
           invalid={invalid}
+          showsTarifa={fillsColumn(field, "tarifa")}
           onChange={onChange}
         />
       );

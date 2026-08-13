@@ -7,5 +7,6 @@ export interface PreviewSearchSelectProps {
   value: unknown;
   disabled: boolean;
   invalid: boolean;
+  showsTarifa: boolean;
   onChange: (value: unknown) => void;
 }
