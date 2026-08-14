@@ -9,6 +9,13 @@ export function fieldKey(name: string, groupId?: string, index?: number): string
   return groupId === undefined || index === undefined ? name : `${groupId}:${index}:${name}`;
 }
 
+// La clave de una comprobacion de grupo, en el mismo mapa que las de campo. Va prefijada para no
+// pisarlas: un campo llamado "check" produce la clave "check" a secas, nunca "check:algo:algo".
+// Vive aca al lado de fieldKey justamente para que quien toque una vea la otra.
+export function checkKey(groupId: string, checkId: string): string {
+  return `check:${groupId}:${checkId}`;
+}
+
 // Cual de los schemas del campo aplica ahora mismo. Se recorren las variantes en orden y gana la
 // primera cuya condicion se cumpla; si ninguna, el de base. Es exactamente lo que el consumidor
 // tiene que hacer, y por eso lo hacen tanto la validacion como el asterisco de obligatorio.

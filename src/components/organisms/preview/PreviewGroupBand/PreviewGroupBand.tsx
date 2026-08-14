@@ -1,4 +1,5 @@
 import { Plus, Trash } from "reicon-react";
+import { checkKey } from "../../../../lib/runtimeValidation/runtimeValidation.utils";
 import type { ExportedRepeatableGroup } from "../../../../types/exportForm";
 import type { RuntimeScope } from "../../../../types/formRuntime";
 import { PreviewRowsGrid } from "../PreviewRowsGrid/PreviewRowsGrid";
@@ -9,6 +10,15 @@ export function PreviewGroupBand({ groupId, rows, preview }: PreviewGroupBandPro
   const scopes: RuntimeScope[] = preview.snapshot.groups[groupId] ?? [];
   const canAdd = scopes.length < (group?.max ?? 15);
   const canRemove = scopes.length > (group?.min ?? 1);
+
+  // El error de una comprobacion es del grupo entero, no de una fila, asi que se dibuja arriba de
+  // las repeticiones. Como cualquier otro error, solo aparece una vez revelado: nadie ve rojo en
+  // una pantalla a la que todavia no llego.
+  const checkErrors: string[] = (group?.checks ?? []).flatMap((check) => {
+    const key: string = checkKey(groupId, check.id);
+
+    return preview.revealed[key] && preview.errors[key] ? [preview.errors[key]] : [];
+  });
 
   return (
     <section className="rounded-lg border border-border bg-surface-sunken p-3">
@@ -29,6 +39,16 @@ export function PreviewGroupBand({ groupId, rows, preview }: PreviewGroupBandPro
           Agregar
         </button>
       </header>
+
+      {checkErrors.length > 0 && (
+        <ul className="mb-3 flex list-none flex-col gap-1 rounded-md border border-danger-border bg-danger-surface p-2.5">
+          {checkErrors.map((message) => (
+            <li key={message} className="text-[11px] text-danger">
+              {message}
+            </li>
+          ))}
+        </ul>
+      )}
 
       <ul className="flex list-none flex-col gap-3">
         {scopes.map((scope, index) => (

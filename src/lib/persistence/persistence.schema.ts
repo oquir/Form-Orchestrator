@@ -164,6 +164,14 @@ const canvasRowSchema = z.object({
   groupId: z.string().optional(),
 });
 
+const groupCheckSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  enabled: z.boolean(),
+  script: z.string(),
+  message: z.string(),
+});
+
 const repeatableGroupSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -171,6 +179,7 @@ const repeatableGroupSchema = z.object({
   min: z.number(),
   max: z.number(),
   arrayPath: z.string().optional(),
+  checks: z.array(groupCheckSchema).optional(),
 });
 
 const stepSchema = z.object({

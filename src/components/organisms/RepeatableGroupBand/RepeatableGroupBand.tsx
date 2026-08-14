@@ -5,6 +5,7 @@ import { arrayPaths } from "../../../lib/payloadSchema/payloadSchema";
 import { useFormStore } from "../../../store/formStore";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { CanvasRow } from "../CanvasRow/CanvasRow";
+import { GroupChecksEditor } from "../panels/GroupChecksEditor/GroupChecksEditor";
 import {
   BAND_ACTION_CLASSES,
   BAND_CLASSES,
@@ -127,6 +128,8 @@ export function RepeatableGroupBand({
             : "Elegí el arreglo para poder mapear los campos de adentro."}
         </span>
       </div>
+
+      <GroupChecksEditor group={group} />
 
       <ul className="grid list-none grid-cols-16 content-start gap-3">
         {rows.map((row) => (

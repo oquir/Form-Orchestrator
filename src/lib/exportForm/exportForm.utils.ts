@@ -1,5 +1,6 @@
 import type {
   ExportedCondition,
+  ExportedGroupCheck,
   ExportedRepeatableGroup,
   ExportedRow,
   ExportedRule,
@@ -9,7 +10,7 @@ import type {
   ExportedValidationVariant,
 } from "../../types/exportForm";
 import type { CanvasField, CatalogFill, FieldCondition, FieldDataSource } from "../../types/field";
-import type { CanvasRow, FormStep } from "../../types/formStructure";
+import type { CanvasRow, FormStep, RepeatableGroup } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableOptions } from "../fieldOptions/fieldOptions";
@@ -17,6 +18,7 @@ import { exportableDecimals, exportableRounding } from "../fieldRounding/fieldRo
 import { compileScript } from "../fieldScript/fieldScript";
 import { exportableAllowsNegative } from "../fieldSign/fieldSign";
 import { exportableTooltip } from "../fieldTooltip/fieldTooltip";
+import { enabledChecks } from "../groupCheck/groupCheck";
 import { exportableFormatting } from "../numberFormat/numberFormat";
 import { groupFields } from "../repeatableGroup/repeatableGroup";
 import {
@@ -198,7 +200,27 @@ export function mapRows(
   }));
 }
 
-export function mapGroups(step: FormStep): ExportedRepeatableGroup[] | undefined {
+// Solo salen las encendidas, y sin bandera: apagar una comprobacion la borra del contrato en vez
+// de mandarla desactivada. El consumidor no tiene que saber que existio ni decidir que hacer con
+// ella, que es la misma regla por la que un tooltip vacio no deja rastro en el JSON.
+function resolveChecks(
+  group: RepeatableGroup,
+  knownNames: Set<string>,
+): ExportedGroupCheck[] | undefined {
+  const checks: ExportedGroupCheck[] = enabledChecks(group.checks).map((check) => ({
+    id: check.id,
+    label: check.label,
+    script: compileSource(check.script, knownNames),
+    message: check.message,
+  }));
+
+  return checks.length > 0 ? checks : undefined;
+}
+
+export function mapGroups(
+  step: FormStep,
+  knownNames: Set<string>,
+): ExportedRepeatableGroup[] | undefined {
   if (!step.groups || step.groups.length === 0) return undefined;
 
   return step.groups.map((group) => ({
@@ -209,6 +231,7 @@ export function mapGroups(step: FormStep): ExportedRepeatableGroup[] | undefined
     max: group.max,
     arrayPath: group.arrayPath,
     zodSchema: buildGroupZodSchema(group, groupFields(step.rows, group.id)),
+    checks: resolveChecks(group, knownNames),
   }));
 }
 
@@ -222,6 +245,6 @@ export function mapFormStep(
     title: step.title,
     subtitle: step.subtitle || undefined,
     rows: mapRows(step.rows, names, knownNames),
-    groups: mapGroups(step),
+    groups: mapGroups(step, knownNames),
   };
 }

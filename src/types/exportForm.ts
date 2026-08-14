@@ -86,6 +86,17 @@ export interface ExportedField {
   decimals?: number;
 }
 
+// Una comprobacion del grupo entero, con el script ya compilado igual que el de un campo: para el
+// consumidor es el mismo tipo de cosa y se ejecuta por el mismo camino. Se evalua en el ambito
+// raiz, donde la columna del grupo es el array completo. Verdadero pasa, falso muestra `message`.
+// Una comprobacion apagada no llega hasta aca: se filtra al exportar.
+export interface ExportedGroupCheck {
+  id: string;
+  label: string;
+  script: ExportedScript;
+  message: string;
+}
+
 export interface ExportedRepeatableGroup {
   groupId: string;
   name: string;
@@ -94,6 +105,7 @@ export interface ExportedRepeatableGroup {
   max: number;
   arrayPath?: string;
   zodSchema: string;
+  checks?: ExportedGroupCheck[];
 }
 
 export interface ExportedRow {

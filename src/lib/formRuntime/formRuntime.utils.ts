@@ -6,7 +6,7 @@ import type {
   RuntimeValues,
 } from "../../types/formRuntime";
 import { evaluateCondition } from "../runtimeCondition/runtimeCondition";
-import { fieldKey } from "../runtimeValidation/runtimeValidation.utils";
+import { checkKey, fieldKey } from "../runtimeValidation/runtimeValidation.utils";
 
 // Piezas de apoyo del runtime: recorridos del export y armado de los ambitos.
 
@@ -31,6 +31,13 @@ export function stepErrorKeys(step: ExportedStep, snapshot: RuntimeSnapshot): st
         keys.push(fieldKey(field.name, row.groupId, index));
       }
     }
+  }
+
+  // Las comprobaciones del grupo son del paso que lo declara, no de una fila suya. Sin esta vuelta
+  // el error existiria en la lista pero "Siguiente" avanzaria igual, que es justo lo contrario de
+  // lo que se pide de ella.
+  for (const group of step.groups ?? []) {
+    for (const check of group.checks ?? []) keys.push(checkKey(group.groupId, check.id));
   }
 
   return keys;

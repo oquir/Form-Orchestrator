@@ -100,6 +100,17 @@ export const DECIMALS_BY_FIELD: Record<string, number> = {
   tarifa_x_mil: 1,
 };
 
+// Lo que el contribuyente declara por actividad tiene que sumar lo mismo que el renglon 16. Si no,
+// esta declarando ingresos que no reparte entre sus actividades, que es evadir el impuesto.
+//
+// Se compara con una tolerancia de un peso y no con === por la coma flotante. Hoy los dos lados se
+// aproximan al millar y darian exactos, pero la regla no tiene por que depender de eso.
+export const INGRESOS_ACTIVIDADES_SCRIPT: string =
+  "return abs(sum({ingresos_gravados}) - {total_ingresos_gravables}) < 1;";
+
+export const INGRESOS_ACTIVIDADES_MESSAGE: string =
+  "La suma de los ingresos gravados de las actividades debe ser igual al renglón 16 (Total ingresos gravables).";
+
 // El neto sin recortar, que comparten los renglones 33 y 34: uno lo toma en positivo y el otro
 // en negativo. Va como expresion suelta -- sin return -- porque se interpola dentro de max(...).
 export const SALDO_NETO: string =

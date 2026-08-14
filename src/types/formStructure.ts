@@ -1,4 +1,5 @@
 import type { CanvasField } from "./field";
+import type { GroupCheck } from "./groupCheck";
 
 export interface CanvasRow {
   id: string;
@@ -14,6 +15,8 @@ export interface RepeatableGroup {
   min: number;
   max: number;
   arrayPath?: string;
+  // Comprobaciones que abarcan al grupo entero, no a un campo suyo. Ver types/groupCheck.
+  checks?: GroupCheck[];
 }
 
 export interface FormStep {

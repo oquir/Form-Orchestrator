@@ -22,6 +22,8 @@ import {
   DOCUMENTO_MESSAGE,
   DOCUMENTO_PATTERN,
   FIELDS_WITHOUT_ROUNDING,
+  INGRESOS_ACTIVIDADES_MESSAGE,
+  INGRESOS_ACTIVIDADES_SCRIPT,
   NIT_MESSAGE,
   NIT_PATTERN,
   SALDO_NETO,
@@ -118,6 +120,18 @@ function buildActividadesStep(): FormStepTemplate {
     min: 1,
     max: 15,
     arrayPath: "actividades",
+    // Encendida de fabrica: cuadrar es la regla y dejarlo pasar es la excepcion de los municipios
+    // que prefieren cobrar la multa despues. Apagarla es una decision visible; olvidarse de
+    // encenderla dejaria pasar evasion en silencio.
+    checks: [
+      {
+        id: uuidv4(),
+        label: "Ingresos de actividades contra el renglón 16",
+        enabled: true,
+        script: INGRESOS_ACTIVIDADES_SCRIPT,
+        message: INGRESOS_ACTIVIDADES_MESSAGE,
+      },
+    ],
   };
 
   return {
