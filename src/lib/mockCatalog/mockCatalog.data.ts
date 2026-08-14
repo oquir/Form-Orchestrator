@@ -1285,1182 +1285,1934 @@ export const ACTIVIDADES: CatalogOption[] = [
     id: "30492",
     code: "130",
     label: "Propagación de plantas (actividades de los viveros, excepto viveros forestales).",
+    tarifa: 5.3,
   },
-  { id: "30500", code: "161", label: "Actividades de apoyo a la agricultura." },
-  { id: "30501", code: "162", label: "Actividades de apoyo a la ganadería." },
-  { id: "30506", code: "220", label: "Extracción de madera." },
+  { id: "30500", code: "161", label: "Actividades de apoyo a la agricultura.", tarifa: 6.5 },
+  { id: "30501", code: "162", label: "Actividades de apoyo a la ganadería.", tarifa: 9.8 },
+  { id: "30506", code: "220", label: "Extracción de madera.", tarifa: 8.7 },
   {
     id: "30507",
     code: "230",
     label: "Recolección de productos forestales diferentes a la madera.",
+    tarifa: 3.6,
   },
-  { id: "30508", code: "240", label: "Servicios de apoyo a la silvicultura." },
-  { id: "30509", code: "311", label: "Pesca marítima." },
-  { id: "30513", code: "510", label: "Extracción de hulla (carbón de piedra)." },
-  { id: "30514", code: "520", label: "Extracción de carbón lignito." },
-  { id: "30515", code: "610", label: "Extracción de petróleo crudo." },
-  { id: "30516", code: "620", label: "Extracción de gas natural." },
-  { id: "30517", code: "710", label: "Extracción de minerales de hierro." },
-  { id: "30518", code: "721", label: "Extracción de minerales de uranio y de torio." },
-  { id: "30519", code: "722", label: "Extracción de oro y otros metales preciosos." },
-  { id: "30520", code: "723", label: "Extracción de minerales de níquel." },
+  { id: "30508", code: "240", label: "Servicios de apoyo a la silvicultura.", tarifa: 4.7 },
+  { id: "30509", code: "311", label: "Pesca marítima.", tarifa: 5.5 },
+  { id: "30513", code: "510", label: "Extracción de hulla (carbón de piedra).", tarifa: 4.3 },
+  { id: "30514", code: "520", label: "Extracción de carbón lignito.", tarifa: 8.5 },
+  { id: "30515", code: "610", label: "Extracción de petróleo crudo.", tarifa: 9.9 },
+  { id: "30516", code: "620", label: "Extracción de gas natural.", tarifa: 5.3 },
+  { id: "30517", code: "710", label: "Extracción de minerales de hierro.", tarifa: 6.9 },
+  { id: "30518", code: "721", label: "Extracción de minerales de uranio y de torio.", tarifa: 4.5 },
+  { id: "30519", code: "722", label: "Extracción de oro y otros metales preciosos.", tarifa: 10 },
+  { id: "30520", code: "723", label: "Extracción de minerales de níquel.", tarifa: 5.5 },
   {
     id: "30521",
     code: "729",
     label: "Extracción de otros minerales metalíferos no ferrosos n.c.p.",
+    tarifa: 4.3,
   },
   {
     id: "30522",
     code: "811",
     label: "Extracción de piedra, arena, arcillas comunes, yeso y anhidrita.",
+    tarifa: 7.7,
   },
   {
     id: "30523",
     code: "812",
     label: "Extracción de arcillas de uso industrial, caliza, caolín y bentonitas.",
+    tarifa: 8.1,
   },
   {
     id: "30524",
     code: "820",
     label: "Extracción de esmeraldas, piedras preciosas y semipreciosas.",
+    tarifa: 6.1,
   },
   {
     id: "30525",
     code: "891",
     label: "Extracción de minerales para la fabricación de abonos y productos químicos.",
+    tarifa: 3.6,
   },
-  { id: "30526", code: "892", label: "Extracción de halita (sal)." },
-  { id: "30527", code: "899", label: "Extracción de otros minerales no metálicos n.c.p." },
+  { id: "30526", code: "892", label: "Extracción de halita (sal).", tarifa: 3.5 },
+  {
+    id: "30527",
+    code: "899",
+    label: "Extracción de otros minerales no metálicos n.c.p.",
+    tarifa: 6.9,
+  },
   {
     id: "30528",
     code: "910",
     label: "Actividades de apoyo para la extracción de petróleo y de gas natural.",
+    tarifa: 5.9,
   },
   {
     id: "30529",
     code: "990",
     label: "Actividades de apoyo para otras actividades de explotación de minas y canteras.",
+    tarifa: 8.6,
   },
   {
     id: "30530",
     code: "1011",
     label: "Procesamiento y conservación de carne y productos cárnicos.",
+    tarifa: 4.9,
   },
   {
     id: "30531",
     code: "1012",
     label: "Procesamiento y conservación de pescados, crustáceos y moluscos.",
+    tarifa: 8.3,
   },
   {
     id: "30532",
     code: "1020",
     label: "Procesamiento y conservación de frutas, legumbres, hortalizas y tubérculos.",
+    tarifa: 6.9,
   },
-  { id: "55317", code: "1031", label: "Extracción de aceites de origen vegetal crudos" },
+  {
+    id: "55317",
+    code: "1031",
+    label: "Extracción de aceites de origen vegetal crudos",
+    tarifa: 8.7,
+  },
   {
     id: "55318",
     code: "1032",
     label: "Elaboración de aceites y grasas de origen vegetal refinados",
+    tarifa: 7.5,
   },
-  { id: "55319", code: "1033", label: "Elaboración de aceites y grasas de origen animal" },
-  { id: "30534", code: "1040", label: "Elaboración de productos lácteos." },
-  { id: "30535", code: "1051", label: "Elaboración de productos de molinería." },
+  {
+    id: "55319",
+    code: "1033",
+    label: "Elaboración de aceites y grasas de origen animal",
+    tarifa: 7.8,
+  },
+  { id: "30534", code: "1040", label: "Elaboración de productos lácteos.", tarifa: 4.7 },
+  { id: "30535", code: "1051", label: "Elaboración de productos de molinería.", tarifa: 7.7 },
   {
     id: "30536",
     code: "1052",
     label: "Elaboración de almidones y productos derivados del almidón.",
+    tarifa: 9.1,
   },
-  { id: "30537", code: "1061", label: "Trilla de café." },
-  { id: "30538", code: "1062", label: "Descafeinado, tostión y molienda del café." },
-  { id: "30539", code: "1063", label: "Otros derivados del café." },
-  { id: "30540", code: "1071", label: "Elaboración y refinación de azúcar." },
-  { id: "30541", code: "1072", label: "Elaboración de panela." },
-  { id: "30542", code: "1081", label: "Elaboración de productos de panadería." },
+  { id: "30537", code: "1061", label: "Trilla de café.", tarifa: 4.8 },
+  { id: "30538", code: "1062", label: "Descafeinado, tostión y molienda del café.", tarifa: 8.7 },
+  { id: "30539", code: "1063", label: "Otros derivados del café.", tarifa: 3.6 },
+  { id: "30540", code: "1071", label: "Elaboración y refinación de azúcar.", tarifa: 7.6 },
+  { id: "30541", code: "1072", label: "Elaboración de panela.", tarifa: 6.9 },
+  { id: "30542", code: "1081", label: "Elaboración de productos de panadería.", tarifa: 3.8 },
   {
     id: "30543",
     code: "1082",
     label: "Elaboración de cacao, chocolate y productos de confitería.",
+    tarifa: 5.9,
   },
   {
     id: "30544",
     code: "1083",
     label: "Elaboración de macarrones, fideos, alcuzcuz y productos farináceos similares.",
+    tarifa: 6.3,
   },
-  { id: "30545", code: "1084", label: "Elaboración de comidas y platos preparados." },
-  { id: "30546", code: "1089", label: "Elaboración de otros productos alimenticios n.c.p." },
-  { id: "30547", code: "1090", label: "Elaboración de alimentos preparados para animales." },
+  { id: "30545", code: "1084", label: "Elaboración de comidas y platos preparados.", tarifa: 7.6 },
+  {
+    id: "30546",
+    code: "1089",
+    label: "Elaboración de otros productos alimenticios n.c.p.",
+    tarifa: 9.8,
+  },
+  {
+    id: "30547",
+    code: "1090",
+    label: "Elaboración de alimentos preparados para animales.",
+    tarifa: 7.7,
+  },
   {
     id: "30548",
     code: "1101",
     label: "Destilación, rectificación y mezcla de bebidas alcohólicas.",
+    tarifa: 3.2,
   },
-  { id: "30549", code: "1102", label: "Elaboración de bebidas fermentadas no destiladas." },
+  {
+    id: "30549",
+    code: "1102",
+    label: "Elaboración de bebidas fermentadas no destiladas.",
+    tarifa: 4.8,
+  },
   {
     id: "30550",
     code: "1103",
     label: "Producción de malta, elaboración de cervezas y otras bebidas malteadas.",
+    tarifa: 7.7,
   },
   {
     id: "30551",
     code: "1104",
     label:
       "Elaboración de bebidas no alcohólicas, producción de aguas minerales y de otras aguas embotelladas.",
+    tarifa: 6.8,
   },
-  { id: "30552", code: "1200", label: "Elaboración de productos de tabaco." },
-  { id: "30553", code: "1311", label: "Preparación e hilatura de fibras textiles." },
-  { id: "30554", code: "1312", label: "Tejeduría de productos textiles." },
-  { id: "30555", code: "1313", label: "Acabado de productos textiles." },
-  { id: "30556", code: "1391", label: "Fabricación de tejidos de punto y ganchillo." },
+  { id: "30552", code: "1200", label: "Elaboración de productos de tabaco.", tarifa: 4.8 },
+  { id: "30553", code: "1311", label: "Preparación e hilatura de fibras textiles.", tarifa: 9.4 },
+  { id: "30554", code: "1312", label: "Tejeduría de productos textiles.", tarifa: 3.1 },
+  { id: "30555", code: "1313", label: "Acabado de productos textiles.", tarifa: 6.9 },
+  { id: "30556", code: "1391", label: "Fabricación de tejidos de punto y ganchillo.", tarifa: 6.7 },
   {
     id: "30557",
     code: "1392",
     label: "Confección de artículos con materiales textiles, excepto prendas de vestir.",
+    tarifa: 4.3,
   },
-  { id: "30558", code: "1393", label: "Fabricación de tapetes y alfombras para pisos." },
+  {
+    id: "30558",
+    code: "1393",
+    label: "Fabricación de tapetes y alfombras para pisos.",
+    tarifa: 5.2,
+  },
   {
     id: "30559",
     code: "1394",
     label: "Fabricación de cuerdas, cordeles, cables, bramantes y redes.",
+    tarifa: 9.2,
   },
-  { id: "30560", code: "1399", label: "Fabricación de otros artículos textiles n.c.p." },
-  { id: "30561", code: "1410", label: "Confección de prendas de vestir, excepto prendas de piel." },
-  { id: "30562", code: "1420", label: "Fabricación de artículos de piel." },
-  { id: "30563", code: "1430", label: "Fabricación de artículos de punto y ganchillo." },
+  {
+    id: "30560",
+    code: "1399",
+    label: "Fabricación de otros artículos textiles n.c.p.",
+    tarifa: 3.9,
+  },
+  {
+    id: "30561",
+    code: "1410",
+    label: "Confección de prendas de vestir, excepto prendas de piel.",
+    tarifa: 5.6,
+  },
+  { id: "30562", code: "1420", label: "Fabricación de artículos de piel.", tarifa: 8.7 },
+  {
+    id: "30563",
+    code: "1430",
+    label: "Fabricación de artículos de punto y ganchillo.",
+    tarifa: 3.1,
+  },
   {
     id: "30564",
     code: "1511",
     label: "Curtido y recurtido de cueros; recurtido y teñido de pieles.",
+    tarifa: 4.3,
   },
   {
     id: "30565",
     code: "1512",
     label:
       "Fabricación de artículos de viaje, bolsos de mano y artículos similares elaborados en cuero, y fabricación de artículos de talabartería y guarnicionería.",
+    tarifa: 7.7,
   },
   {
     id: "30566",
     code: "1513",
     label:
       "Fabricación de artículos de viaje, bolsos de mano y artículos similares; artículos de talabartería y guarnicionería elaborados en otros materiales.",
+    tarifa: 8,
   },
   {
     id: "30567",
     code: "1521",
     label: "Fabricación de calzado de cuero y piel, con cualquier tipo de suela.",
+    tarifa: 8.2,
   },
   {
     id: "30568",
     code: "1522",
     label: "Fabricación de otros tipos de calzado, excepto calzado de cuero y piel.",
+    tarifa: 4.1,
   },
-  { id: "30569", code: "1523", label: "Fabricación de partes del calzado." },
-  { id: "30570", code: "1610", label: "Aserrado, acepillado e impregnación de la madera." },
+  { id: "30569", code: "1523", label: "Fabricación de partes del calzado.", tarifa: 3.1 },
+  {
+    id: "30570",
+    code: "1610",
+    label: "Aserrado, acepillado e impregnación de la madera.",
+    tarifa: 6.4,
+  },
   {
     id: "30571",
     code: "1620",
     label:
       "Fabricación de hojas de madera para enchapado; fabricación de tableros contrachapados, tableros laminados, tableros de partículas y otros tableros y paneles.",
+    tarifa: 5.8,
   },
   {
     id: "30572",
     code: "1630",
     label:
       "Fabricación de partes y piezas de madera, de carpintería y ebanistería para la construcción.",
+    tarifa: 5.8,
   },
-  { id: "30573", code: "1640", label: "Fabricación de recipientes de madera." },
+  { id: "30573", code: "1640", label: "Fabricación de recipientes de madera.", tarifa: 3.7 },
   {
     id: "30574",
     code: "1690",
     label:
       "Fabricación de otros productos de madera; fabricación de artículos de corcho, cestería y espartería.",
+    tarifa: 5.5,
   },
   {
     id: "30575",
     code: "1701",
     label: "Fabricación de pulpas (pastas) celulósicas; papel y cartón.",
+    tarifa: 9.8,
   },
   {
     id: "30576",
     code: "1702",
     label:
       "Fabricación de papel y cartón ondulado (corrugado); fabricación de envases, empaques y de embalajes de papel y cartón.",
+    tarifa: 6.2,
   },
-  { id: "30577", code: "1709", label: "Fabricación de otros artículos de papel y cartón." },
-  { id: "30578", code: "1811", label: "Actividades de impresión." },
-  { id: "30579", code: "1812", label: "Actividades de servicios relacionados con la impresión." },
-  { id: "30580", code: "1820", label: "Producción de copias a partir de grabaciones originales." },
-  { id: "30581", code: "1910", label: "Fabricación de productos de hornos de coque." },
-  { id: "30582", code: "1921", label: "Fabricación de productos de la refinación del petróleo." },
-  { id: "30583", code: "1922", label: "Actividad de mezcla de combustibles." },
-  { id: "30584", code: "2011", label: "Fabricación de sustancias y productos químicos básicos." },
+  {
+    id: "30577",
+    code: "1709",
+    label: "Fabricación de otros artículos de papel y cartón.",
+    tarifa: 6.5,
+  },
+  { id: "30578", code: "1811", label: "Actividades de impresión.", tarifa: 6.1 },
+  {
+    id: "30579",
+    code: "1812",
+    label: "Actividades de servicios relacionados con la impresión.",
+    tarifa: 7.5,
+  },
+  {
+    id: "30580",
+    code: "1820",
+    label: "Producción de copias a partir de grabaciones originales.",
+    tarifa: 9.9,
+  },
+  { id: "30581", code: "1910", label: "Fabricación de productos de hornos de coque.", tarifa: 9.1 },
+  {
+    id: "30582",
+    code: "1921",
+    label: "Fabricación de productos de la refinación del petróleo.",
+    tarifa: 9.6,
+  },
+  { id: "30583", code: "1922", label: "Actividad de mezcla de combustibles.", tarifa: 5 },
+  {
+    id: "30584",
+    code: "2011",
+    label: "Fabricación de sustancias y productos químicos básicos.",
+    tarifa: 8,
+  },
   {
     id: "30585",
     code: "2012",
     label: "Fabricación de abonos y compuestos inorgánicos nitrogenados.",
+    tarifa: 6.6,
   },
-  { id: "30586", code: "2013", label: "Fabricación de plásticos en formas primarias." },
-  { id: "30587", code: "2014", label: "Fabricación de caucho sintético en formas primarias." },
+  {
+    id: "30586",
+    code: "2013",
+    label: "Fabricación de plásticos en formas primarias.",
+    tarifa: 9.8,
+  },
+  {
+    id: "30587",
+    code: "2014",
+    label: "Fabricación de caucho sintético en formas primarias.",
+    tarifa: 9.1,
+  },
   {
     id: "30588",
     code: "2021",
     label: "Fabricación de plaguicidas y otros productos químicos de uso agropecuario.",
+    tarifa: 9.7,
   },
   {
     id: "30589",
     code: "2022",
     label:
       "Fabricación de pinturas, barnices y revestimientos similares, tintas para impresión y masillas.",
+    tarifa: 9.3,
   },
   {
     id: "30590",
     code: "2023",
     label:
       "Fabricación de jabones y detergentes, preparados para limpiar y pulir; perfumes y preparados de tocador.",
+    tarifa: 4,
   },
-  { id: "30591", code: "2029", label: "Fabricación de otros productos químicos n.c.p." },
-  { id: "30592", code: "2030", label: "Fabricación de fibras sintéticas y artificiales." },
+  {
+    id: "30591",
+    code: "2029",
+    label: "Fabricación de otros productos químicos n.c.p.",
+    tarifa: 3.1,
+  },
+  {
+    id: "30592",
+    code: "2030",
+    label: "Fabricación de fibras sintéticas y artificiales.",
+    tarifa: 7.7,
+  },
   {
     id: "30593",
     code: "2100",
     label:
       "Fabricación de productos farmacéuticos, sustancias químicas medicinales y productos botánicos de uso farmacéutico.",
+    tarifa: 3.3,
   },
-  { id: "30594", code: "2211", label: "Fabricación de llantas y neumáticos de caucho" },
-  { id: "30595", code: "2212", label: "Reencauche de llantas usadas" },
+  {
+    id: "30594",
+    code: "2211",
+    label: "Fabricación de llantas y neumáticos de caucho",
+    tarifa: 8.5,
+  },
+  { id: "30595", code: "2212", label: "Reencauche de llantas usadas", tarifa: 5 },
   {
     id: "30596",
     code: "2219",
     label: "Fabricación de formas básicas de caucho y otros productos de caucho n.c.p.",
+    tarifa: 3.8,
   },
-  { id: "30597", code: "2221", label: "Fabricación de formas básicas de plástico." },
-  { id: "30598", code: "2229", label: "Fabricación de artículos de plástico n.c.p." },
-  { id: "30599", code: "2310", label: "Fabricación de vidrio y productos de vidrio." },
-  { id: "30600", code: "2391", label: "Fabricación de productos refractarios." },
+  { id: "30597", code: "2221", label: "Fabricación de formas básicas de plástico.", tarifa: 3.4 },
+  { id: "30598", code: "2229", label: "Fabricación de artículos de plástico n.c.p.", tarifa: 3.7 },
+  { id: "30599", code: "2310", label: "Fabricación de vidrio y productos de vidrio.", tarifa: 9.2 },
+  { id: "30600", code: "2391", label: "Fabricación de productos refractarios.", tarifa: 5.7 },
   {
     id: "30601",
     code: "2392",
     label: "Fabricación de materiales de arcilla para la construcción.",
+    tarifa: 8.7,
   },
-  { id: "30602", code: "2393", label: "Fabricación de otros productos de cerámica y porcelana." },
-  { id: "30603", code: "2394", label: "Fabricación de cemento, cal y yeso." },
-  { id: "30604", code: "2395", label: "Fabricación de artículos de hormigón, cemento y yeso." },
-  { id: "30605", code: "2396", label: "Corte, tallado y acabado de la piedra." },
+  {
+    id: "30602",
+    code: "2393",
+    label: "Fabricación de otros productos de cerámica y porcelana.",
+    tarifa: 6.5,
+  },
+  { id: "30603", code: "2394", label: "Fabricación de cemento, cal y yeso.", tarifa: 5.4 },
+  {
+    id: "30604",
+    code: "2395",
+    label: "Fabricación de artículos de hormigón, cemento y yeso.",
+    tarifa: 3.8,
+  },
+  { id: "30605", code: "2396", label: "Corte, tallado y acabado de la piedra.", tarifa: 3.2 },
   {
     id: "30606",
     code: "2399",
     label: "Fabricación de otros productos minerales no metálicos n.c.p.",
+    tarifa: 9,
   },
-  { id: "30607", code: "2410", label: "Industrias básicas de hierro y de acero." },
-  { id: "30608", code: "2421", label: "Industrias básicas de metales preciosos." },
-  { id: "30609", code: "2429", label: "Industrias básicas de otros metales no ferrosos." },
-  { id: "30610", code: "2431", label: "Fundición de hierro y de acero." },
-  { id: "30611", code: "2432", label: "Fundición de metales no ferrosos." },
-  { id: "30612", code: "2511", label: "Fabricación de productos metálicos para uso estructural." },
+  { id: "30607", code: "2410", label: "Industrias básicas de hierro y de acero.", tarifa: 8.1 },
+  { id: "30608", code: "2421", label: "Industrias básicas de metales preciosos.", tarifa: 4.1 },
+  {
+    id: "30609",
+    code: "2429",
+    label: "Industrias básicas de otros metales no ferrosos.",
+    tarifa: 6.1,
+  },
+  { id: "30610", code: "2431", label: "Fundición de hierro y de acero.", tarifa: 6.3 },
+  { id: "30611", code: "2432", label: "Fundición de metales no ferrosos.", tarifa: 3.6 },
+  {
+    id: "30612",
+    code: "2511",
+    label: "Fabricación de productos metálicos para uso estructural.",
+    tarifa: 8.8,
+  },
   {
     id: "30613",
     code: "2512",
     label:
       "Fabricación de tanques, depósitos y recipientes de metal, excepto los utilizados para el envase o transporte de mercancías.",
+    tarifa: 5,
   },
   {
     id: "30614",
     code: "2513",
     label:
       "Fabricación de generadores de vapor, excepto calderas de agua caliente para calefacción central.",
+    tarifa: 4,
   },
-  { id: "30615", code: "2520", label: "Fabricación de armas y municiones." },
+  { id: "30615", code: "2520", label: "Fabricación de armas y municiones.", tarifa: 9 },
   {
     id: "30616",
     code: "2591",
     label: "Forja, prensado, estampado y laminado de metal; pulvimetalurgia.",
+    tarifa: 5.2,
   },
-  { id: "30617", code: "2592", label: "Tratamiento y revestimiento de metales; mecanizado." },
+  {
+    id: "30617",
+    code: "2592",
+    label: "Tratamiento y revestimiento de metales; mecanizado.",
+    tarifa: 3.2,
+  },
   {
     id: "30618",
     code: "2593",
     label:
       "Fabricación de artículos de cuchillería, herramientas de mano y artículos de ferretería.",
+    tarifa: 6.1,
   },
-  { id: "30619", code: "2599", label: "Fabricación de otros productos elaborados de metal n.c.p." },
-  { id: "30620", code: "2610", label: "Fabricación de componentes y tableros electrónicos." },
-  { id: "30621", code: "2620", label: "Fabricación de computadoras y de equipo periférico." },
-  { id: "30622", code: "2630", label: "Fabricación de equipos de comunicación." },
-  { id: "30623", code: "2640", label: "Fabricación de aparatos electrónicos de consumo." },
+  {
+    id: "30619",
+    code: "2599",
+    label: "Fabricación de otros productos elaborados de metal n.c.p.",
+    tarifa: 3.3,
+  },
+  {
+    id: "30620",
+    code: "2610",
+    label: "Fabricación de componentes y tableros electrónicos.",
+    tarifa: 8.7,
+  },
+  {
+    id: "30621",
+    code: "2620",
+    label: "Fabricación de computadoras y de equipo periférico.",
+    tarifa: 9.7,
+  },
+  { id: "30622", code: "2630", label: "Fabricación de equipos de comunicación.", tarifa: 5.3 },
+  {
+    id: "30623",
+    code: "2640",
+    label: "Fabricación de aparatos electrónicos de consumo.",
+    tarifa: 8.5,
+  },
   {
     id: "30624",
     code: "2651",
     label: "Fabricación de equipo de medición, prueba, navegación y control.",
+    tarifa: 9.7,
   },
-  { id: "30625", code: "2652", label: "Fabricación de relojes." },
+  { id: "30625", code: "2652", label: "Fabricación de relojes.", tarifa: 10 },
   {
     id: "30626",
     code: "2660",
     label: "Fabricación de equipo de irradiación y equipo electrónico de uso médico y terapéutico.",
+    tarifa: 4.6,
   },
-  { id: "30627", code: "2670", label: "Fabricación de instrumentos ópticos y equipo fotográfico." },
+  {
+    id: "30627",
+    code: "2670",
+    label: "Fabricación de instrumentos ópticos y equipo fotográfico.",
+    tarifa: 4.3,
+  },
   {
     id: "30628",
     code: "2680",
     label: "Fabricación de medios magnéticos y ópticos para almacenamiento de datos.",
+    tarifa: 8.9,
   },
   {
     id: "30629",
     code: "2711",
     label: "Fabricación de motores, generadores y transformadores eléctricos.",
+    tarifa: 7.7,
   },
   {
     id: "30630",
     code: "2712",
     label: "Fabricación de aparatos de distribución y control de la energía eléctrica.",
+    tarifa: 7.2,
   },
-  { id: "30631", code: "2720", label: "Fabricación de pilas, baterías y acumuladores eléctricos." },
+  {
+    id: "30631",
+    code: "2720",
+    label: "Fabricación de pilas, baterías y acumuladores eléctricos.",
+    tarifa: 3.2,
+  },
   {
     id: "30632",
     code: "2731",
     label: "Fabricación de hilos y cables eléctricos y de fibra óptica.",
+    tarifa: 3.6,
   },
-  { id: "30633", code: "2732", label: "Fabricación de dispositivos de cableado." },
-  { id: "30634", code: "2740", label: "Fabricación de equipos eléctricos de iluminación." },
-  { id: "30635", code: "2750", label: "Fabricación de aparatos de uso doméstico." },
-  { id: "30636", code: "2790", label: "Fabricación de otros tipos de equipo eléctrico n.c.p." },
+  { id: "30633", code: "2732", label: "Fabricación de dispositivos de cableado.", tarifa: 6.6 },
+  {
+    id: "30634",
+    code: "2740",
+    label: "Fabricación de equipos eléctricos de iluminación.",
+    tarifa: 8.7,
+  },
+  { id: "30635", code: "2750", label: "Fabricación de aparatos de uso doméstico.", tarifa: 3.9 },
+  {
+    id: "30636",
+    code: "2790",
+    label: "Fabricación de otros tipos de equipo eléctrico n.c.p.",
+    tarifa: 3.9,
+  },
   {
     id: "30637",
     code: "2811",
     label: "Fabricación de motores, turbinas, y partes para motores de combustión interna.",
+    tarifa: 5.5,
   },
   {
     id: "30638",
     code: "2812",
     label: "Fabricación de equipos de potencia hidráulica y neumática.",
+    tarifa: 5.5,
   },
   {
     id: "30639",
     code: "2813",
     label: "Fabricación de otras bombas, compresores, grifos y válvulas.",
+    tarifa: 5.8,
   },
   {
     id: "30640",
     code: "2814",
     label: "Fabricación de cojinetes, engranajes, trenes de engranajes y piezas de transmisión.",
+    tarifa: 6.4,
   },
-  { id: "30641", code: "2815", label: "Fabricación de hornos, hogares y quemadores industriales." },
-  { id: "30642", code: "2816", label: "Fabricación de equipo de elevación y manipulación." },
+  {
+    id: "30641",
+    code: "2815",
+    label: "Fabricación de hornos, hogares y quemadores industriales.",
+    tarifa: 8.5,
+  },
+  {
+    id: "30642",
+    code: "2816",
+    label: "Fabricación de equipo de elevación y manipulación.",
+    tarifa: 4.5,
+  },
   {
     id: "30643",
     code: "2817",
     label:
       "Fabricación de maquinaria y equipo de oficina (excepto computadoras y equipo periférico).",
+    tarifa: 9,
   },
-  { id: "30644", code: "2818", label: "Fabricación de herramientas manuales con motor." },
+  {
+    id: "30644",
+    code: "2818",
+    label: "Fabricación de herramientas manuales con motor.",
+    tarifa: 3.8,
+  },
   {
     id: "30645",
     code: "2819",
     label: "Fabricación de otros tipos de maquinaria y equipo de uso general n.c.p.",
+    tarifa: 6.4,
   },
-  { id: "30646", code: "2821", label: "Fabricación de maquinaria agropecuaria y forestal." },
+  {
+    id: "30646",
+    code: "2821",
+    label: "Fabricación de maquinaria agropecuaria y forestal.",
+    tarifa: 8.2,
+  },
   {
     id: "30647",
     code: "2822",
     label: "Fabricación de máquinas formadoras de metal y de máquinas herramienta.",
+    tarifa: 9.4,
   },
-  { id: "30648", code: "2823", label: "Fabricación de maquinaria para la metalurgia." },
+  {
+    id: "30648",
+    code: "2823",
+    label: "Fabricación de maquinaria para la metalurgia.",
+    tarifa: 4.5,
+  },
   {
     id: "30649",
     code: "2824",
     label:
       "Fabricación de maquinaria para explotación de minas y canteras y para obras de construcción.",
+    tarifa: 3.8,
   },
   {
     id: "30650",
     code: "2825",
     label: "Fabricación de maquinaria para la elaboración de alimentos, bebidas y tabaco.",
+    tarifa: 5,
   },
   {
     id: "30651",
     code: "2826",
     label:
       "Fabricación de maquinaria para la elaboración de productos textiles, prendas de vestir y cueros.",
+    tarifa: 6.8,
   },
   {
     id: "30652",
     code: "2829",
     label: "Fabricación de otros tipos de maquinaria y equipo de uso especial n.c.p.",
+    tarifa: 9.4,
   },
-  { id: "30653", code: "2910", label: "Fabricación de vehículos automotores y sus motores." },
+  {
+    id: "30653",
+    code: "2910",
+    label: "Fabricación de vehículos automotores y sus motores.",
+    tarifa: 3.1,
+  },
   {
     id: "30654",
     code: "2920",
     label:
       "Fabricación de carrocerías para vehículos automotores; fabricación de remolques y semirremolques.",
+    tarifa: 8.2,
   },
   {
     id: "30655",
     code: "2930",
     label:
       "Fabricación de partes, piezas (autopartes) y accesorios (lujos) para vehículos automotores.",
+    tarifa: 6.6,
   },
-  { id: "30661", code: "3091", label: "Fabricación de motocicletas." },
+  { id: "30661", code: "3091", label: "Fabricación de motocicletas.", tarifa: 7.5 },
   {
     id: "30662",
     code: "3092",
     label: "Fabricación de bicicletas y de sillas de ruedas para personas con discapacidad.",
+    tarifa: 8.8,
   },
-  { id: "30663", code: "3099", label: "Fabricación de otros tipos de equipo de transporte n.c.p." },
-  { id: "30664", code: "3110", label: "Fabricación de muebles." },
-  { id: "30665", code: "3120", label: "Fabricación de colchones y somieres." },
-  { id: "30666", code: "3210", label: "Fabricación de joyas, bisutería y artículos conexos." },
-  { id: "30667", code: "3220", label: "Fabricación de instrumentos musicales." },
+  {
+    id: "30663",
+    code: "3099",
+    label: "Fabricación de otros tipos de equipo de transporte n.c.p.",
+    tarifa: 6.9,
+  },
+  { id: "30664", code: "3110", label: "Fabricación de muebles.", tarifa: 7.9 },
+  { id: "30665", code: "3120", label: "Fabricación de colchones y somieres.", tarifa: 4.7 },
+  {
+    id: "30666",
+    code: "3210",
+    label: "Fabricación de joyas, bisutería y artículos conexos.",
+    tarifa: 8.4,
+  },
+  { id: "30667", code: "3220", label: "Fabricación de instrumentos musicales.", tarifa: 7.7 },
   {
     id: "30668",
     code: "3230",
     label: "Fabricación de artículos y equipo para la práctica del deporte.",
+    tarifa: 5.2,
   },
-  { id: "30669", code: "3240", label: "Fabricación de juegos, juguetes y rompecabezas." },
+  {
+    id: "30669",
+    code: "3240",
+    label: "Fabricación de juegos, juguetes y rompecabezas.",
+    tarifa: 7.9,
+  },
   {
     id: "30670",
     code: "3250",
     label:
       "Fabricación de instrumentos, aparatos y materiales médicos y odontológicos (incluido mobiliario).",
+
+    tarifa: 3,
   },
-  { id: "30671", code: "3290", label: "Otras industrias manufactureras n.c.p." },
+  { id: "30671", code: "3290", label: "Otras industrias manufactureras n.c.p.", tarifa: 8.1 },
   {
     id: "30672",
     code: "3311",
     label: "Mantenimiento y reparación especializado de productos elaborados en metal.",
+
+    tarifa: 3.3,
   },
   {
     id: "30673",
     code: "3312",
     label: "Mantenimiento y reparación especializado de maquinaria y equipo.",
+
+    tarifa: 8.7,
   },
   {
     id: "30674",
     code: "3313",
     label: "Mantenimiento y reparación especializado de equipo electrónico y óptico.",
+
+    tarifa: 4.7,
   },
   {
     id: "30675",
     code: "3314",
     label: "Mantenimiento y reparación especializado de equipo eléctrico.",
+
+    tarifa: 9.5,
   },
   {
     id: "30676",
     code: "3315",
     label:
       "Mantenimiento y reparación especializado de equipo de transporte, excepto los vehículos automotores, motocicletas y bicicletas.",
+
+    tarifa: 9,
   },
   {
     id: "30677",
     code: "3319",
     label: "Mantenimiento y reparación de otros tipos de equipos y sus componentes n.c.p.",
+
+    tarifa: 9.2,
   },
   {
     id: "30678",
     code: "3320",
     label: "Instalación especializada de maquinaria y equipo industrial.",
+
+    tarifa: 7.1,
   },
-  { id: "30679", code: "3511", label: "Generación de energía eléctrica." },
-  { id: "30680", code: "3512", label: "Transmisión de energía eléctrica." },
-  { id: "30681", code: "3513", label: "Distribución de energía eléctrica." },
-  { id: "30682", code: "3514", label: "Comercialización de energía eléctrica." },
+  { id: "30679", code: "3511", label: "Generación de energía eléctrica.", tarifa: 3.7 },
+  { id: "30680", code: "3512", label: "Transmisión de energía eléctrica.", tarifa: 7.5 },
+  { id: "30681", code: "3513", label: "Distribución de energía eléctrica.", tarifa: 6.3 },
+  { id: "30682", code: "3514", label: "Comercialización de energía eléctrica.", tarifa: 9.7 },
   {
     id: "30683",
     code: "3520",
     label: "Producción de gas; distribución de combustibles gaseosos por tuberías.",
+
+    tarifa: 4.5,
   },
-  { id: "30684", code: "3530", label: "Suministro de vapor y aire acondicionado." },
-  { id: "30685", code: "3600", label: "Captación, tratamiento y distribución de agua." },
-  { id: "30686", code: "3700", label: "Evacuación y tratamiento de aguas residuales." },
-  { id: "30687", code: "3811", label: "Recolección de desechos no peligrosos." },
-  { id: "30688", code: "3812", label: "Recolección de desechos peligrosos." },
-  { id: "30689", code: "3821", label: "Tratamiento y disposición de desechos no peligrosos." },
-  { id: "30690", code: "3822", label: "Tratamiento y disposición de desechos peligrosos." },
-  { id: "30691", code: "3830", label: "Recuperación de materiales." },
+  { id: "30684", code: "3530", label: "Suministro de vapor y aire acondicionado.", tarifa: 5.8 },
+  {
+    id: "30685",
+    code: "3600",
+    label: "Captación, tratamiento y distribución de agua.",
+    tarifa: 3.4,
+  },
+  {
+    id: "30686",
+    code: "3700",
+    label: "Evacuación y tratamiento de aguas residuales.",
+    tarifa: 5.5,
+  },
+  { id: "30687", code: "3811", label: "Recolección de desechos no peligrosos.", tarifa: 4.1 },
+  { id: "30688", code: "3812", label: "Recolección de desechos peligrosos.", tarifa: 8.9 },
+  {
+    id: "30689",
+    code: "3821",
+    label: "Tratamiento y disposición de desechos no peligrosos.",
+    tarifa: 4.2,
+  },
+  {
+    id: "30690",
+    code: "3822",
+    label: "Tratamiento y disposición de desechos peligrosos.",
+    tarifa: 6.5,
+  },
+  { id: "30691", code: "3830", label: "Recuperación de materiales.", tarifa: 5.3 },
   {
     id: "30692",
     code: "3900",
     label: "Actividades de saneamiento ambiental y otros servicios de gestión de desechos.",
+
+    tarifa: 3.8,
   },
-  { id: "30693", code: "4111", label: "Construcción de edificios residenciales." },
-  { id: "30694", code: "4112", label: "Construcción de edificios no residenciales." },
-  { id: "30695", code: "4210", label: "Construcción de carreteras y vías de ferrocarril." },
-  { id: "30696", code: "4220", label: "Construcción de proyectos de servicio público." },
-  { id: "30697", code: "4290", label: "Construcción de otras obras de ingeniería civil." },
-  { id: "30698", code: "4311", label: "Demolición." },
-  { id: "30699", code: "4312", label: "Preparación del terreno." },
-  { id: "30700", code: "4321", label: "Instalaciones eléctricas." },
+  { id: "30693", code: "4111", label: "Construcción de edificios residenciales.", tarifa: 3.2 },
+  { id: "30694", code: "4112", label: "Construcción de edificios no residenciales.", tarifa: 8.3 },
+  {
+    id: "30695",
+    code: "4210",
+    label: "Construcción de carreteras y vías de ferrocarril.",
+    tarifa: 9,
+  },
+  {
+    id: "30696",
+    code: "4220",
+    label: "Construcción de proyectos de servicio público.",
+    tarifa: 7.8,
+  },
+  {
+    id: "30697",
+    code: "4290",
+    label: "Construcción de otras obras de ingeniería civil.",
+    tarifa: 6.3,
+  },
+  { id: "30698", code: "4311", label: "Demolición.", tarifa: 6.1 },
+  { id: "30699", code: "4312", label: "Preparación del terreno.", tarifa: 3 },
+  { id: "30700", code: "4321", label: "Instalaciones eléctricas.", tarifa: 4.9 },
   {
     id: "30701",
     code: "4322",
     label: "Instalaciones de fontanería, calefacción y aire acondicionado.",
+
+    tarifa: 7.1,
   },
-  { id: "30702", code: "4329", label: "Otras instalaciones especializadas." },
+  { id: "30702", code: "4329", label: "Otras instalaciones especializadas.", tarifa: 7.9 },
   {
     id: "30703",
     code: "4330",
     label: "Terminación y acabado de edificios y obras de ingeniería civil.",
+
+    tarifa: 4,
   },
   {
     id: "30704",
     code: "4390",
     label:
       "Otras actividades especializadas para la construcción de edificios y obras de ingeniería civil.",
+
+    tarifa: 8.1,
   },
-  { id: "30705", code: "4511", label: "Comercio de vehículos automotores nuevos." },
-  { id: "30706", code: "4512", label: "Comercio de vehículos automotores usados." },
-  { id: "30707", code: "4520", label: "Mantenimiento y reparación de vehículos automotores." },
+  { id: "30705", code: "4511", label: "Comercio de vehículos automotores nuevos.", tarifa: 7.8 },
+  { id: "30706", code: "4512", label: "Comercio de vehículos automotores usados.", tarifa: 3.5 },
+  {
+    id: "30707",
+    code: "4520",
+    label: "Mantenimiento y reparación de vehículos automotores.",
+    tarifa: 4,
+  },
   {
     id: "30708",
     code: "4530",
     label:
       "Comercio de partes, piezas (autopartes) y accesorios (lujos) para vehículos automotores.",
+
+    tarifa: 8.4,
   },
   {
     id: "30709",
     code: "4541",
     label: "Comercio de motocicletas y de sus partes, piezas y accesorios.",
+
+    tarifa: 8.7,
   },
   {
     id: "30710",
     code: "4542",
     label: "Mantenimiento y reparación de motocicletas y de sus partes y piezas.",
+
+    tarifa: 4.3,
   },
   {
     id: "30711",
     code: "4610",
     label: "Comercio al por mayor a cambio de una retribución o por contrata.",
+
+    tarifa: 9.6,
   },
   {
     id: "30712",
     code: "4620",
     label: "Comercio al por mayor de materias primas agropecuarias; animales vivos.",
+
+    tarifa: 4.8,
   },
-  { id: "30713", code: "4631", label: "Comercio al por mayor de productos alimenticios." },
-  { id: "30714", code: "4632", label: "Comercio al por mayor de bebidas y tabaco." },
+  {
+    id: "30713",
+    code: "4631",
+    label: "Comercio al por mayor de productos alimenticios.",
+    tarifa: 8.1,
+  },
+  { id: "30714", code: "4632", label: "Comercio al por mayor de bebidas y tabaco.", tarifa: 4.2 },
   {
     id: "30715",
     code: "4641",
     label:
       "Comercio al por mayor de productos textiles, productos confeccionados para uso doméstico.",
+
+    tarifa: 9.2,
   },
-  { id: "30716", code: "4642", label: "Comercio al por mayor de prendas de vestir." },
-  { id: "30717", code: "4643", label: "Comercio al por mayor de calzado." },
+  { id: "30716", code: "4642", label: "Comercio al por mayor de prendas de vestir.", tarifa: 5.3 },
+  { id: "30717", code: "4643", label: "Comercio al por mayor de calzado.", tarifa: 4.5 },
   {
     id: "30718",
     code: "4644",
     label: "Comercio al por mayor de aparatos y equipo de uso doméstico.",
+
+    tarifa: 7,
   },
   {
     id: "30719",
     code: "4645",
     label:
       "Comercio al por mayor de productos farmacéuticos, medicinales, cosméticos y de tocador.",
+
+    tarifa: 8.6,
   },
   {
     id: "30720",
     code: "4649",
     label: "Comercio al por mayor de otros utensilios domésticos n.c.p.",
+
+    tarifa: 4.7,
   },
   {
     id: "30721",
     code: "4651",
     label: "Comercio al por mayor de computadores, equipo periférico y programas de informática.",
+
+    tarifa: 5.7,
   },
   {
     id: "30722",
     code: "4652",
     label: "Comercio al por mayor de equipo, partes y piezas electrónicos y de telecomunicaciones.",
+
+    tarifa: 4.8,
   },
   {
     id: "30723",
     code: "4653",
     label: "Comercio al por mayor de maquinaria y equipo agropecuarios.",
+
+    tarifa: 5.6,
   },
   {
     id: "30724",
     code: "4659",
     label: "Comercio al por mayor de otros tipos de maquinaria y equipo n.c.p.",
+
+    tarifa: 9.5,
   },
   {
     id: "30725",
     code: "4661",
     label: "Comercio al por mayor de combustibles sólidos, líquidos, gaseosos y productos conexos.",
+
+    tarifa: 7.5,
   },
-  { id: "30726", code: "4662", label: "Comercio al por mayor de metales y productos metalíferos." },
+  {
+    id: "30726",
+    code: "4662",
+    label: "Comercio al por mayor de metales y productos metalíferos.",
+    tarifa: 4.2,
+  },
   {
     id: "30727",
     code: "4663",
     label:
       "Comercio al por mayor de materiales de construcción, artículos de ferretería, pinturas, productos de vidrio, equipo y materiales de fontanería y calefacción.",
+
+    tarifa: 6,
   },
   {
     id: "30728",
     code: "4664",
     label:
       "Comercio al por mayor de productos químicos básicos, cauchos y plásticos en formas primarias y productos químicos de uso agropecuario.",
+
+    tarifa: 3.6,
   },
   {
     id: "30729",
     code: "4665",
     label: "Comercio al por mayor de desperdicios, desechos y chatarra.",
+
+    tarifa: 9.4,
   },
-  { id: "30730", code: "4669", label: "Comercio al por mayor de otros productos n.c.p." },
-  { id: "30731", code: "4690", label: "Comercio al por mayor no especializado." },
+  {
+    id: "30730",
+    code: "4669",
+    label: "Comercio al por mayor de otros productos n.c.p.",
+    tarifa: 5.1,
+  },
+  { id: "30731", code: "4690", label: "Comercio al por mayor no especializado.", tarifa: 3.6 },
   {
     id: "30732",
     code: "4711",
     label:
       "Comercio al por menor en establecimientos no especializados con surtido compuesto principalmente por alimentos, bebidas o tabaco.",
+
+    tarifa: 5,
   },
   {
     id: "30733",
     code: "4719",
     label:
       "Comercio al por menor en establecimientos no especializados, con surtido compuesto principalmente por productos diferentes de alimentos (víveres en general), bebidas y tabaco.",
+
+    tarifa: 6.5,
   },
   {
     id: "30734",
     code: "4721",
     label:
       "Comercio al por menor de productos agrícolas para el consumo en establecimientos especializados.",
+
+    tarifa: 8.9,
   },
   {
     id: "30735",
     code: "4722",
     label:
       "Comercio al por menor de leche, productos lácteos y huevos, en establecimientos especializados.",
+
+    tarifa: 8.9,
   },
   {
     id: "30736",
     code: "4723",
     label:
       "Comercio al por menor de carnes (incluye aves de corral), productos cárnicos, pescados y productos de mar, en establecimientos especializados.",
+
+    tarifa: 3.4,
   },
   {
     id: "30737",
     code: "4724",
     label:
       "Comercio al por menor de bebidas y productos del tabaco, en establecimientos especializados.",
+
+    tarifa: 7.9,
   },
   {
     id: "30738",
     code: "4729",
     label:
       "Comercio al por menor de otros productos alimenticios n.c.p., en establecimientos especializados.",
+
+    tarifa: 8.6,
   },
-  { id: "30739", code: "4731", label: "Comercio al por menor de combustible para automotores." },
+  {
+    id: "30739",
+    code: "4731",
+    label: "Comercio al por menor de combustible para automotores.",
+    tarifa: 8.5,
+  },
   {
     id: "30740",
     code: "4732",
     label:
       "Comercio al por menor de lubricantes (aceites, grasas), aditivos y productos de limpieza para vehículos automotores.",
+
+    tarifa: 5.3,
   },
   {
     id: "30741",
     code: "4741",
     label:
       "Comercio al por menor de computadores, equipos periféricos, programas de informática y equipos de telecomunicaciones en establecimientos especializados.",
+
+    tarifa: 7.2,
   },
   {
     id: "30742",
     code: "4742",
     label:
       "Comercio al por menor de equipos y aparatos de sonido y de video, en establecimientos especializados.",
+
+    tarifa: 4.9,
   },
   {
     id: "30743",
     code: "4751",
     label: "Comercio al por menor de productos textiles en establecimientos especializados.",
+
+    tarifa: 9.6,
   },
   {
     id: "30744",
     code: "4752",
     label:
       "Comercio al por menor de artículos de ferretería, pinturas y productos de vidrio en establecimientos especializados.",
+
+    tarifa: 3.9,
   },
   {
     id: "30745",
     code: "4753",
     label:
       "Comercio al por menor de tapices, alfombras y cubrimientos para paredes y pisos en establecimientos especializados.",
+
+    tarifa: 8.3,
   },
   {
     id: "30746",
     code: "4754",
     label:
       "Comercio al por menor de electrodomésticos y gasodomésticos de uso doméstico, muebles y equipos de iluminación.",
+
+    tarifa: 7.5,
   },
   {
     id: "30747",
     code: "4755",
     label: "Comercio al por menor de artículos y utensilios de uso doméstico.",
+
+    tarifa: 8.8,
   },
   {
     id: "30748",
     code: "4759",
     label:
       "Comercio al por menor de otros artículos domésticos en establecimientos especializados.",
+
+    tarifa: 4.6,
   },
   {
     id: "30749",
     code: "4761",
     label:
       "Comercio al por menor de libros, periódicos, materiales y artículos de papelería y escritorio, en establecimientos especializados.",
+
+    tarifa: 3.1,
   },
   {
     id: "30750",
     code: "4762",
     label: "Comercio al por menor de artículos deportivos, en establecimientos especializados.",
+
+    tarifa: 4.2,
   },
   {
     id: "30751",
     code: "4769",
     label:
       "Comercio al por menor de otros artículos culturales y de entretenimiento n.c.p. en establecimientos especializados.",
+
+    tarifa: 9.7,
   },
   {
     id: "30752",
     code: "4771",
     label:
       "Comercio al por menor de prendas de vestir y sus accesorios (incluye artículos de piel) en establecimientos especializados.",
+
+    tarifa: 4.5,
   },
   {
     id: "30753",
     code: "4772",
     label:
       "Comercio al por menor de todo tipo de calzado y artículos de cuero y sucedáneos del cuero en establecimientos especializados.",
+
+    tarifa: 7.3,
   },
   {
     id: "30754",
     code: "4773",
     label:
       "Comercio al por menor de productos farmacéuticos y medicinales, cosméticos y artículos de tocador en establecimientos especializados.",
+
+    tarifa: 9.1,
   },
   {
     id: "30755",
     code: "4774",
     label: "Comercio al por menor de otros productos nuevos en establecimientos especializados.",
+
+    tarifa: 10,
   },
-  { id: "30756", code: "4775", label: "Comercio al por menor de artículos de segunda mano." },
+  {
+    id: "30756",
+    code: "4775",
+    label: "Comercio al por menor de artículos de segunda mano.",
+    tarifa: 9.3,
+  },
   {
     id: "30757",
     code: "4781",
     label: "Comercio al por menor de alimentos, bebidas y tabaco, en puestos de venta móviles.",
+
+    tarifa: 5.4,
   },
   {
     id: "30758",
     code: "4782",
     label:
       "Comercio al por menor de productos textiles, prendas de vestir y calzado, en puestos de venta móviles.",
+
+    tarifa: 8.1,
   },
   {
     id: "30759",
     code: "4789",
     label: "Comercio al por menor de otros productos en puestos de venta móviles.",
+
+    tarifa: 3.1,
   },
-  { id: "30760", code: "4791", label: "Comercio al por menor realizado a través de internet." },
+  {
+    id: "30760",
+    code: "4791",
+    label: "Comercio al por menor realizado a través de internet.",
+    tarifa: 6.5,
+  },
   {
     id: "30761",
     code: "4792",
     label: "Comercio al por menor realizado a través de casas de venta o por correo.",
+
+    tarifa: 7.6,
   },
   {
     id: "30762",
     code: "4799",
     label:
       "Otros tipos de comercio al por menor no realizado en establecimientos, puestos de venta o mercados.",
+
+    tarifa: 9,
   },
-  { id: "30765", code: "4921", label: "Transporte de pasajeros." },
-  { id: "30766", code: "4922", label: "Transporte mixto." },
-  { id: "30767", code: "4923", label: "Transporte de carga por carretera." },
-  { id: "30768", code: "4930", label: "Transporte por tuberías." },
-  { id: "30777", code: "5210", label: "Almacenamiento y depósito." },
+  { id: "30765", code: "4921", label: "Transporte de pasajeros.", tarifa: 7.7 },
+  { id: "30766", code: "4922", label: "Transporte mixto.", tarifa: 4.7 },
+  { id: "30767", code: "4923", label: "Transporte de carga por carretera.", tarifa: 4.2 },
+  { id: "30768", code: "4930", label: "Transporte por tuberías.", tarifa: 9.2 },
+  { id: "30777", code: "5210", label: "Almacenamiento y depósito.", tarifa: 3.4 },
   {
     id: "30778",
     code: "5221",
     label:
       "Actividades de estaciones, vías y servicios complementarios para el transporte terrestre.",
+
+    tarifa: 4.6,
   },
   {
     id: "30780",
     code: "5223",
     label:
       "Actividades de aeropuertos, servicios de navegación aérea y demás actividades conexas al transporte aéreo.",
+
+    tarifa: 6.2,
   },
-  { id: "30781", code: "5224", label: "Manipulación de carga." },
-  { id: "30782", code: "5229", label: "Otras actividades complementarias al transporte." },
-  { id: "30783", code: "5310", label: "Actividades postales nacionales." },
-  { id: "30784", code: "5320", label: "Actividades de mensajería." },
-  { id: "30785", code: "5511", label: "Alojamiento en hoteles." },
-  { id: "30786", code: "5512", label: "Alojamiento en apartahoteles." },
-  { id: "30787", code: "5513", label: "Alojamiento en centros vacacionales." },
-  { id: "30788", code: "5514", label: "Alojamiento rural." },
-  { id: "30789", code: "5519", label: "Otros tipos de alojamientos para visitantes." },
+  { id: "30781", code: "5224", label: "Manipulación de carga.", tarifa: 5.3 },
+  {
+    id: "30782",
+    code: "5229",
+    label: "Otras actividades complementarias al transporte.",
+    tarifa: 8.5,
+  },
+  { id: "30783", code: "5310", label: "Actividades postales nacionales.", tarifa: 6.6 },
+  { id: "30784", code: "5320", label: "Actividades de mensajería.", tarifa: 4.2 },
+  { id: "30785", code: "5511", label: "Alojamiento en hoteles.", tarifa: 6.3 },
+  { id: "30786", code: "5512", label: "Alojamiento en apartahoteles.", tarifa: 3.5 },
+  { id: "30787", code: "5513", label: "Alojamiento en centros vacacionales.", tarifa: 4.5 },
+  { id: "30788", code: "5514", label: "Alojamiento rural.", tarifa: 3.8 },
+  { id: "30789", code: "5519", label: "Otros tipos de alojamientos para visitantes.", tarifa: 3.3 },
   {
     id: "30790",
     code: "5520",
     label: "Actividades de zonas de camping y parques para vehículos recreacionales.",
+
+    tarifa: 9.2,
   },
-  { id: "30791", code: "5530", label: "Servicio por horas" },
-  { id: "30792", code: "5590", label: "Otros tipos de alojamiento n.c.p." },
-  { id: "30793", code: "5611", label: "Expendio a la mesa de comidas preparadas." },
-  { id: "30794", code: "5612", label: "Expendio por autoservicio de comidas preparadas." },
-  { id: "30795", code: "5613", label: "Expendio de comidas preparadas en cafeterías." },
-  { id: "30796", code: "5619", label: "Otros tipos de expendio de comidas preparadas n.c.p." },
-  { id: "30797", code: "5621", label: "Catering para eventos." },
-  { id: "30798", code: "5629", label: "Actividades de otros servicios de comidas." },
+  { id: "30791", code: "5530", label: "Servicio por horas", tarifa: 7.2 },
+  { id: "30792", code: "5590", label: "Otros tipos de alojamiento n.c.p.", tarifa: 5.6 },
+  { id: "30793", code: "5611", label: "Expendio a la mesa de comidas preparadas.", tarifa: 3.2 },
+  {
+    id: "30794",
+    code: "5612",
+    label: "Expendio por autoservicio de comidas preparadas.",
+    tarifa: 8.7,
+  },
+  {
+    id: "30795",
+    code: "5613",
+    label: "Expendio de comidas preparadas en cafeterías.",
+    tarifa: 4.8,
+  },
+  {
+    id: "30796",
+    code: "5619",
+    label: "Otros tipos de expendio de comidas preparadas n.c.p.",
+    tarifa: 9.4,
+  },
+  { id: "30797", code: "5621", label: "Catering para eventos.", tarifa: 6.8 },
+  { id: "30798", code: "5629", label: "Actividades de otros servicios de comidas.", tarifa: 7.8 },
   {
     id: "30799",
     code: "5630",
     label: "Expendio de bebidas alcohólicas para el consumo dentro del establecimiento.",
+
+    tarifa: 7.3,
   },
-  { id: "30800", code: "5811", label: "Edición de libros." },
-  { id: "30801", code: "5812", label: "Edición de directorios y listas de correo." },
+  { id: "30800", code: "5811", label: "Edición de libros.", tarifa: 6.5 },
+  { id: "30801", code: "5812", label: "Edición de directorios y listas de correo.", tarifa: 9.5 },
   {
     id: "30802",
     code: "5813",
     label: "Edición de periódicos, revistas y otras publicaciones periódicas.",
+
+    tarifa: 8.1,
   },
-  { id: "30803", code: "5819", label: "Otros trabajos de edición." },
-  { id: "30804", code: "5820", label: "Edición de programas de informática (software)." },
+  { id: "30803", code: "5819", label: "Otros trabajos de edición.", tarifa: 4.6 },
+  {
+    id: "30804",
+    code: "5820",
+    label: "Edición de programas de informática (software).",
+    tarifa: 7.8,
+  },
   {
     id: "30805",
     code: "5911",
     label:
       "Actividades de producción de películas cinematográficas, videos, programas, anuncios y comerciales de televisión.",
+
+    tarifa: 6.5,
   },
   {
     id: "30806",
     code: "5912",
     label:
       "Actividades de posproducción de películas cinematográficas, videos, programas, anuncios y comerciales de televisión.",
+
+    tarifa: 3.5,
   },
   {
     id: "30807",
     code: "5913",
     label:
       "Actividades de distribución de películas cinematográficas, videos, programas, anuncios y comerciales de televisión.",
+
+    tarifa: 8.8,
   },
   {
     id: "30808",
     code: "5914",
     label: "Actividades de exhibición de películas cinematográficas y videos.",
+
+    tarifa: 9.4,
   },
-  { id: "30809", code: "5920", label: "Actividades de grabación de sonido y edición de música." },
+  {
+    id: "30809",
+    code: "5920",
+    label: "Actividades de grabación de sonido y edición de música.",
+    tarifa: 6.9,
+  },
   {
     id: "30810",
     code: "6010",
     label: "Actividades de programación y transmisión en el servicio de radiodifusión sonora.",
+
+    tarifa: 3.5,
   },
-  { id: "30811", code: "6020", label: "Actividades de programación y transmisión de televisión." },
-  { id: "30812", code: "6110", label: "Actividades de telecomunicaciones alámbricas." },
-  { id: "30813", code: "6120", label: "Actividades de telecomunicaciones inalámbricas." },
-  { id: "30814", code: "6130", label: "Actividades de telecomunicación satelital." },
-  { id: "30815", code: "6190", label: "Otras actividades de telecomunicaciones." },
+  {
+    id: "30811",
+    code: "6020",
+    label: "Actividades de programación y transmisión de televisión.",
+    tarifa: 7,
+  },
+  {
+    id: "30812",
+    code: "6110",
+    label: "Actividades de telecomunicaciones alámbricas.",
+    tarifa: 7.5,
+  },
+  {
+    id: "30813",
+    code: "6120",
+    label: "Actividades de telecomunicaciones inalámbricas.",
+    tarifa: 3.4,
+  },
+  { id: "30814", code: "6130", label: "Actividades de telecomunicación satelital.", tarifa: 3.8 },
+  { id: "30815", code: "6190", label: "Otras actividades de telecomunicaciones.", tarifa: 6.9 },
   {
     id: "30816",
     code: "6201",
     label:
       "Actividades de desarrollo de sistemas informáticos (planificación, análisis, diseño, programación, pruebas).",
+
+    tarifa: 4.1,
   },
   {
     id: "30817",
     code: "6202",
     label:
       "Actividades de consultoría informática y actividades de administración de instalaciones informáticas.",
+
+    tarifa: 4.9,
   },
   {
     id: "30818",
     code: "6209",
     label:
       "Otras actividades de tecnologías de información y actividades de servicios informáticos.",
+
+    tarifa: 3.3,
   },
   {
     id: "30819",
     code: "6311",
     label: "Procesamiento de datos, alojamiento (hosting) y actividades relacionadas.",
+
+    tarifa: 9.9,
   },
-  { id: "30820", code: "6312", label: "Portales web." },
-  { id: "30821", code: "6391", label: "Actividades de agencias de noticias." },
-  { id: "30822", code: "6399", label: "Otras actividades de servicio de información n.c.p." },
-  { id: "30823", code: "6411", label: "Banco Central." },
-  { id: "30824", code: "6412", label: "Bancos comerciales." },
-  { id: "30825", code: "6421", label: "Actividades de las corporaciones financieras." },
-  { id: "30826", code: "6422", label: "Actividades de las compañías de financiamiento." },
-  { id: "30827", code: "6423", label: "Banca de segundo piso." },
-  { id: "30828", code: "6424", label: "Actividades de las cooperativas financieras." },
-  { id: "30829", code: "6431", label: "Fideicomisos, fondos y entidades financieras similares." },
-  { id: "30830", code: "6432", label: "Fondos de cesantías." },
-  { id: "30831", code: "6491", label: "Leasing financiero (arrendamiento financiero)." },
+  { id: "30820", code: "6312", label: "Portales web.", tarifa: 6.2 },
+  { id: "30821", code: "6391", label: "Actividades de agencias de noticias.", tarifa: 3.6 },
+  {
+    id: "30822",
+    code: "6399",
+    label: "Otras actividades de servicio de información n.c.p.",
+    tarifa: 6.8,
+  },
+  { id: "30823", code: "6411", label: "Banco Central.", tarifa: 6.7 },
+  { id: "30824", code: "6412", label: "Bancos comerciales.", tarifa: 3.5 },
+  {
+    id: "30825",
+    code: "6421",
+    label: "Actividades de las corporaciones financieras.",
+    tarifa: 9.8,
+  },
+  {
+    id: "30826",
+    code: "6422",
+    label: "Actividades de las compañías de financiamiento.",
+    tarifa: 4.9,
+  },
+  { id: "30827", code: "6423", label: "Banca de segundo piso.", tarifa: 5.6 },
+  { id: "30828", code: "6424", label: "Actividades de las cooperativas financieras.", tarifa: 3.1 },
+  {
+    id: "30829",
+    code: "6431",
+    label: "Fideicomisos, fondos y entidades financieras similares.",
+    tarifa: 3.4,
+  },
+  { id: "30830", code: "6432", label: "Fondos de cesantías.", tarifa: 4.8 },
+  {
+    id: "30831",
+    code: "6491",
+    label: "Leasing financiero (arrendamiento financiero).",
+    tarifa: 4.2,
+  },
   {
     id: "30832",
     code: "6492",
     label:
       "Actividades financieras de fondos de empleados y otras formas asociativas del sector solidario.",
+
+    tarifa: 7.3,
   },
-  { id: "30833", code: "6493", label: "Actividades de compra de cartera o factoring." },
-  { id: "30834", code: "6494", label: "Otras actividades de distribución de fondos." },
-  { id: "30835", code: "6495", label: "Instituciones especiales oficiales." },
-  { id: "55320", code: "6496", label: "Capitalización" },
+  {
+    id: "30833",
+    code: "6493",
+    label: "Actividades de compra de cartera o factoring.",
+    tarifa: 8.7,
+  },
+  { id: "30834", code: "6494", label: "Otras actividades de distribución de fondos.", tarifa: 6.7 },
+  { id: "30835", code: "6495", label: "Instituciones especiales oficiales.", tarifa: 4.1 },
+  { id: "55320", code: "6496", label: "Capitalización", tarifa: 9 },
   {
     id: "30836",
     code: "6499",
     label: "Otras actividades de servicio financiero, excepto las de seguros y pensiones n.c.p.",
+
+    tarifa: 6.2,
   },
-  { id: "30837", code: "6511", label: "Seguros generales." },
-  { id: "30838", code: "6512", label: "Seguros de vida." },
-  { id: "30839", code: "6513", label: "Reaseguros." },
-  { id: "55321", code: "6515", label: "Seguros de salud" },
-  { id: "30841", code: "6521", label: "Servicios de seguros sociales de salud." },
-  { id: "30842", code: "6522", label: "Servicios de seguros sociales de riesgos profesionales." },
-  { id: "55322", code: "6523", label: "Servicios de seguros sociales en riesgos de familia" },
-  { id: "30844", code: "6532", label: "Régimen de ahorro individual (RAI)." },
-  { id: "30845", code: "6611", label: "Administración de mercados financieros." },
-  { id: "30846", code: "6612", label: "Corretaje de valores y de contratos de productos básicos." },
-  { id: "30847", code: "6613", label: "Otras actividades relacionadas con el mercado de valores." },
-  { id: "30848", code: "6614", label: "Actividades de las casas de cambio." },
+  { id: "30837", code: "6511", label: "Seguros generales.", tarifa: 8.6 },
+  { id: "30838", code: "6512", label: "Seguros de vida.", tarifa: 8.5 },
+  { id: "30839", code: "6513", label: "Reaseguros.", tarifa: 3.2 },
+  { id: "55321", code: "6515", label: "Seguros de salud", tarifa: 9.4 },
+  { id: "30841", code: "6521", label: "Servicios de seguros sociales de salud.", tarifa: 4.4 },
+  {
+    id: "30842",
+    code: "6522",
+    label: "Servicios de seguros sociales de riesgos profesionales.",
+    tarifa: 5.2,
+  },
+  {
+    id: "55322",
+    code: "6523",
+    label: "Servicios de seguros sociales en riesgos de familia",
+    tarifa: 3.9,
+  },
+  { id: "30844", code: "6532", label: "Régimen de ahorro individual (RAI).", tarifa: 10 },
+  { id: "30845", code: "6611", label: "Administración de mercados financieros.", tarifa: 5.3 },
+  {
+    id: "30846",
+    code: "6612",
+    label: "Corretaje de valores y de contratos de productos básicos.",
+    tarifa: 9.7,
+  },
+  {
+    id: "30847",
+    code: "6613",
+    label: "Otras actividades relacionadas con el mercado de valores.",
+    tarifa: 3.2,
+  },
+  { id: "30848", code: "6614", label: "Actividades de las casas de cambio.", tarifa: 8 },
   {
     id: "30849",
     code: "6615",
     label: "Actividades de los profesionales de compra y venta de divisas.",
+
+    tarifa: 6.6,
   },
   {
     id: "30850",
     code: "6619",
     label: "Otras actividades auxiliares de las actividades de servicios financieros n.c.p.",
+
+    tarifa: 4.6,
   },
-  { id: "30851", code: "6621", label: "Actividades de agentes y corredores de seguros" },
+  {
+    id: "30851",
+    code: "6621",
+    label: "Actividades de agentes y corredores de seguros",
+    tarifa: 5.5,
+  },
   {
     id: "30852",
     code: "6629",
     label: "Evaluación de riesgos y daños, y otras actividades de servicios auxiliares",
+
+    tarifa: 8.5,
   },
-  { id: "30853", code: "6630", label: "Actividades de administración de fondos." },
+  { id: "30853", code: "6630", label: "Actividades de administración de fondos.", tarifa: 7.4 },
   {
     id: "30854",
     code: "6810",
     label: "Actividades inmobiliarias realizadas con bienes propios o arrendados.",
+
+    tarifa: 6.2,
   },
   {
     id: "30855",
     code: "6820",
     label: "Actividades inmobiliarias realizadas a cambio de una retribución o por contrata.",
+
+    tarifa: 8.3,
   },
-  { id: "30856", code: "6910", label: "Actividades jurídicas." },
+  { id: "30856", code: "6910", label: "Actividades jurídicas.", tarifa: 3.1 },
   {
     id: "30857",
     code: "6920",
     label:
       "Actividades de contabilidad, teneduría de libros, auditoría financiera y asesoría tributaria.",
+
+    tarifa: 5,
   },
-  { id: "30858", code: "7010", label: "Actividades de administración empresarial." },
-  { id: "30859", code: "7020", label: "Actividades de consultaría de gestión." },
-  { id: "55323", code: "7111", label: "Actividades de arquitectura" },
+  { id: "30858", code: "7010", label: "Actividades de administración empresarial.", tarifa: 3.6 },
+  { id: "30859", code: "7020", label: "Actividades de consultaría de gestión.", tarifa: 3.1 },
+  { id: "55323", code: "7111", label: "Actividades de arquitectura", tarifa: 6.5 },
   {
     id: "55324",
     code: "7112",
     label: "Actividades de ingenieria y otras actividades conexas de consultoria tecnica",
+
+    tarifa: 3.8,
   },
-  { id: "30861", code: "7120", label: "Ensayos y análisis técnicos." },
+  { id: "30861", code: "7120", label: "Ensayos y análisis técnicos.", tarifa: 9 },
   {
     id: "30862",
     code: "7210",
     label:
       "Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.",
+
+    tarifa: 5,
   },
   {
     id: "30863",
     code: "7220",
     label:
       "Investigaciones y desarrollo experimental en el campo de las ciencias sociales y las humanidades.",
+
+    tarifa: 5.3,
   },
-  { id: "30864", code: "7310", label: "Publicidad." },
+  { id: "30864", code: "7310", label: "Publicidad.", tarifa: 4.2 },
   {
     id: "30865",
     code: "7320",
     label: "Estudios de mercado y realización de encuestas de opinión pública.",
+
+    tarifa: 8.9,
   },
-  { id: "30866", code: "7410", label: "Actividades especializadas de diseño." },
-  { id: "30867", code: "7420", label: "Actividades de fotografía." },
+  { id: "30866", code: "7410", label: "Actividades especializadas de diseño.", tarifa: 7.9 },
+  { id: "30867", code: "7420", label: "Actividades de fotografía.", tarifa: 3.3 },
   {
     id: "30868",
     code: "7490",
     label: "Otras actividades profesionales, científicas y técnicas n.c.p.",
+
+    tarifa: 5.5,
   },
-  { id: "30869", code: "7500", label: "Actividades veterinarias." },
-  { id: "30870", code: "7710", label: "Alquiler y arrendamiento de vehículos automotores." },
+  { id: "30869", code: "7500", label: "Actividades veterinarias.", tarifa: 6.1 },
+  {
+    id: "30870",
+    code: "7710",
+    label: "Alquiler y arrendamiento de vehículos automotores.",
+    tarifa: 5.5,
+  },
   {
     id: "30871",
     code: "7721",
     label: "Alquiler y arrendamiento de equipo recreativo y deportivo.",
+
+    tarifa: 8.1,
   },
-  { id: "30872", code: "7722", label: "Alquiler de videos y discos." },
+  { id: "30872", code: "7722", label: "Alquiler de videos y discos.", tarifa: 8.3 },
   {
     id: "30873",
     code: "7729",
     label: "Alquiler y arrendamiento de otros efectos personales y enseres domésticos n.c.p.",
+
+    tarifa: 9.6,
   },
   {
     id: "30874",
     code: "7730",
     label:
       "Alquiler y arrendamiento de otros tipos de maquinaria, equipo y bienes tangibles n.c.p.",
+
+    tarifa: 6.4,
   },
   {
     id: "30875",
     code: "7740",
     label:
       "Arrendamiento de propiedad intelectual y productos similares, excepto obras protegidas por derechos de autor.",
+
+    tarifa: 8.3,
   },
-  { id: "30876", code: "7810", label: "Actividades de agencias de empleo." },
-  { id: "30877", code: "7820", label: "Actividades de agencias de empleo temporal." },
-  { id: "30878", code: "7830", label: "Otras actividades de suministro de recurso humano." },
-  { id: "30879", code: "7911", label: "Actividades de las agencias de viaje." },
-  { id: "30880", code: "7912", label: "Actividades de operadores turísticos." },
-  { id: "30881", code: "7990", label: "Otros servicios de reserva y actividades relacionadas." },
-  { id: "30882", code: "8010", label: "Actividades de seguridad privada." },
-  { id: "30883", code: "8020", label: "Actividades de servicios de sistemas de seguridad." },
-  { id: "30884", code: "8030", label: "Actividades de detectives e investigadores privados." },
-  { id: "30885", code: "8110", label: "Actividades combinadas de apoyo a instalaciones." },
-  { id: "30886", code: "8121", label: "Limpieza general interior de edificios." },
+  { id: "30876", code: "7810", label: "Actividades de agencias de empleo.", tarifa: 3.1 },
+  { id: "30877", code: "7820", label: "Actividades de agencias de empleo temporal.", tarifa: 9.2 },
+  {
+    id: "30878",
+    code: "7830",
+    label: "Otras actividades de suministro de recurso humano.",
+    tarifa: 5.5,
+  },
+  { id: "30879", code: "7911", label: "Actividades de las agencias de viaje.", tarifa: 9.4 },
+  { id: "30880", code: "7912", label: "Actividades de operadores turísticos.", tarifa: 5.7 },
+  {
+    id: "30881",
+    code: "7990",
+    label: "Otros servicios de reserva y actividades relacionadas.",
+    tarifa: 4.7,
+  },
+  { id: "30882", code: "8010", label: "Actividades de seguridad privada.", tarifa: 3.1 },
+  {
+    id: "30883",
+    code: "8020",
+    label: "Actividades de servicios de sistemas de seguridad.",
+    tarifa: 3.2,
+  },
+  {
+    id: "30884",
+    code: "8030",
+    label: "Actividades de detectives e investigadores privados.",
+    tarifa: 3.2,
+  },
+  {
+    id: "30885",
+    code: "8110",
+    label: "Actividades combinadas de apoyo a instalaciones.",
+    tarifa: 9,
+  },
+  { id: "30886", code: "8121", label: "Limpieza general interior de edificios.", tarifa: 3 },
   {
     id: "30887",
     code: "8129",
     label: "Otras actividades de limpieza de edificios e instalaciones industriales.",
+
+    tarifa: 5.8,
   },
   {
     id: "30888",
     code: "8130",
     label: "Actividades de paisajismo y servicios de mantenimiento conexos.",
+
+    tarifa: 3.3,
   },
   {
     id: "30889",
     code: "8211",
     label: "Actividades combinadas de servicios administrativos de oficina.",
+
+    tarifa: 3.8,
   },
   {
     id: "30890",
     code: "8219",
     label:
       "Fotocopiado, preparación de documentos y otras actividades especializadas de apoyo a oficina.",
+
+    tarifa: 5.5,
   },
-  { id: "30891", code: "8220", label: "Actividades de centros de llamadas (Call center)." },
-  { id: "30892", code: "8230", label: "Organización de convenciones y eventos comerciales." },
+  {
+    id: "30891",
+    code: "8220",
+    label: "Actividades de centros de llamadas (Call center).",
+    tarifa: 4.4,
+  },
+  {
+    id: "30892",
+    code: "8230",
+    label: "Organización de convenciones y eventos comerciales.",
+    tarifa: 8.7,
+  },
   {
     id: "30893",
     code: "8291",
     label: "Actividades de agencias de cobranza y oficinas de calificación crediticia.",
+
+    tarifa: 6.8,
   },
-  { id: "30894", code: "8292", label: "Actividades de envase y empaque." },
+  { id: "30894", code: "8292", label: "Actividades de envase y empaque.", tarifa: 8.3 },
   {
     id: "30895",
     code: "8299",
     label: "Otras actividades de servicio de apoyo a las empresas n.c.p.",
+
+    tarifa: 8.2,
   },
-  { id: "30906", code: "8511", label: "Educación de la primera infancia." },
-  { id: "30907", code: "8512", label: "Educación preescolar." },
-  { id: "30908", code: "8513", label: "Educación básica primaria." },
-  { id: "30909", code: "8521", label: "Educación básica secundaria." },
-  { id: "30910", code: "8522", label: "Educación media académica." },
-  { id: "30911", code: "8523", label: "Educación media técnica y de formación laboral." },
+  { id: "30906", code: "8511", label: "Educación de la primera infancia.", tarifa: 9.2 },
+  { id: "30907", code: "8512", label: "Educación preescolar.", tarifa: 4.6 },
+  { id: "30908", code: "8513", label: "Educación básica primaria.", tarifa: 9 },
+  { id: "30909", code: "8521", label: "Educación básica secundaria.", tarifa: 8.5 },
+  { id: "30910", code: "8522", label: "Educación media académica.", tarifa: 7.2 },
+  {
+    id: "30911",
+    code: "8523",
+    label: "Educación media técnica y de formación laboral.",
+    tarifa: 7.8,
+  },
   {
     id: "30912",
     code: "8530",
     label: "Establecimientos que combinan diferentes niveles de educación.",
+
+    tarifa: 4.9,
   },
-  { id: "30913", code: "8541", label: "Educación técnica profesional." },
-  { id: "30914", code: "8542", label: "Educación tecnológica." },
+  { id: "30913", code: "8541", label: "Educación técnica profesional.", tarifa: 7.7 },
+  { id: "30914", code: "8542", label: "Educación tecnológica.", tarifa: 7.5 },
   {
     id: "30915",
     code: "8543",
     label: "Educación de instituciones universitarias o de escuelas tecnológicas.",
+
+    tarifa: 9.9,
   },
-  { id: "30916", code: "8544", label: "Educación de universidades." },
-  { id: "30917", code: "8551", label: "Formación académica no formal." },
-  { id: "30918", code: "8552", label: "Enseñanza deportiva y recreativa." },
-  { id: "30919", code: "8553", label: "Enseñanza cultural." },
-  { id: "30920", code: "8559", label: "Otros tipos de educación n.c.p." },
-  { id: "30921", code: "8560", label: "Actividades de apoyo a la educación." },
-  { id: "30922", code: "8610", label: "Actividades de hospitales y clínicas, con internación." },
-  { id: "30923", code: "8621", label: "Actividades de la práctica médica, sin internación." },
-  { id: "30924", code: "8622", label: "Actividades de la práctica odontológica." },
-  { id: "30925", code: "8691", label: "Actividades de apoyo diagnóstico." },
-  { id: "30926", code: "8692", label: "Actividades de apoyo terapéutico." },
-  { id: "30927", code: "8699", label: "Otras actividades de atención de la salud humana." },
+  { id: "30916", code: "8544", label: "Educación de universidades.", tarifa: 9.1 },
+  { id: "30917", code: "8551", label: "Formación académica no formal.", tarifa: 5.3 },
+  { id: "30918", code: "8552", label: "Enseñanza deportiva y recreativa.", tarifa: 3.9 },
+  { id: "30919", code: "8553", label: "Enseñanza cultural.", tarifa: 4.7 },
+  { id: "30920", code: "8559", label: "Otros tipos de educación n.c.p.", tarifa: 8.6 },
+  { id: "30921", code: "8560", label: "Actividades de apoyo a la educación.", tarifa: 8.9 },
+  {
+    id: "30922",
+    code: "8610",
+    label: "Actividades de hospitales y clínicas, con internación.",
+    tarifa: 6.3,
+  },
+  {
+    id: "30923",
+    code: "8621",
+    label: "Actividades de la práctica médica, sin internación.",
+    tarifa: 8.6,
+  },
+  { id: "30924", code: "8622", label: "Actividades de la práctica odontológica.", tarifa: 5.1 },
+  { id: "30925", code: "8691", label: "Actividades de apoyo diagnóstico.", tarifa: 3.4 },
+  { id: "30926", code: "8692", label: "Actividades de apoyo terapéutico.", tarifa: 3.5 },
+  {
+    id: "30927",
+    code: "8699",
+    label: "Otras actividades de atención de la salud humana.",
+    tarifa: 3.9,
+  },
   {
     id: "30928",
     code: "8710",
     label: "Actividades de atención residencial medicalizada de tipo general.",
+
+    tarifa: 3.7,
   },
   {
     id: "30929",
     code: "8720",
     label:
       "Actividades de atención residencial, para el cuidado de pacientes con retardo mental, enfermedad mental y consumo de sustancias psicoactivas.",
+
+    tarifa: 7.7,
   },
   {
     id: "30930",
     code: "8730",
     label:
       "Actividades de atención en instituciones para el cuidado de personas mayores y/o discapacitadas.",
+
+    tarifa: 3.2,
   },
   {
     id: "30931",
     code: "8790",
     label: "Otras actividades de atención en instituciones con alojamiento",
+
+    tarifa: 4.5,
   },
   {
     id: "30932",
     code: "8810",
     label:
       "Actividades de asistencia social sin alojamiento para personas mayores y discapacitadas.",
+
+    tarifa: 9.4,
   },
-  { id: "55325", code: "8891", label: "Actividades de guarderías para niños y niñas" },
-  { id: "55326", code: "8899", label: "Otras actividades de asistencia social n.c.p." },
-  { id: "30945", code: "9200", label: "Actividades de juegos de azar y apuestas." },
-  { id: "30946", code: "9311", label: "Gestión de instalaciones deportivas." },
-  { id: "30947", code: "9312", label: "Actividades de clubes deportivos." },
-  { id: "30948", code: "9319", label: "Otras actividades deportivas." },
+  { id: "55325", code: "8891", label: "Actividades de guarderías para niños y niñas", tarifa: 6.5 },
+  {
+    id: "55326",
+    code: "8899",
+    label: "Otras actividades de asistencia social n.c.p.",
+    tarifa: 3.5,
+  },
+  { id: "30945", code: "9200", label: "Actividades de juegos de azar y apuestas.", tarifa: 8.1 },
+  { id: "30946", code: "9311", label: "Gestión de instalaciones deportivas.", tarifa: 3.3 },
+  { id: "30947", code: "9312", label: "Actividades de clubes deportivos.", tarifa: 7.7 },
+  { id: "30948", code: "9319", label: "Otras actividades deportivas.", tarifa: 8.7 },
   {
     id: "30949",
     code: "9321",
     label: "Actividades de parques de atracciones y parques temáticos.",
+
+    tarifa: 8.6,
   },
-  { id: "30950", code: "9329", label: "Otras actividades recreativas y de esparcimiento n.c.p." },
+  {
+    id: "30950",
+    code: "9329",
+    label: "Otras actividades recreativas y de esparcimiento n.c.p.",
+    tarifa: 5.5,
+  },
   {
     id: "30951",
     code: "9411",
     label: "Actividades de asociaciones empresariales y de empleadores",
+
+    tarifa: 9.7,
   },
   {
     id: "30957",
     code: "9511",
     label: "Mantenimiento y reparación de computadores y de equipo periférico.",
+
+    tarifa: 5,
   },
-  { id: "30958", code: "9512", label: "Mantenimiento y reparación de equipos de comunicación." },
+  {
+    id: "30958",
+    code: "9512",
+    label: "Mantenimiento y reparación de equipos de comunicación.",
+    tarifa: 3.3,
+  },
   {
     id: "30959",
     code: "9521",
     label: "Mantenimiento y reparación de aparatos electrónicos de consumo.",
+
+    tarifa: 6.2,
   },
   {
     id: "30960",
     code: "9522",
     label: "Mantenimiento y reparación de aparatos y equipos domésticos y de jardinería.",
+
+    tarifa: 5.5,
   },
-  { id: "30961", code: "9523", label: "Reparación de calzado y artículos de cuero." },
-  { id: "30962", code: "9524", label: "Reparación de muebles y accesorios para el hogar." },
+  { id: "30961", code: "9523", label: "Reparación de calzado y artículos de cuero.", tarifa: 7.9 },
+  {
+    id: "30962",
+    code: "9524",
+    label: "Reparación de muebles y accesorios para el hogar.",
+    tarifa: 7,
+  },
   {
     id: "30963",
     code: "9529",
     label: "Mantenimiento y reparación de otros efectos personales y enseres domésticos.",
+
+    tarifa: 5.8,
   },
   {
     id: "30964",
     code: "9601",
     label: "Lavado y limpieza, incluso la limpieza en seco, de productos textiles y de piel.",
+
+    tarifa: 9.9,
   },
-  { id: "30965", code: "9602", label: "Peluquería y otros tratamientos de belleza." },
-  { id: "30966", code: "9603", label: "Pompas fúnebres y actividades relacionadas." },
-  { id: "30967", code: "9609", label: "Otras actividades de servicios personales n.c.p." },
+  { id: "30965", code: "9602", label: "Peluquería y otros tratamientos de belleza.", tarifa: 5 },
+  { id: "30966", code: "9603", label: "Pompas fúnebres y actividades relacionadas.", tarifa: 6.3 },
+  {
+    id: "30967",
+    code: "9609",
+    label: "Otras actividades de servicios personales n.c.p.",
+    tarifa: 8.7,
+  },
 ];
