@@ -36,6 +36,10 @@ export interface FieldSpec {
   enableWhen?: TemplateCondition;
   rules?: TemplateRule[];
   dataSource?: TemplateDataSource;
+  // El campo al que rotula, por nombre: resolveTemplateConditions lo traduce a id como todo lo
+  // demas. Solo tiene sentido en un campo de tipo label.
+  labelFor?: string;
+  inlineOptions?: boolean;
 }
 
 // Las tres reglas numericas de la plantilla, cada una con su alcance propio. El formato no lleva

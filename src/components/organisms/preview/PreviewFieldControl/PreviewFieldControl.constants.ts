@@ -14,3 +14,9 @@ export const CHIP_IDLE_CLASSES: string = "border-border bg-field text-fg-soft";
 
 export const OPTION_ROW_CLASSES: string =
   "flex items-center gap-2 text-sm text-fg-soft hover:cursor-pointer";
+
+export const STACKED_OPTIONS_CLASSES: string = "flex flex-col gap-1";
+
+// wrap y no nowrap: en linea es una preferencia de disposicion, no una promesa de que entren. Con
+// cuatro opciones largas en pocas columnas se pasan a la siguiente en vez de desbordar la fila.
+export const INLINE_OPTIONS_CLASSES: string = "flex flex-wrap items-center gap-x-4 gap-y-1";

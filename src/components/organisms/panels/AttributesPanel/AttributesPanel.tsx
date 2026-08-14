@@ -5,7 +5,11 @@ import {
   isPresentationalField,
   labelTargetCandidates,
 } from "../../../../lib/fieldKind/fieldKind";
-import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
+import {
+  allowsManualOptions,
+  isOptionBasedField,
+  supportsInlineOptions,
+} from "../../../../lib/fieldOptions/fieldOptions";
 import { supportsRounding } from "../../../../lib/fieldRounding/fieldRounding";
 import { supportsTooltip } from "../../../../lib/fieldTooltip/fieldTooltip";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
@@ -16,6 +20,7 @@ import {
   useFormStore,
 } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
+import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { FieldIdentityCard } from "../../../molecules/FieldIdentityCard/FieldIdentityCard";
 import { FieldNameInput } from "../../../molecules/FieldNameInput/FieldNameInput";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
@@ -35,6 +40,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
   const setSidebarTab = useFormStore((state) => state.setSidebarTab);
   const setFieldLabelFor = useFormStore((state) => state.setFieldLabelFor);
   const setFieldContent = useFormStore((state) => state.setFieldContent);
+  const setFieldInlineOptions = useFormStore((state) => state.setFieldInlineOptions);
   const activeRows = useFormStore(getActiveRows);
   const row = useFormStore((state) => findRowContainingField(state, field.id));
   const rowColumns = row?.columns ?? GRID_BASE_COLUMNS;
@@ -109,6 +115,23 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
           minLabel="1 col"
           maxLabel={`${maxSpan} col`}
         />
+
+        {supportsInlineOptions(field.type) && (
+          <>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-fg">Opciones en una línea</span>
+              <ToggleSwitch
+                checked={Boolean(field.inlineOptions)}
+                onChange={(checked) => setFieldInlineOptions(field.id, checked)}
+                label="Dibujar las opciones en una sola línea"
+              />
+            </div>
+            <p className="text-[10px] text-fg-subtle">
+              Las pone una al lado de otra en vez de una debajo de otra, para que el renglón entre
+              en un solo alto. Es solo presentación: no cambia el valor ni cuántas se pueden elegir.
+            </p>
+          </>
+        )}
       </PanelSection>
 
       {canEditOptions && <FieldOptionsEditor field={field} />}

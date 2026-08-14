@@ -13,7 +13,7 @@ import type { CanvasField, CatalogFill, FieldCondition, FieldDataSource } from "
 import type { CanvasRow, FormStep, RepeatableGroup } from "../../types/formStructure";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
-import { exportableOptions } from "../fieldOptions/fieldOptions";
+import { exportableInlineOptions, exportableOptions } from "../fieldOptions/fieldOptions";
 import { exportableDecimals, exportableRounding } from "../fieldRounding/fieldRounding";
 import { compileScript } from "../fieldScript/fieldScript";
 import { exportableAllowsNegative } from "../fieldSign/fieldSign";
@@ -196,6 +196,7 @@ export function mapRows(
       formatted: exportableFormatting(field),
       allowsNegative: exportableAllowsNegative(field),
       decimals: exportableDecimals(field),
+      inlineOptions: exportableInlineOptions(field),
     })),
   }));
 }

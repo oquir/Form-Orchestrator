@@ -1,4 +1,5 @@
 import { fillsColumn } from "../../../../lib/catalogFill/catalogFill";
+import { showsOptionsInline } from "../../../../lib/fieldOptions/fieldOptions";
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
 import type { CatalogOption } from "../../../../types/catalog";
 import { RichTextView } from "../../../atoms/RichTextView/RichTextView";
@@ -11,7 +12,9 @@ import {
   CONTROL_BASE_CLASSES,
   CONTROL_IDLE_CLASSES,
   CONTROL_INVALID_CLASSES,
+  INLINE_OPTIONS_CLASSES,
   OPTION_ROW_CLASSES,
+  STACKED_OPTIONS_CLASSES,
 } from "./PreviewFieldControl.constants";
 import type { PreviewFieldControlProps } from "./PreviewFieldControl.types";
 import { toggleInList, toInputValue, toSelectedList } from "./PreviewFieldControl.utils";
@@ -149,7 +152,9 @@ export function PreviewFieldControl({
 
     case "radio_group":
       return (
-        <div className="flex flex-col gap-1">
+        <div
+          className={showsOptionsInline(field) ? INLINE_OPTIONS_CLASSES : STACKED_OPTIONS_CLASSES}
+        >
           {options.map((option) => (
             <label key={option.id} className={OPTION_ROW_CLASSES}>
               <input
@@ -170,7 +175,9 @@ export function PreviewFieldControl({
       const selected: string[] = toSelectedList(value);
 
       return (
-        <div className="flex flex-col gap-1">
+        <div
+          className={showsOptionsInline(field) ? INLINE_OPTIONS_CLASSES : STACKED_OPTIONS_CLASSES}
+        >
           {options.map((option) => (
             <label key={option.id} className={OPTION_ROW_CLASSES}>
               <input

@@ -83,6 +83,20 @@ export function buildScope(
       Boolean(field.alwaysDisabled) || !evaluateCondition(field.enableWhen, values);
   }
 
+  // Segunda pasada, y tiene que serlo: el destino puede aparecer despues que su etiqueta en la
+  // lista, asi que su visibilidad todavia no estaria calculada.
+  //
+  // Una etiqueta enlazada se esconde con su campo. La regla no se puede dejar en manos del autor
+  // -- copiar el visibleWhen del campo a la etiqueta -- porque dos condiciones que dicen lo mismo
+  // se desincronizan a la primera edicion, y el resultado es un rotulo suelto apuntando a un campo
+  // que no esta. Se deriva, igual que hasLinkedLabel.
+  //
+  // El === false es a proposito: si el destino no vive en este ambito no hay nada que heredar y la
+  // etiqueta se queda como estaba.
+  for (const field of fields) {
+    if (field.labelFor && visible[field.labelFor] === false) visible[field.name] = false;
+  }
+
   return { values, visible, disabled, computed, clamped };
 }
 

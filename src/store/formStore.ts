@@ -825,6 +825,13 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         formatted: formatted || undefined,
       })),
     ),
+  setFieldInlineOptions: (fieldId, inline) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        inlineOptions: inline || undefined,
+      })),
+    ),
   // null es "los que traiga": la ausencia de la clave es un estado con sentido, no un cero.
   setFieldDecimals: (fieldId, decimals) =>
     set((state) =>

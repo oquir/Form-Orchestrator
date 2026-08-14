@@ -1,7 +1,15 @@
 import { ArrowDown2, Calculator, Check, Import, Magnifier } from "reicon-react";
-import { allowsManualOptions, isOptionBasedField } from "../../../lib/fieldOptions/fieldOptions";
+import {
+  allowsManualOptions,
+  isOptionBasedField,
+  showsOptionsInline,
+} from "../../../lib/fieldOptions/fieldOptions";
 import { RichTextView } from "../../atoms/RichTextView/RichTextView";
-import { CATALOG_HINT_CLASSES, MOCK_CONTROL_CLASSES } from "./FieldPreviewControl.constants";
+import {
+  CATALOG_HINT_CLASSES,
+  CHIP_INLINE_CLASSES,
+  MOCK_CONTROL_CLASSES,
+} from "./FieldPreviewControl.constants";
 import type { FieldPreviewControlProps } from "./FieldPreviewControl.types";
 
 export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
@@ -78,7 +86,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
               {field.title}
             </p>
           )}
-          <div className="flex flex-col gap-1">
+          <div className={showsOptionsInline(field) ? CHIP_INLINE_CLASSES : "flex flex-col gap-1"}>
             {options.map((option, index) => (
               <p
                 key={option.id}
@@ -109,7 +117,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
               {field.title}
             </p>
           )}
-          <div className="flex flex-col gap-1">
+          <div className={showsOptionsInline(field) ? CHIP_INLINE_CLASSES : "flex flex-col gap-1"}>
             {options.map((option, index) => (
               <p
                 key={option.id}

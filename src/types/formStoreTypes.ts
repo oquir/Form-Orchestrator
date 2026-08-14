@@ -135,6 +135,7 @@ export interface FormState {
   setFieldFormatted: (fieldId: string, formatted: boolean) => void;
   setFieldAllowsNegative: (fieldId: string, allows: boolean) => void;
   setFieldDecimals: (fieldId: string, decimals: number | null) => void;
+  setFieldInlineOptions: (fieldId: string, inline: boolean) => void;
   updateFieldTooltip: (fieldId: string, updates: Partial<FieldTooltip> | null) => void;
   addFieldOption: (fieldId: string) => void;
   removeFieldOption: (fieldId: string, optionId: string) => void;

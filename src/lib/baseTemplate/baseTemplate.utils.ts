@@ -92,6 +92,9 @@ export function resolveTemplateConditions<T extends { rows: CanvasRow[] }>(steps
         field.visibleWhen = resolvePointer(field.visibleWhen, idsByName);
         field.enableWhen = resolvePointer(field.enableWhen, idsByName);
 
+        // Una etiqueta que apunta a un campo inexistente queda suelta, no rota: se desliga.
+        if (field.labelFor) field.labelFor = idsByName.get(field.labelFor);
+
         if (field.dataSource?.dependsOn) {
           const parentId: string | undefined = idsByName.get(field.dataSource.dependsOn);
           field.dataSource = parentId
@@ -196,6 +199,8 @@ export function buildRow(specs: FieldSpec[], groupId?: string): CanvasRow {
       visibleWhen: pendingCondition(spec.visibleWhen),
       enableWhen: pendingCondition(spec.enableWhen),
       dataSource: spec.dataSource,
+      labelFor: spec.labelFor,
+      inlineOptions: spec.inlineOptions,
     });
 
     colStart += spec.colSpan;

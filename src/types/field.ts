@@ -155,6 +155,9 @@ export interface CanvasField {
   // Cuantos decimales muestra y deja teclear. Ausente = los que traiga, hasta el tope de la lib.
   // Recorta el valor ademas de rellenarlo al mostrar; ver lib/fieldRounding.
   decimals?: number;
+  // Dibujar las opciones en una sola linea en vez de una debajo de otra. Solo presentacion, y solo
+  // para radio_group y checkbox_group; ver lib/fieldOptions.
+  inlineOptions?: boolean;
 }
 
 export interface SavedComponent {
@@ -179,4 +182,5 @@ export interface SavedComponent {
   formatted?: boolean;
   allowsNegative?: boolean;
   decimals?: number;
+  inlineOptions?: boolean;
 }

@@ -155,6 +155,7 @@ const canvasFieldSchema = z.object({
   formatted: z.boolean().optional(),
   allowsNegative: z.boolean().optional(),
   decimals: z.number().optional(),
+  inlineOptions: z.boolean().optional(),
 });
 
 const canvasRowSchema = z.object({

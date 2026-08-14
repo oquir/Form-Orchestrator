@@ -84,6 +84,7 @@ export interface ExportedField {
   // Solo aparece cuando vale false. Si no viene, el campo admite negativos.
   allowsNegative?: boolean;
   decimals?: number;
+  inlineOptions?: boolean;
 }
 
 // Una comprobacion del grupo entero, con el script ya compilado igual que el de un campo: para el

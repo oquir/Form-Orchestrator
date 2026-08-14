@@ -10,6 +10,10 @@ export const OPTION_BASED_FIELD_TYPES: string[] = [
 
 export const MULTI_VALUE_FIELD_TYPES: string[] = ["checkbox_group"];
 
+// Los que se dibujan uno debajo del otro y pueden pasar a una sola linea. El toggle_group ya es
+// horizontal por naturaleza y un select no tiene donde ponerlas, asi que ninguno de los dos entra.
+export const INLINE_CAPABLE_FIELD_TYPES: string[] = ["radio_group", "checkbox_group"];
+
 // Los que llevan numero. `calculated` y `number` son el mismo comportamiento; lo unico que hace
 // de verdad a un campo de solo lectura es alwaysDisabled.
 export const NUMERIC_FIELD_TYPES: string[] = ["number", "calculated"];

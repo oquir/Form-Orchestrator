@@ -7,6 +7,7 @@ import {
   CATALOG_TIPOS_DECLARACION,
   CATALOG_TIPOS_DOCUMENTO,
   CATALOG_TIPOS_PERSONA,
+  CATALOG_TIPOS_SANCION,
 } from "../../constants/catalog";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
 import type {
@@ -31,6 +32,7 @@ import {
   TELEFONO_PATTERN,
   TEMPLATE_DECIMALS,
   TIPO_DOCUMENTO_NIT,
+  TIPO_SANCION_OTRA,
 } from "./baseTemplate.constants";
 import type { TemplateCondition, TemplateValidationOverride } from "./baseTemplate.types";
 import { applyNumericDefaults, buildRow, resolveTemplateConditions } from "./baseTemplate.utils";
@@ -663,15 +665,61 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               min: 0,
             },
           ]),
+          // El renglon 31 son tres campos en una linea: el rotulo, que tipo de sancion y cuanto.
+          // El tipo va en radio y no en desplegable porque son cuatro opciones cortas y asi se
+          // ven todas de una; inlineOptions es lo que las pone al lado en vez de una bajo otra.
           buildRow([
+            {
+              name: "sancion_rotulo",
+              type: "label",
+              label: "31. Más: Sanciones:",
+              colSpan: 5,
+              labelFor: "tipo_sancion",
+            },
+            {
+              name: "tipo_sancion",
+              type: "radio_group",
+              label: "Tipo de sanción",
+              colSpan: 7,
+              path: "ajusteDeclaracion.idTipoSancion",
+              dataSource: { catalog: CATALOG_TIPOS_SANCION },
+              inlineOptions: true,
+            },
             {
               name: "valor_sancion",
               type: "number",
-              label: "31. Más: Sanciones",
-              colSpan: GRID_BASE_COLUMNS,
+              label: "Valor de la sanción",
+              colSpan: 4,
               path: "ajusteDeclaracion.valorSancion",
               required: true,
               min: 0,
+            },
+          ]),
+          // La descripcion va en fila propia y no al lado: asi el renglon 31 no cambia de forma al
+          // elegir OTRA, y como PreviewRowsGrid omite la fila donde ningun campo se ve, la fila
+          // entera desaparece sin dejar hueco.
+          //
+          // No lleva validacion condicional: un campo oculto no se valida, asi que required a
+          // secas ya significa "obligatorio solo cuando se ve", que es justo lo que se pide.
+          buildRow([
+            {
+              name: "sancion_descripcion_rotulo",
+              type: "label",
+              label: "Describa la sanción:",
+              colSpan: 5,
+              // Sin visibleWhen propio a proposito: la hereda de su campo. Repetir la condicion
+              // aca funcionaria hoy y se desincronizaria a la primera vez que alguien edite una
+              // sola de las dos.
+              labelFor: "descripcion_sancion",
+            },
+            {
+              name: "descripcion_sancion",
+              type: "text",
+              label: "Descripción de la sanción",
+              colSpan: 11,
+              path: "ajusteDeclaracion.descripcionSancion",
+              required: true,
+              visibleWhen: { field: "tipo_sancion", operator: "equals", value: TIPO_SANCION_OTRA },
             },
           ]),
           buildRow([

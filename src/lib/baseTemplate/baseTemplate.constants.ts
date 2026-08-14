@@ -100,6 +100,11 @@ export const DECIMALS_BY_FIELD: Record<string, number> = {
   tarifa_x_mil: 1,
 };
 
+// El id de OTRA dentro del catalogo tipos_sancion, escrito a mano porque el editor de condiciones
+// todavia no ofrece las opciones de un catalogo para elegir. Es el unico literal de la plantilla
+// atado al contenido de un catalogo: si algun dia se reordena, esto se rompe en silencio.
+export const TIPO_SANCION_OTRA: string = "4";
+
 // Lo que el contribuyente declara por actividad tiene que sumar lo mismo que el renglon 16. Si no,
 // esta declarando ingresos que no reparte entre sus actividades, que es evadir el impuesto.
 //
