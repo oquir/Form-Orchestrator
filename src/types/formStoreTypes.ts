@@ -14,6 +14,7 @@ import type {
 } from "./field";
 import type { FieldTypeDef } from "./fieldTypes";
 import type { FormStep, IntroModalState, RepeatableGroup } from "./formStructure";
+import type { FechasMaximasPresentacion, MaxDatesSource, StoredMaxDates } from "./maxDates";
 import type {
   CanvasTarget,
   DragPlacement,
@@ -47,6 +48,7 @@ export interface FormState {
   isDarkMode: boolean;
   lastSavedAt: string | null;
   catalogBank: CatalogBank;
+  maxDates: StoredMaxDates;
   dragPlacement: DragPlacement | null;
   rowDropTarget: RowDropTarget | null;
   rowDrag: RowDragState | null;
@@ -111,6 +113,10 @@ export interface FormState {
   setCatalogEntries: (catalogId: string, entries: CatalogEntry[]) => void;
   setCatalogSource: (catalogId: string, source: CatalogSource) => void;
   clearCatalogEntries: (catalogId: string) => void;
+  // Pasar null vuelve a la tabla generada. El store no sabe generar ni editar fechas: recibe la
+  // tabla ya armada, que es lo que deja la aritmetica entera en lib/maxDates.
+  setMaxDates: (fechas: FechasMaximasPresentacion | null) => void;
+  setMaxDatesSource: (source: MaxDatesSource) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   addFieldValidationOverride: (fieldId: string) => void;
   updateFieldValidationOverride: (

@@ -1,4 +1,14 @@
-import { Archive, CheckCircle, Code, Database, Layers, Link, Palette, Sliders } from "reicon-react";
+import {
+  Archive,
+  Calendar,
+  CheckCircle,
+  Code,
+  Database,
+  Layers,
+  Link,
+  Palette,
+  Sliders,
+} from "reicon-react";
 import type { SidebarTabItem } from "./Sidebar.types";
 
 export const TABS: SidebarTabItem[] = [
@@ -10,4 +20,5 @@ export const TABS: SidebarTabItem[] = [
   { id: "apiMapping", label: "Mapeo API", icon: Link },
   { id: "library", label: "Almacén", icon: Archive },
   { id: "catalogs", label: "Catálogos", icon: Database },
+  { id: "fechas", label: "Fechas", icon: Calendar },
 ];

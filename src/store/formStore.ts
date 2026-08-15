@@ -23,6 +23,7 @@ import {
   createValidationOverride,
   pruneOverridesReferencing,
 } from "../lib/fieldValidationOverride/fieldValidationOverride";
+import { loadMaxDates, saveMaxDates } from "../lib/maxDatesBank/maxDatesBank";
 import { exportableFormatting } from "../lib/numberFormat/numberFormat";
 import {
   clampGroupBounds,
@@ -50,6 +51,7 @@ import type {
   IntroModalStep,
   RepeatableGroup,
 } from "../types/formStructure";
+import type { StoredMaxDates } from "../types/maxDates";
 import type { CanvasTarget } from "../types/placement";
 import type { StateSlice } from "../types/store";
 import { NO_GROUPS, NO_ROWS, THEME_STORAGE_KEY } from "./formStore.constants";
@@ -119,6 +121,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   isDarkMode: getInitialDarkMode(),
   lastSavedAt: null,
   catalogBank: loadCatalogBank(),
+  maxDates: loadMaxDates(),
   setDragPlacement: (placement) => set({ dragPlacement: placement }),
   setRowDropTarget: (target) => set({ rowDropTarget: target }),
   setRowDrag: (drag) => set({ rowDrag: drag }),
@@ -678,6 +681,25 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       saveCatalogBank(catalogBank);
 
       return { catalogBank };
+    }),
+  // Cargar una tabla la deja en uso: nadie pega un volcado para seguir mirando el generado.
+  setMaxDates: (fechas) =>
+    set((state) => {
+      const maxDates: StoredMaxDates =
+        fechas === null
+          ? { ...state.maxDates, source: "default" }
+          : { source: "custom", custom: fechas };
+      saveMaxDates(maxDates);
+
+      return { maxDates };
+    }),
+  // Vuelve a la generada sin tirar lo cargado, igual que un catalogo.
+  setMaxDatesSource: (source) =>
+    set((state) => {
+      const maxDates: StoredMaxDates = { ...state.maxDates, source };
+      saveMaxDates(maxDates);
+
+      return { maxDates };
     }),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>

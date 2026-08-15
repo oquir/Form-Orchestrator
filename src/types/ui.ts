@@ -6,4 +6,5 @@ export type SidebarTab =
   | "logic"
   | "apiMapping"
   | "library"
-  | "catalogs";
+  | "catalogs"
+  | "fechas";

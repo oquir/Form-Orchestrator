@@ -8,6 +8,7 @@ import { CatalogsPanel } from "../panels/CatalogsPanel/CatalogsPanel";
 import { FormScriptEditor } from "../panels/FormScriptEditor/FormScriptEditor";
 import { LibraryPanel } from "../panels/LibraryPanel/LibraryPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
+import { MaxDatesPanel } from "../panels/MaxDatesPanel/MaxDatesPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
 import { ValidationsPanel } from "../panels/ValidationsPanel/ValidationsPanel";
 import { TABS } from "./Sidebar.constants";
@@ -67,6 +68,7 @@ export function Sidebar() {
           {activeTab !== "fields" &&
             activeTab !== "library" &&
             activeTab !== "catalogs" &&
+            activeTab !== "fechas" &&
             activeTab !== "logic" &&
             !selectedField && <p>Sin campo seleccionado.</p>}
           {selectedField && activeTab === "attributes" && <AttributesPanel field={selectedField} />}
@@ -81,6 +83,7 @@ export function Sidebar() {
           {selectedField && activeTab === "apiMapping" && <ApiMappingPanel field={selectedField} />}
           {activeTab === "library" && <LibraryPanel selectedField={selectedField} />}
           {activeTab === "catalogs" && <CatalogsPanel />}
+          {activeTab === "fechas" && <MaxDatesPanel />}
         </div>
       </section>
     </div>
