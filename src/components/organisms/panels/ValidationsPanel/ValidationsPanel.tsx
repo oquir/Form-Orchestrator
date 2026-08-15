@@ -1,4 +1,5 @@
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
+import { supportsMaxLength } from "../../../../lib/fieldLength/fieldLength";
 import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
 import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldValidations } from "../../../../types/field";
@@ -20,6 +21,10 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
   );
   const isNumeric = field.type === "number" || field.type === "calculated";
   const isTextLike = field.type === "text" || field.type === "textarea" || field.type === "select";
+  // La longitud se declara una sola vez pero se cuenta distinto, asi que son dos controles: en
+  // texto son caracteres y en numero digitos de la parte entera. Un select queda afuera de los dos
+  // -- su valor es el id de una opcion y buildZodSchema ni mira la longitud.
+  const countsChars: boolean = supportsMaxLength(field.type) && !isNumeric;
   // Un checkbox no tiene nada basico que declarar: no lleva "requerido" -su esquema es z.boolean()
   // y buildZodSchema nunca le agrega .optional()- ni longitud ni rango. La seccion quedaria vacia.
   const showsBasicRules: boolean = field.type !== "checkbox";
@@ -47,7 +52,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
             </div>
           )}
 
-          {isTextLike && (
+          {countsChars && (
             <TwoColumnFieldGroup legend="Longitud">
               <LabeledInput
                 id="min-length"
@@ -101,6 +106,28 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
                 }
               />
             </TwoColumnFieldGroup>
+          )}
+
+          {isNumeric && (
+            <div>
+              <LabeledInput
+                id="max-digits"
+                label="Máximo de dígitos"
+                type="number"
+                min={1}
+                placeholder="—"
+                value={v.maxLength ?? ""}
+                onChange={(event) =>
+                  updateFieldValidations(field.id, {
+                    maxLength: toNumberOrUndefined(event.target.value),
+                  })
+                }
+              />
+              <p className="mt-1 text-[11px] text-fg-subtle">
+                Cuenta los dígitos de la parte entera. Los puntos de miles, la coma decimal y el
+                signo no cuentan.
+              </p>
+            </div>
           )}
         </PanelSection>
       )}

@@ -85,6 +85,10 @@ export interface ExportedField {
   allowsNegative?: boolean;
   decimals?: number;
   inlineOptions?: boolean;
+  // Tope de longitud para el input. En texto son caracteres y en numero digitos de la parte
+  // entera; la regla completa esta en lib/fieldLength. Va ademas del schema, no en lugar del: el
+  // schema es lo que valida y esto es lo que frena el tecleo antes de que el valor exista.
+  maxLength?: number;
 }
 
 // Una comprobacion del grupo entero, con el script ya compilado igual que el de un campo: para el

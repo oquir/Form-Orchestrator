@@ -112,6 +112,49 @@ export function sanitizeNumericInput(raw: string, allowNegative = true, decimals
   return negative ? `-${single}` : single;
 }
 
+// Recorta la parte entera a `max` digitos. Es el tope de longitud aplicado al tecleo, y cuenta
+// digitos y no caracteres: un "1.234" pegado del portapapeles son cuatro digitos, no cinco, y la
+// coma y el menos no son digitos de nadie. La regla y el por que viven en lib/fieldLength; aca
+// llega como numero suelto, igual que `allowNegative`, para que este archivo siga siendo de texto.
+//
+// Solo saca por la derecha, que es lo que hace un maxLength.
+export function capIntegerDigits(text: string, max: number | undefined): string {
+  if (max === undefined || max < 1) return text;
+
+  const negative: boolean = text.startsWith("-");
+  const body: string = negative ? text.slice(1) : text;
+  const comma: number = body.indexOf(DECIMAL_SEPARATOR);
+  const whole: string = comma === -1 ? body : body.slice(0, comma);
+
+  // Los separadores se guardan aparte y solo entran cuando detras viene un digito: asi el recorte
+  // no deja un punto colgando al final. Y si nunca se recorto, sale el texto tal como entro --
+  // borrarle el punto a un "1." a medio tipear se lo sacaria de abajo de los dedos.
+  let kept = "";
+  let pending = "";
+  let digits = 0;
+  let cut = false;
+
+  for (const char of whole) {
+    if (!HAS_DIGIT.test(char)) {
+      pending += char;
+      continue;
+    }
+    if (digits === max) {
+      cut = true;
+      break;
+    }
+    kept += pending + char;
+    pending = "";
+    digits += 1;
+  }
+
+  if (!cut) return text;
+
+  const rest: string = comma === -1 ? "" : body.slice(comma);
+
+  return `${negative ? "-" : ""}${kept}${rest}`;
+}
+
 // El texto mientras el campo esta enfocado: sin agrupar, para poder editarlo, pero con coma
 // decimal. La coma no es opcional aca -- el parser lee el punto como separador de miles, asi que
 // mostrar "1.5" y volver a leerlo daria 15.

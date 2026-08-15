@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { maxLengthOf } from "../../../../lib/fieldLength/fieldLength";
 import { applyDecimals, applyRounding } from "../../../../lib/fieldRounding/fieldRounding";
 import { allowsNegative, clampNegative } from "../../../../lib/fieldSign/fieldSign";
 import {
+  capIntegerDigits,
   formatForDisplay,
   parseFormattedNumber,
   sanitizeNumericInput,
@@ -37,10 +39,12 @@ export function PreviewNumberInput({
       value={draft ?? formatForDisplay(field, value)}
       onFocus={() => setDraft(toEditableText(value))}
       onChange={(event) => {
-        const clean: string = sanitizeNumericInput(
-          event.target.value,
-          allowsNegative(field),
-          field.decimals,
+        // El tope de digitos va aparte del filtro y no adentro: sanitizeNumericInput decide que
+        // caracteres son validos y esto decide cuantos entran. Cuenta digitos de la parte entera,
+        // no caracteres del texto, para que prender el formato no le coma digitos al tope.
+        const clean: string = capIntegerDigits(
+          sanitizeNumericInput(event.target.value, allowsNegative(field), field.decimals),
+          maxLengthOf(field),
         );
         setDraft(clean);
         // Lo que sale al estado es siempre un numero, nunca el texto: un "1.000" filtrado hasta

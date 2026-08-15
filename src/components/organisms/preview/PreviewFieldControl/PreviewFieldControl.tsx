@@ -1,4 +1,5 @@
 import { fillsColumn } from "../../../../lib/catalogFill/catalogFill";
+import { maxLengthOf } from "../../../../lib/fieldLength/fieldLength";
 import { showsOptionsInline } from "../../../../lib/fieldOptions/fieldOptions";
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
 import type { CatalogOption } from "../../../../types/catalog";
@@ -44,6 +45,7 @@ export function PreviewFieldControl({
         <textarea
           id={inputId}
           rows={3}
+          maxLength={maxLengthOf(field)}
           disabled={disabled}
           value={toInputValue(value)}
           onChange={(event) => onChange(event.target.value)}
@@ -199,6 +201,7 @@ export function PreviewFieldControl({
         <input
           id={inputId}
           type="text"
+          maxLength={maxLengthOf(field)}
           disabled={disabled}
           value={toInputValue(value)}
           onChange={(event) => onChange(event.target.value)}

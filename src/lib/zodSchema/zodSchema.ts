@@ -6,6 +6,7 @@ import type {
 } from "../../types/field";
 import type { RepeatableGroup } from "../../types/formStructure";
 import { isPresentationalField } from "../fieldKind/fieldKind";
+import { effectiveMaxLength } from "../fieldLength/fieldLength";
 import {
   exportableOptions,
   isMultiValueField,
@@ -74,11 +75,19 @@ function buildSchemaFor(field: CanvasField, v: FieldValidationRules): string {
 
   switch (field.type) {
     case "number":
-    case "calculated":
+    case "calculated": {
       schema = "z.number()";
       if (v.min !== undefined) schema += `.min(${v.min})`;
       if (v.max !== undefined) schema += `.max(${v.max})`;
+      // El tope de longitud de un numero son digitos de la parte entera, no caracteres ni valor.
+      // No hay forma de decirlo con .max(): 999999999,99 tiene nueve digitos enteros y se pasaria
+      // de cualquier tope de valor que se escriba, asi que va como refine.
+      const digits: number | undefined = effectiveMaxLength(v.maxLength);
+      if (digits !== undefined) {
+        schema += `.refine((n) => Math.abs(Math.trunc(n)).toString().length <= ${digits}, { message: "Máximo ${digits} dígitos" })`;
+      }
       break;
+    }
     case "checkbox":
       schema = "z.boolean()";
       break;
@@ -93,15 +102,19 @@ function buildSchemaFor(field: CanvasField, v: FieldValidationRules): string {
       }
       break;
     }
-    default:
+    default: {
       schema = "z.string()";
       if (v.minLength !== undefined) schema += `.min(${v.minLength})`;
-      if (v.maxLength !== undefined) schema += `.max(${v.maxLength})`;
+      // Por effectiveMaxLength y no por v.maxLength directo: es el mismo numero que el input va a
+      // aplicar como maxLength nativo, y leerlo distinto en cada lado los pondria a discrepar.
+      const chars: number | undefined = effectiveMaxLength(v.maxLength);
+      if (chars !== undefined) schema += `.max(${chars})`;
       if (v.pattern) {
         const source: string = JSON.stringify(v.pattern);
         const message: string = v.message ? `, { message: ${JSON.stringify(v.message)} }` : "";
         schema += `.regex(new RegExp(${source})${message})`;
       }
+    }
   }
 
   // Que un campo sea obligatorio se expresa por omision: no se agrega `.optional()`. Es lo que

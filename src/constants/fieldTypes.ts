@@ -18,6 +18,10 @@ export const INLINE_CAPABLE_FIELD_TYPES: string[] = ["radio_group", "checkbox_gr
 // de verdad a un campo de solo lectura es alwaysDisabled.
 export const NUMERIC_FIELD_TYPES: string[] = ["number", "calculated"];
 
+// Los que admiten un tope de longitud. Los dos primeros lo cuentan en caracteres y los dos ultimos
+// en digitos de la parte entera, que no es lo mismo; la regla vive en lib/fieldLength.
+export const LENGTH_CAPABLE_FIELD_TYPES: string[] = ["text", "textarea", "number", "calculated"];
+
 export const PRESENTATIONAL_FIELD_TYPES: string[] = ["label", "rich_text"];
 
 export const TOOLTIP_CAPABLE_FIELD_TYPES: string[] = [
