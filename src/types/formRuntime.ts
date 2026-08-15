@@ -1,4 +1,17 @@
 import type { ExportedField, ExportedRepeatableGroup, ExportedStep } from "./exportForm";
+import type { DeclaracionKind, ReglaAnio } from "./maxDates";
+
+// Lo que el runtime necesita ADEMAS del export. Va como segundo argumento y no dentro del modelo a
+// proposito: son datos que el consumidor recibe por otro lado -- su propio endpoint -- asi que el
+// simulador los recibe igual, y la separacion queda a la vista en la firma.
+export interface RuntimeContext {
+  // Ya resueltas al tipo de declaracion que es este formulario, para que los helpers no tengan que
+  // saber si estan en ICA o en retencion.
+  reglas: ReglaAnio[];
+  // "YYYY/MM/DD". Entra por parametro en vez de leerse del reloj adentro del helper para poder
+  // comprobar la mora sin tocar la hora del sistema.
+  hoy: string;
+}
 
 export type RuntimeValues = Record<string, unknown>;
 
@@ -32,6 +45,9 @@ export interface RuntimeModel {
   hasIntroModal: boolean;
   gridBaseColumns: number;
   prelude: string;
+  // Que declaracion es, leido de projectMeta.formType. Decide cual de las tres listas de la tabla
+  // de vencimientos aplica.
+  declaracion: DeclaracionKind;
   fieldsByName: Map<string, ExportedField>;
   groupsById: Map<string, ExportedRepeatableGroup>;
   groupIdByFieldName: Map<string, string>;

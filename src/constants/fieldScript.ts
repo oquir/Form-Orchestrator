@@ -76,7 +76,16 @@ export const SCRIPT_HELPERS: Record<string, (...args: unknown[]) => number> = {
   dvNit: (...args) => digitoVerificacion(toScriptNumber(args[0])),
 };
 
-export const SCRIPT_HELPER_NAMES: string[] = Object.keys(SCRIPT_HELPERS);
+// Los de fecha van aparte porque no son puros: necesitan la tabla de vencimientos del municipio,
+// que no viaja en el export y le llega al runtime como un segundo dato. Aca estan solo los nombres
+// -- la implementacion vive en lib/scriptDates, que este archivo no puede importar sin poner a
+// constants a depender de lib.
+//
+// Son parte del contrato con el consumidor igual que el resto: lo que se exporta en `compiled` los
+// llama por nombre, asi que del otro lado tienen que existir y significar lo mismo.
+export const DATE_HELPER_NAMES: string[] = ["fechaLimite", "diasDeMora"];
+
+export const SCRIPT_HELPER_NAMES: string[] = [...Object.keys(SCRIPT_HELPERS), ...DATE_HELPER_NAMES];
 
 // El objeto de valores no se nombra nunca a mano: {campo} se compila a __v["campo"]. El guion
 // bajo doble es para que no choque con una variable del autor.
@@ -90,6 +99,7 @@ export const SCRIPT_CONTEXT_PARAMS: string[] = [SCRIPT_VALUES_PARAM, "value", "i
 export const SCRIPT_PARAM_NAMES: string[] = [
   ...SCRIPT_CONTEXT_PARAMS,
   ...Object.keys(SCRIPT_HELPERS),
+  ...DATE_HELPER_NAMES,
 ];
 
 // La contraparte de los nombres de arriba, derivada del mismo objeto para que no puedan

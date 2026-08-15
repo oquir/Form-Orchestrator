@@ -1,9 +1,10 @@
 import { SCRIPT_HELPER_VALUES } from "../../constants/fieldScript";
 import type { ScriptFunctionResult } from "../../types/fieldScript";
-import type { RuntimeModel, RuntimeValues } from "../../types/formRuntime";
+import type { RuntimeContext, RuntimeModel, RuntimeValues } from "../../types/formRuntime";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
 import { normalizeScriptResult } from "../fieldScript/fieldScript";
-import { coerceForScript, compileCached } from "./scriptRuntime.utils";
+import { buildDateHelpers } from "../scriptDates/scriptDates";
+import { coerceForScript, compileCached, EMPTY_CONTEXT } from "./scriptRuntime.utils";
 
 // Ejecuta el script de un campo. Es el unico sitio del proyecto que corre codigo del autor, y lo
 // hace con new Function igual que zodHydrate con los schemas: no hay aislamiento real, la garantia
@@ -19,12 +20,21 @@ export function runFieldScript(
   values: RuntimeValues,
   value: unknown,
   index: number,
+  context: RuntimeContext = EMPTY_CONTEXT,
 ): ScriptRunResult {
   const built: ScriptFunctionResult = compileCached(compiled, prelude);
   if (!built.fn) return { value: undefined, error: built.error };
 
   try {
-    const result: unknown = built.fn(values, value, index, ...SCRIPT_HELPER_VALUES);
+    // Los de fecha van al final y se arman por corrida: cierran sobre la tabla de vencimientos, que
+    // no viene en el export. El orden es el de SCRIPT_PARAM_NAMES, que los pone en el mismo lugar.
+    const result: unknown = built.fn(
+      values,
+      value,
+      index,
+      ...SCRIPT_HELPER_VALUES,
+      ...buildDateHelpers(context),
+    );
 
     return { value: normalizeScriptResult(result), error: null };
   } catch (error) {

@@ -1,5 +1,10 @@
 import type { ExportedField, ExportedRule } from "../../types/exportForm";
-import type { RuntimeIssue, RuntimeModel, RuntimeValues } from "../../types/formRuntime";
+import type {
+  RuntimeContext,
+  RuntimeIssue,
+  RuntimeModel,
+  RuntimeValues,
+} from "../../types/formRuntime";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
 import { applyDecimals, applyRounding } from "../fieldRounding/fieldRounding";
 import { clampNegative } from "../fieldSign/fieldSign";
@@ -26,6 +31,7 @@ export function computeDerivedValues(
   base: RuntimeValues,
   model: RuntimeModel,
   index = 0,
+  context?: RuntimeContext,
 ): DerivedResult {
   const plan: DerivedPlan = planDerivedFields(fields);
   const byName: Map<string, ExportedField> = new Map(fields.map((field) => [field.name, field]));
@@ -65,6 +71,7 @@ export function computeDerivedValues(
           scriptValues,
           scriptValues[name],
           index,
+          context,
         ),
         name,
         next,

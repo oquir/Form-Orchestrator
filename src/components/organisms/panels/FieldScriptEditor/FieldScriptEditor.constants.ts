@@ -16,3 +16,8 @@ export const SCRIPT_HINT: string =
   "Escribí el cálculo y devolvelo con return. {campo} lee el valor de otro campo. Un return undefined deja lo que haya escrito el usuario.";
 
 export const SCRIPT_SCOPE_HINT: string = `En ámbito: value (el valor actual), index (la repetición dentro de un grupo) y ${SCRIPT_HELPER_NAMES.join(", ")}.`;
+
+// Los dos de fecha no se explican solos como sum o abs: llevan argumentos y dependen de la tabla
+// cargada en la pestaña Fechas, asi que se dice donde sale el dato y que pasa si no esta.
+export const DATE_HELPERS_HINT: string =
+  "fechaLimite(año, periodo, documento) da la fecha máxima de presentación y diasDeMora(…) los días de atraso, 0 si está en fecha. Salen de la pestaña Fechas; sin tabla cargada devuelven null y 0.";

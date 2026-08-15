@@ -19,6 +19,50 @@ import {
 
 const UN_DIGITO: RegExp = /^[0-9]$/;
 
+const FECHA_TEXTO: RegExp = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/;
+
+const MS_POR_DIA: number = 86400000;
+
+// "YYYY/MM/DD" a milisegundos UTC, o null si no es una fecha. Se parsea a mano en vez de pasarle el
+// texto a Date porque el formato decide el huso: "2025/03/31" se lee como medianoche LOCAL y
+// "2025-03-31" como medianoche UTC. Mezclar los dos da un dia de diferencia segun donde se corra,
+// y un dia de diferencia aca es la linea entre estar en fecha y deber una sancion.
+export function aUtc(fecha: string): number | null {
+  const match: RegExpMatchArray | null = fecha.trim().match(FECHA_TEXTO);
+  if (!match) return null;
+
+  const anio: number = Number(match[1]);
+  const mes: number = Number(match[2]);
+  const dia: number = Number(match[3]);
+  if (mes < 1 || mes > 12 || dia < 1 || dia > 31) return null;
+
+  const ms: number = Date.UTC(anio, mes - 1, dia);
+
+  // Date.UTC no rechaza un 31 de febrero, lo corre al 3 de marzo. Se compara la vuelta para que una
+  // fecha que no existe se reporte como invalida en vez de resolverse a otra.
+  const vuelta = new Date(ms);
+
+  return vuelta.getUTCMonth() === mes - 1 && vuelta.getUTCDate() === dia ? ms : null;
+}
+
+// Dias completos de `desde` a `hasta`. Positivo si `hasta` es posterior.
+export function diasEntre(desde: string, hasta: string): number | null {
+  const a: number | null = aUtc(desde);
+  const b: number | null = aUtc(hasta);
+  if (a === null || b === null) return null;
+
+  return Math.round((b - a) / MS_POR_DIA);
+}
+
+// El dia de hoy en el mismo formato que usa la tabla. Recibe la fecha en vez de leer el reloj para
+// que se pueda comprobar sin tocar la hora del sistema.
+export function enTexto(fecha: Date): string {
+  const mes: string = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia: string = String(fecha.getDate()).padStart(2, "0");
+
+  return `${fecha.getFullYear()}/${mes}/${dia}`;
+}
+
 export function periodosDe(periodicidad: Periodicidad): number {
   return PERIODOS_POR_PERIODICIDAD[periodicidad];
 }

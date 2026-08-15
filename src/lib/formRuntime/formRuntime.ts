@@ -6,12 +6,15 @@ import type {
 } from "../../types/exportForm";
 import type {
   PreviewState,
+  RuntimeContext,
   RuntimeIssue,
   RuntimeModel,
   RuntimeScope,
   RuntimeSnapshot,
   RuntimeValues,
 } from "../../types/formRuntime";
+import type { DeclaracionKind } from "../../types/maxDates";
+import type { FormType } from "../../types/setup";
 import { computeDerivedValues, type DerivedResult } from "../runtimeDerived/runtimeDerived";
 import { buildScope, emptyItem, groupColumns } from "./formRuntime.utils";
 
@@ -59,6 +62,7 @@ export function buildRuntimeModel(exported: FormExport): RuntimeModel {
     hasIntroModal: exported.setupConfig.hasIntroModal && introSteps.length > 0,
     gridBaseColumns: exported.formSchema.gridBaseColumns,
     prelude: exported.formSchema.prelude ?? "",
+    declaracion: declaracionDe(exported.projectMeta.formType),
     fieldsByName,
     groupsById,
     groupIdByFieldName,
@@ -66,6 +70,16 @@ export function buildRuntimeModel(exported: FormExport): RuntimeModel {
     groupFields,
     externalLabels,
   };
+}
+
+// Cual de las tres listas de vencimientos aplica. Sale del export y no de la configuracion del
+// builder: el simulador solo consume el JSON, y el consumidor tampoco tiene otra cosa. Sin tipo
+// declarado se asume ICA, que es el unico con plantilla.
+function declaracionDe(formType: FormType | null): DeclaracionKind {
+  if (formType === "retencion_industria_comercio") return "reteica";
+  if (formType === "autorretencion") return "autoretencionIca";
+
+  return "ica";
 }
 
 export function createInitialState(model: RuntimeModel): PreviewState {
@@ -84,19 +98,35 @@ export function createInitialState(model: RuntimeModel): PreviewState {
 // pero desde el root el mismo nombre tiene que ser el array con la columna entera, asi que las
 // columnas del grupo tienen que estar aplanadas en el root antes de resolverlo. Juntar esto en una
 // sola pasada hace que los totales de la declaracion den 0 sin que nada falle a la vista.
-export function resolveRuntime(model: RuntimeModel, state: PreviewState): RuntimeSnapshot {
+export function resolveRuntime(
+  model: RuntimeModel,
+  state: PreviewState,
+  context?: RuntimeContext,
+): RuntimeSnapshot {
   // Pasada 1: los grupos con los valores crudos del root, para poder alimentar los agregados.
-  const firstPass: Record<string, RuntimeValues[]> = resolveGroupValues(model, state, state.values);
+  const firstPass: Record<string, RuntimeValues[]> = resolveGroupValues(
+    model,
+    state,
+    state.values,
+    context,
+  );
 
   // Pasada 2: el root ya ve las columnas del grupo como arrays (sumOf/countOf).
   const rootBase: RuntimeValues = { ...state.values, ...groupColumns(model, firstPass) };
-  const rootDerived: DerivedResult = computeDerivedValues(model.rootFields, rootBase, model);
+  const rootDerived: DerivedResult = computeDerivedValues(
+    model.rootFields,
+    rootBase,
+    model,
+    0,
+    context,
+  );
 
   // Pasada 3: los grupos se recalculan con el root ya resuelto.
   const finalGroups: Record<string, RuntimeValues[]> = resolveGroupValues(
     model,
     state,
     rootDerived.values,
+    context,
   );
 
   const groups: Record<string, RuntimeScope[]> = {};
@@ -109,7 +139,7 @@ export function resolveRuntime(model: RuntimeModel, state: PreviewState): Runtim
         ...rootDerived.values,
         ...(finalGroups[groupId]?.[index] ?? {}),
       };
-      const derived: DerivedResult = computeDerivedValues(fields, base, model, index);
+      const derived: DerivedResult = computeDerivedValues(fields, base, model, index, context);
       if (derived.cycle) cycles.push(...derived.cycle);
       issues.push(...derived.issues);
 
@@ -154,6 +184,7 @@ function resolveGroupValues(
   model: RuntimeModel,
   state: PreviewState,
   rootValues: RuntimeValues,
+  context?: RuntimeContext,
 ): Record<string, RuntimeValues[]> {
   const resolved: Record<string, RuntimeValues[]> = {};
 
@@ -165,6 +196,7 @@ function resolveGroupValues(
         { ...rootValues, ...item },
         model,
         index,
+        context,
       );
       const scoped: RuntimeValues = {};
 

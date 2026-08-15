@@ -6,6 +6,8 @@ import {
   createInitialState,
   resolveRuntime,
 } from "../../lib/formRuntime/formRuntime";
+import { enTexto } from "../../lib/maxDates/maxDates";
+import { maxDatesEnUso } from "../../lib/maxDatesBank/maxDatesBank";
 import { catalogOptions } from "../../lib/mockCatalog/mockCatalog";
 import { buildPayload } from "../../lib/runtimePayload/runtimePayload";
 import { validateRuntime } from "../../lib/runtimeValidation/runtimeValidation";
@@ -14,6 +16,7 @@ import type { ExportedField } from "../../types/exportForm";
 import type { FormPreviewApi } from "../../types/formPreview";
 import type {
   PreviewState,
+  RuntimeContext,
   RuntimeModel,
   RuntimeSnapshot,
   RuntimeValues,
@@ -29,6 +32,7 @@ export function useFormPreview(): FormPreviewApi {
   const introSteps = useFormStore((state) => state.introModal.steps);
   const catalogBank = useFormStore((state) => state.catalogBank);
   const formScript = useFormStore((state) => state.formScript);
+  const maxDates = useFormStore((state) => state.maxDates);
 
   // El simulador solo ve el JSON exportado. Si algo falta en el contrato, se rompe aca igual
   // que se romperia en el aplicativo que lo consume.
@@ -46,8 +50,26 @@ export function useFormPreview(): FormPreviewApi {
     setState((previous) => reconcileState(model, previous));
   }, [model]);
 
-  const snapshot: RuntimeSnapshot = useMemo(() => resolveRuntime(model, state), [model, state]);
-  const validation = useMemo(() => validateRuntime(model, snapshot), [model, snapshot]);
+  // La tabla de vencimientos entra por fuera del modelo, igual que le va a entrar al consumidor:
+  // el JSON exportado por un lado y la respuesta del endpoint de fechas por otro. Se resuelve aca
+  // cual de las tres listas aplica para que los helpers no tengan que saber que declaracion es.
+  const context: RuntimeContext = useMemo(() => {
+    const ahora = new Date();
+
+    return {
+      reglas: maxDatesEnUso(maxDates, ahora.getFullYear())[model.declaracion],
+      hoy: enTexto(ahora),
+    };
+  }, [maxDates, model.declaracion]);
+
+  const snapshot: RuntimeSnapshot = useMemo(
+    () => resolveRuntime(model, state, context),
+    [model, state, context],
+  );
+  const validation = useMemo(
+    () => validateRuntime(model, snapshot, context),
+    [model, snapshot, context],
+  );
   const payload = useMemo(() => buildPayload(model, snapshot), [model, snapshot]);
 
   const setValue = useCallback(

@@ -435,6 +435,26 @@ Settled decisions:
 - **Only `anual + ninguno` is editable by hand.** Everything else is 6 to 120 dates, which nobody types — the same argument that made catalogs paste-only.
 - Cost: **+11.6 kB in the initial chunk** (panel, lib and its Zod schema). It is builder-side, like `CatalogsPanel`, so it belongs there; both lazy boundaries are unchanged.
 
+### `fechaLimite` / `diasDeMora` — the deadline table inside a script
+
+Two script helpers backed by the table above. `fechaLimite(año, periodo, documento)` returns `"YYYY/MM/DD"` or `null`; `diasDeMora(…)` returns days late, `0` when on time. They live in `src/lib/scriptDates/`, and the name list is `DATE_HELPER_NAMES` in `src/constants/fieldScript.ts`.
+
+**They are the first helpers that are not pure.** The other ten only need their arguments, so they are a module constant; these need the loaded table, which is not in the export. So they are **built per run**, closing over a `RuntimeContext`.
+
+`RuntimeContext` is `{reglas, hoy}` and travels as a **second argument** to `resolveRuntime` and `validateRuntime`, never inside `RuntimeModel`. That separation is the design: the consumer receives the config JSON from one place and the deadline table from its own endpoint, so the simulator receives them the same way and the split is visible in the signature. `useFormPreview` is where the two meet.
+
+Settled decisions:
+
+- **The declaration kind is resolved once, at the top.** `buildRuntimeModel` reads `projectMeta.formType` into `model.declaracion`, and `useFormPreview` hands the helpers only the list that applies. So the helpers know nothing about ICA vs retención — they get *the* rules. An unset `formType` falls back to `ica`, the only one with a template.
+- **`diasDeMora` returns `0` when there is no deadline, not `NaN`.** With no table loaded the alternative would poison every renglón downstream — the exact failure mode already recorded for renglón 35. And a sanción must never be born from missing data: no table, no mora. Same fail-open reasoning as a broken group check passing.
+- **Dates are parsed by hand into UTC** (`aUtc` in `lib/maxDates`). `new Date("2025/03/31")` is local midnight while `new Date("2025-03-31")` is UTC midnight, so mixing formats moves a date by a day depending on the timezone — and one day here is the line between being on time and owing a fine. `aUtc` also round-trips the result, because `Date.UTC` silently rolls 31 February into 3 March instead of rejecting it.
+- **`hoy` is a parameter, not a clock read.** It makes the mora verifiable without touching the system time, which matters with no test runner.
+- **The graph needs no changes.** The inputs arrive as `{campo}`, so `scanScript` already records them as reads and the topological order is right for free.
+- **They are part of the consumer contract**, like every other helper: the exported `compiled` calls them by name, so the consuming app must provide them with the same semantics. Nothing in the JSON declares which helpers exist — already true for `sum` and `dvNit`, and unchanged here.
+- **The order comes from `DATE_HELPER_NAMES` in both places**, the same anti-drift trick `SCRIPT_HELPER_VALUES` uses with `Object.values`: adding one on one side and forgetting the other would shift every following argument with nothing to warn you.
+- **The ICA template does not use them yet.** Wiring renglón 31 so EXTEMPORANEIDAD selects itself is a change to what the form *does*, not to what it *can* do, and it was left as a separate decision.
+- Boundary: the **names** land in the initial chunk (the editor lists them), the **implementation** only in `FormSimulator`. Measured +1.2 kB initial, +0.77 kB simulator.
+
 ## Conditional validations (`validations.overrides`)
 
 A field's validation can change with another field's value. `FieldValidationOverride` is `{id, when: FieldCondition, validations: FieldValidationRules}` (`src/types/field.ts`), and `FieldValidations` is the same rules plus `overrides?[]`. `FieldValidationRules` exists separately from `FieldValidations` **so an override cannot nest overrides** — one layer, no recursion to resolve.

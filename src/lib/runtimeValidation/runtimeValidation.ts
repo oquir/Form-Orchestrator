@@ -5,6 +5,7 @@ import type {
   ExportedRepeatableGroup,
 } from "../../types/exportForm";
 import type {
+  RuntimeContext,
   RuntimeIssue,
   RuntimeModel,
   RuntimeScope,
@@ -23,7 +24,11 @@ import { checkKey, coerceValue, effectiveSchemaSource, fieldKey } from "./runtim
 // Valida todo el formulario contra los schemas de Zod hidratados desde el export.
 // Devuelve dos cosas distintas: `errors` es lo que el usuario hizo mal llenando el formulario,
 // `issues` es lo que esta mal en el formulario en si (un schema que no compila, un ciclo).
-export function validateRuntime(model: RuntimeModel, snapshot: RuntimeSnapshot): ValidationResult {
+export function validateRuntime(
+  model: RuntimeModel,
+  snapshot: RuntimeSnapshot,
+  context?: RuntimeContext,
+): ValidationResult {
   const groupFields: ExportedField[] = [...model.groupFields.values()].flat();
   const { schemas, issues } = hydrateFieldSchemas([...model.rootFields, ...groupFields]);
   const errors: Record<string, string> = {};
@@ -36,7 +41,7 @@ export function validateRuntime(model: RuntimeModel, snapshot: RuntimeSnapshot):
     });
   }
 
-  const checkIssues: RuntimeIssue[] = collectCheckErrors(model, snapshot, errors);
+  const checkIssues: RuntimeIssue[] = collectCheckErrors(model, snapshot, errors, context);
 
   return {
     errors,
@@ -73,8 +78,16 @@ function runGroupCheck(
   check: ExportedGroupCheck,
   prelude: string,
   values: RuntimeValues,
+  context?: RuntimeContext,
 ): GroupCheckResult {
-  const run: ScriptRunResult = runFieldScript(check.script.compiled, prelude, values, undefined, 0);
+  const run: ScriptRunResult = runFieldScript(
+    check.script.compiled,
+    prelude,
+    values,
+    undefined,
+    0,
+    context,
+  );
 
   if (run.error) return { failed: false, error: run.error };
   if (run.value === undefined) {
@@ -91,6 +104,7 @@ function collectCheckErrors(
   model: RuntimeModel,
   snapshot: RuntimeSnapshot,
   errors: Record<string, string>,
+  context?: RuntimeContext,
 ): RuntimeIssue[] {
   const groups: ExportedRepeatableGroup[] = [...model.groupsById.values()].filter(
     (group) => (group.checks?.length ?? 0) > 0,
@@ -103,7 +117,7 @@ function collectCheckErrors(
   for (const group of groups) {
     // Lo que llega en el export ya viene filtrado: una comprobacion apagada no se exporta.
     for (const check of group.checks ?? []) {
-      const result: GroupCheckResult = runGroupCheck(check, model.prelude, values);
+      const result: GroupCheckResult = runGroupCheck(check, model.prelude, values, context);
 
       if (result.error) {
         issues.push({
