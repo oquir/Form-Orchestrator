@@ -5,6 +5,12 @@ export const INPUT_CLASSES: string =
 
 export const TEXTAREA_CLASSES: string = `${INPUT_CLASSES} h-24 resize-y font-mono`;
 
+// Se escribe entero en vez de agregarle un ancho a INPUT_CLASSES: las dos serian utilidades de
+// width y gana la que Tailwind emita mas tarde en el CSS, no la que este despues en el string.
+// w-full sale despues de w-32, asi que agregarlo no hacia nada y el input se comia la fila.
+export const DATE_INPUT_CLASSES: string =
+  "w-28 shrink-0 rounded-md border border-border bg-field px-2 py-1 text-right text-xs tabular-nums text-fg outline-none focus:border-brand-border";
+
 export const HINT_CLASSES: string = "text-[11px] text-fg-subtle";
 
 export const ERROR_CLASSES: string = "text-[11px] text-red-600 dark:text-red-400";

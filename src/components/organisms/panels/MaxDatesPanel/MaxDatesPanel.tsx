@@ -15,6 +15,7 @@ import {
   BADGE_EMPTY_CLASSES,
   BADGE_LOADED_CLASSES,
   BADGE_PARCIAL_CLASSES,
+  DATE_INPUT_CLASSES,
   DECLARACIONES,
   DIGITO_LABEL,
   ERROR_CLASSES,
@@ -146,9 +147,13 @@ function AnioRow({ regla, onEditFecha }: AnioRowProps) {
     <li className="flex items-center justify-between gap-2">
       <div className="flex min-w-0 flex-col">
         <span className="text-xs font-medium tabular-nums text-fg">{regla.anio}</span>
-        <span className={`${HINT_CLASSES} truncate`}>
-          {PERIODICIDAD_LABEL[regla.periodicidad]} · {DIGITO_LABEL[regla.tipoDigito]}
-        </span>
+        {/* Anual y sin digito es el caso por defecto y el input de al lado ya lo dice: repetirlo
+            en los diez anos son diez lineas identicas que no informan nada. */}
+        {!editable && (
+          <span className={`${HINT_CLASSES} truncate`}>
+            {PERIODICIDAD_LABEL[regla.periodicidad]} · {DIGITO_LABEL[regla.tipoDigito]}
+          </span>
+        )}
       </div>
 
       {editable ? (
@@ -157,7 +162,7 @@ function AnioRow({ regla, onEditFecha }: AnioRowProps) {
           onChange={(event) => onEditFecha(event.target.value)}
           placeholder="YYYY/MM/DD"
           aria-label={`Fecha máxima del año ${regla.anio}`}
-          className={`${INPUT_CLASSES} w-32 shrink-0 text-right tabular-nums`}
+          className={DATE_INPUT_CLASSES}
         />
       ) : (
         <span className={completo ? BADGE_LOADED_CLASSES : BADGE_PARCIAL_CLASSES}>
