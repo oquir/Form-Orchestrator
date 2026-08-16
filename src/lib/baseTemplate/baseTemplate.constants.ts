@@ -75,19 +75,19 @@ export const FIELDS_WITHOUT_ROUNDING: string[] = [
 // `number` se marcan todos sin lista: los veintiseis ya declaraban min: 0, salvo la tarifa, que
 // tampoco es negativa nunca.
 //
-// Los otros ocho calculados quedan afuera porque no hace falta: seis son sumas de no-negativos
-// -- el impuesto de actividad, el total impuesto, el de avisos y tableros, el total a cargo --
-// y los renglones 33 y 34 ya vienen recortados por su propio max(..., 0).
+// Los demas calculados quedan afuera porque no hace falta: unos son sumas de no-negativos -- el
+// impuesto de actividad, el total impuesto, el de avisos y tableros, el total a cargo -- y los
+// renglones 33, 34 y 38 ya vienen recortados por su propio max(..., 0). El 35 hereda el recorte
+// del 33, del que sale, y el 40 suma el 38 con un aporte voluntario que declara min: 0.
+//
+// La diferencia entre recortar aca y recortar en el script no es de estilo: el clamp avisa en
+// pantalla que el calculo dio negativo y se recorto, y en el 38 eso saltaria cada vez que hay
+// saldo a favor, que es un caso normal y no un error del autor.
 export const CALCULATED_WITHOUT_NEGATIVE: string[] = [
   // r10 = ingresos nacionales - ingresos fuera del municipio.
   "total_ingresos_ordinarios",
   // r16 = el 10 menos las cinco deducciones. Es el caso tipico: deducciones mayores al ingreso.
   "total_ingresos_gravables",
-  // r36 = el 35 menos el descuento por pronto pago mas los intereses de mora. Un total a pagar
-  // negativo no existe en la declaracion: si pago de mas, eso es el saldo a favor del 34.
-  "total_a_pagar",
-  // r40 = el 36 mas el aporte voluntario, negativo solo si lo es el 36.
-  "total_a_pagar_con_aporte_voluntario",
 ];
 
 // La declaracion no lleva decimales en ningun renglon: los de plata se aproximan al millar, el DV

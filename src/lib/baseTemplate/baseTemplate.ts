@@ -762,15 +762,21 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
       {
         title: "Totales",
         rows: [
+          // Sale del 33 y no del neto: el 33 ya viene recortado con max(..., 0), asi que cuando la
+          // liquidacion da a favor vale 0 y este renglon con el. Es la regla "si hay saldo a favor
+          // no hay valor a pagar" sin escribir ninguna condicion.
+          //
+          // Algunos municipios piden ver el saldo a favor aca como un valor a pagar negativo. Esa
+          // variante todavia no se hace: seria cambiar este script por el neto sin recortar.
           buildRow([
             {
               name: "valor_a_pagar",
-              type: "number",
+              type: "calculated",
               label: "35. Valor a Pagar",
               colSpan: GRID_BASE_COLUMNS,
               excluded: true,
-              required: true,
-              min: 0,
+              alwaysDisabled: true,
+              script: "return {total_saldo_a_cargo};",
             },
           ]),
           buildRow([
@@ -804,7 +810,13 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               colSpan: GRID_BASE_COLUMNS,
               path: "totalDeclaracion.totalDeclaracion",
               alwaysDisabled: true,
-              script: "return {valor_a_pagar} - {descuento_pronto_pago} + {interes_mora};",
+              // Resta el 34 aunque el rotulo oficial no lo nombre. Con saldo a favor el 35 vale 0,
+              // asi que sin esa resta los intereses de mora se cobrarian enteros sobre una deuda
+              // que no existe: lo que queda por pagar es lo que los intereses superen al saldo a
+              // favor. El max(..., 0) es el otro lado de lo mismo -- por debajo de cero el
+              // resultado ya es el saldo a favor, y ese se declara en el 34, no aca en negativo.
+              script:
+                "return max({valor_a_pagar} - {descuento_pronto_pago} + {interes_mora} - {total_saldo_a_favor}, 0);",
             },
           ]),
         ],
