@@ -28,6 +28,7 @@ import {
   NIT_MESSAGE,
   NIT_PATTERN,
   SALDO_NETO,
+  SANCION_EXTEMPORANEIDAD_SCRIPT,
   TELEFONO_MESSAGE,
   TELEFONO_PATTERN,
   TEMPLATE_DECIMALS,
@@ -693,6 +694,15 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               path: "ajusteDeclaracion.valorSancion",
               required: true,
               min: 0,
+              // Sin alwaysDisabled a proposito: el bloqueo lo decide el script solo. El runtime
+              // trata computed como disabled, asi que el campo queda de lectura cuando el script
+              // devuelve un valor -- extemporaneidad -- y tecleable cuando devuelve undefined, que
+              // es el caso de los otros tres tipos de sancion. Un solo renglon sirve para la que el
+              // sistema sabe liquidar y para las tres que no.
+              //
+              // Sigue siendo type: "number" y no "calculated" por lo mismo: la mitad de las veces
+              // lo escribe una persona.
+              script: SANCION_EXTEMPORANEIDAD_SCRIPT,
             },
           ]),
           // La descripcion va en fila propia y no al lado: asi el renglon 31 no cambia de forma al

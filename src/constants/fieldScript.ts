@@ -83,7 +83,7 @@ export const SCRIPT_HELPERS: Record<string, (...args: unknown[]) => number> = {
 //
 // Son parte del contrato con el consumidor igual que el resto: lo que se exporta en `compiled` los
 // llama por nombre, asi que del otro lado tienen que existir y significar lo mismo.
-export const DATE_HELPER_NAMES: string[] = ["fechaLimite", "diasDeMora"];
+export const DATE_HELPER_NAMES: string[] = ["fechaLimite", "diasDeMora", "mesesDeMora"];
 
 export const SCRIPT_HELPER_NAMES: string[] = [...Object.keys(SCRIPT_HELPERS), ...DATE_HELPER_NAMES];
 

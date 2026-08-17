@@ -100,10 +100,74 @@ export const DECIMALS_BY_FIELD: Record<string, number> = {
   tarifa_x_mil: 1,
 };
 
-// El id de OTRA dentro del catalogo tipos_sancion, escrito a mano porque el editor de condiciones
-// todavia no ofrece las opciones de un catalogo para elegir. Es el unico literal de la plantilla
-// atado al contenido de un catalogo: si algun dia se reordena, esto se rompe en silencio.
+// Los ids de EXTEMPORANEIDAD y OTRA dentro del catalogo tipos_sancion, escritos a mano porque el
+// editor de condiciones todavia no ofrece las opciones de un catalogo para elegir. Son los unicos
+// literales de la plantilla atados al contenido de un catalogo: si algun dia se reordena, esto se
+// rompe en silencio.
+export const TIPO_SANCION_EXTEMPORANEIDAD: string = "1";
+
 export const TIPO_SANCION_OTRA: string = "4";
+
+// La sancion por extemporaneidad del renglon 31, entera dentro del script del campo: los parametros
+// del municipio, la eleccion de la base y la regla del articulo 641, en ese orden y en un solo
+// lugar.
+//
+// Va aca y no repartida entre el prelude y el codigo, aunque el prelude tambien sea editable. El
+// motivo no es tecnico sino de uso: un municipio pide cambiar el 5% por un 10%, o liquidar sobre
+// otro renglon, y quien atiende ese pedido abre el renglon 31, ve la regla completa y la cambia.
+// Repartida en dos pantallas hay que saber de antemano que la mitad esta en otro lado, y una regla
+// que hay que ir a buscar es una regla que se termina reescribiendo mal.
+//
+// La plantilla la siembra como texto inicial; de ahi en mas vive en logic.script y es del autor del
+// formulario. Nada de esto se recompila para cambiarlo.
+//
+// Lleva tildes a proposito, al reves que los comentarios del codigo: esto es contenido que se lee
+// dentro del editor, igual que los rotulos de los campos.
+export const SANCION_EXTEMPORANEIDAD_SCRIPT: string = `// --- Parámetros del municipio ---
+// La ley fija estos valores como techo: un municipio solo puede bajarlos.
+
+// UVT del año en que se liquida la sanción, no la del año gravable declarado.
+// Se actualiza una vez por año.
+const UVT = 52374;
+
+// Sanción mínima, en UVT. El Estatuto Tributario pide 10; hay municipios
+// que la dejan en 2, 3 o 5.
+const MINIMA_UVT = 10;
+
+// Cuánto crece por cada mes o fracción de mes de atraso. El ET pide 5%;
+// hay municipios que aplican 10%, 1% u otro valor.
+const POR_MES = 0.05;
+
+// Tope de la sanción, como proporción de la base. El ET pide 100%.
+const TOPE = 1;
+
+// Sobre qué se liquida. El renglón 25 es el impuesto a cargo, que NO es el
+// saldo a cargo del 33: ese ya restó retenciones y anticipos. Hay municipios
+// que piden liquidarla sobre otro renglón; se cambia esta línea.
+//
+// Ojo con poner acá el 33, el 34, el 35 o el 38: todos incluyen a este mismo
+// renglón en su cuenta, así que se armaría un cálculo circular.
+const base = {total_impuesto_a_cargo};
+
+// El período dentro del año. La declaración de ICA es anual, así que es 1.
+const periodo = 1;
+
+// --- Regla del artículo 641 ---
+
+// Solo la extemporaneidad se autoliquida. Para los otros tipos devolvemos
+// undefined, que significa "dejá lo que escriba el usuario": el campo no se
+// marca como calculado y se sigue pudiendo teclear.
+if ({tipo_sancion} !== "${TIPO_SANCION_EXTEMPORANEIDAD}") return undefined;
+
+// Meses o fracción de atraso contra la tabla de la pestaña Fechas.
+// Sin tabla cargada devuelve 0, y entonces no hay sanción.
+const meses = mesesDeMora({periodo_anio}, periodo, {numero_documento});
+
+// Sin atraso no hay sanción, y esta salida va antes que el mínimo: el mínimo
+// es el piso de una sanción que existe, no crea una donde no la había.
+if (meses <= 0) return 0;
+
+return max(min(base * POR_MES * meses, base * TOPE), UVT * MINIMA_UVT);`;
 
 // Lo que el contribuyente declara por actividad tiene que sumar lo mismo que el renglon 16. Si no,
 // esta declarando ingresos que no reparte entre sus actividades, que es evadir el impuesto.

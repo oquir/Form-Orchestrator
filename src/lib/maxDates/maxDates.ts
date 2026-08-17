@@ -54,6 +54,31 @@ export function diasEntre(desde: string, hasta: string): number | null {
   return Math.round((b - a) / MS_POR_DIA);
 }
 
+// "Mes o fraccion de mes" de `desde` a `hasta`, que es como cuenta el atraso la sancion por
+// extemporaneidad: un solo dia tarde ya cuenta como un mes entero.
+//
+// Se cuenta por calendario y no dividiendo dias entre 30. Ningun mes dura 30 dias salvo cuatro, asi
+// que la division se desfasa un dia cada dos meses y termina cobrando un mes de mas -- y un mes de
+// mas aca es el 5% del impuesto. Los meses completos salen de la diferencia de anio y mes, y la
+// fraccion es haber pasado el dia del mes del vencimiento.
+export function mesesOFraccion(desde: string, hasta: string): number | null {
+  const a: number | null = aUtc(desde);
+  const b: number | null = aUtc(hasta);
+  if (a === null || b === null) return null;
+
+  // En fecha o antes no hay atraso. El limite es el ultimo dia habil para presentar, asi que
+  // presentar ese mismo dia no es tarde.
+  if (b <= a) return 0;
+
+  const inicio = new Date(a);
+  const fin = new Date(b);
+  const completos: number =
+    (fin.getUTCFullYear() - inicio.getUTCFullYear()) * 12 +
+    (fin.getUTCMonth() - inicio.getUTCMonth());
+
+  return fin.getUTCDate() > inicio.getUTCDate() ? completos + 1 : completos;
+}
+
 // El dia de hoy en el mismo formato que usa la tabla. Recibe la fecha en vez de leer el reloj para
 // que se pueda comprobar sin tocar la hora del sistema.
 export function enTexto(fecha: Date): string {

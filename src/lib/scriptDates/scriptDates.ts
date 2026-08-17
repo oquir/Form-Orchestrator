@@ -1,7 +1,7 @@
 import { DATE_HELPER_NAMES, toScriptNumber } from "../../constants/fieldScript";
 import type { ScriptFunction } from "../../types/fieldScript";
 import type { RuntimeContext } from "../../types/formRuntime";
-import { buscarFechaLimite, diasEntre } from "../maxDates/maxDates";
+import { buscarFechaLimite, diasEntre, mesesOFraccion } from "../maxDates/maxDates";
 
 // Los dos helpers de fecha que un script tiene en ambito. Son los unicos que no son puros: el resto
 // vive en constants/fieldScript porque le alcanza con sus argumentos, y estos necesitan la tabla de
@@ -50,6 +50,18 @@ export function buildDateHelpers(context: RuntimeContext): ScriptFunction[] {
       const dias: number | null = diasEntre(limite, context.hoy);
 
       return dias === null || dias <= 0 ? 0 : dias;
+    },
+
+    // Meses o fraccion de atraso, que es la unidad en la que crece la sancion por extemporaneidad.
+    // No se deriva de diasDeMora: dividir dias entre 30 cobra un mes de mas cada medio ano.
+    // Mismo fail-open que arriba -- sin tabla no hay mora, y por lo tanto no hay sancion.
+    mesesDeMora: (...args: unknown[]) => {
+      const limite: string | null = resolver(context, args);
+      if (limite === null) return 0;
+
+      const meses: number | null = mesesOFraccion(limite, context.hoy);
+
+      return meses === null || meses <= 0 ? 0 : meses;
     },
   };
 
