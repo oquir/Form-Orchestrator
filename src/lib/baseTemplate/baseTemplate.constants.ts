@@ -170,6 +170,56 @@ if (meses <= 0) return 0;
 
 return max(min(base * POR_MES * meses, base * TOPE), UVT * MINIMA_UVT);`;
 
+// Los intereses de mora del renglon 37, con el mismo criterio que la sancion: la regla entera
+// dentro del script del campo, parametros arriba y calculo abajo.
+//
+// La base va como una linea suelta y no incrustada en la formula porque es lo que mas cambia de un
+// municipio a otro. El unico renglon que no puede ir ahi es el 38: es el que consume estos
+// intereses, asi que leerlo cerraria un ciclo. El 33, el 34, el 35 y el 25 se probaron contra
+// fieldGraph y ninguno lo cierra.
+//
+// Devuelve undefined -- campo tecleable -- cuando no hay fecha limite con que comparar. Un 0
+// bloqueado seria indistinguible de un calculo hecho que dio cero, y hasta hoy este renglon se
+// escribia a mano: sin tabla cargada tiene que seguir pudiendose.
+export const INTERES_MORA_SCRIPT: string = `// --- Parámetros del municipio ---
+
+// Tasa de interés moratorio, efectiva anual. Es la de usura para consumo y
+// ordinario que certifica la Superfinanciera, menos 2 puntos (art. 635 ET).
+// CAMBIA TODOS LOS MESES y se aplica la vigente al momento del pago, no la
+// del vencimiento. Esta es la de agosto de 2026 (usura 29,66% − 2).
+const TASA_ANUAL = 0.2766;
+
+// Los días del año con los que se saca la tasa diaria. 366 en año bisiesto,
+// si el municipio los cuenta así.
+const DIAS_ANIO = 365;
+
+// Sobre qué se liquidan. El renglón 35 es lo que de verdad se debe: ya viene
+// recortado, así que con saldo a favor vale 0 y no se cobran intereses sobre
+// una deuda que no existe.
+//
+// Cambiar esta línea por otro renglón es todo lo que hace falta. El único que
+// NO puede ir acá es el 38 ({total_a_pagar}), que es el que consume estos
+// intereses y cerraría un cálculo circular.
+const base = {valor_a_pagar};
+
+// El período dentro del año. La declaración de ICA es anual, así que es 1.
+const periodo = 1;
+
+// --- Cálculo ---
+
+// Sin fecha límite no hay con qué comparar, y entonces no se sabe si hay mora
+// ni de cuánto. Se devuelve undefined para dejar el campo escribible a mano en
+// vez de mostrar un 0 bloqueado que parece un cálculo ya hecho.
+const limite = fechaLimite({periodo_anio}, periodo, {numero_documento});
+if (limite === null) return undefined;
+
+const dias = diasDeMora({periodo_anio}, periodo, {numero_documento});
+if (dias <= 0) return 0;
+
+// Hacia arriba al millar, que es el ROUNDUP(...;-3) con el que se liquida.
+// No es el redondeo al más cercano del resto de los renglones.
+return ceil((base * (TASA_ANUAL / DIAS_ANIO) * dias) / 1000) * 1000;`;
+
 // Lo que el contribuyente declara por actividad tiene que sumar lo mismo que el renglon 16. Si no,
 // esta declarando ingresos que no reparte entre sus actividades, que es evadir el impuesto.
 //

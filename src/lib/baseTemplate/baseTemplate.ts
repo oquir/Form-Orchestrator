@@ -25,6 +25,7 @@ import {
   FIELDS_WITHOUT_ROUNDING,
   INGRESOS_ACTIVIDADES_MESSAGE,
   INGRESOS_ACTIVIDADES_SCRIPT,
+  INTERES_MORA_SCRIPT,
   NIT_MESSAGE,
   NIT_PATTERN,
   SALDO_NETO,
@@ -810,6 +811,10 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               path: "totalDeclaracion.interesMora",
               required: true,
               min: 0,
+              // Sin alwaysDisabled, igual que el renglon 31: el bloqueo lo decide el script.
+              // Queda de lectura cuando hay fecha limite con que calcular y tecleable cuando no
+              // la hay, que es como funcionaba este renglon hasta ahora.
+              script: INTERES_MORA_SCRIPT,
             },
           ]),
           buildRow([
