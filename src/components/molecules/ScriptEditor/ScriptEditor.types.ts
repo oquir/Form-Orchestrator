@@ -7,5 +7,8 @@ export interface ScriptEditorProps {
   knownNames: Set<string>;
   placeholder?: string;
   minHeight?: string;
+  // A partir de aca el editor deja de crecer y hace scroll adentro. Sin techo, un script largo
+  // estira el panel entero y manda los avisos y las pistas debajo del pliegue.
+  maxHeight?: string;
   onChange: (value: string) => void;
 }

@@ -17,6 +17,9 @@ export const SCRIPT_THEME = EditorView.theme({
   ".cm-scroller": {
     fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
     lineHeight: "1.6",
+    // Explicito y no heredado del tema base: es lo que convierte el max-height del editor en scroll
+    // propio. Sin esto el alto se recorta y las ultimas lineas quedan inalcanzables.
+    overflow: "auto",
   },
   ".cm-content": { padding: "6px 0" },
   ".cm-line": { padding: "0 8px" },

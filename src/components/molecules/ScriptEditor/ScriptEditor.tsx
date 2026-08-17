@@ -21,6 +21,7 @@ export function ScriptEditor({
   knownNames,
   placeholder,
   minHeight = "10rem",
+  maxHeight,
   onChange,
 }: ScriptEditorProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -87,5 +88,13 @@ export function ScriptEditor({
     view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: value } });
   }, [value]);
 
-  return <div ref={hostRef} style={{ minHeight }} className="[&_.cm-editor]:min-h-[inherit]" />;
+  // Los dos limites viajan como estilo del host y el editor los hereda: es la unica forma de que
+  // CodeMirror, que se dibuja adentro y no acepta clases, respete un alto decidido desde afuera.
+  return (
+    <div
+      ref={hostRef}
+      style={{ minHeight, maxHeight }}
+      className="[&_.cm-editor]:max-h-[inherit] [&_.cm-editor]:min-h-[inherit]"
+    />
+  );
 }
