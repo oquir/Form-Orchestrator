@@ -436,6 +436,26 @@ Settled decisions:
 - **Only `anual + ninguno` is editable by hand.** Everything else is 6 to 120 dates, which nobody types — the same argument that made catalogs paste-only.
 - Cost: **+11.6 kB in the initial chunk** (panel, lib and its Zod schema). It is builder-side, like `CatalogsPanel`, so it belongs there; both lazy boundaries are unchanged.
 
+### UVT y SMMLV — the third simulator-only bank
+
+`ValorAnual` (`src/types/valores.ts`) is one row per year: `{anio, uvt, smmlv}`. The consuming app receives both from its own API; here they live in a bank of their own (`localStorage` key `form-orchestrator-valores`, `src/lib/valoresBank/`) so the simulator can compute against real numbers. **Not in the draft and not in the export** — verified in the check by asserting the exported JSON never contains `smmlv` or `1750905`, and that `exportForm.ts` never names `valoresBank`.
+
+**They are deliberately NOT a `CatalogBank` entry, even though they are edited from the Catálogos tab.** A catalog is a list of `{id, label}` options feeding a dropdown; this is two scalars per year that nobody picks from a list. Storing them as catalog entries would mean putting a number inside `label` — a display string — and would offer them in the `dataSource` picker as an option source for a field, which means nothing. The UI lives in `panels/ValoresAnualesEditor`, rendered as the first section of `CatalogsPanel`, because that is where an author looks for "data the simulator needs"; the storage shape and the tab are separate questions.
+
+The two script helpers are `uvt(año)` and `smmlv(año)` (`src/lib/scriptValores/`, names in `VALUE_HELPER_NAMES`). **Impure like the date helpers and for the same reason** — the table is not in the export — so they are built per run over `RuntimeContext`, which is now `{reglas, hoy, valores}`.
+
+Settled decisions:
+
+- **They return `null`, not `0`, when the year is not loaded.** A `0` would make any floor or cap written in UVT vanish in silence: `max(liquidada, 0 * 10)` is just `liquidada`, and the sanción mínima would disappear with nothing on screen to say so. With `null` the author writes the fallback where it can be seen — the ICA template does exactly that: `const UVT = uvt() ?? 52374;`. This is the opposite call from `diasDeMora` returning `0`, and the difference is that a missing deadline means "no lateness" (a real answer) while a missing UVT means "no data".
+- **No argument means the current year**, taken from `context.hoy` and never from the clock, same discipline as `hoy` itself. That is what the sanción wants: it is liquidated with the UVT of the year of liquidation, not that of the año gravable.
+- **`CONTEXT_HELPER_NAMES` is `[...DATE_HELPER_NAMES, ...VALUE_HELPER_NAMES]`** and both `SCRIPT_PARAM_NAMES` and `runFieldScript` derive from it. The date helpers are no longer last; what is guaranteed is the order of the context block. Getting this wrong shifts every following argument with nothing to warn you.
+- **`resolver` guards `context.valores` with `Array.isArray`.** The consumer builds this object by hand and a version of it predating this feature does not carry the key; without the guard that is a `TypeError` inside the taxpayer's script instead of "no data".
+- **The bank wins whole, or not at all** (`valoresEnUso`), exactly like a catalog: an active table missing the year asked for returns nothing rather than falling back to the factory rows. Mixing loaded and factory years gives a table where you cannot tell which is which.
+- **The paste names its columns**, like a catalog and unlike the deadline table: this is a flat list, so there is no way to guess which key is the year. A row missing any of the three is **discarded whole** — half a row would store a `0` that passes for real data.
+- **`leerNumero` tries the direct read before stripping separators.** The other order turns a perfectly readable `"52374.00"` into `5237400` — two orders of magnitude, silently. That `"1.750.905"` only survives the second attempt is precisely the signal that the dot groups there.
+- **The factory table ships filled, 2020–2026, and that is not the same as inventing tarifas.** The UVT comes from a DIAN resolution and the SMMLV from a decree: one public number per year, not a value nobody supplied. The 2026 pair (52.374 / 1.750.905) is verified; the older rows are the published ones and are worth contrasting before liquidating an old declaration with them. The check asserts both columns rise monotonically, which is how a mistyped row gets caught.
+- Cost: **+7.3 kB initial** (panel, lib and its Zod schema; builder-side like `CatalogsPanel`) and **+0.35 kB in the simulator** (the helper implementation). Both lazy boundaries unchanged.
+
 ### `fechaLimite` / `diasDeMora` / `mesesDeMora` — the deadline table inside a script
 
 Three script helpers backed by the table above. `fechaLimite(año, periodo, documento)` returns `"YYYY/MM/DD"` or `null`; `diasDeMora(…)` returns days late, `0` when on time; `mesesDeMora(…)` returns **months or fraction of a month** late, which is the unit the sanción por extemporaneidad grows in — one day late is already one month. They live in `src/lib/scriptDates/`, and the name list is `DATE_HELPER_NAMES` in `src/constants/fieldScript.ts`.
@@ -444,7 +464,7 @@ Three script helpers backed by the table above. `fechaLimite(año, periodo, docu
 
 **They are the first helpers that are not pure.** The other ten only need their arguments, so they are a module constant; these need the loaded table, which is not in the export. So they are **built per run**, closing over a `RuntimeContext`.
 
-`RuntimeContext` is `{reglas, hoy}` and travels as a **second argument** to `resolveRuntime` and `validateRuntime`, never inside `RuntimeModel`. That separation is the design: the consumer receives the config JSON from one place and the deadline table from its own endpoint, so the simulator receives them the same way and the split is visible in the signature. `useFormPreview` is where the two meet.
+`RuntimeContext` is `{reglas, hoy, valores}` and travels as a **second argument** to `resolveRuntime` and `validateRuntime`, never inside `RuntimeModel`. That separation is the design: the consumer receives the config JSON from one place and the deadline table from its own endpoint, so the simulator receives them the same way and the split is visible in the signature. `useFormPreview` is where the two meet.
 
 Settled decisions:
 
@@ -464,7 +484,7 @@ The **sanción por extemporaneidad** (art. 641 ET) is auto-liquidated. The rule 
 
 **Do not move any part of it into the code or into the prelude.** This was tried the other way first — parameters and a `sancionExtemporaneidad()` helper in the prelude, the call in the field — and the user rejected it. The prelude is editable too, so the objection is not technical: a municipality asks to swap 5% for 10%, or to liquidate on a different renglón, and whoever handles that request opens renglón 31 and has to find the whole rule there. Split across two screens you have to already know the other half exists. The user's own experience is the argument: four months building a municipality's form strictly to the law, and the answer was "it works but it is too strict, put it back". **The law is the default here, never the constraint.**
 
-The script declares `UVT`, `MINIMA_UVT`, `POR_MES`, `TOPE` and `base` as named constants at the top, with a comment on each saying what the ET asks for and which municipalities deviate. Shipped defaults are the legal ceiling — UVT 52.374, 10 UVT minimum, 5% per month, 100% cap — because the law is a maximum a municipality may only lower.
+The script declares `UVT`, `MINIMA_UVT`, `POR_MES`, `TOPE` and `base` as named constants at the top, with a comment on each saying what the ET asks for and which municipalities deviate. Shipped defaults are the legal ceiling — 10 UVT minimum, 5% per month, 100% cap — because the law is a maximum a municipality may only lower. **The UVT is read with `const UVT = uvt() ?? 52374;`**: the live value comes from the values bank (see above) and the literal is the fallback the author can see and update, since a helper that silently returned `0` would erase the minimum.
 
 Settled decisions:
 
@@ -582,7 +602,7 @@ Known wart: `store/formStore.utils.ts` imports `findFieldById` back from `store/
   - `formScript` — the prelude shared by every field script.
   - `activeCanvas`: `{type: "formStep" | "introStep", stepId}` — which canvas is being edited.
   - UI state: `selectedFieldId`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `rowDropTarget`, `rowDrag`, `draggingFieldId`, `hoveredTransferTarget`, `transferNotice`, `isDarkMode` (persisted to `localStorage` under `form-orchestrator-theme`), `lastSavedAt`.
-  - `savedComponents` ("Almacén de Partes") and `setupConfig`.
+  - `savedComponents` ("Almacén de Partes"), `setupConfig`, and the three simulator-only banks: `catalogBank`, `maxDates` and `valores` — each with its own `localStorage` key, none of them in the draft or the export.
   - Selector helpers exported alongside: `getActiveRows`, `getActiveGroups`, `findFieldById`, `getAllFields`, `findRowContainingField`, `findRowById`.
   - Row/field mutations apply uniformly to whichever canvas holds the target id via `mapRowEverywhere`/`mapFieldEverywhere`. Notable actions: `addFieldToRow`, `moveField`, `removeField` (also clears any `enableWhen`/`visibleWhen` pointing at it), `updateField`, `setFieldName`, `updateFieldValidations/Styles/FileConfig`, `updateFieldApiBinding`, `setFieldScript`, `setFormScript`, `setFieldRounding`, `setFieldFormatted`, `setFieldAllowsNegative`, `setFieldDecimals`, `setFieldLabelFor`, `setFieldContent`, `addFieldRule`/`updateFieldRule`/`removeFieldRule`/`reorderFieldRule`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`/`setFieldVisibleWhen`, `addRowToActiveCanvas`/`updateRowColumns`/`removeRow`/`moveRow`, `moveFieldToStep`/`moveRowToStep`, `addGroupToActiveStep`/`addRowToGroup`/`updateGroup` (which is also how `checks` are written — no dedicated action)/`removeGroup`, the step actions for both canvases, `saveFieldAsComponent`/`addSavedComponentToRow`/`removeSavedComponent`, `restoreDraft`.
   - **Selectors must return stable references.** Zustand reads them through `useSyncExternalStore`, which compares by identity, so a selector returning a fresh `[]` on every call causes "Maximum update depth exceeded". That is what the `NO_ROWS` / `NO_GROUPS` module-level constants are for — never inline an empty-array literal in a selector.

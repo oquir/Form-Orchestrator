@@ -19,6 +19,7 @@ import {
   SCRIPT_HINT,
   SCRIPT_PLACEHOLDER,
   SCRIPT_SCOPE_HINT,
+  VALUE_HELPERS_HINT,
   WARNING_CLASSES,
 } from "./FieldScriptEditor.constants";
 import type { FieldScriptEditorProps } from "./FieldScriptEditor.types";
@@ -105,6 +106,7 @@ export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps)
       <p className={HINT_CLASSES}>{SCRIPT_HINT}</p>
       <p className={HINT_CLASSES}>{SCRIPT_SCOPE_HINT}</p>
       <p className={HINT_CLASSES}>{DATE_HELPERS_HINT}</p>
+      <p className={HINT_CLASSES}>{VALUE_HELPERS_HINT}</p>
     </PanelSection>
   );
 }

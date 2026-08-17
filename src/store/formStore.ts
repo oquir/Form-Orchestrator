@@ -41,6 +41,7 @@ import {
   sortByColumn,
 } from "../lib/rowLayout/rowLayout";
 import { reorderRows } from "../lib/rowOrder/rowOrder";
+import { loadValores, saveValores } from "../lib/valoresBank/valoresBank";
 import type { CatalogBank } from "../types/catalog";
 import type { CanvasField, SavedComponent } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
@@ -54,6 +55,7 @@ import type {
 import type { StoredMaxDates } from "../types/maxDates";
 import type { CanvasTarget } from "../types/placement";
 import type { StateSlice } from "../types/store";
+import type { StoredValores } from "../types/valores";
 import { NO_GROUPS, NO_ROWS, THEME_STORAGE_KEY } from "./formStore.constants";
 import {
   allFieldNames,
@@ -122,6 +124,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   lastSavedAt: null,
   catalogBank: loadCatalogBank(),
   maxDates: loadMaxDates(),
+  valores: loadValores(),
   setDragPlacement: (placement) => set({ dragPlacement: placement }),
   setRowDropTarget: (target) => set({ rowDropTarget: target }),
   setRowDrag: (drag) => set({ rowDrag: drag }),
@@ -700,6 +703,25 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       saveMaxDates(maxDates);
 
       return { maxDates };
+    }),
+  // Cargar una tabla la deja en uso, igual que las fechas: nadie pega un volcado para seguir
+  // mirando los valores de fabrica.
+  setValores: (lista) =>
+    set((state) => {
+      const valores: StoredValores =
+        lista === null
+          ? { ...state.valores, source: "default" }
+          : { source: "custom", custom: lista };
+      saveValores(valores);
+
+      return { valores };
+    }),
+  setValoresSource: (source) =>
+    set((state) => {
+      const valores: StoredValores = { ...state.valores, source };
+      saveValores(valores);
+
+      return { valores };
     }),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>

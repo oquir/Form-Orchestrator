@@ -127,8 +127,9 @@ export const SANCION_EXTEMPORANEIDAD_SCRIPT: string = `// --- Parámetros del mu
 // La ley fija estos valores como techo: un municipio solo puede bajarlos.
 
 // UVT del año en que se liquida la sanción, no la del año gravable declarado.
-// Se actualiza una vez por año.
-const UVT = 52374;
+// uvt() la busca en la pestaña Catálogos; si ese año no está cargado devuelve
+// null y entra el respaldo escrito acá, que hay que actualizar una vez por año.
+const UVT = uvt() ?? 52374;
 
 // Sanción mínima, en UVT. El Estatuto Tributario pide 10; hay municipios
 // que la dejan en 2, 3 o 5.

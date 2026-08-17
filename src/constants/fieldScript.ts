@@ -85,7 +85,21 @@ export const SCRIPT_HELPERS: Record<string, (...args: unknown[]) => number> = {
 // llama por nombre, asi que del otro lado tienen que existir y significar lo mismo.
 export const DATE_HELPER_NAMES: string[] = ["fechaLimite", "diasDeMora", "mesesDeMora"];
 
-export const SCRIPT_HELPER_NAMES: string[] = [...Object.keys(SCRIPT_HELPERS), ...DATE_HELPER_NAMES];
+// La UVT y el salario minimo del ano. Impuros por lo mismo que los de fecha -- salen del banco de
+// valores, que tampoco viaja en el export -- y con la implementacion en lib/scriptValores.
+//
+// Devuelven null, no 0, cuando el ano no esta cargado: un 0 haria desaparecer sin ruido cualquier
+// piso o tope expresado en UVT. El autor pone el respaldo a la vista con `uvt() ?? 52374`.
+export const VALUE_HELPER_NAMES: string[] = ["uvt", "smmlv"];
+
+// Todos los que necesitan el RuntimeContext, en el orden en que se pasan. Existe para que los dos
+// sitios que los enumeran -- los nombres y los valores -- no puedan quedar en distinto orden.
+export const CONTEXT_HELPER_NAMES: string[] = [...DATE_HELPER_NAMES, ...VALUE_HELPER_NAMES];
+
+export const SCRIPT_HELPER_NAMES: string[] = [
+  ...Object.keys(SCRIPT_HELPERS),
+  ...CONTEXT_HELPER_NAMES,
+];
 
 // El objeto de valores no se nombra nunca a mano: {campo} se compila a __v["campo"]. El guion
 // bajo doble es para que no choque con una variable del autor.
@@ -99,7 +113,7 @@ export const SCRIPT_CONTEXT_PARAMS: string[] = [SCRIPT_VALUES_PARAM, "value", "i
 export const SCRIPT_PARAM_NAMES: string[] = [
   ...SCRIPT_CONTEXT_PARAMS,
   ...Object.keys(SCRIPT_HELPERS),
-  ...DATE_HELPER_NAMES,
+  ...CONTEXT_HELPER_NAMES,
 ];
 
 // La contraparte de los nombres de arriba, derivada del mismo objeto para que no puedan

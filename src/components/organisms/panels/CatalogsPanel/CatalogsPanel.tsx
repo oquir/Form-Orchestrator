@@ -10,6 +10,7 @@ import type { CatalogEntry, CatalogParseResult } from "../../../../types/catalog
 import { Button } from "../../../atoms/Button/Button";
 import { BinaryChoiceToggle } from "../../../molecules/BinaryChoiceToggle/BinaryChoiceToggle";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
+import { ValoresAnualesEditor } from "../ValoresAnualesEditor/ValoresAnualesEditor";
 import {
   ACTION_CLASSES,
   BADGE_EMPTY_CLASSES,
@@ -28,11 +29,14 @@ export function CatalogsPanel() {
   return (
     <div className="flex flex-col gap-3">
       <p className={HINT_CLASSES}>
-        Las opciones que el simulador ofrece en cada campo de catálogo. Cada uno elige entre los
-        datos de prueba que trae el simulador y los que cargues vos; cambiar de uno a otro no borra
-        lo cargado. No viajan en el JSON exportado y no dependen del borrador: se comparten entre
-        todos tus formularios, así que los departamentos que cargues acá los hereda el de retención.
+        Los datos que el simulador usa para poder calcular: las opciones de cada campo de catálogo y
+        los valores anuales que en el aplicativo real llegan por API. Cada uno elige entre los datos
+        de prueba que trae el simulador y los que cargues vos; cambiar de uno a otro no borra lo
+        cargado. No viajan en el JSON exportado y no dependen del borrador: se comparten entre todos
+        tus formularios, así que los departamentos que cargues acá los hereda el de retención.
       </p>
+
+      <ValoresAnualesEditor />
 
       {CATALOGS.map((catalog) => (
         <CatalogCard key={catalog.id} catalog={catalog} stored={catalogBank[catalog.id]} />

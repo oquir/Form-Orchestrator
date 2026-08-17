@@ -4,6 +4,7 @@ import type { RuntimeContext, RuntimeModel, RuntimeValues } from "../../types/fo
 import type { ScriptRunResult } from "../../types/scriptRuntime";
 import { normalizeScriptResult } from "../fieldScript/fieldScript";
 import { buildDateHelpers } from "../scriptDates/scriptDates";
+import { buildValueHelpers } from "../scriptValores/scriptValores";
 import { coerceForScript, compileCached, EMPTY_CONTEXT } from "./scriptRuntime.utils";
 
 // Ejecuta el script de un campo. Es el unico sitio del proyecto que corre codigo del autor, y lo
@@ -26,14 +27,17 @@ export function runFieldScript(
   if (!built.fn) return { value: undefined, error: built.error };
 
   try {
-    // Los de fecha van al final y se arman por corrida: cierran sobre la tabla de vencimientos, que
-    // no viene en el export. El orden es el de SCRIPT_PARAM_NAMES, que los pone en el mismo lugar.
+    // Los que dependen del contexto van al final y se arman por corrida: cierran sobre la tabla de
+    // vencimientos y la de valores anuales, que no vienen en el export. El orden es el de
+    // SCRIPT_PARAM_NAMES -- primero los de fecha y despues los de valor -- que los pone en el mismo
+    // lugar; ver CONTEXT_HELPER_NAMES, de donde salen las dos listas.
     const result: unknown = built.fn(
       values,
       value,
       index,
       ...SCRIPT_HELPER_VALUES,
       ...buildDateHelpers(context),
+      ...buildValueHelpers(context),
     );
 
     return { value: normalizeScriptResult(result), error: null };

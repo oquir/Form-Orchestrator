@@ -1,5 +1,6 @@
 import type { ExportedField, ExportedRepeatableGroup, ExportedStep } from "./exportForm";
 import type { DeclaracionKind, ReglaAnio } from "./maxDates";
+import type { ValorAnual } from "./valores";
 
 // Lo que el runtime necesita ADEMAS del export. Va como segundo argumento y no dentro del modelo a
 // proposito: son datos que el consumidor recibe por otro lado -- su propio endpoint -- asi que el
@@ -11,6 +12,9 @@ export interface RuntimeContext {
   // "YYYY/MM/DD". Entra por parametro en vez de leerse del reloj adentro del helper para poder
   // comprobar la mora sin tocar la hora del sistema.
   hoy: string;
+  // La UVT y el salario minimo por ano. Del mismo lado de la frontera que `reglas`: el consumidor
+  // los recibe de su API y el simulador del banco de valores, nunca del JSON exportado.
+  valores: ValorAnual[];
 }
 
 export type RuntimeValues = Record<string, unknown>;

@@ -25,6 +25,7 @@ import type {
 import type { RichTextContent } from "./richText";
 import type { FormType, SetupConfig } from "./setup";
 import type { SidebarTab } from "./ui";
+import type { StoredValores, ValorAnual, ValoresSource } from "./valores";
 
 export interface OptionsSetup {
   title?: string;
@@ -49,6 +50,7 @@ export interface FormState {
   lastSavedAt: string | null;
   catalogBank: CatalogBank;
   maxDates: StoredMaxDates;
+  valores: StoredValores;
   dragPlacement: DragPlacement | null;
   rowDropTarget: RowDropTarget | null;
   rowDrag: RowDragState | null;
@@ -117,6 +119,9 @@ export interface FormState {
   // tabla ya armada, que es lo que deja la aritmetica entera en lib/maxDates.
   setMaxDates: (fechas: FechasMaximasPresentacion | null) => void;
   setMaxDatesSource: (source: MaxDatesSource) => void;
+  // Mismo trato que las fechas: null vuelve a la tabla de fabrica sin tirar lo cargado.
+  setValores: (valores: ValorAnual[] | null) => void;
+  setValoresSource: (source: ValoresSource) => void;
   updateFieldValidations: (fieldId: string, updates: Partial<FieldValidations>) => void;
   addFieldValidationOverride: (fieldId: string) => void;
   updateFieldValidationOverride: (

@@ -17,7 +17,12 @@ export const SCRIPT_HINT: string =
 
 export const SCRIPT_SCOPE_HINT: string = `En ámbito: value (el valor actual), index (la repetición dentro de un grupo) y ${SCRIPT_HELPER_NAMES.join(", ")}.`;
 
-// Los de fecha no se explican solos como sum o abs: llevan argumentos y dependen de la tabla
-// cargada en la pestaña Fechas, asi que se dice donde sale el dato y que pasa si no esta.
+// Los que dependen de una tabla no se explican solos como sum o abs: llevan argumentos y salen de
+// datos cargados en otra pestaña, asi que se dice de donde salen y que devuelven si no estan.
 export const DATE_HELPERS_HINT: string =
   "fechaLimite(año, periodo, documento) da la fecha máxima de presentación; diasDeMora(…) los días de atraso y mesesDeMora(…) los meses o fracción, 0 si está en fecha. Salen de la pestaña Fechas; sin tabla cargada devuelven null y 0.";
+
+// El null es lo que hay que saber: un 0 haria desaparecer en silencio cualquier piso o tope escrito
+// en UVT, asi que el respaldo lo pone el autor y queda a la vista en el script.
+export const VALUE_HELPERS_HINT: string =
+  "uvt(año) y smmlv(año) dan la UVT y el salario mínimo; sin año usan el que corre. Salen de la pestaña Catálogos y devuelven null si ese año no está cargado, así que conviene escribir uvt() ?? 52374.";

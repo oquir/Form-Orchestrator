@@ -7,7 +7,7 @@ import { buildScriptFunction, composeScriptBody } from "../fieldScript/fieldScri
 // Sin tabla de vencimientos los helpers de fecha no encuentran nada y devuelven null y 0. Es lo que
 // tiene que pasar: un formulario que no depende de fechas, o uno al que no se le cargaron, corre
 // igual. `hoy` queda vacio porque sin fecha limite nunca se llega a compararlo.
-export const EMPTY_CONTEXT: RuntimeContext = { reglas: [], hoy: "" };
+export const EMPTY_CONTEXT: RuntimeContext = { reglas: [], hoy: "", valores: [] };
 
 // Cache de compilacion, indexada por el cuerpo ya compuesto -- preludio incluido -- y no por el
 // nombre del campo, igual que hydrateFieldSchemas se indexa por el texto del schema. Dos campos
