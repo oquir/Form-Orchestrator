@@ -85,8 +85,8 @@ El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; el `DndContext`/
 Cada hook vive en su propia carpeta, igual que los componentes:
 
 - **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S), `useDraftRecovery`.
-- **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`.
-- **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useRichTextEditor`, `useJsonCode`.
+- **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`, `usePayloadPreviewCanvas`.
+- **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useRichTextEditor`, `useJsonCode`, `useCatalogCard`, `useApiMappingPanel`, `useFormScriptEditor`, `useFieldScriptEditor`, `useGroupChecksEditor`.
 - **Simulador** — `useFormPreview` (el único que toca el store, y solo para alimentar el export), `usePreviewNavigation`, `usePreviewSearchSelect`.
 - **Genéricos** — `useClickOutside`.
 
