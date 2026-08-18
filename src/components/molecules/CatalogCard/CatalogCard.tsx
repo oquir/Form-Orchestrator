@@ -1,8 +1,5 @@
-import { useState } from "react";
-import { parseCatalogPaste } from "../../../lib/catalogBank/catalogBank";
-import { DEFAULT_ID_KEY, DEFAULT_LABEL_KEY } from "../../../lib/catalogBank/catalogBank.constants";
-import { useFormStore } from "../../../store/formStore";
-import type { CatalogEntry, CatalogParseResult } from "../../../types/catalog";
+import { useCatalogCard } from "../../../hooks/useCatalogCard/useCatalogCard";
+import type { CatalogEntry } from "../../../types/catalog";
 import { Button } from "../../atoms/Button/Button";
 import { BinaryChoiceToggle } from "../BinaryChoiceToggle/BinaryChoiceToggle";
 import { PanelSection } from "../PanelSection/PanelSection";
@@ -19,43 +16,30 @@ import {
 import type { CatalogCardProps } from "./CatalogCard.types";
 
 export function CatalogCard({ catalog, stored }: CatalogCardProps) {
-  const setCatalogEntries = useFormStore((state) => state.setCatalogEntries);
-  const setCatalogSource = useFormStore((state) => state.setCatalogSource);
-  const clearCatalogEntries = useFormStore((state) => state.clearCatalogEntries);
-
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [raw, setRaw] = useState<string>("");
-  const [idKey, setIdKey] = useState<string>(DEFAULT_ID_KEY);
-  const [labelKey, setLabelKey] = useState<string>(DEFAULT_LABEL_KEY);
-  const [parentKey, setParentKey] = useState<string>("");
-  const [codeKey, setCodeKey] = useState<string>("");
-  const [tarifaKey, setTarifaKey] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-
-  const entries: CatalogEntry[] = stored?.entries ?? [];
-  const loaded: boolean = entries.length > 0;
-  const isCustom: boolean = loaded && stored?.source === "custom";
-  const badge: string = loaded ? `${entries.length} opciones` : "Sin cargar";
-
-  function load(): void {
-    const result: CatalogParseResult = parseCatalogPaste(raw, {
-      id: idKey,
-      label: labelKey,
-      parent: catalog.requiresParent && parentKey.trim() ? parentKey.trim() : undefined,
-      code: codeKey.trim() || undefined,
-      tarifa: tarifaKey.trim() || undefined,
-    });
-
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-
-    setCatalogEntries(catalog.id, result.entries);
-    setError(null);
-    setRaw("");
-    setIsOpen(false);
-  }
+  const {
+    isOpen,
+    setIsOpen,
+    raw,
+    setRaw,
+    idKey,
+    setIdKey,
+    labelKey,
+    setLabelKey,
+    parentKey,
+    setParentKey,
+    codeKey,
+    setCodeKey,
+    tarifaKey,
+    setTarifaKey,
+    error,
+    entries,
+    loaded,
+    isCustom,
+    badge,
+    load,
+    setSource,
+    clear,
+  } = useCatalogCard({ catalog, stored });
 
   return (
     <PanelSection
@@ -77,7 +61,7 @@ export function CatalogCard({ catalog, stored }: CatalogCardProps) {
         <>
           <BinaryChoiceToggle
             value={isCustom}
-            onChange={(next) => setCatalogSource(catalog.id, next ? "custom" : "default")}
+            onChange={(next) => setSource(next ? "custom" : "default")}
             yesLabel="Personalizado"
             noLabel="Por defecto"
           />
@@ -94,7 +78,7 @@ export function CatalogCard({ catalog, stored }: CatalogCardProps) {
             </p>
             <button
               type="button"
-              onClick={() => clearCatalogEntries(catalog.id)}
+              onClick={clear}
               className="shrink-0 text-[11px] text-slate-400 hover:cursor-pointer hover:text-red-600 dark:text-neutral-500"
             >
               Vaciar
