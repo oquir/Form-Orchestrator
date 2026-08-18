@@ -2,11 +2,9 @@ import { CATALOG_COLUMNS } from "../../../../constants/catalog";
 import { getActiveRows, getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CatalogColumn } from "../../../../types/catalog";
 import type { CanvasField, CatalogFill } from "../../../../types/field";
+import { SELECT_CLASSES } from "./CatalogFillsEditor.constants";
 import type { CatalogFillsEditorProps } from "./CatalogFillsEditor.types";
 import { fillTargetCandidates, removeFill, replaceFill } from "./CatalogFillsEditor.utils";
-
-const SELECT_CLASSES: string =
-  "min-w-0 flex-1 rounded-md border border-border bg-field px-2 py-1 text-xs text-fg outline-none focus:border-brand-border";
 
 export function CatalogFillsEditor({ field }: CatalogFillsEditorProps) {
   const updateFieldDataSource = useFormStore((state) => state.updateFieldDataSource);

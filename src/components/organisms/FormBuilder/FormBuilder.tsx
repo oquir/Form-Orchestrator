@@ -2,6 +2,7 @@ import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { lazy, Suspense } from "react";
 import { useDragAndDrop } from "../../../hooks/useDragAndDrop/useDragAndDrop";
 import { useFormStore } from "../../../store/formStore";
+import { SimulatorLoading } from "../../atoms/SimulatorLoading/SimulatorLoading";
 import { AppLayout } from "../../layout/AppLayout";
 import { DragPreview } from "../../molecules/DragPreview/DragPreview";
 import { Canvas } from "../Canvas/Canvas";
@@ -55,13 +56,5 @@ export function FormBuilder() {
         {activeDrag ? <DragPreview activeDrag={activeDrag} /> : null}
       </DragOverlay>
     </DndContext>
-  );
-}
-
-function SimulatorLoading() {
-  return (
-    <div className="flex h-screen w-screen items-center justify-center bg-surface-sunken">
-      <p className="text-sm text-fg-muted">Cargando simulador…</p>
-    </div>
   );
 }

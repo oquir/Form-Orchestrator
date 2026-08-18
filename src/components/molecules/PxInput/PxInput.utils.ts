@@ -1,4 +1,4 @@
-const PLAIN_PX = /^\s*(\d+(?:\.\d+)?)\s*px\s*$/i;
+import { PLAIN_PX } from "./PxInput.constants";
 
 // Devuelve el numero cuando el valor guardado son pixeles pelados, y null cuando es cualquier otra
 // cosa. FieldStyles guarda una cadena CSS libre, asi que alguien pudo escribir "1rem" o "5%" a

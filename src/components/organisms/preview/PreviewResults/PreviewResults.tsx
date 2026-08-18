@@ -15,6 +15,7 @@ export function PreviewResults({ preview }: PreviewResultsProps) {
     () => JSON.stringify(preview.payload, null, 2),
     [preview.payload],
   );
+
   const valuesJson: string = useMemo(
     () => JSON.stringify({ campos: preview.state.values, grupos: preview.state.groups }, null, 2),
     [preview.state],

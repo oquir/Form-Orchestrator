@@ -1,28 +1,17 @@
 import type { ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "reicon-react";
 import { useJsonCode } from "../../../hooks/useJsonCode/useJsonCode";
-import type { JsonCodeProps, JsonSegment } from "../../../types/jsonCode";
+import type { JsonCodeProps } from "../../../types/jsonCode";
 import { JSON_CODE_BASE_CLASSES, JSON_MUTED_CLASS } from "./JsonCode.constants";
-import { segmentClass } from "./JsonCode.utils";
+import { renderTokens } from "./JsonCode.utils";
 
 export function JsonCode({ json, valueClassName, className }: JsonCodeProps) {
   const { rows, toggle } = useJsonCode(json);
 
-  const renderTokens = (tokens: JsonSegment[]): ReactNode[] =>
-    tokens.map((segment) =>
-      typeof segment === "string" ? (
-        segment
-      ) : (
-        <span key={segment.offset} className={segmentClass(segment, valueClassName)}>
-          {segment.text}
-        </span>
-      ),
-    );
-
   return (
     <div className={`${JSON_CODE_BASE_CLASSES} ${className ?? ""}`.trim()}>
       {rows.map((row) => {
-        const content: ReactNode[] = renderTokens(row.tokens);
+        const content: ReactNode[] = renderTokens(row.tokens, valueClassName);
 
         if (row.isCollapsed) {
           content.push(
