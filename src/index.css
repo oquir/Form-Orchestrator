@@ -3,91 +3,96 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --ui-surface: var(--color-white);
-  --ui-surface-sunken: var(--color-slate-50);
-  --ui-surface-raised: var(--color-slate-100);
-  --ui-surface-inset: var(--color-slate-200);
-  --ui-field: var(--color-white);
+  --ui-surface: oklch(100% 0 0); /* white */
+  --ui-surface-sunken: oklch(98.4% 0.003 247.858); /* slate-50 */
+  --ui-surface-raised: oklch(96.8% 0.007 247.896); /* slate-100 */
+  --ui-surface-inset: oklch(92.9% 0.013 255.508); /* slate-200 */
+  --ui-field: oklch(100% 0 0); /* white */
 
-  --ui-border: var(--color-slate-200);
-  --ui-border-strong: var(--color-slate-300);
-  --ui-border-subtle: var(--color-slate-100);
+  --ui-border: oklch(92.9% 0.013 255.508); /* slate-200 */
+  --ui-border-strong: oklch(86.9% 0.022 252.894); /* slate-300 */
+  --ui-border-subtle: oklch(96.8% 0.007 247.896); /* slate-100 */
 
-  --ui-fg-strong: var(--color-slate-800);
-  --ui-fg: var(--color-slate-700);
-  --ui-fg-soft: var(--color-slate-600);
-  --ui-fg-muted: var(--color-slate-500);
-  --ui-fg-subtle: var(--color-slate-400);
+  --ui-fg-strong: oklch(27.9% 0.041 260.031); /* slate-800 */
+  --ui-fg: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --ui-fg-soft: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --ui-fg-muted: oklch(55.4% 0.046 257.417); /* slate-500 */
+  --ui-fg-subtle: oklch(70.4% 0.04 256.788); /* slate-400 */
 
-  --ui-brand: var(--color-orange-600);
-  --ui-brand-hover: var(--color-orange-500);
-  --ui-brand-fg: var(--color-orange-600);
-  --ui-brand-border: var(--color-orange-500);
-  --ui-brand-surface: var(--color-orange-50);
-  --ui-on-brand: var(--color-white);
+  --ui-brand: oklch(64.6% 0.222 41.116); /* orange-600 */
+  --ui-brand-hover: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --ui-brand-fg: oklch(64.6% 0.222 41.116); /* orange-600 */
+  --ui-brand-border: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --ui-brand-surface: oklch(98% 0.016 73.684); /* orange-50 */
+  --ui-on-brand: oklch(100% 0 0); /* white */
 
-  --ui-danger: var(--color-red-600);
-  --ui-danger-soft: var(--color-red-300);
-  --ui-danger-border: var(--color-red-200);
-  --ui-danger-surface: var(--color-red-50);
+  --ui-danger: oklch(57.7% 0.245 27.325); /* red-600 */
+  --ui-danger-soft: oklch(80.8% 0.114 19.571); /* red-300 */
+  --ui-danger-border: oklch(88.5% 0.062 18.334); /* red-200 */
+  --ui-danger-surface: oklch(97.1% 0.013 17.38); /* red-50 */
 
-  --ui-warning: var(--color-amber-600);
-  --ui-warning-border: var(--color-amber-200);
-  --ui-warning-surface: var(--color-amber-50);
+  --ui-warning: oklch(66.6% 0.179 58.318); /* amber-600 */
+  --ui-warning-border: oklch(92.4% 0.12 95.746); /* amber-200 */
+  --ui-warning-surface: oklch(98.7% 0.022 95.277); /* amber-50 */
 
-  --ui-success: var(--color-emerald-600);
-  --ui-info: var(--color-sky-600);
+  --ui-success: oklch(59.6% 0.145 163.225); /* emerald-600 */
+  --ui-info: oklch(58.8% 0.158 241.966); /* sky-600 */
 
   /* Coloreado del editor de scripts. Va como tokens y no dentro del tema de CodeMirror para que
      el modo oscuro salga por el mismo camino que el resto de la app. */
-  --ui-code-keyword: var(--color-violet-600);
-  --ui-code-string: var(--color-emerald-700);
-  --ui-code-number: var(--color-sky-700);
-  --ui-code-comment: var(--color-slate-400);
-  --ui-code-fn: var(--color-blue-600);
+  --ui-code-keyword: oklch(54.1% 0.281 293.009); /* violet-600 */
+  --ui-code-string: oklch(50.8% 0.118 165.612); /* emerald-700 */
+  --ui-code-number: oklch(50% 0.134 242.749); /* sky-700 */
+  --ui-code-comment: oklch(70.4% 0.04 256.788); /* slate-400 */
+  --ui-code-fn: oklch(54.6% 0.245 262.881); /* blue-600 */
 }
 
 .dark {
-  --ui-surface: var(--color-neutral-900);
-  --ui-surface-sunken: var(--color-neutral-950);
-  --ui-surface-raised: var(--color-neutral-800);
-  --ui-surface-inset: var(--color-neutral-700);
-  --ui-field: var(--color-neutral-800);
+  --ui-surface: oklch(20.5% 0 0); /* neutral-900 */
+  --ui-surface-sunken: oklch(14.5% 0 0); /* neutral-950 */
+  --ui-surface-raised: oklch(26.9% 0 0); /* neutral-800 */
+  --ui-surface-inset: oklch(37.1% 0 0); /* neutral-700 */
+  --ui-field: oklch(26.9% 0 0); /* neutral-800 */
 
-  --ui-border: var(--color-neutral-700);
-  --ui-border-strong: var(--color-neutral-600);
-  --ui-border-subtle: var(--color-neutral-800);
+  --ui-border: oklch(37.1% 0 0); /* neutral-700 */
+  --ui-border-strong: oklch(43.9% 0 0); /* neutral-600 */
+  --ui-border-subtle: oklch(26.9% 0 0); /* neutral-800 */
 
-  --ui-fg-strong: var(--color-neutral-100);
-  --ui-fg: var(--color-neutral-200);
-  --ui-fg-soft: var(--color-neutral-300);
-  --ui-fg-muted: var(--color-neutral-400);
-  --ui-fg-subtle: var(--color-neutral-500);
+  --ui-fg-strong: oklch(97% 0 0); /* neutral-100 */
+  --ui-fg: oklch(92.2% 0 0); /* neutral-200 */
+  --ui-fg-soft: oklch(87% 0 0); /* neutral-300 */
+  --ui-fg-muted: oklch(70.8% 0 0); /* neutral-400 */
+  --ui-fg-subtle: oklch(55.6% 0 0); /* neutral-500 */
 
-  --ui-brand: var(--color-orange-500);
-  --ui-brand-hover: var(--color-orange-400);
-  --ui-brand-fg: var(--color-orange-400);
-  --ui-brand-border: var(--color-orange-500);
-  --ui-brand-surface: color-mix(in oklab, var(--color-orange-500) 10%, transparent);
-  --ui-on-brand: var(--color-white);
+  --ui-brand: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --ui-brand-hover: oklch(75% 0.183 55.934); /* orange-400 */
+  --ui-brand-fg: oklch(75% 0.183 55.934); /* orange-400 */
+  --ui-brand-border: oklch(70.5% 0.213 47.604); /* orange-500 */
+  /* orange-500 */
+  --ui-brand-surface: color-mix(in oklab, oklch(70.5% 0.213 47.604) 10%, transparent);
+  --ui-on-brand: oklch(100% 0 0); /* white */
 
-  --ui-danger: var(--color-red-400);
-  --ui-danger-soft: var(--color-red-400);
-  --ui-danger-border: color-mix(in oklab, var(--color-red-500) 40%, transparent);
-  --ui-danger-surface: color-mix(in oklab, var(--color-red-500) 10%, transparent);
+  --ui-danger: oklch(70.4% 0.191 22.216); /* red-400 */
+  --ui-danger-soft: oklch(70.4% 0.191 22.216); /* red-400 */
+  /* red-500 */
+  --ui-danger-border: color-mix(in oklab, oklch(63.7% 0.237 25.331) 40%, transparent);
+  /* red-500 */
+  --ui-danger-surface: color-mix(in oklab, oklch(63.7% 0.237 25.331) 10%, transparent);
 
-  --ui-warning: var(--color-amber-400);
-  --ui-warning-border: color-mix(in oklab, var(--color-amber-500) 40%, transparent);
-  --ui-warning-surface: color-mix(in oklab, var(--color-amber-500) 10%, transparent);
+  --ui-warning: oklch(82.8% 0.189 84.429); /* amber-400 */
+  /* amber-500 */
+  --ui-warning-border: color-mix(in oklab, oklch(76.9% 0.188 70.08) 40%, transparent);
+  /* amber-500 */
+  --ui-warning-surface: color-mix(in oklab, oklch(76.9% 0.188 70.08) 10%, transparent);
 
-  --ui-success: var(--color-emerald-400);
-  --ui-info: var(--color-sky-400);
+  --ui-success: oklch(76.5% 0.177 163.223); /* emerald-400 */
+  --ui-info: oklch(74.6% 0.16 232.661); /* sky-400 */
 
-  --ui-code-keyword: var(--color-violet-400);
-  --ui-code-string: var(--color-emerald-400);
-  --ui-code-number: var(--color-sky-400);
-  --ui-code-comment: var(--color-neutral-500);
-  --ui-code-fn: var(--color-blue-400);
+  --ui-code-keyword: oklch(70.2% 0.183 293.541); /* violet-400 */
+  --ui-code-string: oklch(76.5% 0.177 163.223); /* emerald-400 */
+  --ui-code-number: oklch(74.6% 0.16 232.661); /* sky-400 */
+  --ui-code-comment: oklch(55.6% 0 0); /* neutral-500 */
+  --ui-code-fn: oklch(70.7% 0.165 254.624); /* blue-400 */
 }
 
 @theme inline {
