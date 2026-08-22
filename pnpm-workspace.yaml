@@ -1,0 +1,9 @@
+# pnpm no ejecuta los scripts de instalacion de una dependencia salvo que se los apruebe aca. Es
+# una defensa contra el postinstall de un paquete comprometido, y por eso la lista se declara en el
+# repo en vez de aprobarse a mano en cada maquina.
+#
+# Los dos que estan la necesitan de verdad: bajan el binario de su plataforma al instalar y sin eso
+# no arrancan. esbuild entra por tsx, que es con lo que se corren los scripts de verificacion.
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true

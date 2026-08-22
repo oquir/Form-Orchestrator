@@ -16,21 +16,21 @@ El caso de uso que guía el diseño es el **autoliquidable de Industria y Comerc
 - **reicon-react** para íconos
 - **Biome** como linter/formatter (2 espacios, comillas dobles, semicolons, 100 cols, organiza imports)
 
-Package manager: **bun**. No usar npm/yarn/pnpm.
+Package manager: **pnpm** (la versión va fijada en `packageManager`). No usar npm/yarn/bun.
 
 ## Comandos
 
 ```bash
-bun install       # instalar dependencias
-bun run dev       # servidor de desarrollo (Vite)
-bun run build     # typecheck (tsc -b) + build de producción
-bun run lint      # Biome check (lint + format check)
-bun run lint:fix  # Biome check con auto-fix
-bun run format    # Biome format --write
-bun run preview   # preview del build de producción
+pnpm install      # instalar dependencias
+pnpm dev          # servidor de desarrollo (Vite)
+pnpm build        # typecheck (tsc -b) + build de producción
+pnpm lint         # Biome check (lint + format check)
+pnpm lint:fix     # Biome check con auto-fix
+pnpm format       # Biome format --write
+pnpm preview      # preview del build de producción
 ```
 
-No hay test runner configurado, y no se va a agregar por ahora. La verificación se hace con scripts `bun run` desechables.
+No hay test runner configurado, y no se va a agregar por ahora. La verificación se hace con scripts desechables que se corren con `pnpm exec tsx`.
 
 ## Arquitectura
 

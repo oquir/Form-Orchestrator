@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The core builder described below is implemented, including the eight-step Industria y Comercio template, repeatable groups, the script/rules engine, the presentational field types and the **simulator** — a working prototype of the consuming app that runs the exported JSON. `docs/Project.md` (in Spanish) is the original product spec — still the reference for the target JSON schema shape and any unimplemented details; check it before adding features so structure matches the intended data model.
 
 Not yet implemented / known gaps:
-- No test runner configured, and none will be added: the user considers the project too volatile to justify tests right now. Verification is done with throwaway `bun run` scripts in the scratchpad.
+- No test runner configured, and none will be added: the user considers the project too volatile to justify tests right now. Verification is done with throwaway `pnpm exec tsx` scripts in the scratchpad.
 - `logic.script` is exported **compiled to JS**, and the consumer runs it with `new Function`. **This defines the trust boundary of the file**: anyone who can hand the consumer a JSON gets code execution in it. The user builds the consumer too, so this is a coordinated decision — not a public API constraint. See "The field script".
 - `persistence.ts` versions the draft (`DRAFT_SCHEMA_VERSION`) and migrates it before validating, so a shape change no longer costs the saved work. `loadDraft` returns a `DraftLoad` — `empty | invalid | ok` — so a draft that still fails Zod after migrating is **discarded, deleted from `localStorage` by `useDraftRecovery`, and reported** in the setup wizard. Zod validates *shape*, not coherence: `colSpan: -999`, a `dataSource` on a `text` field or a dangling `labelFor` all still pass.
 - `validations.pattern` is not validated where it is authored. Since the injection fix it can no longer execute anything, but an invalid regex now throws `SyntaxError` in the consumer when it builds the schema. A `try { new RegExp(value) } catch` in `ValidationsPanel` would catch it where it is written.
@@ -577,16 +577,29 @@ Settled decisions:
 
 ## Commands
 
-Package manager is **bun** (`bun.lock` present) — use `bun install` / `bun add`, not npm/yarn/pnpm.
+Package manager is **pnpm** (`pnpm-lock.yaml` present, version pinned in `packageManager`) — use `pnpm install` / `pnpm add`, not npm/yarn/bun.
 
-- `bun run dev` — start Vite dev server
-- `bun run build` — typecheck (`tsc -b`) then production build via Vite
-- `bun run lint` — Biome check (linting + format check)
-- `bun run lint:fix` — Biome check with auto-fix
-- `bun run format` — Biome format, write mode
-- `bun run preview` — preview production build
+- `pnpm dev` — start Vite dev server
+- `pnpm build` — typecheck (`tsc -b`) then production build via Vite
+- `pnpm lint` — Biome check (linting + format check)
+- `pnpm lint:fix` — Biome check with auto-fix
+- `pnpm format` — Biome format, write mode
+- `pnpm preview` — preview production build
+- `pnpm exec tsx <script>.ts` — run a throwaway verification script
 
-There is no test runner configured yet. **Biome is the enforced linter/formatter** (2-space indent, double quotes, semicolons, 100-char line width, auto-organizes imports on check) — `eslint.config.js` exists but is not wired into an npm script, so prefer Biome conventions when in doubt. `bun run build` occasionally exceeds a 2-minute tool timeout on this machine; that is a harness kill (exit 143), not a build failure — re-run with a longer timeout before reporting a problem.
+There is no test runner configured yet. **Biome is the enforced linter/formatter** (2-space indent, double quotes, semicolons, 100-char line width, auto-organizes imports on check) — `eslint.config.js` exists but is not wired into an npm script, so prefer Biome conventions when in doubt. `pnpm build` occasionally exceeds a 2-minute tool timeout on this machine; that is a harness kill (exit 143), not a build failure — re-run with a longer timeout before reporting a problem.
+
+### Migrated from bun — what the swap actually cost
+
+bun filled **two** roles and pnpm only replaces one. As a package manager the swap was free: no script in `package.json` ever named bun, `src/` contains zero bun APIs, and no config mentioned it. What needed replacing is bun's second role, **running TypeScript directly** — pnpm cannot do that, so `tsx` is a devDependency and the scratchpad checks run under `pnpm exec tsx`.
+
+Settled decisions:
+
+- **`pnpm-workspace.yaml` carries `allowBuilds`, not `package.json`.** pnpm blocks a dependency's install scripts by default; `@biomejs/biome` and `esbuild` (which arrives via tsx) both download a platform binary at install and are dead without it. pnpm 11 moved this setting out of `package.json` — a `pnpm.onlyBuiltDependencies` block there is silently ignored with only a warning.
+- **`reicon-react` is pinned to an exact `1.1.2`, no caret.** Re-resolving the `^` ranges pulled 1.2.0, which **renamed icon exports in a minor** (`Maximize22` → `Maximize2`, `Save22` → `Save`, `AngleDown2` → `AngleDown`, and six more) and broke the typecheck. The pin keeps the migration a package-manager swap instead of a silent icon change. Unpinning means renaming those ten imports and eyeballing the result.
+- **The other version bumps were verified, not assumed.** Biome 2.5.2 → 2.5.9 reformatted nothing across 472 files (only the `$schema` URL in `biome.json` needed updating). Vite 8.1.1 → 8.2.2 re-partitioned the chunks — the initial went 831 kB → **667 kB** and a third `fieldScript` chunk appeared — and **both lazy boundaries still hold**, verified by grepping the built chunks for `CUNDINAMARCA` (only in `FormSimulator`) and `cm-editor` (only in `ScriptEditor`).
+- **The 1132 extensionless imports across `src/` did NOT need fixing.** They are normal for `"moduleResolution": "bundler"`, and tsx resolves them exactly like bun did. Node's own loader cannot — that limit is Node's, not pnpm's, and it is why tsx is here rather than `node --experimental-strip-types`.
+- **The scratchpad needs three things** none of which are project files: a `package.json` with `{"type":"module"}` (without it esbuild rejects top-level `await`), absolute import specifiers written as `file:///C:/...` URLs (ESM refuses a bare `C:/`), and a `node_modules` junction to the project so a bare `zod` import resolves.
 
 ## Architecture
 
