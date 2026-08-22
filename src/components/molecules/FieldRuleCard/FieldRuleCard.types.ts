@@ -1,5 +1,5 @@
-import type { UseFieldRulesResult } from "../../../hooks/useFieldRules/useFieldRules.types";
 import type { CanvasField, FieldRule } from "../../../types/field";
+import type { UseFieldRulesResult } from "../../../types/fieldRulesReturn";
 
 export interface FieldRuleCardProps {
   rule: FieldRule;

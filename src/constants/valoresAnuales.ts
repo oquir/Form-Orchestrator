@@ -1,4 +1,4 @@
-import type { ValorAnual } from "../../types/valores";
+import type { ValorAnual } from "../types/valores";
 
 // Los valores publicados, para que el simulador arranque calculando algo real. No son inventados
 // como podrian serlo unas tarifas: la UVT sale de una resolucion de la DIAN y el SMMLV de un

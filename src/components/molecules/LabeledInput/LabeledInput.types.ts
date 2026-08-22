@@ -1,4 +1,4 @@
-import type { InputProps } from "../../atoms/Input/Input.types";
+import type { InputProps } from "../../../types/input";
 
 export interface LabeledInputProps extends InputProps {
   id: string;

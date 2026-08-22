@@ -5,7 +5,8 @@ import { buildFieldGraph, describeCycle, wouldCreateCycle } from "../../lib/fiel
 import { useFormStore } from "../../store/formStore";
 import type { CanvasField, ConditionOperator, FieldRule, RuleCondition } from "../../types/field";
 import type { FieldGraph } from "../../types/fieldGraph";
-import type { UseFieldRulesParams, UseFieldRulesResult } from "./useFieldRules.types";
+import type { UseFieldRulesResult } from "../../types/fieldRulesReturn";
+import type { UseFieldRulesParams } from "./useFieldRules.types";
 
 // Estado del editor de calculos y reglas. Ademas de las altas y bajas, sostiene las guardas que
 // impiden armar una dependencia circular desde la interfaz.

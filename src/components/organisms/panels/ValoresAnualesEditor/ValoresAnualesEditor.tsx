@@ -1,4 +1,9 @@
 import { useState } from "react";
+import {
+  DEFAULT_ANIO_KEY,
+  DEFAULT_SMMLV_KEY,
+  DEFAULT_UVT_KEY,
+} from "../../../../constants/valoresBank";
 import { formatNumber } from "../../../../lib/numberFormat/numberFormat";
 import { buscarValores } from "../../../../lib/valoresAnuales/valoresAnuales";
 import {
@@ -6,11 +11,6 @@ import {
   usesCustomValores,
   valoresEnUso,
 } from "../../../../lib/valoresBank/valoresBank";
-import {
-  DEFAULT_ANIO_KEY,
-  DEFAULT_SMMLV_KEY,
-  DEFAULT_UVT_KEY,
-} from "../../../../lib/valoresBank/valoresBank.constants";
 import { useFormStore } from "../../../../store/formStore";
 import type { ValorAnual, ValoresParseResult } from "../../../../types/valores";
 import { Button } from "../../../atoms/Button/Button";
