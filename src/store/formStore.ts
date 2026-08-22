@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
-import { loadCatalogBank, saveCatalogBank } from "../lib/catalogBank/catalogBank";
 import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import {
@@ -23,7 +22,6 @@ import {
   createValidationOverride,
   pruneOverridesReferencing,
 } from "../lib/fieldValidationOverride/fieldValidationOverride";
-import { loadMaxDates, saveMaxDates } from "../lib/maxDatesBank/maxDatesBank";
 import { exportableFormatting } from "../lib/numberFormat/numberFormat";
 import {
   clampGroupBounds,
@@ -41,8 +39,6 @@ import {
   sortByColumn,
 } from "../lib/rowLayout/rowLayout";
 import { reorderRows } from "../lib/rowOrder/rowOrder";
-import { loadValores, saveValores } from "../lib/valoresBank/valoresBank";
-import type { CatalogBank } from "../types/catalog";
 import type { CanvasField, SavedComponent } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
 import type {
@@ -52,10 +48,9 @@ import type {
   IntroModalStep,
   RepeatableGroup,
 } from "../types/formStructure";
-import type { StoredMaxDates } from "../types/maxDates";
 import type { CanvasTarget } from "../types/placement";
 import type { StateSlice } from "../types/store";
-import type { StoredValores } from "../types/valores";
+import { createBanksSlice } from "./banksSlice";
 import { NO_GROUPS, NO_ROWS, THEME_STORAGE_KEY } from "./formStore.constants";
 import {
   allFieldNames,
@@ -93,6 +88,8 @@ export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null 
 }
 
 export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState>((set, get) => ({
+  // Los bancos del simulador entran enteros desde su propio archivo, estado y acciones incluidos.
+  ...createBanksSlice(set),
   formSteps: [
     {
       stepId: "step-1",
@@ -122,9 +119,6 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   transferNotice: null,
   isDarkMode: getInitialDarkMode(),
   lastSavedAt: null,
-  catalogBank: loadCatalogBank(),
-  maxDates: loadMaxDates(),
-  valores: loadValores(),
   setDragPlacement: (placement) => set({ dragPlacement: placement }),
   setRowDropTarget: (target) => set({ rowDropTarget: target }),
   setRowDrag: (drag) => set({ rowDrag: drag }),
@@ -655,74 +649,6 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         return next;
       }),
     ),
-  // El banco no entra al borrador: se guarda en su propia clave y sobrevive a descartarlo.
-  setCatalogEntries: (catalogId, entries) =>
-    set((state) => {
-      const catalogBank: CatalogBank = {
-        ...state.catalogBank,
-        [catalogId]: { source: "custom", entries },
-      };
-      saveCatalogBank(catalogBank);
-
-      return { catalogBank };
-    }),
-  // Cambiar de origen conserva lo cargado: volver a lo personalizado no obliga a pegarlo de nuevo.
-  setCatalogSource: (catalogId, source) =>
-    set((state) => {
-      const stored = state.catalogBank[catalogId];
-      if (!stored) return state;
-
-      const catalogBank: CatalogBank = { ...state.catalogBank, [catalogId]: { ...stored, source } };
-      saveCatalogBank(catalogBank);
-
-      return { catalogBank };
-    }),
-  clearCatalogEntries: (catalogId) =>
-    set((state) => {
-      const catalogBank: CatalogBank = { ...state.catalogBank };
-      delete catalogBank[catalogId];
-      saveCatalogBank(catalogBank);
-
-      return { catalogBank };
-    }),
-  // Cargar una tabla la deja en uso: nadie pega un volcado para seguir mirando el generado.
-  setMaxDates: (fechas) =>
-    set((state) => {
-      const maxDates: StoredMaxDates =
-        fechas === null
-          ? { ...state.maxDates, source: "default" }
-          : { source: "custom", custom: fechas };
-      saveMaxDates(maxDates);
-
-      return { maxDates };
-    }),
-  // Vuelve a la generada sin tirar lo cargado, igual que un catalogo.
-  setMaxDatesSource: (source) =>
-    set((state) => {
-      const maxDates: StoredMaxDates = { ...state.maxDates, source };
-      saveMaxDates(maxDates);
-
-      return { maxDates };
-    }),
-  // Cargar una tabla la deja en uso, igual que las fechas: nadie pega un volcado para seguir
-  // mirando los valores de fabrica.
-  setValores: (lista) =>
-    set((state) => {
-      const valores: StoredValores =
-        lista === null
-          ? { ...state.valores, source: "default" }
-          : { source: "custom", custom: lista };
-      saveValores(valores);
-
-      return { valores };
-    }),
-  setValoresSource: (source) =>
-    set((state) => {
-      const valores: StoredValores = { ...state.valores, source };
-      saveValores(valores);
-
-      return { valores };
-    }),
   selectField: (fieldId) => set({ selectedFieldId: fieldId }),
   updateField: (fieldId, updates) =>
     set((state) => {
