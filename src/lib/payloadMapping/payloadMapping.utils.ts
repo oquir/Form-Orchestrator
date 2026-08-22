@@ -1,7 +1,25 @@
+import { NUMERIC_FIELD_TYPES } from "../../constants/fieldTypes";
 import type { CanvasField } from "../../types/field";
 import type { LeafBindingStatus, MappingNode } from "../../types/payloadMapping";
-import type { SchemaNode } from "../../types/payloadSchema";
-import { fieldMatchesSchemaType } from "./payloadMapping";
+import type { SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
+
+// Vive aca y no en payloadMapping.ts porque buildNode la necesita; ese archivo la reexporta para
+// quien la pida desde afuera, asi el ciclo de imports queda en un solo sentido.
+export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNodeType): boolean {
+  switch (schemaType) {
+    case "number":
+      // El checkbox cuenta como numero porque el contrato no tiene booleanos: se mapea a 0 o 1.
+      // Sin esta excepcion cualquier checkbox mapeado mostraria un aviso de tipo imposible de
+      // quitar. Los selects contra hojas numericas siguen avisando: es un hueco conocido.
+      return NUMERIC_FIELD_TYPES.includes(fieldType) || fieldType === "checkbox";
+    case "boolean":
+      return fieldType === "checkbox";
+    case "string":
+      return !NUMERIC_FIELD_TYPES.includes(fieldType);
+    default:
+      return true;
+  }
+}
 
 export function buildPathIndex(fields: CanvasField[]): Map<string, CanvasField> {
   const index: Map<string, CanvasField> = new Map();
