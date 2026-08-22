@@ -1057,16 +1057,7 @@ export function findGroupForField(
   return null;
 }
 
-export function findFieldById(rows: CanvasRow[], fieldId: string | null): CanvasField | null {
-  if (!fieldId) return null;
-
-  for (const row of rows) {
-    const field = row.fields.find((f) => f.id === fieldId);
-    if (field) return field;
-  }
-
-  return null;
-}
+export { findFieldById } from "./formStore.utils";
 
 export function getAllFields(rows: CanvasRow[]): CanvasField[] {
   return rows.flatMap((row) => row.fields);

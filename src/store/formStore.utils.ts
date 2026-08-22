@@ -19,11 +19,20 @@ import type { FormType } from "../types/setup";
 import type { StateSlice } from "../types/store";
 // Constructores, recorridos de todo el lienzo y arranque desde la plantilla.
 
-// Verruga conocida: formStore importa este archivo y este importa findFieldById de vuelta.
-// El ciclo solo funciona porque las declaraciones de funcion se elevan. Bajar findFieldById aca
-// lo arreglaria, pero arrastra a todos los componentes que hoy la importan desde el store.
-import { findFieldById } from "./formStore";
 import { THEME_STORAGE_KEY } from "./formStore.constants";
+
+// Vive aca y no en formStore.ts porque este archivo la necesita; formStore.ts la reexporta para
+// sus componentes de siempre, asi el ciclo de imports queda en un solo sentido.
+export function findFieldById(rows: CanvasRow[], fieldId: string | null): CanvasField | null {
+  if (!fieldId) return null;
+
+  for (const row of rows) {
+    const field = row.fields.find((f) => f.id === fieldId);
+    if (field) return field;
+  }
+
+  return null;
+}
 
 export function crossingNotice(labels: string[]): string | null {
   if (labels.length === 0) return null;
