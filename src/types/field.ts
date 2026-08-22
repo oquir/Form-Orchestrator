@@ -159,28 +159,3 @@ export interface CanvasField {
   // para radio_group y checkbox_group; ver lib/fieldOptions.
   inlineOptions?: boolean;
 }
-
-export interface SavedComponent {
-  id: string;
-  name: string;
-  type: string;
-  label: string;
-  colSpan: number;
-  validations: FieldValidations;
-  styles: FieldStyles;
-  logic: FieldLogic;
-  title?: string;
-  options?: FieldOption[];
-  fileConfig?: FieldFileConfig;
-  alwaysDisabled?: boolean;
-  enableWhen?: FieldCondition;
-  visibleWhen?: FieldCondition;
-  apiBinding?: ApiBinding;
-  dataSource?: FieldDataSource;
-  tooltip?: FieldTooltip;
-  rounding?: boolean;
-  formatted?: boolean;
-  allowsNegative?: boolean;
-  decimals?: number;
-  inlineOptions?: boolean;
-}

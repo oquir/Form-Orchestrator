@@ -1,5 +1,4 @@
 import {
-  Archive,
   Calendar,
   CheckCircle,
   Code,
@@ -18,7 +17,6 @@ export const TABS: SidebarTabItem[] = [
   { id: "styles", label: "Estilos", icon: Palette },
   { id: "logic", label: "Lógica", icon: Code },
   { id: "apiMapping", label: "Mapeo API", icon: Link },
-  { id: "library", label: "Almacén", icon: Archive },
   { id: "catalogs", label: "Catálogos", icon: Database },
   { id: "fechas", label: "Fechas", icon: Calendar },
 ];

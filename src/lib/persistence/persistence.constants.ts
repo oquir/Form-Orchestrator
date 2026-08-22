@@ -6,4 +6,5 @@ export const DRAFT_KEY: string = "form-orchestrator-draft";
 //   2: aparece formScript.
 //   3: logic.formula se convierte en logic.script.
 //   4: el efecto de regla deja la formula y pasa a ser un script.
-export const DRAFT_SCHEMA_VERSION: number = 4;
+//   5: se va el almacen de partes y con el savedComponents.
+export const DRAFT_SCHEMA_VERSION: number = 5;

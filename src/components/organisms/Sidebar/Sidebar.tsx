@@ -6,7 +6,6 @@ import { ApiMappingPanel } from "../panels/ApiMappingPanel/ApiMappingPanel";
 import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
 import { CatalogsPanel } from "../panels/CatalogsPanel/CatalogsPanel";
 import { FormScriptEditor } from "../panels/FormScriptEditor/FormScriptEditor";
-import { LibraryPanel } from "../panels/LibraryPanel/LibraryPanel";
 import { LogicPanel } from "../panels/LogicPanel/LogicPanel";
 import { MaxDatesPanel } from "../panels/MaxDatesPanel/MaxDatesPanel";
 import { StylesPanel } from "../panels/StylesPanel/StylesPanel";
@@ -66,7 +65,6 @@ export function Sidebar() {
         <div className="flex-1 overflow-y-auto p-4 text-sm text-slate-400 dark:text-neutral-500">
           {activeTab === "fields" && <FieldPalette />}
           {activeTab !== "fields" &&
-            activeTab !== "library" &&
             activeTab !== "catalogs" &&
             activeTab !== "fechas" &&
             activeTab !== "logic" &&
@@ -81,7 +79,6 @@ export function Sidebar() {
           {activeTab === "logic" &&
             (selectedField ? <LogicPanel field={selectedField} /> : <FormScriptEditor />)}
           {selectedField && activeTab === "apiMapping" && <ApiMappingPanel field={selectedField} />}
-          {activeTab === "library" && <LibraryPanel selectedField={selectedField} />}
           {activeTab === "catalogs" && <CatalogsPanel />}
           {activeTab === "fechas" && <MaxDatesPanel />}
         </div>

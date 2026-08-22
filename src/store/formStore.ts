@@ -3,15 +3,9 @@ import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
 import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
-import {
-  allowsManualOptions,
-  exportableOptions,
-  isOptionBasedField,
-} from "../lib/fieldOptions/fieldOptions";
-import { exportableDecimals, exportableRounding } from "../lib/fieldRounding/fieldRounding";
+import { allowsManualOptions, isOptionBasedField } from "../lib/fieldOptions/fieldOptions";
 import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
-import { exportableAllowsNegative } from "../lib/fieldSign/fieldSign";
-import { createEmptyTooltip, exportableTooltip } from "../lib/fieldTooltip/fieldTooltip";
+import { createEmptyTooltip } from "../lib/fieldTooltip/fieldTooltip";
 import {
   canTransfer,
   collectCrossingRefs,
@@ -22,7 +16,6 @@ import {
   createValidationOverride,
   pruneOverridesReferencing,
 } from "../lib/fieldValidationOverride/fieldValidationOverride";
-import { exportableFormatting } from "../lib/numberFormat/numberFormat";
 import {
   clampGroupBounds,
   createRepeatableGroup,
@@ -39,7 +32,7 @@ import {
   sortByColumn,
 } from "../lib/rowLayout/rowLayout";
 import { reorderRows } from "../lib/rowOrder/rowOrder";
-import type { CanvasField, SavedComponent } from "../types/field";
+import type { CanvasField } from "../types/field";
 import type { FormState } from "../types/formStoreTypes";
 import type {
   CanvasRow,
@@ -87,7 +80,7 @@ export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null 
   return null;
 }
 
-export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState>((set, get) => ({
+export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState>((set) => ({
   // Los bancos del simulador entran enteros desde su propio archivo, estado y acciones incluidos.
   ...createBanksSlice(set),
   formSteps: [
@@ -101,7 +94,6 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   formScript: "",
   activeCanvas: { type: "formStep", stepId: "step-1" },
   selectedFieldId: null,
-  savedComponents: [],
   setupConfig: {
     isComplete: false,
     formType: null,
@@ -852,84 +844,11 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         ),
       })),
     ),
-  saveFieldAsComponent: (fieldId, name) => {
-    const state = get();
-    const field = findAnyField(state, fieldId);
-    if (!field) return;
-    const savedComponent: SavedComponent = {
-      id: uuidv4(),
-      name,
-      type: field.type,
-      label: field.label,
-      colSpan: field.colSpan,
-      validations: field.validations,
-      styles: field.styles,
-      logic: field.logic,
-      title: field.title,
-      options: exportableOptions(field),
-      fileConfig: field.fileConfig,
-      alwaysDisabled: field.alwaysDisabled,
-      enableWhen: field.enableWhen,
-      visibleWhen: field.visibleWhen,
-      apiBinding: field.apiBinding,
-      tooltip: exportableTooltip(field),
-      rounding: exportableRounding(field),
-      formatted: exportableFormatting(field),
-      allowsNegative: exportableAllowsNegative(field),
-      decimals: exportableDecimals(field),
-    };
-    set((s) => ({ savedComponents: [...s.savedComponents, savedComponent] }));
-  },
-  removeSavedComponent: (componentId) =>
-    set((state) => ({
-      savedComponents: state.savedComponents.filter((component) => component.id !== componentId),
-    })),
-  addSavedComponentToRow: (rowId, componentId, requested) =>
-    set((state) => {
-      const component = state.savedComponents.find((c) => c.id === componentId);
-      const row = findRowById(state, rowId);
-      if (!component || !row) return state;
-      const placement = resolvePlacement(row, component.colSpan, requested);
-      if (!placement) return state;
-      const newField: CanvasField = {
-        id: uuidv4(),
-        name: uniqueFieldName(slugifyFieldName(component.label), allFieldNames(state)),
-        type: component.type,
-        label: component.label,
-        colStart: placement.colStart,
-        colSpan: placement.colSpan,
-        validations: component.validations,
-        styles: component.styles,
-        logic: component.logic,
-        title: component.title,
-        options: component.options?.map((option) => ({ ...option, id: uuidv4() })),
-        fileConfig: component.fileConfig
-          ? { ...component.fileConfig, acceptedFormats: [...component.fileConfig.acceptedFormats] }
-          : undefined,
-        alwaysDisabled: component.alwaysDisabled,
-        enableWhen: component.enableWhen ? { ...component.enableWhen } : undefined,
-        visibleWhen: component.visibleWhen ? { ...component.visibleWhen } : undefined,
-        apiBinding: component.apiBinding ? { ...component.apiBinding } : undefined,
-        tooltip: component.tooltip ? { ...component.tooltip } : undefined,
-        rounding: component.rounding,
-        formatted: component.formatted,
-        allowsNegative: component.allowsNegative,
-        decimals: component.decimals,
-      };
-      return {
-        ...mapRowEverywhere(state, rowId, (row) => ({
-          ...row,
-          fields: [...row.fields, newField],
-        })),
-        selectedFieldId: newField.id,
-      };
-    }),
   restoreDraft: (draft) =>
     set({
       formSteps: draft.formSteps,
       introModal: draft.introModal,
       formScript: draft.formScript,
-      savedComponents: draft.savedComponents,
       setupConfig: draft.setupConfig,
       activeCanvas: { type: "formStep", stepId: draft.formSteps[0].stepId },
       selectedFieldId: null,

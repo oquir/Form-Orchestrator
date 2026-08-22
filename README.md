@@ -8,7 +8,7 @@ El caso de uso que guía el diseño es el **autoliquidable de Industria y Comerc
 
 - **React 19** + **TypeScript** + **Vite 8**
 - **Zustand 5** para el estado global (canvas, steps, campos, grupos)
-- **@dnd-kit** para drag-and-drop (paleta → fila, Almacén de Partes → fila, campo → fila)
+- **@dnd-kit** para drag-and-drop (paleta → fila, campo → fila, fila → nueva posición)
 - **react-hook-form** + **zod 4** para la validación de los campos generados (los schemas Zod se generan dinámicamente por campo y se guardan como string, ej. `"z.number().min(0)"`)
 - **Tailwind v4** (vía `@tailwindcss/vite`) para todo el estilado — sin CSS-in-JS. Modo oscuro por clase, con tokens de tema en `src/index.css`
 - **CodeMirror 6** (`@codemirror/*`) para el editor de scripts, cargado bajo demanda
@@ -42,7 +42,7 @@ Un único store de Zustand, `src/store/formStore.ts` (`useFormStore`), con los c
 - `introModal.steps`: steps de un modal introductorio opcional, con la misma forma pero **sin** grupos.
 - `activeCanvas`: qué canvas se está editando (`{ type: "formStep", stepId }` o `{ type: "introStep", stepId }`).
 - `formScript`: el preludio, funciones y constantes compartidas por todos los scripts de campo.
-- `selectedFieldId`, `savedComponents` (Almacén de Partes), `setupConfig`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `isDarkMode`, `lastSavedAt`.
+- `selectedFieldId`, `setupConfig`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `isDarkMode`, `lastSavedAt`.
 
 Las mutaciones de campos y filas se aplican de forma uniforme sobre cualquier canvas que contenga el id objetivo, vía `mapRowEverywhere`/`mapFieldEverywhere`, así el mismo código edita tanto el formulario principal como los steps del modal.
 
@@ -67,13 +67,13 @@ Manteniendo **Shift** mientras arrastrás elegís la columna de inicio; con **Sh
 > Un `X.types.ts` o `X.constants.ts` es **privado a su carpeta**. En cuanto algo de afuera lo importa, la declaración pasa a `src/types/` o `src/constants/`. Ambas direcciones están auditadas en cero.
 
 - **`atoms/`** — primitivas sin lógica de negocio: `Button`, `Input`, `TextArea`, `Label`, `Checkbox`, `CodeBlock`, `IconButton`, `FieldTypeBadge`, `FieldDragHandle`, `FieldResizeHandle`, `DashedAddButton`, `ModalShell`, `ModalActions`, `TwoColumnFieldGroup`, `WizardFooterActions`, `RichTextView`.
-- **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `ScriptInput`, `ScriptEditor`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `GeneratedSchemaPreview`, `SaveFieldForm`, `SavedComponentListItem`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `PanelSection`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `JsonCode`, `TooltipBubble`, `PreviewTooltip`, `TransferNotice`, `ValidationOverrideCard`.
-- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `FieldScriptEditor`, `FormScriptEditor`, `ApiMappingPanel`, `LibraryPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`, `NumberOptionsEditor`).
+- **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `ScriptInput`, `ScriptEditor`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `GeneratedSchemaPreview`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `PanelSection`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `JsonCode`, `TooltipBubble`, `PreviewTooltip`, `TransferNotice`, `ValidationOverrideCard`.
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `FieldScriptEditor`, `FormScriptEditor`, `ApiMappingPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`, `NumberOptionsEditor`).
 - **`layout/AppLayout.tsx`** — shell de dos columnas, fuera de la jerarquía atómica porque es el layout raíz.
 
 ### Layout de dos columnas
 
-- **Sidebar izquierdo** (`organisms/Sidebar/`): un rail vertical de íconos (`SidebarTabRail`, incluye el toggle de modo oscuro) más el panel correspondiente. Las pestañas son Campos, Atributos, Validaciones, Estilos, Lógica, Mapeo API, Almacén y Catálogos. Campos, Almacén, Catálogos y Lógica funcionan sin ningún campo seleccionado — en Lógica, sin selección, se edita el preludio del formulario. Al hacer clic sobre la pestaña ya activa, el panel se colapsa; el rail siempre queda visible.
+- **Sidebar izquierdo** (`organisms/Sidebar/`): un rail vertical de íconos (`SidebarTabRail`, incluye el toggle de modo oscuro) más el panel correspondiente. Las pestañas son Campos, Atributos, Validaciones, Estilos, Lógica, Mapeo API, Catálogos y Fechas. Campos, Catálogos, Fechas y Lógica funcionan sin ningún campo seleccionado — en Lógica, sin selección, se edita el preludio del formulario. Al hacer clic sobre la pestaña ya activa, el panel se colapsa; el rail siempre queda visible.
 - **Canvas derecho** (`organisms/Canvas/`): una grilla por fila (`@dnd-kit` `useDroppable`), tabs para cambiar entre steps del formulario y del modal, editor de título/subtítulo, control de columnas por fila, redimensionado de campos por arrastre y menú contextual por campo. El encabezado trae el botón de guardar, "Ver JSON" (`JsonPreviewCanvas`, vista previa en vivo del export), la vista de cobertura del contrato (`PayloadPreviewCanvas`) y "Exportar JSON".
 
 El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; el `DndContext`/`DragOverlay` los arma `organisms/FormBuilder/`, que es lo único que envuelve al `AppLayout`.

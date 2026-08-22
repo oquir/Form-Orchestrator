@@ -191,10 +191,6 @@ const stepSchema = z.object({
   groups: z.array(repeatableGroupSchema).optional(),
 });
 
-const savedComponentSchema = canvasFieldSchema.omit({ colStart: true }).extend({
-  name: z.string(),
-});
-
 const setupConfigSchema = z.object({
   isComplete: z.boolean(),
   formType: z
@@ -211,7 +207,6 @@ export const draftPayloadSchema = z.object({
   formSteps: z.array(stepSchema),
   introModal: z.object({ steps: z.array(stepSchema) }),
   formScript: z.string(),
-  savedComponents: z.array(savedComponentSchema),
   setupConfig: setupConfigSchema,
   savedAt: z.string(),
 });

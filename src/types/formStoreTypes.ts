@@ -10,7 +10,6 @@ import type {
   FieldTooltip,
   FieldValidationOverride,
   FieldValidations,
-  SavedComponent,
 } from "./field";
 import type { FieldTypeDef } from "./fieldTypes";
 import type { FormStep, IntroModalState, RepeatableGroup } from "./formStructure";
@@ -40,7 +39,6 @@ export interface FormState extends BanksSlice {
   formScript: string;
   activeCanvas: CanvasTarget;
   selectedFieldId: string | null;
-  savedComponents: SavedComponent[];
   setupConfig: SetupConfig;
   isSidebarOpen: boolean;
   isSimulatorOpen: boolean;
@@ -137,14 +135,10 @@ export interface FormState extends BanksSlice {
   addFieldOption: (fieldId: string) => void;
   removeFieldOption: (fieldId: string, optionId: string) => void;
   updateFieldOptionLabel: (fieldId: string, optionId: string, label: string) => void;
-  saveFieldAsComponent: (fieldId: string, name: string) => void;
-  removeSavedComponent: (componentId: string) => void;
-  addSavedComponentToRow: (rowId: string, componentId: string, requested?: FieldPlacement) => void;
   restoreDraft: (draft: {
     formSteps: FormStep[];
     introModal: IntroModalState;
     formScript: string;
-    savedComponents: SavedComponent[];
     setupConfig: SetupConfig;
   }) => void;
 }

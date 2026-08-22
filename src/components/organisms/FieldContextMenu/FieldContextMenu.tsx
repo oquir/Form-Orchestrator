@@ -2,7 +2,6 @@
 import { useFieldContextMenu } from "../../../hooks/useFieldContextMenu/useFieldContextMenu";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
 import { IconButton } from "../../atoms/IconButton/IconButton";
-import { SaveFieldForm } from "../../molecules/SaveFieldForm/SaveFieldForm";
 import { TabButtonGroup } from "../../molecules/TabButtonGroup/TabButtonGroup";
 import { ApiMappingPanel } from "../panels/ApiMappingPanel/ApiMappingPanel";
 import { AttributesPanel } from "../panels/AttributesPanel/AttributesPanel";
@@ -63,13 +62,6 @@ export function FieldContextMenu({
         {activeTab === "logic" && <LogicPanel field={field} />}
         {activeTab === "apiMapping" && <ApiMappingPanel field={field} />}
       </div>
-
-      <SaveFieldForm
-        fieldId={field.id}
-        label="Guardar en el Almacén de Partes"
-        containerClassName="border-t border-slate-100 p-3 dark:border-neutral-800"
-        showSuccessMessage
-      />
     </div>
   );
 }

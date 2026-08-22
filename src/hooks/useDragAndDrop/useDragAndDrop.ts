@@ -7,7 +7,7 @@ import { resolveBandDrop, resolveRowDrop } from "../../lib/rowOrder/rowOrder";
 import { findRowById, getActiveRows, useFormStore } from "../../store/formStore";
 import type { ActiveDrag } from "../../types/activeDrag";
 import type { DragAndDropReturn } from "../../types/dragAndDropReturn";
-import type { CanvasField, SavedComponent } from "../../types/field";
+import type { CanvasField } from "../../types/field";
 import type { FieldTypeDef } from "../../types/fieldTypes";
 import type { CanvasRow } from "../../types/formStructure";
 import type { CanvasTarget, DragPlacement, RowDropTarget } from "../../types/placement";
@@ -38,7 +38,6 @@ const ROW_OVERLAY_MODIFIERS: Modifier[] = [];
 // tambien redimensiona. Los modificadores se leen en vivo durante el arrastre.
 export function useDragAndDrop(): DragAndDropReturn {
   const addFieldToRow = useFormStore((state) => state.addFieldToRow);
-  const addSavedComponentToRow = useFormStore((state) => state.addSavedComponentToRow);
   const moveField = useFormStore((state) => state.moveField);
   const moveRow = useFormStore((state) => state.moveRow);
   const moveFieldToStep = useFormStore((state) => state.moveFieldToStep);
@@ -67,7 +66,6 @@ export function useDragAndDrop(): DragAndDropReturn {
   const getDraggedSpan = useCallback((drag: ActiveDrag | null): number => {
     if (!drag) return GRID_BASE_COLUMNS;
     if (drag.source === "canvas-field") return drag.field.colSpan;
-    if (drag.source === "library") return drag.component.colSpan;
     return GRID_BASE_COLUMNS;
   }, []);
 
@@ -233,8 +231,6 @@ export function useDragAndDrop(): DragAndDropReturn {
 
     if (data?.source === "palette") {
       drag = { source: "palette", fieldType: data.fieldType as FieldTypeDef };
-    } else if (data?.source === "library") {
-      drag = { source: "library", component: data.component as SavedComponent };
     } else if (data?.source === "canvas-field") {
       drag = { source: "canvas-field", field: data.field as CanvasField };
     } else if (data?.source === "canvas-row") {
@@ -309,9 +305,6 @@ export function useDragAndDrop(): DragAndDropReturn {
 
     if (data?.source === "palette") {
       addFieldToRow(targetRowId, data.fieldType as FieldTypeDef, requested);
-    } else if (data?.source === "library") {
-      const component = data.component as SavedComponent;
-      addSavedComponentToRow(targetRowId, component.id, requested);
     } else if (data?.source === "canvas-field") {
       const field = data.field as CanvasField;
       moveField(field.id, targetRowId, requested);

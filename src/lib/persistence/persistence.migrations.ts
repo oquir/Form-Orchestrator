@@ -30,8 +30,10 @@ function mapStepFields(step: unknown, migrate: FieldMigration): unknown {
   };
 }
 
-// Los tres sitios donde vive un campo. El almacen de partes cuenta: sus componentes guardan su
-// propio `logic` y sin esto quedarian hablando el lenguaje viejo al soltarlos en un lienzo.
+// Los dos lienzos donde vive un campo. Hasta la version 5 habia un tercero, el almacen de partes,
+// cuyos componentes guardaban su propio `logic`; las migraciones 2 y 3 lo recorrian por eso. Se
+// sigue mapeando `savedComponents` si el borrador lo trae, porque las migraciones viejas corren
+// antes que la 4 -> 5 que lo borra, y un componente a medio migrar podria romper el paso siguiente.
 function mapDraftFields(draft: LooseDraft, migrate: FieldMigration): LooseDraft {
   const introModal: unknown = draft.introModal;
 
@@ -117,6 +119,16 @@ const MIGRATIONS: Record<number, DraftMigration> = {
   2: (draft) => mapDraftFields(draft, formulaToScriptField),
   // 3 -> 4: los efectos de regla dejan la formula y hablan el mismo lenguaje que el campo.
   3: (draft) => mapDraftFields(draft, ruleFormulasToScripts),
+  // 4 -> 5: se elimina el almacen de partes. Mover campos entre pasos lo dejo sin uso.
+  //
+  // Se borra la clave a proposito en vez de dejar que Zod la ignore: el esquema usa z.object, que
+  // descarta lo que no declara, asi que el borrador validaria igual -- pero seguiria arrastrando
+  // los componentes en localStorage para siempre, invisibles y sin nada que los pueda leer.
+  4: (draft) => {
+    const { savedComponents, ...resto } = draft;
+
+    return resto;
+  },
 };
 
 // Un hueco en la cadena corta el recorrido y devuelve el borrador con su version vieja, que es
