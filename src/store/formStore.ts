@@ -268,6 +268,10 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       );
       return mapRowEverywhere(state, rowId, (current) => repackRow(current, nextColumns));
     }),
+  updateRowStyles: (rowId, updates) =>
+    set((state) =>
+      mapRowEverywhere(state, rowId, (row) => ({ ...row, styles: { ...row.styles, ...updates } })),
+    ),
   removeRow: (rowId) =>
     set((state) => ({
       formSteps: state.formSteps.map((step) =>

@@ -6,6 +6,7 @@ import { RowDragHandle } from "../../atoms/RowDragHandle/RowDragHandle";
 import { CanvasFieldChip } from "../../molecules/CanvasFieldChip/CanvasFieldChip";
 import { RowZoneOverlay } from "../../molecules/RowZoneOverlay/RowZoneOverlay";
 import { RowColumnsMenu } from "../../organisms/RowColumnsMenu/RowColumnsMenu";
+import { RowStylesMenu } from "../../organisms/RowStylesMenu/RowStylesMenu";
 import type { CanvasRowProps } from "./CanvasRow.types";
 
 export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }: CanvasRowProps) {
@@ -40,6 +41,8 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
       style={{
         gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))`,
         transform: offsetY === 0 ? undefined : `translateY(${offsetY}px)`,
+        marginTop: row.styles?.marginTop,
+        marginBottom: row.styles?.marginBottom,
       }}
       // La clase de transicion depende del mismo estado que el transform, asi que al soltar las dos
       // desaparecen en el mismo commit: el navegador no tiene que animar la vuelta a cero y la fila
@@ -56,7 +59,7 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
         isOver
           ? "border-slate-400 bg-slate-50 dark:border-neutral-500 dark:bg-neutral-800/60"
           : "border-slate-200 dark:border-neutral-700"
-      }`}
+      } ${row.styles?.customClasses ?? ""}`}
     >
       <RowDragHandle listeners={listeners} attributes={attributes} />
 
@@ -70,6 +73,7 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
       )}
 
       <RowColumnsMenu rowId={row.id} columns={row.columns} />
+      <RowStylesMenu rowId={row.id} styles={row.styles} />
 
       <IconButton
         onClick={() => removeRow(row.id)}

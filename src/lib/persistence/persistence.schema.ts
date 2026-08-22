@@ -158,11 +158,18 @@ const canvasFieldSchema = z.object({
   inlineOptions: z.boolean().optional(),
 });
 
+const rowStylesSchema = z.object({
+  customClasses: z.string().optional(),
+  marginTop: z.string().optional(),
+  marginBottom: z.string().optional(),
+});
+
 const canvasRowSchema = z.object({
   id: z.string(),
   columns: z.number(),
   fields: z.array(canvasFieldSchema),
   groupId: z.string().optional(),
+  styles: rowStylesSchema.optional(),
 });
 
 const groupCheckSchema = z.object({

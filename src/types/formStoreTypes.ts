@@ -12,7 +12,7 @@ import type {
   FieldValidations,
 } from "./field";
 import type { FieldTypeDef } from "./fieldTypes";
-import type { FormStep, IntroModalState, RepeatableGroup } from "./formStructure";
+import type { FormStep, IntroModalState, RepeatableGroup, RowStyles } from "./formStructure";
 import type {
   CanvasTarget,
   DragPlacement,
@@ -87,6 +87,7 @@ export interface FormState extends BanksSlice {
   updateGroup: (groupId: string, updates: Partial<Omit<RepeatableGroup, "id">>) => void;
   removeGroup: (groupId: string) => void;
   updateRowColumns: (rowId: string, columns: number) => void;
+  updateRowStyles: (rowId: string, updates: Partial<RowStyles>) => void;
   addFieldToRow: (rowId: string, fieldType: FieldTypeDef, requested?: FieldPlacement) => void;
   removeField: (fieldId: string) => void;
   moveField: (fieldId: string, targetRowId: string, requested?: FieldPlacement) => void;

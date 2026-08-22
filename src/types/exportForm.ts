@@ -8,6 +8,7 @@ import type {
   FieldStyles,
   FieldTooltip,
 } from "./field";
+import type { RowStyles } from "./formStructure";
 import type { RichTextContent } from "./richText";
 import type { FormType } from "./setup";
 
@@ -117,6 +118,7 @@ export interface ExportedRow {
   rowId: string;
   columns: number;
   groupId?: string;
+  styles?: RowStyles;
   fields: ExportedField[];
 }
 

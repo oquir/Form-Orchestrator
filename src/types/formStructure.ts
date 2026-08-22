@@ -1,11 +1,21 @@
 import type { CanvasField } from "./field";
 import type { GroupCheck } from "./groupCheck";
 
+// A proposito mas chico que FieldStyles: sin backgroundColor ni textColor. Una fila es un
+// contenedor de layout, no algo que se lee como un campo, y pintarla entera abre las mismas
+// preguntas de contraste que field.styles ya tiene sin resolver del lado del campo.
+export interface RowStyles {
+  customClasses?: string;
+  marginTop?: string;
+  marginBottom?: string;
+}
+
 export interface CanvasRow {
   id: string;
   columns: number;
   fields: CanvasField[];
   groupId?: string;
+  styles?: RowStyles;
 }
 
 export interface RepeatableGroup {

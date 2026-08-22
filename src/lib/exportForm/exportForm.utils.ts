@@ -167,6 +167,7 @@ export function mapRows(
     rowId: row.id,
     columns: row.columns,
     groupId: row.groupId,
+    styles: row.styles,
     fields: row.fields.map((field) => ({
       fieldId: field.id,
       name: field.name,
