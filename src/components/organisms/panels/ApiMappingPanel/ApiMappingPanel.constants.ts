@@ -1,4 +1,7 @@
-export const HINT_CLASSES: string = "text-[11px] text-fg-subtle";
+export {
+  HINT_CLASSES,
+  WARNING_BANNER_CLASSES as WARNING_CLASSES,
+} from "../../../../constants/uiClasses";
 
 // Informativo, no un problema: el campo esta dentro de un grupo repetible y conviene decirlo.
 export const NOTE_CLASSES: string =
@@ -6,6 +9,3 @@ export const NOTE_CLASSES: string =
 
 export const ERROR_CLASSES: string =
   "rounded border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400";
-
-export const WARNING_CLASSES: string =
-  "rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400";

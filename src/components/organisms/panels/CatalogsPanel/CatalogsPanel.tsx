@@ -1,8 +1,8 @@
 import { CATALOGS } from "../../../../constants/catalog";
+import { HINT_CLASSES } from "../../../../constants/uiClasses";
 import { useFormStore } from "../../../../store/formStore";
 import { CatalogCard } from "../../../molecules/CatalogCard/CatalogCard";
 import { ValoresAnualesEditor } from "../ValoresAnualesEditor/ValoresAnualesEditor";
-import { HINT_CLASSES } from "./CatalogsPanel.constants";
 
 export function CatalogsPanel() {
   const catalogBank = useFormStore((state) => state.catalogBank);

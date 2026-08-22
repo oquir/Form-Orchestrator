@@ -1,5 +1,7 @@
 import type { RichTextCommand } from "../../../types/richText";
 
+export { ERROR_CLASSES, HINT_CLASSES } from "../../../constants/uiClasses";
+
 export const EDITOR_CLASSES: string =
   "min-h-24 w-full rounded-md border border-border bg-field px-2 py-1.5 text-xs text-fg outline-none focus:border-brand-border [&_a]:text-brand-fg [&_a]:underline";
 
@@ -10,10 +12,6 @@ export const TOOL_BUTTON_CLASSES: string =
 
 export const LINK_INPUT_CLASSES: string =
   "min-w-0 flex-1 rounded-md border border-border bg-field px-2 py-1 text-xs text-fg outline-none focus:border-brand-border";
-
-export const HINT_CLASSES: string = "text-[11px] text-fg-subtle";
-
-export const ERROR_CLASSES: string = "text-[11px] text-danger";
 
 export const FORMAT_BUTTONS: { command: RichTextCommand; label: string; title: string }[] = [
   { command: "bold", label: "N", title: "Negrita" },

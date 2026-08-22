@@ -1,10 +1,6 @@
 import { SCRIPT_HELPER_NAMES } from "../../../../constants/fieldScript";
 
-export const HINT_CLASSES: string = "text-[11px] text-fg-subtle";
-
-export const ERROR_CLASSES: string = "text-[11px] text-danger";
-
-export const WARNING_CLASSES: string = "text-[11px] text-warning";
+export { ERROR_CLASSES, HINT_CLASSES, WARNING_CLASSES } from "../../../../constants/uiClasses";
 
 export const READS_CLASSES: string =
   "rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] text-fg-muted";

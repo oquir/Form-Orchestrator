@@ -1,6 +1,4 @@
-export const HINT_CLASSES: string = "text-[11px] text-fg-subtle";
-
-export const ERROR_CLASSES: string = "text-[11px] text-danger";
+export { ERROR_CLASSES, HINT_CLASSES } from "../../../../constants/uiClasses";
 
 export const PRELUDE_PLACEHOLDER: string =
   "function tarifaEspecial(base, tarifa) {\n  if (base > 100000000) return tarifa * 1.2;\n  return tarifa;\n}";
