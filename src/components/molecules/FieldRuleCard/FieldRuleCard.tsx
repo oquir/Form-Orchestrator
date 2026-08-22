@@ -1,0 +1,171 @@
+import { ArrowDown, ArrowUp, Xmark } from "reicon-react";
+import { OPERATOR_LABELS } from "../../../constants/conditions";
+import {
+  operatorNeedsValue,
+  operatorsForFieldType,
+} from "../../../lib/fieldCondition/fieldCondition";
+import { createConstantEffect, createScriptEffect } from "../../../lib/fieldRule/fieldRule";
+import type { CanvasField } from "../../../types/field";
+import { IconButton } from "../../atoms/IconButton/IconButton";
+import { ConditionFieldSelect } from "../ConditionFieldSelect/ConditionFieldSelect";
+import { ConditionOperatorSelect } from "../ConditionOperatorSelect/ConditionOperatorSelect";
+import { ConditionValueInput } from "../ConditionValueInput/ConditionValueInput";
+import { RuleEffectRow } from "../RuleEffectRow/RuleEffectRow";
+import {
+  ADD_LINK_CLASSES,
+  MOVE_BUTTON_CLASSES,
+  REMOVE_BUTTON_CLASSES,
+  SMALL_SELECT_CLASSES,
+} from "./FieldRuleCard.constants";
+import type { FieldRuleCardProps } from "./FieldRuleCard.types";
+
+export function FieldRuleCard({
+  rule,
+  index,
+  rulesCount,
+  rules,
+  candidates,
+  knownNames,
+}: FieldRuleCardProps) {
+  return (
+    <li className="flex flex-col gap-2 rounded-md border border-border bg-surface p-3">
+      <div className="flex items-center gap-2">
+        <span className="text-[11px] font-medium text-fg-muted">Regla {index + 1}</span>
+        <input
+          type="text"
+          value={rule.label ?? ""}
+          onChange={(event) => rules.setRuleLabel(rule.id, event.target.value)}
+          placeholder="Nombre (opcional)"
+          className="min-w-0 flex-1 rounded-md border border-border bg-field px-2 py-1 text-xs text-fg outline-none focus:border-brand-border"
+        />
+        <IconButton
+          onClick={() => rules.moveRule(rule.id, -1)}
+          disabled={index === 0}
+          title="Subir"
+          className={MOVE_BUTTON_CLASSES}
+        >
+          <ArrowUp size={12} weight="Filled" />
+        </IconButton>
+        <IconButton
+          onClick={() => rules.moveRule(rule.id, 1)}
+          disabled={index === rulesCount - 1}
+          title="Bajar"
+          className={MOVE_BUTTON_CLASSES}
+        >
+          <ArrowDown size={12} weight="Filled" />
+        </IconButton>
+        <IconButton
+          onClick={() => rules.removeRule(rule.id)}
+          title="Eliminar regla"
+          className={REMOVE_BUTTON_CLASSES}
+        >
+          <Xmark size={12} weight="Filled" />
+        </IconButton>
+      </div>
+
+      <label className="flex items-center gap-2 text-[11px] text-fg-muted">
+        Se cumple si
+        <select
+          value={rule.matchAll ? "todas" : "alguna"}
+          onChange={(event) => rules.setRuleMatchAll(rule.id, event.target.value === "todas")}
+          className={SMALL_SELECT_CLASSES}
+        >
+          <option value="todas">todas las condiciones</option>
+          <option value="alguna">alguna condición</option>
+        </select>
+      </label>
+
+      <ul className="flex list-none flex-col gap-2">
+        {rule.when.map((condition) => {
+          const observed: CanvasField | undefined = candidates.find(
+            (candidate) => candidate.id === condition.fieldId,
+          );
+
+          return (
+            <li
+              key={condition.id}
+              className="flex items-start gap-2 rounded-md border border-border-subtle bg-surface p-2"
+            >
+              <div className="flex flex-1 flex-col gap-2">
+                <ConditionFieldSelect
+                  label="Cuando el campo…"
+                  condition={condition}
+                  otherFields={candidates}
+                  observedIsDead={observed === undefined}
+                  onChange={(fieldId) => rules.setConditionField(rule.id, condition.id, fieldId)}
+                />
+
+                <ConditionOperatorSelect
+                  operator={condition.operator}
+                  availableOperators={operatorsForFieldType(observed?.type ?? "text")}
+                  operatorLabels={OPERATOR_LABELS}
+                  onChange={(operator) =>
+                    rules.updateCondition(rule.id, condition.id, {
+                      operator,
+                      value: operatorNeedsValue(operator) ? condition.value : undefined,
+                    })
+                  }
+                />
+
+                {operatorNeedsValue(condition.operator) && (
+                  <ConditionValueInput
+                    condition={condition}
+                    observedField={observed}
+                    onChange={(value) => rules.updateCondition(rule.id, condition.id, { value })}
+                  />
+                )}
+              </div>
+
+              <IconButton
+                onClick={() => rules.removeCondition(rule.id, condition.id)}
+                title="Quitar condición"
+                className={REMOVE_BUTTON_CLASSES}
+              >
+                <Xmark size={12} weight="Filled" />
+              </IconButton>
+            </li>
+          );
+        })}
+      </ul>
+
+      <button
+        type="button"
+        onClick={() => rules.addCondition(rule.id)}
+        disabled={!rules.canAddRule}
+        className={ADD_LINK_CLASSES}
+      >
+        + Agregar condición
+      </button>
+
+      <ul className="flex list-none flex-col gap-2 border-t border-border-subtle pt-2">
+        {rule.effects.map((effect) => (
+          <RuleEffectRow
+            key={effect.id}
+            effect={effect}
+            candidates={candidates}
+            knownNames={knownNames}
+            onChange={(next) => rules.updateEffect(rule.id, effect.id, next)}
+            onRemove={() => rules.removeEffect(rule.id, effect.id)}
+          />
+        ))}
+      </ul>
+
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={() => rules.addEffect(rule.id, createScriptEffect())}
+          className={ADD_LINK_CLASSES}
+        >
+          + Cálculo
+        </button>
+        <button
+          type="button"
+          onClick={() => rules.addEffect(rule.id, createConstantEffect())}
+          className={ADD_LINK_CLASSES}
+        >
+          + Valor fijo
+        </button>
+      </div>
+    </li>
+  );
+}

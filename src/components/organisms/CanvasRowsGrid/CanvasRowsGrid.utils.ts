@@ -1,6 +1,7 @@
 import { GRID_GAP_PX } from "../../../constants/grid";
 import type { CanvasRow } from "../../../types/formStructure";
 import type { RowDragState, RowDropTarget } from "../../../types/placement";
+import { NO_DISPLACEMENT } from "./CanvasRowsGrid.constants";
 import type { CanvasBlock, RowDisplacement } from "./CanvasRowsGrid.types";
 
 export function toCanvasBlocks(rows: CanvasRow[]): CanvasBlock[] {
@@ -24,10 +25,6 @@ export function toCanvasBlocks(rows: CanvasRow[]): CanvasBlock[] {
 
   return blocks;
 }
-
-// Referencia estable: la grilla la pasa a cada fila y devolver mapas nuevos cuando no se arrastra
-// nada haria que todas se volvieran a dibujar por gusto.
-const NO_DISPLACEMENT: RowDisplacement = { rows: new Map(), bands: new Map() };
 
 // Que se aparta y cuanto para que se abra el hueco donde va a caer la fila. Es la mitad visual de
 // lo que rowOrder resuelve como dato: mismos dos casos y misma frontera de grupo.

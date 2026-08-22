@@ -1,5 +1,5 @@
-﻿import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
-import { PanelHeader } from "../../molecules/PanelHeader/PanelHeader";
+import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
+import { PanelHeader } from "../../atoms/PanelHeader/PanelHeader";
 import { SidebarTabRail } from "../../molecules/SidebarTabRail/SidebarTabRail";
 import { FieldPalette } from "../FieldPalette/FieldPalette";
 import { ApiMappingPanel } from "../panels/ApiMappingPanel/ApiMappingPanel";

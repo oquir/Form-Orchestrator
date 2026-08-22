@@ -1,12 +1,12 @@
+import { ArrowRight, Plus, Xmark } from "reicon-react";
 import { CATALOG_COLUMNS } from "../../../../constants/catalog";
 import { getActiveRows, getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CatalogColumn } from "../../../../types/catalog";
 import type { CanvasField, CatalogFill } from "../../../../types/field";
+import { IconButton } from "../../../atoms/IconButton/IconButton";
+import { SELECT_CLASSES } from "./CatalogFillsEditor.constants";
 import type { CatalogFillsEditorProps } from "./CatalogFillsEditor.types";
 import { fillTargetCandidates, removeFill, replaceFill } from "./CatalogFillsEditor.utils";
-
-const SELECT_CLASSES: string =
-  "min-w-0 flex-1 rounded-md border border-border bg-field px-2 py-1 text-xs text-fg outline-none focus:border-brand-border";
 
 export function CatalogFillsEditor({ field }: CatalogFillsEditorProps) {
   const updateFieldDataSource = useFormStore((state) => state.updateFieldDataSource);
@@ -34,9 +34,10 @@ export function CatalogFillsEditor({ field }: CatalogFillsEditorProps) {
           type="button"
           disabled={candidates.length === 0}
           onClick={() => commit([...fills, { column: "code", field: candidates[0].id }])}
-          className="text-[11px] text-brand-fg hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex items-center gap-1 text-[11px] text-brand-fg hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
         >
-          + Agregar
+          <Plus size={11} weight="Filled" />
+          <span>Agregar</span>
         </button>
       </div>
 
@@ -71,7 +72,7 @@ export function CatalogFillsEditor({ field }: CatalogFillsEditorProps) {
               ))}
             </select>
 
-            <span className="text-[11px] text-fg-subtle">→</span>
+            <ArrowRight size={12} className="shrink-0 text-fg-subtle" />
 
             <select
               value={fill.field}
@@ -87,14 +88,13 @@ export function CatalogFillsEditor({ field }: CatalogFillsEditorProps) {
               ))}
             </select>
 
-            <button
-              type="button"
+            <IconButton
               onClick={() => commit(removeFill(fills, index))}
               title="Quitar"
-              className="shrink-0 rounded px-1 text-xs text-fg-subtle hover:cursor-pointer hover:text-danger"
+              className="shrink-0 rounded p-1 text-fg-subtle hover:cursor-pointer hover:text-danger"
             >
-              ×
-            </button>
+              <Xmark size={12} weight="Filled" />
+            </IconButton>
           </li>
         ))}
       </ul>

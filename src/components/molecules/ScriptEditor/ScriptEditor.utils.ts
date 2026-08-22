@@ -1,8 +1,8 @@
 import type { Completion, CompletionContext, CompletionResult } from "@codemirror/autocomplete";
 import type { Diagnostic } from "@codemirror/lint";
 import { RangeSetBuilder } from "@codemirror/state";
-import type { ViewUpdate } from "@codemirror/view";
-import { Decoration, type DecorationSet, type EditorView, ViewPlugin } from "@codemirror/view";
+import type { DecorationSet, EditorView, ViewUpdate } from "@codemirror/view";
+import { Decoration, ViewPlugin } from "@codemirror/view";
 import { SCRIPT_CONTEXT_PARAMS, SCRIPT_HELPER_NAMES } from "../../../constants/fieldScript";
 import { compileScript } from "../../../lib/fieldScript/fieldScript";
 import type { ScriptRef } from "../../../types/fieldScript";
@@ -66,7 +66,10 @@ function applyFieldRef(name: string) {
 
 export function scriptCompletions(getKnownNames: () => Set<string>) {
   const scopeOptions: Completion[] = [
-    ...SCRIPT_CONTEXT_PARAMS.slice(1).map((name) => ({ label: name, type: "variable" })),
+    ...SCRIPT_CONTEXT_PARAMS.slice(1).map((name) => ({
+      label: name,
+      type: "variable",
+    })),
     ...SCRIPT_HELPER_NAMES.map((name) => ({ label: name, type: "function" })),
   ];
 

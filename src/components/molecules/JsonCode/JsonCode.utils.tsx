@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { JsonSegment } from "../../../types/jsonCode";
 import { JSON_TOKEN_CLASSES } from "./JsonCode.constants";
 
@@ -19,4 +20,19 @@ export function segmentClass(
   }
 
   return JSON_TOKEN_CLASSES[segment.kind];
+}
+
+export function renderTokens(
+  tokens: JsonSegment[],
+  valueClassName?: (rawValue: string) => string | undefined,
+): ReactNode[] {
+  return tokens.map((segment) =>
+    typeof segment === "string" ? (
+      segment
+    ) : (
+      <span key={segment.offset} className={segmentClass(segment, valueClassName)}>
+        {segment.text}
+      </span>
+    ),
+  );
 }
