@@ -1,5 +1,6 @@
 import { type PointerEvent as ReactPointerEvent, useState } from "react";
 import { GRID_GAP_PX } from "../../constants/grid";
+import { getCanvasScale } from "../../lib/canvasZoom/canvasZoom";
 import type { UseFieldResizeParams, UseFieldResizeResult } from "./useFieldResize.types";
 
 // Redimensiona un campo arrastrando su borde. El ancho se mide en columnas, asi que hay que
@@ -22,9 +23,12 @@ export function useFieldResize({
 
     const rowRect: DOMRect = rowElement.getBoundingClientRect();
     const rowStyles: CSSStyleDeclaration = window.getComputedStyle(rowElement);
+    // Se captura al empezar: el zoom no puede cambiar a mitad de un redimensionado. Sin dividir,
+    // el ancho visual de la fila se mezclaria con el relleno y el hueco, que son de maquetacion.
+    const scale: number = getCanvasScale(rowElement);
     const paddingLeft = Number.parseFloat(rowStyles.paddingLeft) || 0;
     const paddingRight = Number.parseFloat(rowStyles.paddingRight) || 0;
-    const usableWidth = rowRect.width - paddingLeft - paddingRight;
+    const usableWidth = rowRect.width / scale - paddingLeft - paddingRight;
     const perColumn = (usableWidth - (rowColumns - 1) * GRID_GAP_PX) / rowColumns;
     if (perColumn <= 0) return;
 
@@ -35,7 +39,7 @@ export function useFieldResize({
     setIsResizing(true);
 
     function handlePointerMove(moveEvent: PointerEvent): void {
-      const deltaX = moveEvent.clientX - startX;
+      const deltaX = (moveEvent.clientX - startX) / scale;
       const deltaCols = Math.round(deltaX / (perColumn + GRID_GAP_PX));
       const next = Math.max(1, Math.min(maxSpan, startColSpan + deltaCols));
       if (next !== lastApplied) {

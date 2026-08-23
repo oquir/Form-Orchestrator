@@ -2,6 +2,7 @@ import type { CollisionDetection, Modifier } from "@dnd-kit/core";
 import { pointerWithin, rectIntersection } from "@dnd-kit/core";
 import { getEventCoordinates } from "@dnd-kit/utilities";
 import { GRID_GAP_PX } from "../../constants/grid";
+import { getCanvasScale } from "../../lib/canvasZoom/canvasZoom";
 import type {
   CanvasTarget,
   DragPlacement,
@@ -72,8 +73,11 @@ export function measureRow(rowId: string): RowDragState | null {
   if (!element) return null;
 
   const rect: DOMRect = element.getBoundingClientRect();
+  // En pixeles de maquetacion, no de pantalla: buildRowDisplacement usa el alto como translateY
+  // DENTRO del contenedor escalado, y RowDragPreview se dibuja fuera y se escala el solo.
+  const scale: number = getCanvasScale(element);
 
-  return { rowId, width: rect.width, height: rect.height };
+  return { rowId, width: rect.width / scale, height: rect.height / scale };
 }
 
 // Por que mitad del elemento cae el puntero. Es el gemelo en Y de getColumnAtPointer: al reordenar
@@ -113,13 +117,16 @@ export function getColumnAtPointer(
 ): number {
   const rect: DOMRect = rowElement.getBoundingClientRect();
   const styles: CSSStyleDeclaration = window.getComputedStyle(rowElement);
+  // rect viene escalado por el zoom y getComputedStyle no: hay que volver al espacio de maquetacion
+  // antes de mezclarlos, que es donde viven el relleno y GRID_GAP_PX.
+  const scale: number = getCanvasScale(rowElement);
   const paddingLeft = Number.parseFloat(styles.paddingLeft) || 0;
   const paddingRight = Number.parseFloat(styles.paddingRight) || 0;
-  const usableWidth = rect.width - paddingLeft - paddingRight;
+  const usableWidth = rect.width / scale - paddingLeft - paddingRight;
   const perColumn = (usableWidth - (columns - 1) * GRID_GAP_PX) / columns;
   if (perColumn <= 0) return 1;
 
-  const offsetX = pointerX - rect.left - paddingLeft;
+  const offsetX = (pointerX - rect.left) / scale - paddingLeft;
   const column = Math.floor(offsetX / (perColumn + GRID_GAP_PX)) + 1;
 
   return Math.max(1, Math.min(columns, column));

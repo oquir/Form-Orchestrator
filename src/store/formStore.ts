@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
+import { ZOOM_DEFAULT } from "../constants/canvasZoom";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
+import { clampZoom } from "../lib/canvasZoom/canvasZoom";
 import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import { allowsManualOptions, isOptionBasedField } from "../lib/fieldOptions/fieldOptions";
@@ -102,6 +104,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   },
   isSidebarOpen: true,
   isSimulatorOpen: false,
+  canvasZoom: ZOOM_DEFAULT,
   sidebarTab: "fields",
   dragPlacement: null,
   rowDropTarget: null,
@@ -119,6 +122,9 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   dismissTransferNotice: () => set({ transferNotice: null }),
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
   setSimulatorOpen: (open) => set({ isSimulatorOpen: open }),
+  // Recorta aca y no en cada llamante: la rueda manda valores continuos y los atajos de teclado no
+  // saben del rango.
+  setCanvasZoom: (zoom) => set({ canvasZoom: clampZoom(zoom) }),
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
   markSaved: () => set({ lastSavedAt: new Date().toISOString() }),
   toggleDarkMode: () =>

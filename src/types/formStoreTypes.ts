@@ -42,6 +42,7 @@ export interface FormState extends BanksSlice {
   setupConfig: SetupConfig;
   isSidebarOpen: boolean;
   isSimulatorOpen: boolean;
+  canvasZoom: number;
   sidebarTab: SidebarTab;
   isDarkMode: boolean;
   lastSavedAt: string | null;
@@ -59,6 +60,7 @@ export interface FormState extends BanksSlice {
   dismissTransferNotice: () => void;
   setSidebarOpen: (open: boolean) => void;
   setSimulatorOpen: (open: boolean) => void;
+  setCanvasZoom: (zoom: number) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   toggleDarkMode: () => void;
   markSaved: () => void;

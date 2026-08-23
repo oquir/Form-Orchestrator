@@ -31,6 +31,79 @@ Settled decisions — do not re-litigate them without asking:
 - **Holes are preserved.** Deleting or moving a field leaves its gap; every position is explicit. The one exception is `updateRowColumns`, which re-packs, since resizing a row is a deliberate layout change.
 - **One row is one visual line — rows do not overflow to a second line.** A full row rejects a dropped field instead of wrapping. The user **deliberately kept the restriction** after testing it — the intended workflow is to add another `CanvasRow` and place the field there. It is a guardrail, not a bug. Implementing real multi-line rows would require a line index in the model and would turn every placement rule two-dimensional; the cheap alternative (auto-creating a row below on overflow) was offered and declined. Only revisit if the user explicitly asks.
 
+## Canvas zoom (`canvasZoom`)
+
+The canvas body scales with `transform: scale()`, 50 %–150 %, driven from a `−  100 %  +` control in
+the canvas header, Ctrl/Cmd + wheel, and Ctrl/Cmd `+` / `-` / `0`. The point is a long form: eight
+steps of renglones do not fit on a screen and the only way to see the shape of one was to scroll.
+`src/lib/canvasZoom/` holds the arithmetic, `src/hooks/useCanvasZoom/` the DOM side.
+
+**Only the canvas body scales.** The header, `CanvasTabs`, `TransferNotice` and `StepTitleEditor`
+stay at 1×. The tabs especially: they are drop targets for moving a field or a row to another step,
+and shrinking them makes the one gesture that is already hard to aim at harder. `FieldContextMenu`
+is also left outside the wrapper, and that is what keeps its `clientX/clientY` positioning correct
+at any zoom.
+
+Settled decisions:
+
+- **dnd-kit never applies a `transform` inside the scaled container, and that is the only reason
+  this was cheap.** `CanvasFieldChip` and `CanvasRow` both destructure
+  `{listeners, attributes, setNodeRef, isDragging}` from `useDraggable` and take no `transform`; the
+  dragged row goes `opacity-0` and every pixel of movement is drawn by the `DragOverlay`, mounted in
+  `FormBuilder` as a **sibling** of `<AppLayout>`, outside the scale. Take `transform` from
+  `useDraggable` in either component, or move the overlay inside the wrapper, and the classic
+  dnd-kit-in-a-scaled-container bug appears: the element travels `k` times too far.
+- **Collision detection needed no changes.** `pointerWithin` / `rectIntersection` compare pointer
+  coordinates against `getBoundingClientRect()`, both in visual space, so the ratio is
+  scale-invariant. Same for `getDropEdgeAtPointer`. Do not "fix" them.
+- **The scale is read from the DOM, not from the store.** `getCanvasScale(el) = rect.width /
+  el.offsetWidth` — `offsetWidth` is the layout width and transforms do not touch it, so the ratio
+  is the accumulated scale of every ancestor. Chosen over threading the store value into
+  `getColumnAtPointer` and `useFieldResize` because it returns **exactly 1** with no zoom, leaving
+  today's path byte-identical, and because drag math that depends on a value someone has to remember
+  to pass is one refactor away from being silently wrong. Two harmless limits: `offsetWidth` is an
+  integer so the scale carries ~0,05 % error (a column is ~50 px), and a rotated ancestor would
+  break it, since `getBoundingClientRect` returns the axis-aligned box — nothing on the canvas
+  rotates.
+- **What actually broke was mixing visual pixels with layout pixels**, in exactly three places, and
+  the fix is five divisions. `getColumnAtPointer` and `useFieldResize` subtract `getComputedStyle`
+  padding (layout) from a `getBoundingClientRect` width (visual) and divide by `GRID_GAP_PX`
+  (layout); both now convert back to layout space first.
+- **`measureRow` returns layout pixels and `RowDragPreview` scales itself.** These two go together
+  and splitting them breaks the gap that opens when reordering rows: `buildRowDisplacement` applies
+  that height as `translateY` **inside** the scaled container, where pixels are layout pixels, while
+  the preview is drawn **outside** it, where they are not. `transformOrigin: "top left"` is what
+  makes the ghost land on the row it replaces, since a row drag uses the empty
+  `ROW_OVERLAY_MODIFIERS`.
+- **The label chip in the overlay stays at 1×, so `centerOverlayOnCursor` needed no changes.** It is
+  a floating caption drawn over the unscaled tab strip, not a replica.
+- **`marginBottom: contentHeight * (zoom - 1)` is not cosmetic.** A transform does not change
+  layout: the box still measures `H` while it paints at `H × k`. Without the compensation, zooming
+  out leaves `H × (1 − k)` px of dead scroll, and zooming in pushes the bottom of the form out of
+  the scrollport **where it cannot be reached**. Measured with a `ResizeObserver` on `offsetHeight`,
+  which excludes margins and ignores transforms, so there is no feedback loop.
+- **At `zoom === 1` neither the transform nor the margin is emitted.** An identity `scale(1)` still
+  creates a containing block and a stacking context; the 100 % case keeps exactly the DOM it had
+  before this feature.
+- **The wheel is continuous, the buttons and the shortcuts step by 10 %.** A trackpad pinch fires
+  many small `deltaY`s and stepping on each would hit the limits before the fingers lift — which is
+  how Figma behaves.
+- **Zoom is view state: not persisted, not in the draft, not in the export.** So there is no
+  `persistence.schema.ts` line, no `DRAFT_SCHEMA_VERSION` bump and no migration. It resets to 100 %
+  on reload; persisting it under its own `localStorage` key the way the theme is would be one line
+  if that ever matters.
+- **One zoom for both canvases**, form steps and intro modal alike.
+- **Zoom anchors on the middle of the viewport, not on the cursor.** Figma's cursor anchoring needs
+  `transform-origin: top left` plus horizontal compensation; this is a centered document
+  (`mx-auto max-w-5xl`) that never scrolls horizontally, so `top center` plus a vertical anchor gives
+  the right feel for half the arithmetic. The offset is measured against the content's own rect
+  rather than `scrollTop`, because the unscaled chrome above it must not be multiplied by the zoom
+  ratio — and it is computed in the hook body rather than in an effect, because by the time an
+  effect runs the rects have already changed.
+- Known cosmetic limit: `min-h-[60vh]` and `min-h-[70vh]` live **inside** the scaled content and
+  `vh` resolves against the viewport regardless of scale, so at 50 % the empty canvas's minimum
+  height reads as 30vh. Left as is.
+
 ## Reordering rows (drag the row itself)
 
 A whole `CanvasRow` can be dragged to another position in the same canvas. Before this, swapping two rows meant emptying the first into the second field by field and then the second into the first. Row order **is** the order of `step.rows[]` — nothing stores an index — so `persistence`, `exportForm` and the simulator needed **zero changes**; this is purely an editing affordance.

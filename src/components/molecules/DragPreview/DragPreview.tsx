@@ -5,12 +5,13 @@ import { getDragLabel } from "./DragPreview.utils";
 
 export function DragPreview({ activeDrag }: DragPreviewProps) {
   const rowDrag = useFormStore((state) => state.rowDrag);
+  const canvasZoom = useFormStore((state) => state.canvasZoom);
   const hoveredTransferTarget = useFormStore((state) => state.hoveredTransferTarget);
 
   // Sobre una pestana la fila se encoge a la ficha: dibujada a tamano real tapa la tira entera de
   // pestanas y no se ve cual esta resaltada, que es justo lo que hay que mirar ahi.
   if (activeDrag.source === "canvas-row" && rowDrag && !hoveredTransferTarget) {
-    return <RowDragPreview row={activeDrag.row} width={rowDrag.width} />;
+    return <RowDragPreview row={activeDrag.row} width={rowDrag.width} scale={canvasZoom} />;
   }
 
   return (

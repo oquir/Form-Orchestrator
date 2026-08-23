@@ -5,10 +5,19 @@ import type { RowDragPreviewProps } from "./RowDragPreview.types";
 // Replica de la fila, no un chip: se dibuja al ancho real que se midio al empezar el arrastre para
 // que uno vea que lleva la seccion entera. Es una copia simplificada a proposito -sin tirador, sin
 // menu de columnas, sin redimensionar- porque nada de eso se puede usar mientras vuela.
-export function RowDragPreview({ row, width }: RowDragPreviewProps) {
+export function RowDragPreview({ row, width, scale }: RowDragPreviewProps) {
   return (
     <div
-      style={{ width, gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))` }}
+      style={{
+        width,
+        gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))`,
+        // El overlay vive fuera del contenedor escalado, asi que la replica se escala sola. Va con
+        // el ancho de maquetacion que midio measureRow: ancho visual y escala a la vez seria
+        // aplicar el zoom dos veces. `rotate-1` no estorba, Tailwind v4 lo compila a la propiedad
+        // `rotate` suelta y no a `transform`.
+        transform: scale === 1 ? undefined : `scale(${scale})`,
+        transformOrigin: "top left",
+      }}
       className="grid rotate-1 gap-3 rounded-md border-2 border-orange-500 bg-white p-3 shadow-2xl dark:border-orange-400 dark:bg-neutral-900"
     >
       {row.fields.length === 0 && (
