@@ -1,8 +1,9 @@
-﻿import { useFormStore } from "../../store/formStore";
+import { useFormStore } from "../../store/formStore";
 import type { AppLayoutProps } from "./AppLayout.types";
 
-export function AppLayout({ sidebar, canvas }: AppLayoutProps) {
+export function AppLayout({ sidebar, canvas, rightSidebar }: AppLayoutProps) {
   const isSidebarOpen: boolean = useFormStore((state) => state.isSidebarOpen);
+  const isRightSidebarOpen: boolean = useFormStore((state) => state.isRightSidebarOpen);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-neutral-950 dark:text-neutral-100">
@@ -22,6 +23,18 @@ export function AppLayout({ sidebar, canvas }: AppLayoutProps) {
       >
         {canvas}
       </main>
+
+      {/* Mismo molde que el izquierdo: el aside se encoge y el hijo mantiene el ancho abierto, asi
+          que el overflow-hidden recorta y solo queda la tira del borde interior. */}
+      <aside
+        className={`relative flex shrink-0 flex-col h-full overflow-hidden bg-white transition-all ease-in-out border-l border-slate-200 dark:bg-neutral-900 dark:border-neutral-800 ${
+          isRightSidebarOpen ? "w-80 shadow-sm" : "w-10"
+        }`}
+      >
+        <div className="w-80 h-full flex flex-col">
+          <div className="flex-1 overflow-hidden">{rightSidebar}</div>
+        </div>
+      </aside>
     </div>
   );
 }

@@ -23,11 +23,8 @@ export function CanvasTabs() {
   const transferState = resolveTransferState(activeRows, rowDrag, draggingFieldId);
 
   return (
-    <div className="mb-4 flex flex-col gap-4 border-b border-slate-200 pb-4 dark:border-neutral-800">
+    <div className="flex flex-col gap-4">
       <nav aria-label="Steps del formulario" className="flex flex-col gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-neutral-500">
-          Steps del formulario
-        </span>
         <ul className="flex list-none flex-wrap items-center gap-2">
           {formSteps.map((step, index) => {
             const isActive: boolean =

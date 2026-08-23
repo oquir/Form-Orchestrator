@@ -18,6 +18,41 @@ Not yet implemented / known gaps:
 - **The simulator ignores `field.styles` entirely.** The export carries them (`styles: field.styles` in `mapRows`) and `CanvasFieldChip` applies all five, but grepping `.styles` under `components/organisms/preview/` returns nothing: the simulator draws generic controls. So a field styled yellow is yellow on the canvas and grey in the simulator, which undercuts the "faithful consumer" premise. The four that go through `style={{}}` (`marginTop`, `marginBottom`, `backgroundColor`, `textColor`) are a short, safe fix. `customClasses` is not — see the next entry.
 - **`styles.customClasses` only works by accident, and the consumer will hit the same wall.** Tailwind v4 scans **source files** at build time. A class typed into the "Clases CSS" input lives in `localStorage` and in the exported JSON, never in the source, so it is emitted only if some component already happens to use it. Measured against the built CSS: `font-bold`, `text-right` and `uppercase` exist; `bg-purple-700`, `tracking-widest` and `text-2xl` do not. There is no safelist and no `@source` directive in `index.css`. It fails **partially**, which is the worst mode — half the classes work, so the bug reads as something else. `tooltip.customClasses` has the identical problem. Fixing it is a product decision rather than a patch: either a Tailwind safelist over an agreed set of classes, or replacing the free-text input with a picker. Both force a call on what an author may restyle, and that call is cheaper now than after the consumer exists.
 
+## The right panel (`RightSidebar`)
+
+Everything that used to sit above the canvas — the header (title, badge, Guardar, the view-mode
+tabs, the zoom control, Simulador, Exportar JSON), `CanvasTabs`, `TransferNotice` and
+`StepTitleEditor` — lives in a right-hand panel, mirroring the left one. The canvas now owns the
+full height of the window, which is the groundwork for making it a real pan/zoom surface.
+
+`AppLayout` takes three slots (`sidebar`, `canvas`, `rightSidebar`) and `FormBuilder` fills them.
+The panel is `organisms/RightSidebar/`, its sections use the `SidebarSection` atom.
+
+Settled decisions:
+
+- **It is the left sidebar's construction mirrored, not a new one.** An `<aside>` that shrinks
+  `w-80 → w-10` with `overflow-hidden` over a child pinned at `w-80`. The clipping keeps whatever
+  is closest to the *inner* edge, so the collapse strip sits on the left of the panel — facing the
+  canvas — where the left sidebar's icon rail sits on its own outer edge for the same reason.
+- **The step tabs go first inside the panel, and that is a functional decision, not a layout one.**
+  Each `StepTabChip` is a droppable for moving a field or a row to another step. Anywhere further
+  down, a scrolled panel would put the drop target out of reach.
+- **This made cross-step dragging better, not worse.** The tabs used to scroll away with the canvas,
+  so on a long form there was no tab to aim at from the bottom. A fixed side panel always has them.
+- **With the panel collapsed there is no cross-step drop target**, which is accepted. Auto-opening
+  the panel when a transfer drag starts was considered and rejected: it would reflow the canvas
+  under a moving pointer, mid-gesture.
+- **`canvasViewMode` moved to the store.** It was `useState` in `Canvas` when the tabs and the
+  canvas were the same component; now the writer (the panel) and the reader (the canvas) are
+  different subtrees. `CanvasViewMode` moved to `types/ui.ts` and `VIEW_MODE_TABS` to
+  `constants/canvasView.ts` for the same reason — the co-location rule. `Canvas.types.ts` and
+  `Canvas.constants.ts` were deleted once empty.
+- **Neither `isRightSidebarOpen` nor `canvasViewMode` is persisted**, matching `isSidebarOpen` and
+  `canvasZoom`. No draft schema line, no `DRAFT_SCHEMA_VERSION` bump.
+- **The right panel has no icon rail.** Its content is four sections about one document, not eight
+  alternative panels; a second rail would cost 56 px and add a navigation decision for content that
+  already fits in one scroll.
+
 ## Zone placement (Shift / Shift+Ctrl while dragging)
 
 Holding **Shift** while dragging highlights every column of the target row (`RowZoneOverlay`) so you pick the exact start column; the field keeps its width. **Shift+Ctrl** anchors the start at the column where Ctrl was pressed and lets the pointer set the end, so the width follows the selection. Modifiers are read live mid-drag and apply to new fields dropped from the palette too, not only to fields already on the canvas.
@@ -39,10 +74,11 @@ steps of renglones do not fit on a screen and the only way to see the shape of o
 `src/lib/canvasZoom/` holds the arithmetic, `src/hooks/useCanvasZoom/` the DOM side.
 
 **Only the canvas body scales.** The header, `CanvasTabs`, `TransferNotice` and `StepTitleEditor`
-stay at 1×. The tabs especially: they are drop targets for moving a field or a row to another step,
-and shrinking them makes the one gesture that is already hard to aim at harder. `FieldContextMenu`
-is also left outside the wrapper, and that is what keeps its `clientX/clientY` positioning correct
-at any zoom.
+stay at 1× — they live in `RightSidebar` now (see "The right panel"), not above the canvas, so
+there is nothing of theirs left inside the scaled wrapper to begin with. The tabs especially: they
+are drop targets for moving a field or a row to another step, and shrinking them would make the one
+gesture that is already hard to aim at harder. `FieldContextMenu` is also left outside the wrapper,
+and that is what keeps its `clientX/clientY` positioning correct at any zoom.
 
 Settled decisions:
 

@@ -7,3 +7,5 @@ export type SidebarTab =
   | "apiMapping"
   | "catalogs"
   | "fechas";
+
+export type CanvasViewMode = "canvas" | "json" | "payload";

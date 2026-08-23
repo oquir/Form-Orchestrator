@@ -103,8 +103,10 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     introModalSteps: 1,
   },
   isSidebarOpen: true,
+  isRightSidebarOpen: true,
   isSimulatorOpen: false,
   canvasZoom: ZOOM_DEFAULT,
+  canvasViewMode: "canvas",
   sidebarTab: "fields",
   dragPlacement: null,
   rowDropTarget: null,
@@ -121,6 +123,10 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   setHoveredTransferTarget: (target) => set({ hoveredTransferTarget: target }),
   dismissTransferNotice: () => set({ transferNotice: null }),
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
+  setRightSidebarOpen: (open) => set({ isRightSidebarOpen: open }),
+  // Sube al store porque ahora lo escribe el panel derecho y lo lee el lienzo, que son dos
+  // subarboles distintos. Es estado de vista, igual que sidebarTab.
+  setCanvasViewMode: (mode) => set({ canvasViewMode: mode }),
   setSimulatorOpen: (open) => set({ isSimulatorOpen: open }),
   // Recorta aca y no en cada llamante: la rueda manda valores continuos y los atajos de teclado no
   // saben del rango.

@@ -18,7 +18,7 @@ export function StepTitleEditor() {
   if (!step) return null;
 
   return (
-    <div className="mb-4 flex flex-wrap gap-3">
+    <div className="flex flex-col gap-3">
       <LabeledInput
         id="step-title"
         label="Título del step"
@@ -29,7 +29,7 @@ export function StepTitleEditor() {
             ? updateFormStepTitle(step.stepId, event.target.value)
             : updateIntroModalStepTitle(step.stepId, event.target.value)
         }
-        className="max-w-sm"
+        className="w-full"
       />
       <LabeledInput
         id="step-subtitle"
@@ -40,7 +40,7 @@ export function StepTitleEditor() {
             ? updateFormStepSubtitle(step.stepId, event.target.value)
             : updateIntroModalStepSubtitle(step.stepId, event.target.value)
         }
-        className="max-w-sm"
+        className="w-full"
       />
     </div>
   );

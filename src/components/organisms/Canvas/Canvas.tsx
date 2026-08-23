@@ -1,105 +1,29 @@
 import { useState } from "react";
-import { Play } from "reicon-react";
 import { useCanvasZoom } from "../../../hooks/useCanvasZoom/useCanvasZoom";
-import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
-import { CanvasZoomControl } from "../../molecules/CanvasZoomControl/CanvasZoomControl";
-import { TabButtonGroup } from "../../molecules/TabButtonGroup/TabButtonGroup";
-import { TransferNotice } from "../../molecules/TransferNotice/TransferNotice";
-import { SaveButton } from "../../organisms/SaveButton/SaveButton";
 import { CanvasAddGroupButton } from "../CanvasAddGroupButton/CanvasAddGroupButton";
 import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
-import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
 import { JsonPreviewCanvas } from "../JsonPreviewCanvas/JsonPreviewCanvas";
 import { PayloadPreviewCanvas } from "../PayloadPreviewCanvas/PayloadPreviewCanvas";
-import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
-import { VIEW_MODE_TABS } from "./Canvas.constants";
-import type { CanvasViewMode } from "./Canvas.types";
 
 export function Canvas() {
   const activeRows = useFormStore(getActiveRows);
   const activeGroups = useFormStore(getActiveGroups);
-  const formSteps = useFormStore((state) => state.formSteps);
-  const setupConfig = useFormStore((state) => state.setupConfig);
-  const introSteps = useFormStore((state) => state.introModal.steps);
-  const formScript = useFormStore((state) => state.formScript);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
-  const setSimulatorOpen = useFormStore((state) => state.setSimulatorOpen);
+  const viewMode = useFormStore((state) => state.canvasViewMode);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
-  const [viewMode, setViewMode] = useState<CanvasViewMode>("canvas");
   const { contentRef, contentStyle } = useCanvasZoom();
 
   const isIntro = activeCanvas.type === "introStep";
   const isCanvasView = viewMode === "canvas";
 
-  const title =
-    viewMode === "json"
-      ? "JSON en vivo"
-      : viewMode === "payload"
-        ? "Payload en vivo"
-        : "Lienzo de trabajo";
-  const subtitle =
-    viewMode === "json"
-      ? "Vista previa del JSON exportado del formulario completo"
-      : viewMode === "payload"
-        ? "Vista previa del mapeo de campos hacia el objeto de la API"
-        : isIntro
-          ? "Editando el modal de entrada — flota sobre el formulario"
-          : "Arrastra campos aquí para construir el formulario";
-
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
-      <header className="mb-6 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-slate-800 dark:text-neutral-100">{title}</h1>
-            {isCanvasView &&
-              (isIntro ? (
-                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 dark:bg-white dark:text-neutral-900">
-                  Modal de entrada
-                </span>
-              ) : (
-                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 dark:bg-white dark:text-neutral-900">
-                  Formulario
-                </span>
-              ))}
-          </div>
-          <p className="text-sm text-slate-400 dark:text-neutral-500">{subtitle}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <SaveButton />
-          <TabButtonGroup tabs={VIEW_MODE_TABS} activeTab={viewMode} onSelect={setViewMode} />
-          {isCanvasView && <CanvasZoomControl />}
-          <button
-            type="button"
-            onClick={() => setSimulatorOpen(true)}
-            className="flex items-center gap-1.5 rounded-md border border-orange-600 px-3 py-1.5 text-xs font-medium text-orange-600 hover:bg-orange-50 dark:border-orange-500 dark:text-orange-500 dark:hover:bg-orange-500/10 cursor-pointer"
-          >
-            <Play size={12} weight="Filled" />
-            Simulador
-          </button>
-          <button
-            type="button"
-            onClick={() => downloadFormExport(formSteps, setupConfig, introSteps, formScript)}
-            className="rounded-md bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400 cursor-pointer"
-          >
-            Exportar JSON
-          </button>
-        </div>
-      </header>
-
       {viewMode === "json" && <JsonPreviewCanvas />}
       {viewMode === "payload" && <PayloadPreviewCanvas />}
-      {isCanvasView && (
-        <>
-          <CanvasTabs />
-          <TransferNotice />
-          <StepTitleEditor />
-        </>
-      )}
 
       {isCanvasView && (
         <div ref={contentRef} style={contentStyle}>

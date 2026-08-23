@@ -1,5 +1,5 @@
-import type { TabButtonGroupItem } from "../../../types/tabButtonGroup";
-import type { CanvasViewMode } from "./Canvas.types";
+import type { TabButtonGroupItem } from "../types/tabButtonGroup";
+import type { CanvasViewMode } from "../types/ui";
 
 export const VIEW_MODE_TABS: TabButtonGroupItem<CanvasViewMode>[] = [
   { tab: "canvas", label: "Lienzo" },
