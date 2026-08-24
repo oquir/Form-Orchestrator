@@ -1,5 +1,7 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
+import type { CSSProperties } from "react";
 import { Xmark } from "reicon-react";
+import { resolveRowStyles } from "../../../lib/cssStyles/cssStyles";
 import { useFormStore } from "../../../store/formStore";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import { RowDragHandle } from "../../atoms/RowDragHandle/RowDragHandle";
@@ -38,12 +40,15 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
       ref={setRefs}
       data-canvas-row=""
       data-row-id={row.id}
-      style={{
-        gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))`,
-        transform: offsetY === 0 ? undefined : `translateY(${offsetY}px)`,
-        marginTop: row.styles?.marginTop,
-        marginBottom: row.styles?.marginBottom,
-      }}
+      style={
+        {
+          // Lo estructural va al final para que gane: si el CSS libre del autor nombrara
+          // grid-template-columns o transform no puede pisar lo que controla el sistema de filas.
+          ...resolveRowStyles(row.styles),
+          gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))`,
+          transform: offsetY === 0 ? undefined : `translateY(${offsetY}px)`,
+        } as CSSProperties
+      }
       // La clase de transicion depende del mismo estado que el transform, asi que al soltar las dos
       // desaparecen en el mismo commit: el navegador no tiene que animar la vuelta a cero y la fila
       // no pega el salto de deshacer el desplazamiento que ya se convirtio en su sitio real.
@@ -59,7 +64,7 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
         isOver
           ? "border-slate-400 bg-slate-50 dark:border-neutral-500 dark:bg-neutral-800/60"
           : "border-slate-200 dark:border-neutral-700"
-      } ${row.styles?.customClasses ?? ""}`}
+      }`}
     >
       <RowDragHandle listeners={listeners} attributes={attributes} />
 

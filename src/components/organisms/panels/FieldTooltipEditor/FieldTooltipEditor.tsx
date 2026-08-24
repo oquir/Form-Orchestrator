@@ -1,8 +1,10 @@
 import { TOOLTIP_POSITIONS } from "../../../../constants/fieldTooltip";
 import { useFormStore } from "../../../../store/formStore";
 import type { FieldTooltip } from "../../../../types/field";
+import { Label } from "../../../atoms/Label/Label";
+import { Textarea } from "../../../atoms/TextArea/Textarea";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
-import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
+import { CssValidationHint } from "../../../molecules/CssValidationHint/CssValidationHint";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor";
 import {
@@ -70,16 +72,20 @@ export function FieldTooltipEditor({ field }: FieldTooltipEditorProps) {
             </ul>
           </fieldset>
 
-          <LabeledInput
-            id="tooltip-classes"
-            label="Clases CSS (Tailwind)"
-            value={tooltip.customClasses ?? ""}
-            onChange={(event) =>
-              updateFieldTooltip(field.id, { customClasses: event.target.value })
-            }
-            placeholder="bg-slate-800 text-white"
-            className="font-mono"
-          />
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="tooltip-css">CSS personalizado</Label>
+            <Textarea
+              id="tooltip-css"
+              aria-label="CSS personalizado del tooltip"
+              value={tooltip.customCss ?? ""}
+              onChange={(event) => updateFieldTooltip(field.id, { customCss: event.target.value })}
+              placeholder={"background: #1e293b;\ncolor: #fff;"}
+              spellCheck={false}
+              rows={3}
+              variant="code"
+            />
+            <CssValidationHint text={tooltip.customCss ?? ""} />
+          </div>
         </>
       )}
     </PanelSection>

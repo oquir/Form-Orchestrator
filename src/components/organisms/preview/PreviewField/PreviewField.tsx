@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { isSimulatedCatalog } from "../../../../lib/mockCatalog/mockCatalog";
 import { isRequiredBySchema } from "../../../../lib/runtimeValidation/runtimeValidation.utils";
@@ -17,7 +18,13 @@ export function PreviewField({
   // Precedencia del contrato: si visibleWhen da falso el campo no se dibuja ni se valida.
   if (!scope.visible[field.name]) return null;
 
-  const style = { gridColumn: `${field.colStart} / span ${field.colSpan}` };
+  // Los estilos ya llegan resueltos a CSS plano desde el export (ver lib/cssStyles); aca solo se
+  // completa con la posicion en el grid, y va al final para que gane sobre cualquier CSS libre
+  // que el autor haya escrito.
+  const style: CSSProperties = {
+    ...(field.styles as CSSProperties),
+    gridColumn: `${field.colStart} / span ${field.colSpan}`,
+  };
 
   if (field.type === "label") {
     return (

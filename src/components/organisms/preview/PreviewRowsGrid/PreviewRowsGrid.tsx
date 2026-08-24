@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { fieldKey } from "../../../../lib/runtimeValidation/runtimeValidation.utils";
 import { PreviewField } from "../PreviewField/PreviewField";
 import type { PreviewRowsGridProps } from "./PreviewRowsGrid.types";
@@ -19,7 +20,14 @@ export function PreviewRowsGrid({
           <div
             key={row.rowId}
             className="grid items-start gap-3"
-            style={{ gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))` }}
+            style={
+              {
+                // Los estilos de la fila ya llegan resueltos a CSS plano; gridTemplateColumns va
+                // al final para que gane sobre un CSS libre que lo nombrara.
+                ...row.styles,
+                gridTemplateColumns: `repeat(${row.columns}, minmax(0, 1fr))`,
+              } as CSSProperties
+            }
           >
             {row.fields.map((field) => {
               const key: string = fieldKey(field.name, groupId, itemIndex);

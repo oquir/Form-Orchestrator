@@ -1,6 +1,8 @@
 import { DEFAULT_TOOLTIP_POSITION } from "../../constants/fieldTooltip";
 import { TOOLTIP_CAPABLE_FIELD_TYPES } from "../../constants/fieldTypes";
+import type { ExportedTooltip } from "../../types/exportForm";
 import type { CanvasField, FieldTooltip } from "../../types/field";
+import { resolveTooltipStyles } from "../cssStyles/cssStyles";
 import { emptyRichText, isEmptyRichText } from "../richText/richText";
 
 // La ayuda contextual de un campo. Solo ocho tipos la admiten. El contenido es RichTextContent,
@@ -15,8 +17,14 @@ export function hasTooltip(field: CanvasField): boolean {
   return supportsTooltip(field.type) && !isEmptyRichText(field.tooltip?.content);
 }
 
-export function exportableTooltip(field: CanvasField): FieldTooltip | undefined {
-  return hasTooltip(field) ? field.tooltip : undefined;
+export function exportableTooltip(field: CanvasField): ExportedTooltip | undefined {
+  if (!hasTooltip(field) || !field.tooltip) return undefined;
+
+  return {
+    content: field.tooltip.content,
+    position: field.tooltip.position,
+    styles: resolveTooltipStyles(field.tooltip),
+  };
 }
 
 export function createEmptyTooltip(): FieldTooltip {

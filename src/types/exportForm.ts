@@ -1,14 +1,13 @@
 import type {
   ApiBinding,
   ConditionOperator,
+  CssStyleMap,
   FieldCondition,
   FieldDataSource,
   FieldFileConfig,
   FieldOption,
-  FieldStyles,
-  FieldTooltip,
+  TooltipPosition,
 } from "./field";
-import type { RowStyles } from "./formStructure";
 import type { RichTextContent } from "./richText";
 import type { FormType } from "./setup";
 
@@ -59,6 +58,15 @@ export interface ExportedLogic {
   rules?: ExportedRule[];
 }
 
+// El contenido es el mismo RichTextContent que el modelo -- ya paso por el sanitizador al
+// serializarse -- pero `styles` sale resuelto a CSS plano, igual que el del campo: el consumidor
+// no interpreta clases, aplica un objeto.
+export interface ExportedTooltip {
+  content: RichTextContent;
+  position: TooltipPosition;
+  styles: CssStyleMap;
+}
+
 export interface ExportedField {
   fieldId: string;
   name: string;
@@ -66,7 +74,9 @@ export interface ExportedField {
   label: string;
   colStart: number;
   colSpan: number;
-  styles: FieldStyles;
+  // Mapa CSS plano listo para `style`, nunca clases: ver lib/cssStyles. Siempre presente, aunque
+  // sea `{}` -- a diferencia de ExportedRow.styles, que es opcional.
+  styles: CssStyleMap;
   validations: ExportedValidations;
   logic: ExportedLogic;
   title?: string;
@@ -79,7 +89,7 @@ export interface ExportedField {
   dataSource?: FieldDataSource;
   labelFor?: string;
   content?: RichTextContent;
-  tooltip?: FieldTooltip;
+  tooltip?: ExportedTooltip;
   rounding?: boolean;
   formatted?: boolean;
   // Solo aparece cuando vale false. Si no viene, el campo admite negativos.
@@ -118,7 +128,9 @@ export interface ExportedRow {
   rowId: string;
   columns: number;
   groupId?: string;
-  styles?: RowStyles;
+  // Ausente cuando la fila no tiene nada que decir -- JSON.stringify descarta undefined, asi que
+  // una fila sin estilos serializa sin la clave.
+  styles?: CssStyleMap;
   fields: ExportedField[];
 }
 

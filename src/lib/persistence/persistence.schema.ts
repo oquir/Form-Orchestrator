@@ -34,7 +34,7 @@ const fieldValidationRulesSchema = z.object({
 });
 
 const fieldStylesSchema = z.object({
-  customClasses: z.string().optional(),
+  customCss: z.string().optional(),
   marginTop: z.string().optional(),
   marginBottom: z.string().optional(),
   backgroundColor: z.string().optional(),
@@ -54,7 +54,7 @@ const fieldFileConfigSchema = z.object({
 const fieldTooltipSchema = z.object({
   content: richTextContentSchema,
   position: z.enum(["top", "bottom", "left", "right"]),
-  customClasses: z.string().optional(),
+  customCss: z.string().optional(),
 });
 
 const fieldConditionSchema = z.object({
@@ -159,7 +159,7 @@ const canvasFieldSchema = z.object({
 });
 
 const rowStylesSchema = z.object({
-  customClasses: z.string().optional(),
+  customCss: z.string().optional(),
   marginTop: z.string().optional(),
   marginBottom: z.string().optional(),
 });

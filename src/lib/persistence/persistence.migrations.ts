@@ -95,6 +95,101 @@ function formulaToScriptEffect(effect: unknown): unknown {
   };
 }
 
+// Tabla chica: cubre lo que alguien tipea de verdad en ese cuadro para un campo de formulario.
+// Lo que no esta ahi no se inventa -- se conserva como comentario CSS, igual que preservedFormula
+// conserva una formula que no compilaba.
+const TAILWIND_TO_CSS: Record<string, string> = {
+  "font-bold": "font-weight: 700",
+  "font-semibold": "font-weight: 600",
+  "font-medium": "font-weight: 500",
+  "font-normal": "font-weight: 400",
+  italic: "font-style: italic",
+  "not-italic": "font-style: normal",
+  underline: "text-decoration: underline",
+  uppercase: "text-transform: uppercase",
+  lowercase: "text-transform: lowercase",
+  capitalize: "text-transform: capitalize",
+  "text-left": "text-align: left",
+  "text-center": "text-align: center",
+  "text-right": "text-align: right",
+  "text-justify": "text-align: justify",
+  hidden: "display: none",
+  block: "display: block",
+  "inline-block": "display: inline-block",
+  flex: "display: flex",
+};
+
+function classesToCss(classes: string): string {
+  const tokens: string[] = classes.split(/\s+/).filter((token) => token.length > 0);
+  const mapped: string[] = [];
+  const unmapped: string[] = [];
+
+  for (const token of tokens) {
+    const css: string | undefined = TAILWIND_TO_CSS[token];
+    if (css) mapped.push(`${css};`);
+    else unmapped.push(token);
+  }
+
+  if (unmapped.length > 0) {
+    mapped.push(
+      `/* Estas clases de Tailwind no se pudieron traducir al migrar, reescribilas como CSS: ${unmapped.join(" ")} */`,
+    );
+  }
+
+  return mapped.join("\n");
+}
+
+// `customClasses` en un objeto de estilos (campo, fila o tooltip) pasa a `customCss` con la
+// traduccion de arriba. `holder` es generico porque los tres casos comparten la misma forma de
+// migracion aunque vivan en claves distintas del campo (`styles`, `tooltip`).
+function migrateStyleHolder(holder: unknown): unknown {
+  if (!isRecord(holder) || typeof holder.customClasses !== "string") return holder;
+
+  const { customClasses, ...rest } = holder;
+
+  return { ...rest, customCss: classesToCss(customClasses) };
+}
+
+function fieldClassesToCss(field: LooseDraft): LooseDraft {
+  return {
+    ...field,
+    styles: migrateStyleHolder(field.styles),
+    tooltip: migrateStyleHolder(field.tooltip),
+  };
+}
+
+function rowClassesToCss(row: LooseDraft): LooseDraft {
+  return { ...row, styles: migrateStyleHolder(row.styles) };
+}
+
+type RowMigration = (row: LooseDraft) => LooseDraft;
+
+function mapStepRows(step: unknown, migrate: RowMigration): unknown {
+  if (!isRecord(step) || !Array.isArray(step.rows)) return step;
+
+  return {
+    ...step,
+    rows: step.rows.map((row) => (isRecord(row) ? migrate(row) : row)),
+  };
+}
+
+// mapDraftFields ya sabe recorrer los dos lienzos, pero solo llega a `row.fields`: los estilos de
+// la fila viven un nivel mas arriba, asi que hace falta un recorrido propio para `row.styles`.
+function mapDraftRows(draft: LooseDraft, migrate: RowMigration): LooseDraft {
+  const introModal: unknown = draft.introModal;
+
+  return {
+    ...draft,
+    formSteps: Array.isArray(draft.formSteps)
+      ? draft.formSteps.map((step) => mapStepRows(step, migrate))
+      : draft.formSteps,
+    introModal:
+      isRecord(introModal) && Array.isArray(introModal.steps)
+        ? { ...introModal, steps: introModal.steps.map((step) => mapStepRows(step, migrate)) }
+        : introModal,
+  };
+}
+
 function ruleFormulasToScripts(field: LooseDraft): LooseDraft {
   const logic: unknown = field.logic;
   if (!isRecord(logic) || !Array.isArray(logic.rules)) return field;
@@ -129,6 +224,10 @@ const MIGRATIONS: Record<number, DraftMigration> = {
 
     return resto;
   },
+  // 5 -> 6: las clases de Tailwind del campo, la fila y el tooltip pasan a ser CSS plano. Tailwind
+  // escanea el fuente del consumidor, no el JSON exportado, asi que una clase ahi solo funcionaba
+  // por casualidad.
+  5: (draft) => mapDraftRows(mapDraftFields(draft, fieldClassesToCss), rowClassesToCss),
 };
 
 // Un hueco en la cadena corta el recorrido y devuelve el borrador con su version vieja, que es

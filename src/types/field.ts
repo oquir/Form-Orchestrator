@@ -27,12 +27,17 @@ export interface FieldValidations extends FieldValidationRules {
 }
 
 export interface FieldStyles {
-  customClasses?: string;
+  customCss?: string;
   marginTop?: string;
   marginBottom?: string;
   backgroundColor?: string;
   textColor?: string;
 }
+
+// Mapa CSS plano, camelCase, listo para el `style` de React. Es lo que sale al exportar en vez de
+// clases de Tailwind: el consumidor no tiene su fuente escaneado por Tailwind, asi que una clase
+// solo se aplicaria ahi por casualidad. Ver lib/cssStyles.
+export type CssStyleMap = Record<string, string>;
 
 // El calculo de un campo vive en un solo lugar: `script`, codigo con {campo} para leer a los
 // demas. Las reglas siguen aparte porque no son otro lenguaje sino una estructura declarativa
@@ -57,7 +62,7 @@ export type TooltipPosition = "top" | "bottom" | "left" | "right";
 export interface FieldTooltip {
   content: RichTextContent;
   position: TooltipPosition;
-  customClasses?: string;
+  customCss?: string;
 }
 
 export type ConditionOperator =

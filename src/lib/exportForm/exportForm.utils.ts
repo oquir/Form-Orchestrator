@@ -11,6 +11,7 @@ import type {
 } from "../../types/exportForm";
 import type { CanvasField, CatalogFill, FieldCondition, FieldDataSource } from "../../types/field";
 import type { CanvasRow, FormStep, RepeatableGroup } from "../../types/formStructure";
+import { resolveFieldStyles, resolveRowStyles } from "../cssStyles/cssStyles";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableMaxLength } from "../fieldLength/fieldLength";
@@ -167,7 +168,7 @@ export function mapRows(
     rowId: row.id,
     columns: row.columns,
     groupId: row.groupId,
-    styles: row.styles,
+    styles: resolveRowStyles(row.styles),
     fields: row.fields.map((field) => ({
       fieldId: field.id,
       name: field.name,
@@ -175,7 +176,7 @@ export function mapRows(
       label: field.label,
       colStart: field.colStart,
       colSpan: field.colSpan,
-      styles: field.styles,
+      styles: resolveFieldStyles(field.styles),
       // Solo se exporta el schema como texto, nunca las validaciones sueltas: que no haya schema
       // es justamente como el consumidor sabe que un campo presentacional no valida nada.
       validations: resolveValidations(field, names),

@@ -1,6 +1,6 @@
-import type { FieldTooltip } from "../../../types/field";
+import type { ExportedTooltip } from "../../../types/exportForm";
 
 export interface PreviewTooltipProps {
-  tooltip: FieldTooltip;
+  tooltip: ExportedTooltip;
   label: string;
 }

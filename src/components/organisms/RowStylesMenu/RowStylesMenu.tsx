@@ -2,9 +2,10 @@ import { useRef, useState } from "react";
 import { Palette } from "reicon-react";
 import { useClickOutside } from "../../../hooks/useClickOutside/useClickOutside";
 import { useFormStore } from "../../../store/formStore";
-import { Input } from "../../atoms/Input/Input";
 import { Label } from "../../atoms/Label/Label";
+import { Textarea } from "../../atoms/TextArea/Textarea";
 import { TwoColumnFieldGroup } from "../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
+import { CssValidationHint } from "../../molecules/CssValidationHint/CssValidationHint";
 import { PxInput } from "../../molecules/PxInput/PxInput";
 import type { RowStylesMenuProps } from "./RowStylesMenu.types";
 
@@ -31,16 +32,18 @@ export function RowStylesMenu({ rowId, styles }: RowStylesMenuProps) {
       {isOpen && (
         <div className="absolute bottom-6 left-0 flex w-72 flex-col gap-3 rounded-md border border-slate-200 bg-white px-3 py-2.5 shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
           <div className="flex flex-col gap-1">
-            <Label htmlFor={`row-classes-${rowId}`}>Clases CSS (Tailwind)</Label>
-            <Input
-              id={`row-classes-${rowId}`}
-              aria-label="Clases CSS de Tailwind para la fila"
-              value={styles?.customClasses ?? ""}
-              onChange={(event) => updateRowStyles(rowId, { customClasses: event.target.value })}
-              placeholder="bg-slate-50 rounded-lg"
+            <Label htmlFor={`row-css-${rowId}`}>CSS personalizado</Label>
+            <Textarea
+              id={`row-css-${rowId}`}
+              aria-label="CSS personalizado de la fila"
+              value={styles?.customCss ?? ""}
+              onChange={(event) => updateRowStyles(rowId, { customCss: event.target.value })}
+              placeholder={"background: #f8fafc;\nborder-radius: 8px;"}
               spellCheck={false}
-              tone="code"
+              rows={3}
+              variant="code"
             />
+            <CssValidationHint text={styles?.customCss ?? ""} />
           </div>
 
           <TwoColumnFieldGroup legend="Márgenes">

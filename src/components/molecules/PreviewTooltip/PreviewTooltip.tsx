@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type CSSProperties, useState } from "react";
 import { InfoCircle } from "reicon-react";
 import {
   TOOLTIP_ANCHOR_CLASSES,
@@ -27,7 +27,8 @@ export function PreviewTooltip({ tooltip, label }: PreviewTooltipProps) {
       <span
         className={`absolute z-30 ${pinned ? "block" : "hidden group-hover/tip:block"} ${
           TOOLTIP_ANCHOR_CLASSES[tooltip.position]
-        } ${TOOLTIP_SURFACE_CLASSES} ${tooltip.customClasses ?? ""}`}
+        } ${TOOLTIP_SURFACE_CLASSES}`}
+        style={tooltip.styles as CSSProperties}
       >
         <RichTextView content={tooltip.content} className={TOOLTIP_TEXT_CLASSES} />
       </span>

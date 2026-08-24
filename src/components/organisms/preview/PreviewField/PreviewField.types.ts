@@ -1,6 +1,5 @@
 import type { CatalogBank } from "../../../../types/catalog";
-import type { ExportedField } from "../../../../types/exportForm";
-import type { FieldTooltip } from "../../../../types/field";
+import type { ExportedField, ExportedTooltip } from "../../../../types/exportForm";
 import type { RuntimeScope } from "../../../../types/formRuntime";
 
 export interface PreviewFieldProps {
@@ -8,7 +7,7 @@ export interface PreviewFieldProps {
   scope: RuntimeScope;
   catalogBank: CatalogBank;
   externalLabel: string | undefined;
-  linkedTooltip: FieldTooltip | undefined;
+  linkedTooltip: ExportedTooltip | undefined;
   error: string | undefined;
   onChange: (value: unknown) => void;
 }

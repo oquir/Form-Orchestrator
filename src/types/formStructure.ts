@@ -5,7 +5,7 @@ import type { GroupCheck } from "./groupCheck";
 // contenedor de layout, no algo que se lee como un campo, y pintarla entera abre las mismas
 // preguntas de contraste que field.styles ya tiene sin resolver del lado del campo.
 export interface RowStyles {
-  customClasses?: string;
+  customCss?: string;
   marginTop?: string;
   marginBottom?: string;
 }

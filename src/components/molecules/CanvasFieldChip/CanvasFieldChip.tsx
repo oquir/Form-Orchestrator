@@ -1,6 +1,8 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
+import type { CSSProperties } from "react";
 import { Eye, InfoCircle } from "reicon-react";
 import { GRID_BASE_COLUMNS } from "../../../constants/grid";
+import { resolveFieldStyles } from "../../../lib/cssStyles/cssStyles";
 import { hasTooltip } from "../../../lib/fieldTooltip/fieldTooltip";
 import { getFreeRuns, getMaxSpanAt } from "../../../lib/rowLayout/rowLayout";
 import { useFormStore } from "../../../store/formStore";
@@ -49,6 +51,11 @@ export function CanvasFieldChip({
   const isCompact = rowColumns >= 13 && field.colSpan === 1;
   const shouldHideContent = field.colSpan === 1 && rowColumns >= 14;
   const showTooltip: boolean = hasTooltip(field);
+  // El margen se queda en el div de arriba (relative, con el handle y el resize anclados a el):
+  // aplicarlo aca correria el boton por dentro sin mover a sus hermanos absolutos. El resto --
+  // fondo, color y el CSS libre -- va sobre la caja pintada, nunca sobre el div que solo lleva
+  // gridColumn, porque ese es el que fija la posicion en la fila.
+  const { marginTop, marginBottom, ...buttonStyles } = resolveFieldStyles(field.styles);
 
   return (
     <div
@@ -60,7 +67,7 @@ export function CanvasFieldChip({
         className={`relative group/tooltip ${
           isOver ? "rounded-md outline-2 outline-orange-400 dark:outline-orange-500" : ""
         }`}
-        style={{ marginTop: field.styles.marginTop, marginBottom: field.styles.marginBottom }}
+        style={{ marginTop, marginBottom }}
       >
         <FieldDragHandle
           listeners={listeners}
@@ -72,10 +79,7 @@ export function CanvasFieldChip({
           type="button"
           onClick={onClick}
           onContextMenu={onContextMenu}
-          style={{
-            backgroundColor: field.styles.backgroundColor,
-            color: field.styles.textColor,
-          }}
+          style={buttonStyles as CSSProperties}
           className={`flex w-full flex-col gap-1.5 rounded-md border bg-white py-3 text-left shadow-sm transition-colors dark:bg-neutral-800 ${getChipPaddingClasses(
             isCompact,
             isUltraCompact,
@@ -83,7 +87,7 @@ export function CanvasFieldChip({
             selected
               ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
               : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
-          } ${field.styles.customClasses ?? ""}`}
+          }`}
         >
           <div
             className={`flex items-center justify-between gap-2 overflow-x-hidden ${shouldHideContent ? "opacity-0" : ""}`}

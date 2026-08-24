@@ -1,8 +1,9 @@
 import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldStyles } from "../../../../types/field";
-import { Input } from "../../../atoms/Input/Input";
+import { Textarea } from "../../../atoms/TextArea/Textarea";
 import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { ColorPickerField } from "../../../molecules/ColorPickerField/ColorPickerField";
+import { CssValidationHint } from "../../../molecules/CssValidationHint/CssValidationHint";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { PxInput } from "../../../molecules/PxInput/PxInput";
 
@@ -12,16 +13,18 @@ export function StylesPanel({ field }: { field: CanvasField }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <PanelSection title="Clases CSS (Tailwind)">
-        <Input
-          id="custom-classes"
-          aria-label="Clases CSS de Tailwind"
-          value={s.customClasses ?? ""}
-          onChange={(event) => updateFieldStyles(field.id, { customClasses: event.target.value })}
-          placeholder="font-bold text-right"
+      <PanelSection title="CSS personalizado">
+        <Textarea
+          id="custom-css"
+          aria-label="CSS personalizado del campo"
+          value={s.customCss ?? ""}
+          onChange={(event) => updateFieldStyles(field.id, { customCss: event.target.value })}
+          placeholder={"font-weight: 700;\ntext-align: right;"}
           spellCheck={false}
-          tone="code"
+          rows={3}
+          variant="code"
         />
+        <CssValidationHint text={s.customCss ?? ""} />
       </PanelSection>
 
       <PanelSection title="Márgenes">
