@@ -1,4 +1,4 @@
-import type { FormTypeOption } from "./SetupWizardModal.types";
+import type { FormTypeOption } from "../types/setup";
 
 export const FORM_TYPES: FormTypeOption[] = [
   {

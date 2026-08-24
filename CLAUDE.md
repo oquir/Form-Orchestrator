@@ -24,7 +24,13 @@ tabs, the zoom control, Simulador, Exportar JSON), `CanvasTabs`, `TransferNotice
 full height of the window, which is the groundwork for making it a real pan/zoom surface.
 
 `AppLayout` takes three slots (`sidebar`, `canvas`, `rightSidebar`) and `FormBuilder` fills them.
-The panel is `organisms/RightSidebar/`, its sections use the `SidebarSection` atom.
+The panel is `organisms/RightSidebar/`, grouped into two `PanelSection` cards — **Proyecto**
+(tipo de formulario, vista, zoom, Guardar, Simulador, Exportar JSON) and **Steps** (las pestañas de
+paso más el título/subtítulo del paso activo) — the same molecule the left sidebar's panels use for
+their own sections. `atoms/SidebarSection/` (a bare rótulo with no card, the panel's original
+section wrapper) was deleted once `PanelSection` replaced its one caller: the two conventions were
+never meant to coexist, and keeping an unused component around is the kind of leftover nobody later
+knows whether they can touch.
 
 Settled decisions:
 
@@ -32,9 +38,33 @@ Settled decisions:
   `w-80 → w-10` with `overflow-hidden` over a child pinned at `w-80`. The clipping keeps whatever
   is closest to the *inner* edge, so the collapse strip sits on the left of the panel — facing the
   canvas — where the left sidebar's icon rail sits on its own outer edge for the same reason.
-- **The step tabs go first inside the panel, and that is a functional decision, not a layout one.**
-  Each `StepTabChip` is a droppable for moving a field or a row to another step. Anywhere further
-  down, a scrolled panel would put the drop target out of reach.
+- **The panel does not scroll, period — not even with dozens of steps — and that is what let the
+  step tabs move to second place.** The tabs used to go first specifically because "a scrolled
+  panel would put the drop target out of reach." That was a consequence of the panel scrolling, not
+  a rule about order: once the panel structurally cannot scroll, the reason is gone. The no-scroll
+  guarantee comes from `min-h-0` on the flex child wrapping the two sections (without it a flex
+  item cannot shrink below its content's height, and the overflow escapes the panel instead of
+  being clipped where it is supposed to be) plus a `max-h-56 overflow-y-auto` scoped to just the
+  step-chip grid inside `CanvasTabs` — the one deliberate exception, and the only place in the whole
+  panel that can still scroll. The two are inseparable: reordering the sections without also making
+  the panel unable to scroll would silently reintroduce the exact bug the original ordering existed
+  to prevent.
+- **A step tab collapses to its bare number; only the active one expands with its title and the
+  delete ✕.** This is what makes the no-scroll guarantee hold at any step count: a 28 px chip with a
+  6 px gap packs six per row inside the panel's ~222 px of usable width, so even 36 steps fit in the
+  chip grid's `max-h-56` before its own internal scrollbar has to appear — measured against the
+  full-title chip this replaced, which fit one or two per row and had no ceiling at all. The
+  trade-off is real and accepted: mid-drag you aim at a numbered square, not a name. Three things
+  soften it — the active chip stays expanded and, since the active step cannot change mid-gesture,
+  it never moves during a drag; every collapsed chip still carries the full title as a native
+  `title` tooltip; and the title/subtitle editor sits right below the grid, always naming the step
+  you are on. The delete button only lives on the active chip for the same space reason, which also
+  makes deleting a step you are not looking at one click harder — accepted as a feature, not a
+  papercut.
+- **`StepTabChip`'s `useDroppable` — id and data — did not change.** The chip's *content* is what
+  collapses; the drop target underneath, `` `tab-${type}-${stepId}` `` with `{canvasTarget}`, is
+  identical in both the expanded and the collapsed rendering, so `useDragAndDrop` needed no changes
+  to keep resolving field- and row-transfers onto a tab.
 - **This made cross-step dragging better, not worse.** The tabs used to scroll away with the canvas,
   so on a long form there was no tab to aim at from the bottom. A fixed side panel always has them.
 - **With the panel collapsed there is no cross-step drop target**, which is accepted. Auto-opening
@@ -47,9 +77,19 @@ Settled decisions:
   `Canvas.constants.ts` were deleted once empty.
 - **Neither `isRightSidebarOpen` nor `canvasViewMode` is persisted**, matching `isSidebarOpen` and
   `canvasZoom`. No draft schema line, no `DRAFT_SCHEMA_VERSION` bump.
-- **The right panel has no icon rail.** Its content is four sections about one document, not eight
+- **The right panel has no icon rail.** Its content is two sections about one document, not eight
   alternative panels; a second rail would cost 56 px and add a navigation decision for content that
-  already fits in one scroll.
+  already fits with no scroll.
+- **`FORM_TYPES` (and its `FormTypeOption` type) moved out of `SetupWizardModal/` and into
+  `constants/formType.ts` / `types/setup.ts`.** It was private to that folder until the Proyecto
+  section needed the form type's display label for its badge; the co-location rule says a
+  declaration used from outside its folder stops being private the moment a second caller needs it.
+- **`SaveButton`'s timestamp moved from beside the button to below it.** It used to sit to the
+  button's left and only while `justSaved` was false, so the button's own x-position shifted every
+  time the timestamp appeared or disappeared — a jump that is far more noticeable in a ~222 px-wide
+  card than it was in the old full-width header. The button is now always the first, full-width
+  element in a `flex-col`; the timestamp is a second line that can come and go without moving
+  anything above it.
 
 ## Zone placement (Shift / Shift+Ctrl while dragging)
 

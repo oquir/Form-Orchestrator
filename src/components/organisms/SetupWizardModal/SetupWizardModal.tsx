@@ -1,11 +1,11 @@
-﻿import { useSetupWizard } from "../../../hooks/useSetupWizard/useSetupWizard";
+﻿import { FORM_TYPES } from "../../../constants/formType";
+import { useSetupWizard } from "../../../hooks/useSetupWizard/useSetupWizard";
 import { Button } from "../../atoms/Button/Button";
 import { ModalShell } from "../../atoms/ModalShell/ModalShell";
 import { WizardFooterActions } from "../../atoms/WizardFooterActions/WizardFooterActions";
 import { BinaryChoiceToggle } from "../../molecules/BinaryChoiceToggle/BinaryChoiceToggle";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
 import { SelectableOptionCard } from "../../molecules/SelectableOptionCard/SelectableOptionCard";
-import { FORM_TYPES } from "./SetupWizardModal.constants";
 import type { SetupWizardModalProps } from "./SetupWizardModal.types";
 
 export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalProps) {
