@@ -103,11 +103,11 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
     introModalSteps: 1,
   },
   isSidebarOpen: true,
-  isRightSidebarOpen: true,
   isSimulatorOpen: false,
   canvasZoom: ZOOM_DEFAULT,
   canvasViewMode: "canvas",
   sidebarTab: "fields",
+  rightSidebarTab: "project",
   dragPlacement: null,
   rowDropTarget: null,
   rowDrag: null,
@@ -123,7 +123,6 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   setHoveredTransferTarget: (target) => set({ hoveredTransferTarget: target }),
   dismissTransferNotice: () => set({ transferNotice: null }),
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
-  setRightSidebarOpen: (open) => set({ isRightSidebarOpen: open }),
   // Sube al store porque ahora lo escribe el panel derecho y lo lee el lienzo, que son dos
   // subarboles distintos. Es estado de vista, igual que sidebarTab.
   setCanvasViewMode: (mode) => set({ canvasViewMode: mode }),
@@ -132,6 +131,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   // saben del rango.
   setCanvasZoom: (zoom) => set({ canvasZoom: clampZoom(zoom) }),
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
+  setRightSidebarTab: (tab) => set({ rightSidebarTab: tab }),
   markSaved: () => set({ lastSavedAt: new Date().toISOString() }),
   toggleDarkMode: () =>
     set((state) => {

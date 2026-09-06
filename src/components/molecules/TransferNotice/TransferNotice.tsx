@@ -9,7 +9,10 @@ export function TransferNotice() {
   if (!transferNotice) return null;
 
   return (
-    <div className="mb-4 flex items-start gap-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+    // El margen es propio y por los cuatro lados porque el cuerpo del panel derecho ya no tiene
+    // padding: cada bloque pone el suyo, y un envoltorio con padding aca dejaria un hueco muerto
+    // arriba cada vez que no hay aviso, que es casi siempre.
+    <div className="m-3 flex items-start gap-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
       <p className="flex-1">{transferNotice}</p>
       <IconButton
         onClick={dismissTransferNotice}

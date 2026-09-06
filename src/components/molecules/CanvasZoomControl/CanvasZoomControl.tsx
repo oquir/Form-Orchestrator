@@ -1,4 +1,6 @@
-import { ZOOM_DEFAULT } from "../../../constants/canvasZoom";
+import { useRef, useState } from "react";
+import { AngleDown2, Check } from "reicon-react";
+import { useClickOutside } from "../../../hooks/useClickOutside/useClickOutside";
 import {
   canZoomIn,
   canZoomOut,
@@ -7,39 +9,82 @@ import {
   zoomOut,
 } from "../../../lib/canvasZoom/canvasZoom";
 import { useFormStore } from "../../../store/formStore";
-import { IconButton } from "../../atoms/IconButton/IconButton";
-import { ZOOM_BUTTON_CLASSES } from "./CanvasZoomControl.constants";
+import {
+  ZOOM_ITEM_CLASSES,
+  ZOOM_PRESETS,
+  ZOOM_SHORTCUT_CLASSES,
+  ZOOM_TRIGGER_CLASSES,
+} from "./CanvasZoomControl.constants";
 
 export function CanvasZoomControl() {
   const canvasZoom = useFormStore((state) => state.canvasZoom);
   const setCanvasZoom = useFormStore((state) => state.setCanvasZoom);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useClickOutside(containerRef, () => setIsOpen(false), isOpen);
+
+  // El menu se cierra al elegir: es un salto puntual, no un control que se queda manipulando. Para
+  // eso estan la rueda y los atajos, que siguen funcionando con el menu cerrado.
+  function apply(zoom: number): void {
+    setCanvasZoom(zoom);
+    setIsOpen(false);
+  }
 
   return (
-    <div className="flex items-center rounded-md border border-slate-200 dark:border-neutral-700">
-      <IconButton
-        onClick={() => setCanvasZoom(zoomOut(canvasZoom))}
-        disabled={!canZoomOut(canvasZoom)}
-        title="Alejar el lienzo (Ctrl -)"
-        className={ZOOM_BUTTON_CLASSES}
-      >
-        −
-      </IconButton>
+    <div ref={containerRef} className="relative">
       <button
         type="button"
-        onClick={() => setCanvasZoom(ZOOM_DEFAULT)}
-        title="Volver al 100% (Ctrl 0)"
-        className="w-12 py-1.5 text-center text-xs font-medium tabular-nums text-slate-600 hover:text-orange-600 dark:text-neutral-300 dark:hover:text-orange-400 cursor-pointer"
+        onClick={() => setIsOpen((open) => !open)}
+        title="Zoom del lienzo"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        className={ZOOM_TRIGGER_CLASSES}
       >
         {formatZoom(canvasZoom)}
+        <AngleDown2 size={12} />
       </button>
-      <IconButton
-        onClick={() => setCanvasZoom(zoomIn(canvasZoom))}
-        disabled={!canZoomIn(canvasZoom)}
-        title="Acercar el lienzo (Ctrl +)"
-        className={ZOOM_BUTTON_CLASSES}
-      >
-        +
-      </IconButton>
+
+      {isOpen && (
+        <div className="absolute right-0 top-7 z-20 flex w-44 flex-col rounded-md border border-border bg-surface py-1 shadow-lg">
+          <button
+            type="button"
+            onClick={() => apply(zoomIn(canvasZoom))}
+            disabled={!canZoomIn(canvasZoom)}
+            className={ZOOM_ITEM_CLASSES}
+          >
+            Acercar
+            <span className={ZOOM_SHORTCUT_CLASSES}>Ctrl +</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => apply(zoomOut(canvasZoom))}
+            disabled={!canZoomOut(canvasZoom)}
+            className={ZOOM_ITEM_CLASSES}
+          >
+            Alejar
+            <span className={ZOOM_SHORTCUT_CLASSES}>Ctrl −</span>
+          </button>
+
+          <div className="my-1 border-t border-border-subtle" />
+
+          {ZOOM_PRESETS.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              onClick={() => apply(preset)}
+              className={ZOOM_ITEM_CLASSES}
+            >
+              <span className="tabular-nums">{formatZoom(preset)}</span>
+              {preset === canvasZoom ? (
+                <Check size={12} weight="Filled" className="text-brand-fg" />
+              ) : preset === 1 ? (
+                <span className={ZOOM_SHORTCUT_CLASSES}>Ctrl 0</span>
+              ) : null}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
