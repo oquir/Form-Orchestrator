@@ -23,45 +23,32 @@ export function StepTabChip({
     disabled: transferState !== "ready",
   });
 
-  // Contraida a su numero para que el panel no tenga que rodar por muchos steps que haya. Solo la
-  // activa se expande con su titulo: es la unica que no cambia a mitad de un arrastre, asi que el
-  // layout no se mueve durante el gesto. El titulo completo sigue disponible como tooltip nativo.
-  if (!active) {
-    return (
-      <div
-        ref={setNodeRef}
-        className={`relative shrink-0 rounded-md ${transferClasses(transferState, isOver)} ${className}`}
-      >
-        <button
-          type="button"
-          onClick={onSelect}
-          title={label}
-          aria-label={label}
-          className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500 transition-colors hover:cursor-pointer hover:bg-slate-200 dark:bg-neutral-800/70 dark:text-neutral-400 dark:hover:bg-neutral-700"
-        >
-          {index}
-        </button>
-      </div>
-    );
-  }
+  // Todas las pestanas son su numero, la activa incluida: la activa se distingue por el relleno de
+  // marca y su halo, no por expandirse con el titulo. Expandirla movia la grilla entera cada vez
+  // que se cambiaba de paso -- justo lo que no puede pasar mientras se apunta a una de estas
+  // pestanas con una fila colgando del puntero. El titulo vive en el bloque "Paso activo" y sigue
+  // a un hover de distancia en el title nativo.
+  const chipClasses: string = active
+    ? "bg-brand text-on-brand ring-[3px] ring-brand/20"
+    : "bg-surface-raised text-fg-muted hover:bg-surface-inset hover:text-fg-strong";
 
   return (
     <div
       ref={setNodeRef}
-      className={`group relative flex items-center gap-2 rounded-lg border border-orange-600 bg-[#f8e8e2] text-xs font-medium text-slate-900 dark:border-orange-500 dark:bg-[#21140f] dark:text-white ${transferClasses(transferState, isOver)} ${className}`}
+      className={`relative shrink-0 rounded-md ${transferClasses(transferState, isOver)} ${className}`}
     >
       <button
         type="button"
         onClick={onSelect}
-        className="flex select-none items-center gap-2 hover:cursor-pointer py-1.5 pr-3 pl-1.5"
+        title={label}
+        aria-label={label}
+        aria-current={active ? "step" : undefined}
+        className={`flex h-7 w-7 items-center justify-center rounded-md text-[11px] font-semibold tabular-nums transition-colors hover:cursor-pointer ${chipClasses}`}
       >
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-orange-600 text-[11px] font-semibold text-white dark:bg-orange-500">
-          {index}
-        </span>
-        {label}
+        {index}
       </button>
 
-      {onRemove && (
+      {active && onRemove && (
         <button
           type="button"
           title={removeTitle}
@@ -69,7 +56,7 @@ export function StepTabChip({
             e.stopPropagation();
             onRemove();
           }}
-          className="-right-1.5 -top-1.5 absolute flex h-4 w-4 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-red-300 hover:text-red-500 hover:cursor-pointer dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-red-400 dark:hover:text-red-400"
+          className="-right-1.5 -top-1.5 absolute flex h-4 w-4 items-center justify-center rounded-full border border-border bg-surface text-fg-subtle shadow-sm transition-colors hover:border-danger-soft hover:text-danger hover:cursor-pointer"
         >
           <Xmark size={removeIconSize} weight="Filled" />
         </button>

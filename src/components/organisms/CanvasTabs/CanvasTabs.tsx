@@ -2,6 +2,7 @@ import { Plus } from "reicon-react";
 import { getActiveRows, useFormStore } from "../../../store/formStore";
 import { DashedAddButton } from "../../atoms/DashedAddButton/DashedAddButton";
 import { StepTabChip } from "../../molecules/StepTabChip/StepTabChip";
+import { ADD_BUTTON_CLASSES, GROUP_CAPTION_CLASSES } from "./CanvasTabs.constants";
 import { resolveTransferState } from "./CanvasTabs.utils";
 
 export function CanvasTabs() {
@@ -23,13 +24,14 @@ export function CanvasTabs() {
   const transferState = resolveTransferState(activeRows, rowDrag, draggingFieldId);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <nav aria-label="Steps del formulario">
-        {/* El tope solo entra en juego pasados ~36 steps (chip de 28px, 6 por fila): el panel no
-            rueda nunca, pero esta grilla si puede, y es el unico lugar de todo el panel donde
-            eso pasa. */}
+        {hasIntroModal && <span className={GROUP_CAPTION_CLASSES}>Formulario</span>}
+        {/* Con todos los chips del mismo ancho entran 8 por fila, asi que el tope solo entra en
+            juego pasados ~40 steps: el panel no rueda nunca, pero esta grilla si puede, y es el
+            unico lugar de todo el panel donde eso pasa. */}
         <div className="max-h-56 overflow-y-auto">
-          <ul className="flex list-none flex-wrap items-center gap-1.5">
+          <ul className="flex list-none flex-wrap items-center gap-2">
             {formSteps.map((step, index) => {
               const isActive: boolean =
                 activeCanvas.type === "formStep" && activeCanvas.stepId === step.stepId;
@@ -56,7 +58,7 @@ export function CanvasTabs() {
                 onClick={addFormStep}
                 title="Agregar step al formulario"
                 aria-label="Agregar step al formulario"
-                className="flex h-7 w-7 items-center justify-center rounded-md border-brand-border text-brand-fg hover:border-brand hover:text-brand-hover"
+                className={ADD_BUTTON_CLASSES}
               >
                 <Plus size={14} weight="Filled" />
               </DashedAddButton>
@@ -66,14 +68,9 @@ export function CanvasTabs() {
       </nav>
 
       {hasIntroModal && (
-        <nav
-          aria-label="Steps del modal de entrada"
-          className="flex flex-wrap items-center gap-1.5 border-t border-slate-200 pt-2 dark:border-neutral-800"
-        >
-          <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-neutral-500">
-            Modal
-          </span>
-          <ul className="flex list-none flex-wrap items-center gap-1.5">
+        <nav aria-label="Steps del modal de entrada" className="border-t border-border pt-3">
+          <span className={GROUP_CAPTION_CLASSES}>Modal de entrada</span>
+          <ul className="flex list-none flex-wrap items-center gap-2">
             {introSteps.map((step, index) => {
               const isActive: boolean =
                 activeCanvas.type === "introStep" && activeCanvas.stepId === step.stepId;
@@ -99,7 +96,7 @@ export function CanvasTabs() {
                 onClick={addIntroModalStep}
                 title="Agregar paso al modal introductorio"
                 aria-label="Agregar paso al modal introductorio"
-                className="flex h-7 w-7 items-center justify-center rounded-md border-brand-border text-brand-fg hover:border-brand hover:text-brand-hover"
+                className={ADD_BUTTON_CLASSES}
               >
                 <Plus size={14} weight="Filled" />
               </DashedAddButton>
