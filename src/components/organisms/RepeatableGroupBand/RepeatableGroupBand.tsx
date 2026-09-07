@@ -1,18 +1,21 @@
 import { useDroppable } from "@dnd-kit/core";
-import { Layers, Plus, Xmark } from "reicon-react";
+import { useState } from "react";
+import { Layers, Plus } from "reicon-react";
 import { PAYLOAD_SCHEMA } from "../../../constants/payloadSchema";
 import { arrayPaths } from "../../../lib/payloadSchema/payloadSchema";
 import { useFormStore } from "../../../store/formStore";
-import { IconButton } from "../../atoms/IconButton/IconButton";
 import { CanvasRow } from "../CanvasRow/CanvasRow";
 import { GroupChecksEditor } from "../panels/GroupChecksEditor/GroupChecksEditor";
 import {
   BAND_ACTION_CLASSES,
   BAND_CLASSES,
+  BAND_DISSOLVE_CLASSES,
   BAND_INPUT_CLASSES,
   BAND_NUMBER_CLASSES,
+  BAND_SUMMARY_CLASSES,
 } from "./RepeatableGroupBand.constants";
 import type { RepeatableGroupBandProps } from "./RepeatableGroupBand.types";
+import { buildGroupSummary } from "./RepeatableGroupBand.utils";
 
 export function RepeatableGroupBand({
   group,
@@ -27,6 +30,9 @@ export function RepeatableGroupBand({
   const removeGroup = useFormStore((state) => state.removeGroup);
   const isRowDragActive = useFormStore((state) => state.rowDrag !== null);
   const paths: string[] = arrayPaths(PAYLOAD_SCHEMA);
+  // Minimo, maximo, arreglo y comprobaciones eran un formulario de configuracion desplegado en
+  // medio del lienzo, aunque no se toquen casi nunca. Al reposo ahora se leen en una linea.
+  const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
   // La banda solo es zona de soltar mientras se arrastra una fila. Apagada el resto del tiempo,
   // no puede competir con las filas de dentro por el drop de un campo: es estructural y no depende
@@ -62,6 +68,8 @@ export function RepeatableGroupBand({
           className={`${BAND_INPUT_CLASSES} min-w-0 flex-1`}
         />
 
+        <span className={BAND_SUMMARY_CLASSES}>{buildGroupSummary(group)}</span>
+
         <button
           type="button"
           onClick={() => addRowToGroup(group.id)}
@@ -72,64 +80,80 @@ export function RepeatableGroupBand({
           </span>
         </button>
 
-        <IconButton
-          onClick={() => removeGroup(group.id)}
-          title="Disolver el grupo (las filas se quedan)"
-          className="flex h-5 w-5 items-center justify-center rounded-full border border-sky-200 text-sky-500 hover:cursor-pointer hover:border-red-300 hover:text-red-500 dark:border-sky-500/40 dark:text-sky-300"
+        <button
+          type="button"
+          onClick={() => setIsConfigOpen((open) => !open)}
+          aria-expanded={isConfigOpen}
+          className={BAND_ACTION_CLASSES}
         >
-          <Xmark size={11} weight="Filled" />
-        </IconButton>
+          {isConfigOpen ? "▾" : "▸"} Configurar
+        </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] text-slate-500 dark:text-neutral-400">
-        <label className="flex items-center gap-1.5">
-          Mínimo
-          <input
-            type="number"
-            min={0}
-            value={group.min}
-            onChange={(event) => updateGroup(group.id, { min: Number(event.target.value) })}
-            className={BAND_NUMBER_CLASSES}
-          />
-        </label>
+      {isConfigOpen && (
+        <div className="flex flex-col gap-3 border-t border-border pt-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] text-slate-500 dark:text-neutral-400">
+            <label className="flex items-center gap-1.5">
+              Mínimo
+              <input
+                type="number"
+                min={0}
+                value={group.min}
+                onChange={(event) => updateGroup(group.id, { min: Number(event.target.value) })}
+                className={BAND_NUMBER_CLASSES}
+              />
+            </label>
 
-        <label className="flex items-center gap-1.5">
-          Máximo
-          <input
-            type="number"
-            min={1}
-            value={group.max}
-            onChange={(event) => updateGroup(group.id, { max: Number(event.target.value) })}
-            className={BAND_NUMBER_CLASSES}
-          />
-        </label>
+            <label className="flex items-center gap-1.5">
+              Máximo
+              <input
+                type="number"
+                min={1}
+                value={group.max}
+                onChange={(event) => updateGroup(group.id, { max: Number(event.target.value) })}
+                className={BAND_NUMBER_CLASSES}
+              />
+            </label>
 
-        <label className="flex items-center gap-1.5">
-          Arreglo del payload
-          <select
-            value={group.arrayPath ?? ""}
-            onChange={(event) =>
-              updateGroup(group.id, { arrayPath: event.target.value || undefined })
-            }
-            className={BAND_INPUT_CLASSES}
+            <label className="flex items-center gap-1.5">
+              Arreglo del payload
+              <select
+                value={group.arrayPath ?? ""}
+                onChange={(event) =>
+                  updateGroup(group.id, { arrayPath: event.target.value || undefined })
+                }
+                className={BAND_INPUT_CLASSES}
+              >
+                <option value="">— Sin mapear —</option>
+                {paths.map((path) => (
+                  <option key={path} value={path}>
+                    {path}[]
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <span className="text-slate-400 dark:text-neutral-500">
+              {group.arrayPath
+                ? `Cada repetición es un ítem de ${group.arrayPath}[].`
+                : "Elegí el arreglo para poder mapear los campos de adentro."}
+            </span>
+          </div>
+
+          <GroupChecksEditor group={group} />
+
+          {/* Disolver vive aca dentro y ya no al lado de "+ Fila": es destructivo y estaba a
+              veinte pixeles de la accion que mas se usa, con el mismo tamaño. */}
+          <button
+            type="button"
+            onClick={() => removeGroup(group.id)}
+            title="Disolver el grupo (las filas se quedan)"
+            className={BAND_DISSOLVE_CLASSES}
           >
-            <option value="">— Sin mapear —</option>
-            {paths.map((path) => (
-              <option key={path} value={path}>
-                {path}[]
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <span className="text-slate-400 dark:text-neutral-500">
-          {group.arrayPath
-            ? `Cada repetición es un ítem de ${group.arrayPath}[].`
-            : "Elegí el arreglo para poder mapear los campos de adentro."}
-        </span>
-      </div>
-
-      <GroupChecksEditor group={group} />
+            Disolver el grupo
+          </button>
+        </div>
+      )}
 
       <ul className="grid list-none grid-cols-16 content-start gap-3">
         {rows.map((row) => (

@@ -8,3 +8,9 @@ export const BAND_NUMBER_CLASSES: string = `${BAND_INPUT_CLASSES} w-14`;
 
 export const BAND_ACTION_CLASSES: string =
   "text-[11px] font-medium text-brand-fg hover:cursor-pointer hover:text-brand-hover";
+
+// El resumen de lo que antes ocupaba una fila entera de inputs. Se lee, no se toca.
+export const BAND_SUMMARY_CLASSES: string = "text-[11px] tabular-nums text-fg-subtle";
+
+export const BAND_DISSOLVE_CLASSES: string =
+  "self-start text-[11px] font-medium text-fg-subtle hover:cursor-pointer hover:text-danger";
