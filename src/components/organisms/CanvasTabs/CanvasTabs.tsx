@@ -29,8 +29,11 @@ export function CanvasTabs() {
         {hasIntroModal && <span className={GROUP_CAPTION_CLASSES}>Formulario</span>}
         {/* Con todos los chips del mismo ancho entran 8 por fila, asi que el tope solo entra en
             juego pasados ~40 steps: el panel no rueda nunca, pero esta grilla si puede, y es el
-            unico lugar de todo el panel donde eso pasa. */}
-        <div className="max-h-56 overflow-y-auto">
+            unico lugar de todo el panel donde eso pasa. Ojo: la X de eliminar cuelga 6px por
+            fuera del chip activo, y un contenedor que rueda recorta en los dos ejes aunque solo
+            uno pida scroll -- el padding le devuelve ese margen adentro de la caja recortada y el
+            margen negativo deja la grilla donde estaba. */}
+        <div className="-mx-1.5 -mt-1.5 max-h-56 overflow-y-auto px-1.5 pt-1.5">
           <ul className="flex list-none flex-wrap items-center gap-2">
             {formSteps.map((step, index) => {
               const isActive: boolean =
