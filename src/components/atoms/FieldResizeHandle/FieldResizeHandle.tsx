@@ -8,6 +8,7 @@ export function FieldResizeHandle({
   colSpan,
   rowColumns,
   maxSpan,
+  pinned,
   onResize,
 }: FieldResizeHandleProps) {
   const { isResizing, handlePointerDown } = useFieldResize({
@@ -22,6 +23,7 @@ export function FieldResizeHandle({
   const handleProps: FieldResizeHandleVariantProps = {
     isResizing,
     title: `Redimensionar (${colSpan}/${rowColumns})`,
+    pinned,
     onPointerDown: handlePointerDown,
   };
 

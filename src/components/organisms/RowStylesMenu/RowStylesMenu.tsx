@@ -1,5 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Palette } from "reicon-react";
+import {
+  ROW_TOOLBAR_ICON_ITEM_CLASSES,
+  ROW_TOOLBAR_POPOVER_CLASSES,
+} from "../../../constants/uiClasses";
 import { useClickOutside } from "../../../hooks/useClickOutside/useClickOutside";
 import { useFormStore } from "../../../store/formStore";
 import { Label } from "../../atoms/Label/Label";
@@ -11,26 +15,26 @@ import type { RowStylesMenuProps } from "./RowStylesMenu.types";
 
 // Mismo icono que la pestaña "Estilos" de un campo (Sidebar.constants): es el mismo concepto, un
 // nivel mas arriba. A proposito no ofrece color de fondo ni de texto -- ver el comentario en
-// types/formStructure -- asi que solo hay dos secciones, no las tres de StylesPanel.
-export function RowStylesMenu({ rowId, styles }: RowStylesMenuProps) {
+// types/formStructure -- asi que solo hay dos secciones, no las tres de StylesPanel. El
+// abierto/cerrado lo lleva la barra que lo contiene.
+export function RowStylesMenu({ rowId, styles, isOpen, onToggle, onClose }: RowStylesMenuProps) {
   const updateRowStyles = useFormStore((state) => state.updateRowStyles);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  useClickOutside(containerRef, () => setIsOpen(false), isOpen);
+  useClickOutside(containerRef, onClose, isOpen);
 
   return (
-    <div ref={containerRef} className="absolute top-1/2 -right-3 -translate-y-1/2 z-10">
+    <div ref={containerRef} className="relative">
       <button
         type="button"
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={onToggle}
         title="Estilos de la fila"
-        className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm hover:cursor-pointer hover:border-orange-400 hover:text-orange-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-500 dark:hover:border-orange-500 dark:hover:text-orange-400"
+        className={ROW_TOOLBAR_ICON_ITEM_CLASSES}
       >
         <Palette size={12} />
       </button>
       {isOpen && (
-        <div className="absolute bottom-6 left-0 flex w-72 flex-col gap-3 rounded-md border border-slate-200 bg-white px-3 py-2.5 shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+        <div className={`${ROW_TOOLBAR_POPOVER_CLASSES} gap-3`}>
           <div className="flex flex-col gap-1">
             <Label htmlFor={`row-css-${rowId}`}>CSS personalizado</Label>
             <Textarea

@@ -1,32 +1,35 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../../../constants/grid";
+import {
+  ROW_TOOLBAR_ITEM_CLASSES,
+  ROW_TOOLBAR_POPOVER_CLASSES,
+} from "../../../constants/uiClasses";
 import { useClickOutside } from "../../../hooks/useClickOutside/useClickOutside";
 import { useFormStore } from "../../../store/formStore";
 import type { RowColumnsMenuProps } from "./RowColumnsMenu.types";
 
-export function RowColumnsMenu({ rowId, columns }: RowColumnsMenuProps) {
+// El abierto/cerrado lo lleva la barra que lo contiene, no este componente: asi los dos menus son
+// excluyentes sin conocerse y la barra sabe que tiene que quedarse a la vista mientras haya uno
+// desplegado.
+export function RowColumnsMenu({ rowId, columns, isOpen, onToggle, onClose }: RowColumnsMenuProps) {
   const updateRowColumns = useFormStore((state) => state.updateRowColumns);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  useClickOutside(containerRef, () => setIsOpen(false), isOpen);
+  useClickOutside(containerRef, onClose, isOpen);
 
   return (
-    <div ref={containerRef} className="absolute -left-3 -top-3 z-10">
+    <div ref={containerRef} className="relative">
       <button
         type="button"
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={onToggle}
         title="Cambiar columnas de la fila"
-        className="flex h-5 items-center justify-center rounded-full border border-slate-200 bg-white px-2 text-[10px] font-medium text-slate-500 shadow-sm hover:border-orange-400 hover:text-orange-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:border-orange-500 dark:hover:text-orange-400 hover:cursor-pointer"
+        className={ROW_TOOLBAR_ITEM_CLASSES}
       >
         {columns} col
       </button>
       {isOpen && (
-        <div className="absolute left-0 top-6 flex w-72 flex-col gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
-          <label
-            htmlFor={`row-columns-${rowId}`}
-            className="text-[11px] font-medium text-slate-600 dark:text-neutral-300"
-          >
+        <div className={ROW_TOOLBAR_POPOVER_CLASSES}>
+          <label htmlFor={`row-columns-${rowId}`} className="text-[11px] font-medium text-fg-muted">
             Columnas de la fila
           </label>
           <div className="flex items-center gap-2">
@@ -41,7 +44,7 @@ export function RowColumnsMenu({ rowId, columns }: RowColumnsMenuProps) {
                 if (Number.isNaN(parsed)) return;
                 updateRowColumns(rowId, parsed);
               }}
-              className="w-14 rounded-md border border-slate-200 bg-white px-2 py-1 text-sm text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+              className="w-14 rounded-md border border-border bg-field px-2 py-1 text-sm text-fg outline-none focus:border-brand-border"
             />
             <input
               type="range"
@@ -52,7 +55,7 @@ export function RowColumnsMenu({ rowId, columns }: RowColumnsMenuProps) {
               className="flex-1 accent-orange-500 cursor-grab active:cursor-grabbing"
             />
           </div>
-          <p className="text-[10px] text-slate-400 dark:text-neutral-500">
+          <p className="text-[10px] text-fg-subtle">
             Los campos que excedan se ajustan automaticamente.
           </p>
         </div>

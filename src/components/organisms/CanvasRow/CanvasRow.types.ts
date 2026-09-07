@@ -9,3 +9,10 @@ export interface CanvasRowProps {
   offsetY?: number;
   onFieldContextMenu: (fieldId: string, x: number, y: number) => void;
 }
+
+export interface RowBorderState {
+  isOver: boolean;
+  isEmpty: boolean;
+  // La fila contiene el campo seleccionado, asi que se queda marcada sin hover.
+  pinned: boolean;
+}

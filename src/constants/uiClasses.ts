@@ -37,3 +37,30 @@ export const COUNT_CLASSES: string =
 
 export const ADD_LINK_CLASSES: string =
   "text-xs font-medium text-brand-fg hover:cursor-pointer hover:text-brand-hover disabled:cursor-not-allowed disabled:opacity-40";
+
+// El cromo del lienzo (tiradores, barra de fila, botones de borrar) aparece al pasar por encima y
+// se queda fijo en lo que esta seleccionado o enfocado: el hover solo no existe ni para el teclado
+// ni para una pantalla tactil. Son dos cadenas literales y no una funcion con el nombre del grupo
+// como argumento porque Tailwind v4 lee el codigo fuente: una clase armada en tiempo de ejecucion
+// no llega nunca al CSS. Cada elemento pone su propia transicion, asi que aca no va ninguna.
+export const CHROME_ON_FIELD_CLASSES: string =
+  "opacity-0 group-hover/field:opacity-100 group-focus-within/field:opacity-100";
+
+export const CHROME_ON_ROW_CLASSES: string =
+  "opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100";
+
+export const CHROME_PINNED_CLASSES: string = "opacity-100";
+
+// La barra de herramientas de una fila del lienzo. El disparador y el desplegable los dibujan
+// RowColumnsMenu y RowStylesMenu, que viven en otra carpeta, asi que las clases no pueden quedarse
+// privadas dentro de RowToolbar.
+export const ROW_TOOLBAR_ITEM_CLASSES: string =
+  "flex h-5 items-center justify-center rounded-md px-1.5 text-[10px] font-medium text-fg-muted transition-colors hover:bg-surface-raised hover:text-fg-strong hover:cursor-pointer dark:hover:bg-surface-inset";
+
+export const ROW_TOOLBAR_ICON_ITEM_CLASSES: string =
+  "flex h-5 w-5 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-raised hover:text-fg-strong hover:cursor-pointer dark:hover:bg-surface-inset";
+
+// El desplegable cuelga de la barra, que esta pegada al borde derecho de la fila: abriendose hacia
+// la derecha se saldria del lienzo.
+export const ROW_TOOLBAR_POPOVER_CLASSES: string =
+  "absolute right-0 top-6 z-20 flex w-72 flex-col gap-2 rounded-md border border-border bg-surface p-3 shadow-lg dark:bg-surface-raised";

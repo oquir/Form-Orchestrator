@@ -5,5 +5,7 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 export interface FieldResizeHandleVariantProps {
   isResizing: boolean;
   title: string;
+  // Visible sin hover mientras el campo este seleccionado.
+  pinned: boolean;
   onPointerDown: (event: ReactPointerEvent<HTMLElement>) => void;
 }

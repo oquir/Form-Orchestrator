@@ -7,4 +7,6 @@ export interface FieldDragHandleProps {
   attributes?: DraggableHandle["attributes"];
   colSpan: number;
   rowColumns: number;
+  // Fijo, sin necesidad de hover, cuando el campo esta seleccionado.
+  pinned: boolean;
 }
