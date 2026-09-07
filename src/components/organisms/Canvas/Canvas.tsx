@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type PointerEvent, useState } from "react";
 import { useCanvasZoom } from "../../../hooks/useCanvasZoom/useCanvasZoom";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
@@ -14,11 +14,19 @@ export function Canvas() {
   const activeGroups = useFormStore(getActiveGroups);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const viewMode = useFormStore((state) => state.canvasViewMode);
+  const selectField = useFormStore((state) => state.selectField);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
   const { contentRef, contentStyle } = useCanvasZoom();
 
   const isIntro = activeCanvas.type === "introStep";
   const isCanvasView = viewMode === "canvas";
+
+  // Soltar la seleccion al pulsar el fondo. Solo cuenta si el evento nace en este mismo nodo: si
+  // vino de una fila o de un chip, event.target es ese otro nodo. Es pointerdown y no click por lo
+  // mismo que useClickOutside: el click llega despues de que el de abajo ya recibio la pulsacion.
+  function handleBackgroundPointerDown(event: PointerEvent<HTMLDivElement>): void {
+    if (event.target === event.currentTarget) selectField(null);
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
@@ -47,7 +55,10 @@ export function Canvas() {
                 aria-hidden
                 className="pointer-events-none absolute inset-0 bg-slate-900/10 dark:bg-black/40"
               />
-              <div className="relative z-10 flex min-h-110 w-full max-w-140 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900">
+              <div
+                onPointerDown={handleBackgroundPointerDown}
+                className="relative z-10 flex min-h-110 w-full max-w-140 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
+              >
                 <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-neutral-800">
                   <span className="h-2.5 w-2.5 rounded-full bg-orange-400" />
                   <span className="text-xs font-semibold text-slate-500 dark:text-neutral-400">
@@ -63,7 +74,10 @@ export function Canvas() {
             </div>
           ) : (
             <>
-              <div className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
+              <div
+                onPointerDown={handleBackgroundPointerDown}
+                className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
+              >
                 <CanvasRowsGrid
                   rows={activeRows}
                   groups={activeGroups}

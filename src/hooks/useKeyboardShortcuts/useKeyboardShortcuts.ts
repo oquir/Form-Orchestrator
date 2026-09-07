@@ -4,6 +4,7 @@ import { zoomIn, zoomOut } from "../../lib/canvasZoom/canvasZoom";
 import { saveDraft } from "../../lib/persistence/persistence";
 import { useFormStore } from "../../store/formStore";
 import type { FormState } from "../../types/formStoreTypes";
+import { isEditableTarget } from "./useKeyboardShortcuts.utils";
 
 // Ctrl/Cmd+S guarda el mismo borrador que el autoguardado. Se monta en App, sobre FormBuilder,
 // para que tambien funcione con el simulador abierto.
@@ -11,10 +12,30 @@ export function useKeyboardShortcuts() {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent): void {
       const isMod = event.ctrlKey || event.metaKey;
-      if (!isMod) return;
+      const state: FormState = useFormStore.getState();
+
+      // Las teclas sueltas son el camino de teclado al cromo que ahora se esconde: si el unico modo
+      // de borrar un campo fuera pasar el puntero por encima, quien no usa mouse se queda afuera.
+      if (!isMod) {
+        if (state.isSimulatorOpen || !state.setupConfig.isComplete) return;
+        if (isEditableTarget(event.target)) return;
+        if (state.selectedFieldId === null) return;
+
+        // Con el menu contextual abierto, Escape lo cierra (su propio listener) y ademas
+        // deselecciona: las dos cosas son "cancelar", asi que se dejan juntas a proposito.
+        if (event.key === "Escape") {
+          state.selectField(null);
+          return;
+        }
+
+        if (event.key === "Delete" || event.key === "Backspace") {
+          event.preventDefault();
+          state.removeField(state.selectedFieldId);
+        }
+        return;
+      }
 
       const key = event.key.toLowerCase();
-      const state: FormState = useFormStore.getState();
 
       if (key === "s") {
         event.preventDefault();
