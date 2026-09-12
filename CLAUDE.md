@@ -140,7 +140,7 @@ Settled:
 
 ## Moving things between steps (drop on a step tab)
 
-Drag a field or row onto another step's tab to move it — same id, same name, references intact. Shared core in `src/lib/fieldTransfer/fieldTransfer.ts` (`canTransfer`, `transferGroup`, `planLanding`, `collectCrossingRefs`), used by both `moveFieldToStep` and `moveRowToStep`.
+Drag a field or row onto another step's tab to move it — same id, same name, references intact. Shared core in `src/lib/fieldTransfer/fieldTransfer.ts` (`canTransfer`, `transferGroup`, `planLanding`, `collectCrossingRefs`), used by both `moveFieldsToStep` and `moveRowToStep`.
 
 ### The Almacén de Partes is gone — do not rebuild it
 
@@ -230,7 +230,7 @@ A presentational field keeps `colStart`/`colSpan`/`styles`/`visibleWhen`, loses 
 
 Link lives **on the label**: `CanvasField.labelFor` points at the input. "A field with a linked label has no label of its own" is **derived, never stored** (`hasLinkedLabel`). `CanvasRowsGrid` builds a `linkedLabels` index once and drills it down (was O(n) per chip — measured 16.9× necessary work on a 15-field step).
 
-Invariants: **1:1** (`setFieldLabelFor` unlinks any prior label on that target); **no dangling refs** (`removeField` clears `labelFor` too, but deleting the target just leaves the label unlinked, matching "holes are preserved"); `labelTargetCandidates` offers free input fields + the current target.
+Invariants: **1:1** (`setFieldLabelFor` unlinks any prior label on that target); **no dangling refs** (`removeFields` clears `labelFor` too, but deleting the target just leaves the label unlinked, matching "holes are preserved"); `labelTargetCandidates` offers free input fields + the current target.
 
 The linked field **keeps `field.label` in the model** (drives `name` and every panel that names the field) even though nothing renders it. Canvas shows the label's own text in muted italics.
 
@@ -539,7 +539,7 @@ Motivating case: `numero_documento` needs 7–10 digits normally but 7–9 when 
 Settled:
 - **An override merges onto the base**, doesn't replace it (`mergeValidationRules` skips `undefined` keys) — clearing a panel input reverts to inherit, it doesn't store `0`/`""`.
 - Rejected alternative: two fields swapped by `visibleWhen` sharing a payload leaf — doubles the field count and breaks `buildPathIndex`'s one-path-one-entry assumption.
-- **Not edges in `fieldGraph`** (observes a field, no value flows through). `removeField` still prunes overrides pointing at it (dropped whole, not partially).
+- **Not edges in `fieldGraph`** (observes a field, no value flows through). `removeFields` still prunes overrides pointing at it (dropped whole, not partially).
 - `persistence.schema.ts` had to learn the shape (Zod strips unknown keys — any future `FieldValidations` addition needs the same line).
 
 ## Conditions (`visibleWhen` / `enableWhen` / `alwaysDisabled`)
@@ -616,17 +616,17 @@ Both import cycles this shape produced are fixed the same way: implementation mo
   **The 33/34→35→38→40 tail encodes an unwritten rule**: 35 is just 33 (saldo a favor → nothing to pay, no condition needed), and 38 = `max(35 − 36 + 37 − 34, 0)` — **the `− 34`** keeps intereses de mora from charging against a debt that doesn't exist; below zero it's already stated in 34, so 38 doesn't repeat it as a negative. Some municipalities want the opposite (signed 35/38/39/40) — **not built**, a per-municipality change to make when asked, not a mode to carry now.
 
   **`calculated` and `number` are behaviourally identical today** (same Zod case, same preview control, same numeric properties) — the only difference is the palette label. **`alwaysDisabled` is what actually locks a field**, applied in `formRuntime.utils.ts` (takes precedence over `enableWhen`).
-- **State** — single Zustand store, `src/store/formStore.ts`, typed by `formStoreTypes.ts` + domain files (`field.ts`, `formStructure.ts`, `setup.ts`, `placement.ts`, `ui.ts`, `store.ts`). Constructors/walkers in `formStore.utils.ts`; `formStore.constants.ts` holds `THEME_STORAGE_KEY` and `NO_ROWS`/`NO_GROUPS` sentinels.
+- **State** — single Zustand store, `src/store/formStore.ts`, typed by `formStoreTypes.ts` + domain files (`field.ts`, `formStructure.ts`, `setup.ts`, `placement.ts`, `ui.ts`, `store.ts`). Constructors/walkers in `formStore.utils.ts`; `formStore.constants.ts` holds `THEME_STORAGE_KEY` and the `NO_ROWS`/`NO_GROUPS`/`NO_SELECTION` sentinels.
 
   **`store/banksSlice.ts` lives outside `formStore.ts`** — the three simulator-only banks (`catalogBank`, `maxDates`, `valores`), spread into the store (`...createBanksSlice(set)`) so every consumer still uses ordinary `useFormStore((s) => s.setValores)`. They share nothing with the rest: never touch `formSteps`/`introModal`, never enter the draft, never reach the export. Takes only `set` (no bank action reads outside state); splitting anything else out has the same 100-column `create<FormState>(…)` trap.
   - `formSteps[]` — multi-step, each with `stepId`/`title`/`subtitle?`/`rows`/`groups?`.
   - `introModal.steps[]` — same minus `groups`.
   - `formScript` — the shared prelude.
   - `activeCanvas`: `{type: "formStep"|"introStep", stepId}`.
-  - UI state: `selectedFieldId`, `isSidebarOpen`, `sidebarTab`, `rightSidebarTab`, `canvasViewMode`, `canvasZoom`, `dragPlacement`, `rowDropTarget`, `rowDrag`, `draggingFieldId`, `hoveredTransferTarget`, `transferNotice`, `isDarkMode` (persisted separately), `lastSavedAt`.
+  - UI state: `selectedFieldIds`, `canvasTool`, `isSidebarOpen`, `sidebarTab`, `rightSidebarTab`, `canvasViewMode`, `canvasZoom`, `dragPlacement`, `rowDropTarget`, `rowDrag`, `draggingFieldId`, `hoveredTransferTarget`, `transferNotice`, `isDarkMode` (persisted separately), `lastSavedAt`.
   - `setupConfig` + the three banks (each own `localStorage` key, none in draft/export).
-  - Selectors: `getActiveRows`, `getActiveGroups`, `findFieldById`, `getAllFields`, `findRowContainingField`, `findRowById`.
-  - Row/field mutations apply uniformly via `mapRowEverywhere`/`mapFieldEverywhere`. Key actions: `addFieldToRow`, `moveField`, `removeField`, `updateField`, `setFieldName`, `updateFieldValidations/Styles/FileConfig`, `updateFieldApiBinding`, `setFieldScript`, `setFormScript`, `setFieldRounding/Formatted/AllowsNegative/Decimals/LabelFor/Content`, `addFieldRule`/`updateFieldRule`/`removeFieldRule`/`reorderFieldRule`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`/`setFieldVisibleWhen`, `addRowToActiveCanvas`/`updateRowColumns`/`removeRow`/`moveRow`, `moveFieldToStep`/`moveRowToStep`, `addGroupToActiveStep`/`addRowToGroup`/`updateGroup`/`removeGroup`, step actions, `restoreDraft`.
+  - Selectors: `getActiveRows`, `getActiveGroups`, `getSelectedFieldId`, `findFieldById`, `getAllFields`, `findRowContainingField`, `findRowById`.
+  - Row/field mutations apply uniformly via `mapRowEverywhere`/`mapFieldEverywhere`. Key actions: `addFieldToRow`, `moveField`, `removeFields`, `selectField`/`toggleFieldSelection`/`setFieldSelection`, `updateField`, `setFieldName`, `updateFieldValidations/Styles/FileConfig`, `updateFieldApiBinding`, `setFieldScript`, `setFormScript`, `setFieldRounding/Formatted/AllowsNegative/Decimals/LabelFor/Content`, `addFieldRule`/`updateFieldRule`/`removeFieldRule`/`reorderFieldRule`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`/`setFieldVisibleWhen`, `addRowToActiveCanvas`/`updateRowColumns`/`removeRow`/`moveRow`, `moveFieldsToStep`/`moveRowToStep`, `setCanvasTool`, `addGroupToActiveStep`/`addRowToGroup`/`updateGroup`/`removeGroup`, step actions, `restoreDraft`.
   - **Selectors must return stable references** — Zustand's `useSyncExternalStore` compares by identity; a fresh `[]` per call causes "Maximum update depth exceeded" (hence `NO_ROWS`/`NO_GROUPS`).
 - **Field model** (`CanvasField`, `src/types/field.ts`): `name` (unique slug), `type`, `label`, `colStart`, `colSpan`, `validations`, `styles`, `logic`, plus optional `title`, `options[]`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `formatted`, `allowsNegative`, `decimals`, `enableWhen`, `visibleWhen` (`FieldCondition = {fieldId, operator, value}`). Operators: `equals|notEquals|greaterThan|lessThan|startsWith|endsWith|contains|matches|in|isEmpty|isNotEmpty|isTruthy|isFalsy`. `logic` = `{script?, rules?}`. Types in `FIELD_TYPES` (`src/constants/fieldTypes.ts`), grouped **básicos** (text, number, select, textarea, checkbox, calculated, file), **complejos** (search_select, toggle_group, radio_group, checkbox_group), **contenido** (label, rich_text). Adding a type is just a `FIELD_TYPES` entry (`PALETTE_SECTIONS` skips empty categories).
 - **Grid**: `src/constants/grid.ts` — `GRID_BASE_COLUMNS = 16` default; rows carry their own `columns` (clamped 1–24), shrinking clamps field `colSpan`s to fit.
