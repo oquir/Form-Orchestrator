@@ -2,6 +2,7 @@ import type { CollisionDetection, Modifier } from "@dnd-kit/core";
 import { pointerWithin, rectIntersection } from "@dnd-kit/core";
 import { getEventCoordinates } from "@dnd-kit/utilities";
 import { GRID_GAP_PX } from "../../constants/grid";
+import { getRowElement } from "../../lib/canvasDom/canvasDom";
 import { getCanvasScale } from "../../lib/canvasZoom/canvasZoom";
 import type {
   CanvasTarget,
@@ -56,14 +57,6 @@ export function sameCanvasTarget(a: CanvasTarget | null, b: CanvasTarget | null)
   if (a === null || b === null) return a === b;
 
   return a.type === b.type && a.stepId === b.stepId;
-}
-
-export function getRowElement(rowId: string): HTMLElement | null {
-  return document.querySelector<HTMLElement>(`[data-row-id="${rowId}"]`);
-}
-
-export function getBandElement(groupId: string): HTMLElement | null {
-  return document.querySelector<HTMLElement>(`[data-band-id="${groupId}"]`);
 }
 
 // Se mide al empezar el arrastre y no despues: en cuanto las demas filas empiezan a apartarse, el

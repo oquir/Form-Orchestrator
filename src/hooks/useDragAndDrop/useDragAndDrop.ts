@@ -2,6 +2,7 @@ import type { DragEndEvent, DragMoveEvent, DragStartEvent, Modifier } from "@dnd
 import { PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
+import { getBandElement, getRowElement } from "../../lib/canvasDom/canvasDom";
 import { findNearestFit, getFreeRuns } from "../../lib/rowLayout/rowLayout";
 import { resolveBandDrop, resolveRowDrop } from "../../lib/rowOrder/rowOrder";
 import { findRowById, getActiveRows, useFormStore } from "../../store/formStore";
@@ -15,10 +16,8 @@ import { DRAG_ACTIVATION_DISTANCE_PX } from "./useDragAndDrop.constants";
 import type { PointerPosition } from "./useDragAndDrop.types";
 import {
   centerOverlayOnCursor,
-  getBandElement,
   getColumnAtPointer,
   getDropEdgeAtPointer,
-  getRowElement,
   measureRow,
   pointerFirstCollision,
   sameCanvasTarget,
