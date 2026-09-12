@@ -1,14 +1,17 @@
 import { useEffect } from "react";
+import { CANVAS_TOOLS } from "../../constants/canvasTool";
 import { ZOOM_DEFAULT } from "../../constants/canvasZoom";
 import { confirmFieldRemoval } from "../../lib/canvasSelection/canvasSelection";
 import { zoomIn, zoomOut } from "../../lib/canvasZoom/canvasZoom";
 import { saveDraft } from "../../lib/persistence/persistence";
 import { useFormStore } from "../../store/formStore";
 import type { FormState } from "../../types/formStoreTypes";
+import type { CanvasToolItem } from "../../types/ui";
 import { isEditableTarget } from "./useKeyboardShortcuts.utils";
 
-// Ctrl/Cmd+S guarda el mismo borrador que el autoguardado. Se monta en App, sobre FormBuilder,
-// para que tambien funcione con el simulador abierto.
+// Atajos globales del constructor. Ctrl/Cmd+S guarda el mismo borrador que el autoguardado; se monta
+// en App, sobre FormBuilder, para que tambien funcione con el simulador abierto. El zoom, las
+// herramientas y la seleccion solo tienen sentido con el lienzo a la vista.
 export function useKeyboardShortcuts() {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent): void {
@@ -20,6 +23,18 @@ export function useKeyboardShortcuts() {
       if (!isMod) {
         if (state.isSimulatorOpen || !state.setupConfig.isComplete) return;
         if (isEditableTarget(event.target)) return;
+
+        const isCanvasView: boolean = state.canvasViewMode === "canvas";
+        const tool: CanvasToolItem | undefined = CANVAS_TOOLS.find(
+          (item) => item.shortcut.toLowerCase() === event.key.toLowerCase(),
+        );
+
+        if (tool && isCanvasView && !event.altKey) {
+          event.preventDefault();
+          state.setCanvasTool(tool.tool);
+          return;
+        }
+
         if (state.selectedFieldIds.length === 0) return;
 
         // Con el menu contextual abierto, Escape lo cierra (su propio listener) y ademas
@@ -54,12 +69,12 @@ export function useKeyboardShortcuts() {
         return;
       }
 
+      if (state.isSimulatorOpen) return;
+
       // El zoom del lienzo se queda con el atajo del navegador: la pagina es una pantalla fija, asi
       // que lo unico que tiene sentido acercar es el lienzo. Con el simulador abierto no hay lienzo.
       // Se escucha "=" ademas de "+" porque en casi todos los teclados comparten tecla y sin Shift
       // el navegador reporta "=", que es lo que la gente teclea de verdad.
-      if (state.isSimulatorOpen) return;
-
       if (key === "+" || key === "=") {
         event.preventDefault();
         state.setCanvasZoom(zoomIn(state.canvasZoom));
