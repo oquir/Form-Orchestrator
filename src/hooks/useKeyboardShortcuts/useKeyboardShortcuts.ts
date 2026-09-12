@@ -4,7 +4,7 @@ import { ZOOM_DEFAULT } from "../../constants/canvasZoom";
 import { confirmFieldRemoval } from "../../lib/canvasSelection/canvasSelection";
 import { zoomIn, zoomOut } from "../../lib/canvasZoom/canvasZoom";
 import { saveDraft } from "../../lib/persistence/persistence";
-import { useFormStore } from "../../store/formStore";
+import { getActiveRows, getAllFields, useFormStore } from "../../store/formStore";
 import type { FormState } from "../../types/formStoreTypes";
 import type { CanvasTool, CanvasToolItem } from "../../types/ui";
 import { isEditableTarget, isPointerOverCanvas } from "./useKeyboardShortcuts.utils";
@@ -95,6 +95,17 @@ export function useKeyboardShortcuts() {
       }
 
       if (state.isSimulatorOpen) return;
+
+      // Seleccionar todo el paso. Dentro de un input o fuera de la vista lienzo queda el Ctrl+A del
+      // navegador, que ahi si significa algo.
+      if (key === "a") {
+        if (!state.setupConfig.isComplete || state.canvasViewMode !== "canvas") return;
+        if (isEditableTarget(event.target)) return;
+
+        event.preventDefault();
+        state.setFieldSelection(getAllFields(getActiveRows(state)).map((field) => field.id));
+        return;
+      }
 
       // El zoom del lienzo se queda con el atajo del navegador: la pagina es una pantalla fija, asi
       // que lo unico que tiene sentido acercar es el lienzo. Con el simulador abierto no hay lienzo.
