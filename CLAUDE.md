@@ -15,6 +15,8 @@ Known gaps:
 - **Two catalog-fed selects still use path-inference instead of `dataSource`**: `periodo_anio`, `clasificacion_contribuyente` (+ the `tipo_representante` toggle). `CATALOGS` declares 9 names, only 8 are wired. `tipos_persona`, `tipos_sancion`, `juegos_permitidos` have no field pointing at them yet. Catalog ids are unconfirmed contract names with the consumer.
 - **Renglones 31 and 37 need the intro modal** (`{periodo_anio}` lives there) but the setup wizard makes it optional even for `industria_comercio`. Without it the field stays typeable but silently uncalculated.
 - Selects mapped to `number` leaves show a permanent `⚠ tipo` warning (a two-line fix in `fieldMatchesSchemaType` has been offered, not approved).
+- **Moving a field out of a repeatable group to another step keeps its `apiBinding`** — `moveFieldsToStep` → `planLanding` copies the field as is, contrary to the rule in "Repeatable groups". Shared by drag-to-tab and "Mover a paso". One-line fix, not applied: it changes single-field transfers too.
+- **No undo/redo.** Scoped at ~200–250 lines (wrap the store `set`, coalesce keystroke bursts, prune the selection on undo) and deferred by the user; meanwhile bulk delete asks for confirmation.
 
 ## The right panel (`RightSidebar`)
 
