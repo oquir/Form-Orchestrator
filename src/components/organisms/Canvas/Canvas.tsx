@@ -5,15 +5,18 @@ import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
 import { CanvasAddGroupButton } from "../CanvasAddGroupButton/CanvasAddGroupButton";
 import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
+import { CanvasToolLayer } from "../CanvasToolLayer/CanvasToolLayer";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
 import { JsonPreviewCanvas } from "../JsonPreviewCanvas/JsonPreviewCanvas";
 import { PayloadPreviewCanvas } from "../PayloadPreviewCanvas/PayloadPreviewCanvas";
+import { TOOL_ROOT_CLASSES } from "./Canvas.constants";
 
 export function Canvas() {
   const activeRows = useFormStore(getActiveRows);
   const activeGroups = useFormStore(getActiveGroups);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const viewMode = useFormStore((state) => state.canvasViewMode);
+  const canvasTool = useFormStore((state) => state.canvasTool);
   const selectField = useFormStore((state) => state.selectField);
   const [contextMenu, setContextMenu] = useState<FieldContextMenuState | null>(null);
   const { contentRef, rootStyle, contentStyle } = useCanvasViewport();
@@ -41,8 +44,16 @@ export function Canvas() {
   }
 
   return (
-    <div style={rootStyle}>
-      <div ref={contentRef} style={contentStyle} className="mx-auto">
+    <div style={rootStyle} className={TOOL_ROOT_CLASSES[canvasTool]}>
+      {/* Con la mano o el marco el documento queda inerte: sin puntero no hay arrastre de dnd-kit,
+          ni redimensionado, ni menu contextual, ni cromo por hover, y el puntero lo atiende el
+          puerto. La paleta sigue soltando campos, porque dnd-kit resuelve la colision por rects y
+          no por eventos de puntero. */}
+      <div
+        ref={contentRef}
+        style={contentStyle}
+        className={`mx-auto ${canvasTool === "move" ? "" : "pointer-events-none"}`}
+      >
         {isIntro ? (
           <div className="relative flex min-h-[70vh] items-center justify-center overflow-hidden rounded-lg bg-slate-100 p-6 dark:bg-neutral-950">
             <div
@@ -97,6 +108,7 @@ export function Canvas() {
         )}
       </div>
 
+      <CanvasToolLayer />
       {contextMenu && <FieldContextMenu menu={contextMenu} onClose={() => setContextMenu(null)} />}
     </div>
   );
