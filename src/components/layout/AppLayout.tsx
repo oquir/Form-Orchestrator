@@ -16,9 +16,11 @@ export function AppLayout({ sidebar, canvas, rightSidebar }: AppLayoutProps) {
         </div>
       </aside>
 
+      {/* scrollbar-gutter estable porque el lienzo dimensiona su raiz con el ancho del puerto: si la
+          barra vertical apareciera y desapareciera, ese ancho oscilaria. */}
       <main
         data-canvas-scroll
-        className="flex-1 overflow-auto bg-slate-100 relative dark:bg-neutral-950"
+        className="relative flex-1 overflow-auto bg-slate-100 [scrollbar-gutter:stable] dark:bg-neutral-950"
       >
         {canvas}
       </main>
