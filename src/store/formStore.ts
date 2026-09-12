@@ -518,26 +518,33 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   // Borrar un campo obliga a limpiar todo lo que le apuntaba, o quedarian referencias colgando:
   // condiciones, reglas y la etiqueta externa que lo tuviera como destino. La etiqueta sobrevive
   // sin vinculo en vez de borrarse, igual que un hueco en la fila se conserva.
-  removeField: (fieldId) =>
+  //
+  // Varios a la vez se borran en una sola pasada: un solo estado nuevo, y una condicion que apuntaba
+  // a cualquiera de los borrados se limpia igual que si fuera el unico.
+  removeFields: (fieldIds) =>
     set((state) => {
+      const removed: Set<string> = new Set<string>(fieldIds);
+      if (removed.size === 0) return state;
+
+      const references = (id: string | undefined): boolean => id !== undefined && removed.has(id);
       const applyTo = (rows: CanvasRow[]) =>
         rows.map((row) => ({
           ...row,
           fields: row.fields
-            .filter((field) => field.id !== fieldId)
+            .filter((field) => !removed.has(field.id))
             .map((field) => ({
               ...field,
-              enableWhen: field.enableWhen?.fieldId === fieldId ? undefined : field.enableWhen,
-              visibleWhen: field.visibleWhen?.fieldId === fieldId ? undefined : field.visibleWhen,
-              labelFor: field.labelFor === fieldId ? undefined : field.labelFor,
-              dataSource: pruneDataSourceReferencing(field.dataSource, fieldId),
+              enableWhen: references(field.enableWhen?.fieldId) ? undefined : field.enableWhen,
+              visibleWhen: references(field.visibleWhen?.fieldId) ? undefined : field.visibleWhen,
+              labelFor: references(field.labelFor) ? undefined : field.labelFor,
+              dataSource: fieldIds.reduce(pruneDataSourceReferencing, field.dataSource),
               validations: {
                 ...field.validations,
-                overrides: pruneOverridesReferencing(field.validations.overrides, fieldId),
+                overrides: fieldIds.reduce(pruneOverridesReferencing, field.validations.overrides),
               },
               logic: {
                 ...field.logic,
-                rules: pruneRulesReferencing(field.logic.rules, fieldId),
+                rules: fieldIds.reduce(pruneRulesReferencing, field.logic.rules),
               },
             })),
         }));
@@ -546,7 +553,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         introModal: {
           steps: state.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
         },
-        selectedFieldIds: withoutIds(state.selectedFieldIds, new Set<string>([fieldId])),
+        selectedFieldIds: withoutIds(state.selectedFieldIds, removed),
       };
     }),
   moveField: (fieldId, targetRowId, requested) =>

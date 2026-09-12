@@ -30,7 +30,7 @@ export function useKeyboardShortcuts() {
 
         if (event.key === "Delete" || event.key === "Backspace") {
           event.preventDefault();
-          for (const fieldId of state.selectedFieldIds) state.removeField(fieldId);
+          state.removeFields(state.selectedFieldIds);
         }
         return;
       }

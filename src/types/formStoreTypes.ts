@@ -99,7 +99,7 @@ export interface FormState extends BanksSlice {
   updateRowColumns: (rowId: string, columns: number) => void;
   updateRowStyles: (rowId: string, updates: Partial<RowStyles>) => void;
   addFieldToRow: (rowId: string, fieldType: FieldTypeDef, requested?: FieldPlacement) => void;
-  removeField: (fieldId: string) => void;
+  removeFields: (fieldIds: string[]) => void;
   moveField: (fieldId: string, targetRowId: string, requested?: FieldPlacement) => void;
   selectField: (fieldId: string | null) => void;
   toggleFieldSelection: (fieldId: string) => void;

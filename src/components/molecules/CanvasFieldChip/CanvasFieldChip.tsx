@@ -29,7 +29,7 @@ export function CanvasFieldChip({
   onContextMenu,
 }: CanvasFieldChipProps) {
   const updateField = useFormStore((state) => state.updateField);
-  const removeField = useFormStore((state) => state.removeField);
+  const removeFields = useFormStore((state) => state.removeFields);
   const selectFieldAndEdit = useFormStore((state) => state.selectFieldAndEdit);
   const maxSpan = getMaxSpanAt(getFreeRuns(rowFields, rowColumns, field.id), field.colStart);
 
@@ -152,7 +152,7 @@ export function CanvasFieldChip({
         </button>
         {showTooltip && field.tooltip && <TooltipBubble tooltip={field.tooltip} />}
         <IconButton
-          onClick={() => removeField(field.id)}
+          onClick={() => removeFields([field.id])}
           title="Eliminar campo"
           aria-label="Eliminar campo"
           className={`${DELETE_BUTTON_CLASSES} ${chromeClasses}`}

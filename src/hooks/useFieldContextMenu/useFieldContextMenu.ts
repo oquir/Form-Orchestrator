@@ -15,7 +15,7 @@ export function useFieldContextMenu({
 }: UseFieldContextMenuParams): UseFieldContextMenuResult {
   const [activeTab, setActiveTab] = useState<ContextMenuTab>("attributes");
   const activeRows = useFormStore(getActiveRows);
-  const removeField = useFormStore((state) => state.removeField);
+  const removeFields = useFormStore((state) => state.removeFields);
   const field = findFieldById(activeRows, menu.fieldId);
 
   function handleSelectTab(tab: ContextMenuTab): void {
@@ -23,7 +23,7 @@ export function useFieldContextMenu({
   }
 
   function handleDelete(): void {
-    removeField(menu.fieldId);
+    removeFields([menu.fieldId]);
     onClose();
   }
 
