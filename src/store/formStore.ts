@@ -96,6 +96,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   formScript: "",
   activeCanvas: { type: "formStep", stepId: "step-1" },
   selectedFieldId: null,
+  canvasTool: "move",
   setupConfig: {
     isComplete: false,
     formType: null,
@@ -130,6 +131,8 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   // Recorta aca y no en cada llamante: la rueda manda valores continuos y los atajos de teclado no
   // saben del rango.
   setCanvasZoom: (zoom) => set({ canvasZoom: clampZoom(zoom) }),
+  // Estado de vista, como el zoom: no viaja en el borrador y al recargar vuelve a Mover.
+  setCanvasTool: (tool) => set({ canvasTool: tool }),
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
   setRightSidebarTab: (tab) => set({ rightSidebarTab: tab }),
   markSaved: () => set({ lastSavedAt: new Date().toISOString() }),

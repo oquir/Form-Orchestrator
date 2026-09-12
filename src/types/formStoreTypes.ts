@@ -22,7 +22,7 @@ import type {
 } from "./placement";
 import type { RichTextContent } from "./richText";
 import type { FormType, SetupConfig } from "./setup";
-import type { CanvasViewMode, RightSidebarTab, SidebarTab } from "./ui";
+import type { CanvasTool, CanvasViewMode, RightSidebarTab, SidebarTab } from "./ui";
 
 export interface OptionsSetup {
   title?: string;
@@ -39,6 +39,7 @@ export interface FormState extends BanksSlice {
   formScript: string;
   activeCanvas: CanvasTarget;
   selectedFieldId: string | null;
+  canvasTool: CanvasTool;
   setupConfig: SetupConfig;
   isSidebarOpen: boolean;
   isSimulatorOpen: boolean;
@@ -64,6 +65,7 @@ export interface FormState extends BanksSlice {
   setCanvasViewMode: (mode: CanvasViewMode) => void;
   setSimulatorOpen: (open: boolean) => void;
   setCanvasZoom: (zoom: number) => void;
+  setCanvasTool: (tool: CanvasTool) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   setRightSidebarTab: (tab: RightSidebarTab) => void;
   toggleDarkMode: () => void;
