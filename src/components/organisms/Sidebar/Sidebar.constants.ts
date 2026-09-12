@@ -8,6 +8,7 @@ import {
   Palette,
   Sliders,
 } from "reicon-react";
+import type { SidebarTab } from "../../../types/ui";
 import type { SidebarTabItem } from "./Sidebar.types";
 
 export const TABS: SidebarTabItem[] = [
@@ -19,4 +20,13 @@ export const TABS: SidebarTabItem[] = [
   { id: "apiMapping", label: "Mapeo API", icon: Link },
   { id: "catalogs", label: "Catálogos", icon: Database },
   { id: "fechas", label: "Fechas", icon: Calendar },
+];
+
+// Las pestanas que editan el campo seleccionado, a diferencia de Campos, Catalogos y Fechas.
+export const FIELD_TABS: SidebarTab[] = [
+  "attributes",
+  "validations",
+  "styles",
+  "logic",
+  "apiMapping",
 ];
