@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { ZOOM_DEFAULT } from "../../constants/canvasZoom";
+import { confirmFieldRemoval } from "../../lib/canvasSelection/canvasSelection";
 import { zoomIn, zoomOut } from "../../lib/canvasZoom/canvasZoom";
 import { saveDraft } from "../../lib/persistence/persistence";
 import { useFormStore } from "../../store/formStore";
@@ -30,7 +31,9 @@ export function useKeyboardShortcuts() {
 
         if (event.key === "Delete" || event.key === "Backspace") {
           event.preventDefault();
-          state.removeFields(state.selectedFieldIds);
+          if (confirmFieldRemoval(state.selectedFieldIds.length)) {
+            state.removeFields(state.selectedFieldIds);
+          }
         }
         return;
       }
