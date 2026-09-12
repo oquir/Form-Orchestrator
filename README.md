@@ -42,11 +42,11 @@ Un único store de Zustand, `src/store/formStore.ts` (`useFormStore`), con los c
 - `introModal.steps`: steps de un modal introductorio opcional, con la misma forma pero **sin** grupos.
 - `activeCanvas`: qué canvas se está editando (`{ type: "formStep", stepId }` o `{ type: "introStep", stepId }`).
 - `formScript`: el preludio, funciones y constantes compartidas por todos los scripts de campo.
-- `selectedFieldId`, `setupConfig`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `isDarkMode`, `lastSavedAt`.
+- `selectedFieldIds` (la selección, que puede ser múltiple; `getSelectedFieldId` deduce si hay exactamente uno), `canvasTool`, `setupConfig`, `isSidebarOpen`, `sidebarTab`, `dragPlacement`, `isDarkMode`, `lastSavedAt`.
 
 Las mutaciones de campos y filas se aplican de forma uniforme sobre cualquier canvas que contenga el id objetivo, vía `mapRowEverywhere`/`mapFieldEverywhere`, así el mismo código edita tanto el formulario principal como los steps del modal.
 
-> **Los selectores deben devolver referencias estables.** Zustand los lee a través de `useSyncExternalStore`, que compara por identidad: un selector que devuelve un `[]` nuevo en cada llamada provoca "Maximum update depth exceeded". Para eso están las constantes `NO_ROWS`/`NO_GROUPS` en `formStore.constants.ts` — nunca poner un literal de arreglo vacío dentro de un selector.
+> **Los selectores deben devolver referencias estables.** Zustand los lee a través de `useSyncExternalStore`, que compara por identidad: un selector que devuelve un `[]` nuevo en cada llamada provoca "Maximum update depth exceeded". Para eso están las constantes `NO_ROWS`/`NO_GROUPS`/`NO_SELECTION` en `formStore.constants.ts` — nunca poner un literal de arreglo vacío dentro de un selector.
 
 ### Grilla y posicionamiento
 
@@ -60,6 +60,18 @@ Las reglas viven en `src/lib/rowLayout/` como funciones puras. Tres decisiones a
 
 Manteniendo **Shift** mientras arrastrás elegís la columna de inicio; con **Shift+Ctrl** además definís el ancho con el puntero.
 
+### Barra del lienzo, herramientas y selección múltiple
+
+Una barra flotante centrada abajo del lienzo (`organisms/CanvasToolbar/`) reúne:
+
+- **Herramientas del puntero**: **Mover** (V, el comportamiento de siempre), **Selección múltiple** (M) y **Mano** (H). Mantener **Espacio** con el puntero sobre el lienzo activa la mano mientras dure.
+- **+ Fila** y **+ Grupo repetible**, que antes estaban al pie del lienzo. Lo nuevo se agrega al final del paso y la vista se desplaza hasta ahí; el grupo queda deshabilitado en el modal de entrada.
+- Con **dos o más campos seleccionados**: el contador, **Mover a paso**, **Eliminar** y **Deseleccionar**.
+
+El lienzo es **libre**: el documento tiene medio puerto de margen por lado, así que la mano, las barras y la rueda lo mueven en cualquier dirección aun al 100%. Al cambiar de paso la vista vuelve al inicio.
+
+Con la mano o la selección múltiple el documento queda inerte: ningún campo se arrastra, se redimensiona ni abre su menú. La paleta sigue soltando campos con cualquier herramienta. En selección múltiple todo suma: un clic agrega o quita un campo, el marco agrega lo que toca y un clic en el vacío limpia. Con Mover, **Shift/Ctrl+clic** también suma, y **Ctrl/Cmd+A** selecciona todo el paso. **Supr** borra la selección; con dos o más campos pide confirmación, porque no hay deshacer.
+
 ### Componentes — Atomic Design
 
 `src/components/` sigue **atoms → molecules → organisms**, más `layout/`. Cada componente y hook vive en su **propia carpeta** con archivos co-locados: `X/X.tsx`, `X/X.types.ts`, `X/X.constants.ts`, `X/X.utils.ts` (solo los que necesite). Las libs siguen el mismo patrón en `src/lib/<nombre>/`.
@@ -67,8 +79,8 @@ Manteniendo **Shift** mientras arrastrás elegís la columna de inicio; con **Sh
 > Un `X.types.ts` o `X.constants.ts` es **privado a su carpeta**. En cuanto algo de afuera lo importa, la declaración pasa a `src/types/` o `src/constants/`. Ambas direcciones están auditadas en cero.
 
 - **`atoms/`** — primitivas sin lógica de negocio: `Button`, `Input`, `TextArea`, `Label`, `Checkbox`, `CodeBlock`, `IconButton`, `FieldTypeBadge`, `FieldDragHandle`, `FieldResizeHandle`, `DashedAddButton`, `ModalShell`, `ModalActions`, `TwoColumnFieldGroup`, `WizardFooterActions`, `RichTextView`.
-- **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `ScriptInput`, `ScriptEditor`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `GeneratedSchemaPreview`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `PanelSection`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `JsonCode`, `TooltipBubble`, `PreviewTooltip`, `TransferNotice`, `ValidationOverrideCard`.
-- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasAddRowButton`, `CanvasAddGroupButton`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `FieldScriptEditor`, `FormScriptEditor`, `ApiMappingPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`, `NumberOptionsEditor`).
+- **`molecules/`** — combinaciones reutilizables: `LabeledInput`, `LabeledRangeSlider`, `ColorPickerField`, `FieldNameInput`, `CanvasFieldChip`, `FieldPreviewControl`, `PaletteChip`, `DragPreview`, `RowZoneOverlay`, `ApiPathSelect`, `ScriptInput`, `ScriptEditor`, `RichTextEditor`, `LabelTargetSelect`, `RuleEffectRow`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `GeneratedSchemaPreview`, `SelectableOptionCard`, `BinaryChoiceToggle`, `PanelHeader`, `PanelSection`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `JsonCode`, `TooltipBubble`, `PreviewTooltip`, `TransferNotice`, `ValidationOverrideCard`, `SelectionSummary`.
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasToolbar`, `CanvasToolLayer`, `MoveToStepMenu`, `RepeatableGroupBand`, `RowColumnsMenu`, `StepTitleEditor`, `FieldPalette`, `FieldContextMenu`, `FieldOptionsModal`, `Sidebar`, `SaveButton`, `JsonPreviewCanvas`, `PayloadPreviewCanvas`, `DraftRecoveryModal`, `SetupWizardModal`, `FormBuilder`, y `organisms/panels/` (`AttributesPanel`, `ValidationsPanel`, `StylesPanel`, `LogicPanel`, `FieldScriptEditor`, `FormScriptEditor`, `ApiMappingPanel`, `ConditionEditor`, `FieldRulesEditor`, `FieldOptionsEditor`, `FileOptionsEditor`, `NumberOptionsEditor`).
 - **`layout/AppLayout.tsx`** — shell de dos columnas, fuera de la jerarquía atómica porque es el layout raíz.
 
 ### Layout de dos columnas
@@ -84,8 +96,8 @@ El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; el `DndContext`/
 
 Cada hook vive en su propia carpeta, igual que los componentes:
 
-- **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S), `useDraftRecovery`.
-- **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`, `usePayloadPreviewCanvas`.
+- **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S, zoom, herramientas V/M/H, Espacio sostenido, Supr, Esc, Ctrl/Cmd+A), `useDraftRecovery`.
+- **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`, `usePayloadPreviewCanvas`, `useCanvasViewport` (lienzo libre y zoom), `useCanvasPan` (la mano), `useCanvasMarquee` (el marco de selección).
 - **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useRichTextEditor`, `useJsonCode`, `useCatalogCard`, `useApiMappingPanel`, `useFormScriptEditor`, `useFieldScriptEditor`, `useGroupChecksEditor`.
 - **Simulador** — `useFormPreview` (el único que toca el store, y solo para alimentar el export), `usePreviewNavigation`, `usePreviewSearchSelect`.
 - **Genéricos** — `useClickOutside`.
