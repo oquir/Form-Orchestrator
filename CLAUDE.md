@@ -613,6 +613,8 @@ Settled:
 - Other bumps were verified, not assumed (Biome 2.5.2→2.5.9 reformatted nothing; Vite 8.1.1→8.2.2 re-partitioned chunks but both lazy boundaries still hold, verified by grep).
 - The 1132 extensionless imports didn't need fixing (normal for `moduleResolution: bundler`; tsx resolves them like bun did — Node's own loader is the one that can't).
 - Scratchpad needs: `package.json` with `{"type":"module"}` (top-level await), absolute imports as `file:///C:/...` URLs, and a `node_modules` junction to the project.
+- **Run scratchpad scripts from the project root** (`pnpm exec tsx <scratchpad>/x.ts`), never from inside the scratchpad: there, pnpm 11's deps-status check launches a `pnpm install`, and the only thing stopping it from wiping the junctioned `node_modules` is `ERR_PNPM_UNSAFE_MODULES_DIR`.
+- A script that imports the store needs a `localStorage` stub installed *before* the import (`Object.assign(globalThis, { localStorage })`, then a dynamic `await import()`): the simulator banks read it when the store is created.
 
 ## Architecture
 
