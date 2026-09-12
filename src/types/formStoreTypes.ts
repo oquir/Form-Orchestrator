@@ -90,7 +90,7 @@ export interface FormState extends BanksSlice {
   addRowToActiveCanvas: () => void;
   removeRow: (rowId: string) => void;
   moveRow: (rowId: string, target: RowDropTarget) => void;
-  moveFieldToStep: (fieldId: string, target: CanvasTarget) => void;
+  moveFieldsToStep: (fieldIds: string[], target: CanvasTarget) => void;
   moveRowToStep: (rowId: string, target: CanvasTarget) => void;
   addGroupToActiveStep: () => void;
   addRowToGroup: (groupId: string) => void;

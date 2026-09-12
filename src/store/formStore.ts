@@ -330,15 +330,31 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   // Mudar de paso no toca el nombre. allFieldNames ya es global a los dos lienzos, asi que el name
   // y el id viajan intactos y ninguna referencia por id se rompe: lo unico que cambia es en que
   // pantalla se dibuja. El rodeo por el Almacen si renombraba, porque copiaba en vez de mudar.
-  moveFieldToStep: (fieldId, target) =>
+  //
+  // Varios a la vez es la misma mudanza, no una por campo: una sola pasada deja un solo aviso de
+  // cruce con todos los nombres, y la etiqueta de dos seleccionados no viaja dos veces.
+  moveFieldsToStep: (fieldIds, target) =>
     set((state) => {
-      const moving: CanvasField[] = transferGroup(allRows(state), fieldId);
-      if (moving.length === 0) return state;
-
+      const rows: CanvasRow[] = allRows(state);
       const targetRows: CanvasRow[] = rowsOfTarget(state, target);
-      if (targetRows.some((row) => row.fields.some((field) => field.id === fieldId))) return state;
+      // Soltar un campo en el paso donde ya esta no es una mudanza: ese se saltea y los demas siguen.
+      const alreadyThere: Set<string> = new Set<string>(
+        targetRows.flatMap((row) => row.fields.map((field) => field.id)),
+      );
+      const moving: CanvasField[] = [];
+      const movingIds: Set<string> = new Set<string>();
 
-      const movingIds = new Set<string>(moving.map((field) => field.id));
+      for (const fieldId of fieldIds) {
+        if (alreadyThere.has(fieldId)) continue;
+
+        for (const field of transferGroup(rows, fieldId)) {
+          if (movingIds.has(field.id)) continue;
+          movingIds.add(field.id);
+          moving.push(field);
+        }
+      }
+
+      if (moving.length === 0) return state;
       const strip = (rows: CanvasRow[]): CanvasRow[] =>
         rows.map((row) => {
           const kept = row.fields.filter((field) => !movingIds.has(field.id));
@@ -368,7 +384,11 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         },
         // Sin esto el campo desaparece de la pantalla y no hay forma de saber si llego.
         activeCanvas: target,
-        selectedFieldIds: [fieldId],
+        // Siguen seleccionados los pedidos que ahora estan en el destino, hayan viajado o ya
+        // estuvieran ahi; la etiqueta que vino de arrastre, no.
+        selectedFieldIds: fieldIds.filter(
+          (fieldId) => movingIds.has(fieldId) || alreadyThere.has(fieldId),
+        ),
         transferNotice: notice,
       };
     }),

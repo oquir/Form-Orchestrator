@@ -40,7 +40,7 @@ export function useDragAndDrop(): DragAndDropReturn {
   const addFieldToRow = useFormStore((state) => state.addFieldToRow);
   const moveField = useFormStore((state) => state.moveField);
   const moveRow = useFormStore((state) => state.moveRow);
-  const moveFieldToStep = useFormStore((state) => state.moveFieldToStep);
+  const moveFieldsToStep = useFormStore((state) => state.moveFieldsToStep);
   const moveRowToStep = useFormStore((state) => state.moveRowToStep);
   const setDragPlacement = useFormStore((state) => state.setDragPlacement);
   const setRowDropTarget = useFormStore((state) => state.setRowDropTarget);
@@ -284,7 +284,7 @@ export function useDragAndDrop(): DragAndDropReturn {
     // colocacion en columnas ni el reordenamiento de filas tienen nada que decir.
     if (overData?.canvasTarget) {
       if (data?.source === "canvas-field") {
-        moveFieldToStep((data.field as CanvasField).id, overData.canvasTarget);
+        moveFieldsToStep([(data.field as CanvasField).id], overData.canvasTarget);
       } else if (data?.source === "canvas-row") {
         moveRowToStep((data.row as CanvasRow).id, overData.canvasTarget);
       }
