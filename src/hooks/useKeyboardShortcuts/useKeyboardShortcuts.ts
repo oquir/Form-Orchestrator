@@ -6,14 +6,24 @@ import { zoomIn, zoomOut } from "../../lib/canvasZoom/canvasZoom";
 import { saveDraft } from "../../lib/persistence/persistence";
 import { useFormStore } from "../../store/formStore";
 import type { FormState } from "../../types/formStoreTypes";
-import type { CanvasToolItem } from "../../types/ui";
-import { isEditableTarget } from "./useKeyboardShortcuts.utils";
+import type { CanvasTool, CanvasToolItem } from "../../types/ui";
+import { isEditableTarget, isPointerOverCanvas } from "./useKeyboardShortcuts.utils";
 
 // Atajos globales del constructor. Ctrl/Cmd+S guarda el mismo borrador que el autoguardado; se monta
 // en App, sobre FormBuilder, para que tambien funcione con el simulador abierto. El zoom, las
 // herramientas y la seleccion solo tienen sentido con el lienzo a la vista.
 export function useKeyboardShortcuts() {
   useEffect(() => {
+    // La herramienta de antes de sostener Espacio; null mientras Espacio no esta sostenido.
+    let toolBeforeSpace: CanvasTool | null = null;
+
+    function releaseSpace(): void {
+      if (toolBeforeSpace === null) return;
+
+      useFormStore.getState().setCanvasTool(toolBeforeSpace);
+      toolBeforeSpace = null;
+    }
+
     function handleKeyDown(event: KeyboardEvent): void {
       const isMod = event.ctrlKey || event.metaKey;
       const state: FormState = useFormStore.getState();
@@ -25,13 +35,28 @@ export function useKeyboardShortcuts() {
         if (isEditableTarget(event.target)) return;
 
         const isCanvasView: boolean = state.canvasViewMode === "canvas";
+
+        // Espacio sostenido es la mano temporal de Figma. Solo con el puntero sobre el lienzo: con
+        // el foco en un boton de los paneles, Espacio tiene que seguir activandolo. preventDefault
+        // tambien en la repeticion, o el puerto se desplazaria como con un Espacio comun.
+        if (event.key === " " && isCanvasView && isPointerOverCanvas()) {
+          event.preventDefault();
+          if (event.repeat || toolBeforeSpace !== null) return;
+
+          toolBeforeSpace = state.canvasTool;
+          state.setCanvasTool("hand");
+          return;
+        }
+
         const tool: CanvasToolItem | undefined = CANVAS_TOOLS.find(
           (item) => item.shortcut.toLowerCase() === event.key.toLowerCase(),
         );
 
         if (tool && isCanvasView && !event.altKey) {
           event.preventDefault();
-          state.setCanvasTool(tool.tool);
+          // Con Espacio sostenido la tecla elige a que herramienta se vuelve al soltarlo.
+          if (toolBeforeSpace !== null) toolBeforeSpace = tool.tool;
+          else state.setCanvasTool(tool.tool);
           return;
         }
 
@@ -87,8 +112,23 @@ export function useKeyboardShortcuts() {
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown);
+    // El blur cubre soltar Espacio con la ventana en segundo plano, que nunca manda keyup: sin el,
+    // la mano quedaria puesta al volver.
+    function handleKeyUp(event: KeyboardEvent): void {
+      if (event.key !== " " || toolBeforeSpace === null) return;
 
-    return () => window.removeEventListener("keydown", handleKeyDown);
+      event.preventDefault();
+      releaseSpace();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", releaseSpace);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", releaseSpace);
+    };
   }, []);
 }
