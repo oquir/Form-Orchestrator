@@ -18,6 +18,7 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
   } = useDraggable({ id: row.id, data: { source: "canvas-row", row } });
   const selectedFieldIds = useFormStore((state) => state.selectedFieldIds);
   const singleSelectedId = useFormStore(getSelectedFieldId);
+  const canvasTool = useFormStore((state) => state.canvasTool);
   const selectField = useFormStore((state) => state.selectField);
   const toggleFieldSelection = useFormStore((state) => state.toggleFieldSelection);
   const dragPlacement = useFormStore((state) => state.dragPlacement);
@@ -29,17 +30,20 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
   const rejected = rowDropTarget?.rowId === row.id && !rowDropTarget.isValid;
   // La fila que contiene el campo seleccionado se queda con su marco y su barra a la vista, sin
   // hover: es el camino que le queda a quien navega con el teclado o desde una pantalla tactil. Solo
-  // con una seleccion unica: con varios seleccionados serian N juegos de tiradores fijos.
-  const pinned: boolean = row.fields.some((field) => field.id === singleSelectedId);
+  // con una seleccion unica y con la herramienta de mover: con varios seleccionados serian N juegos
+  // de tiradores fijos, y con la mano o el marco el cromo no responde.
+  const pinnedFieldId: string | null = canvasTool === "move" ? singleSelectedId : null;
+  const pinned: boolean = row.fields.some((field) => field.id === pinnedFieldId);
 
   function setRefs(node: HTMLLIElement | null): void {
     setDropRef(node);
     setDragRef(node);
   }
 
-  // Shift, Ctrl o Cmd suman sin soltar lo que ya estaba, como en cualquier lista.
+  // Shift, Ctrl o Cmd suman sin soltar lo que ya estaba. Con la seleccion multiple todo suma; ahi
+  // este clic solo llega desde el teclado, porque el del mouse lo atiende el marco.
   function handleFieldClick(event: MouseEvent<HTMLButtonElement>, fieldId: string): void {
-    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+    if (canvasTool === "select" || event.shiftKey || event.ctrlKey || event.metaKey) {
       toggleFieldSelection(fieldId);
       return;
     }
@@ -103,7 +107,7 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
           rowFields={row.fields}
           linkedLabel={linkedLabels.get(field.id) ?? null}
           selected={selectedFieldIds.includes(field.id)}
-          pinned={field.id === singleSelectedId}
+          pinned={field.id === pinnedFieldId}
           onClick={(event) => handleFieldClick(event, field.id)}
           onContextMenu={(event) => {
             event.preventDefault();
