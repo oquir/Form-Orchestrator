@@ -56,7 +56,7 @@ Settled — do not re-litigate without asking:
 
 ## Canvas zoom (`canvasZoom`)
 
-Canvas body scales via `transform: scale()`, 50–150%, from a header control, Ctrl/Cmd+wheel, and Ctrl/Cmd `+`/`-`/`0`. `src/lib/canvasZoom/` (arithmetic) + `src/hooks/useCanvasZoom/` (DOM).
+Canvas body scales via `transform: scale()`, 50–150%, from a header control, Ctrl/Cmd+wheel, and Ctrl/Cmd `+`/`-`/`0`. `src/lib/canvasZoom/` (zoom arithmetic) + `src/lib/canvasViewport/` (free-canvas geometry) + `src/hooks/useCanvasViewport/` (DOM — was `useCanvasZoom`, renamed when it started owning the whole viewport).
 
 **Only the canvas body scales** — header/tabs/notices live in `RightSidebar` now, at 1×. `FieldContextMenu` also stays outside the scale so `clientX/clientY` positioning stays correct.
 
@@ -68,12 +68,25 @@ Settled:
 - `measureRow` returns layout pixels; `RowDragPreview` scales itself. `transformOrigin: top left` lands the ghost on the replaced row.
 - The overlay's label chip stays at 1× (floating caption, not a replica).
 - **`marginBottom: contentHeight * (zoom - 1)` compensates for the transform not affecting layout** — without it, zooming out leaves dead scroll and zooming in pushes content out of reach. Measured via `ResizeObserver` on `offsetHeight` (no feedback loop).
-- At `zoom === 1` neither the transform nor the margin is emitted — identical DOM to before this feature.
+- At `zoom === 1` neither the transform nor the margin is emitted — a `scale(1)` would still create a containing block and a stacking context. The document's explicit `width` is always emitted since the free canvas: the root is wider than the port, so the document can no longer take its width from it.
 - Wheel zoom is continuous; buttons/shortcuts step 10% (Figma-like).
 - **Not persisted** — view state only, resets to 100% on reload.
 - One zoom for both canvases (form steps + intro modal).
-- **Anchors on viewport middle, not the cursor** — deliberate given the centered, non-horizontally-scrolling document. Computed in the hook body, not an effect (rects would already have changed).
+- **Anchors on viewport middle, not the cursor, in both axes** — zoom also arrives from the keyboard and the menu, where the cursor isn't over the canvas. The content-space point under the center is captured with the *old* rects (hook body for zoom, `ResizeObserver` callback for port resizes) and restored in a layout effect with the new ones (`captureAnchor`/`restoreAnchor`, dividing by the DOM-read scale). X needs it since the free canvas: the root's width changes with zoom and with the port, and the document is centered in it. The old Y-only `offset·ratio − offset` assumed the content edge never moves, which is false in X.
 - Known cosmetic limit: `min-h-[60vh]`/`70vh` resolve against the real viewport regardless of scale, so at 50% the empty canvas reads shorter than intended. Left as is.
+
+### The free canvas (pan room)
+
+**The user chose a free canvas with margin over scrolling within the document's bounds**: `getViewportLayout` wraps the document in half a port of pan room per side (`CANVAS_PAN_ROOM_RATIO = 0.5`, `constants/canvasViewport.ts`), so the hand and the scrollbars move it in any direction even at 100%.
+
+Settled:
+- **Native scroll with margin, not a `translate`** — keeps the wheel, trackpad, scrollbars and dnd-kit's autoscroll, and dnd-kit never has to re-measure. The hand tool is just drag-to-scroll.
+- **It also fixed a latent zoom bug.** With `transformOrigin: top center`, half of the zoom overflow landed left of the scroll origin — negative scroll space, unreachable (~145 px at 150% on a 1366 px screen with both panels open). The margin always covers it — `(W·k − W)/2 ≤ (port − 48)/4 < port/2` — verified by a tsx sweep over port widths 320–2600 × every zoom, so `top center` stays.
+- The document is still `min(976, port − 48)` wide — what `max-w-5xl` + `px-6` gave — now as an explicit `width` measured from the port's `clientWidth` (the scrollbar doesn't count).
+- **Home on mounting the canvas view and on every `activeCanvas` change**: `homeLeft` centers the document, `homeTop` leaves 32 px above it. Without it, switching from a long step to a short one leaves the view floating in empty margin. `rootMinHeight = port + 2·panY` keeps home reachable for a short document at low zoom. Home wins over a pending anchor in the same commit.
+- **`[scrollbar-gutter:stable]` on `main`** — the root is sized from the port's width, so a vertical scrollbar that comes and goes would make that width oscillate against the `ResizeObserver`.
+- `contentRef` is a **callback ref kept in state**, and every observer and listener is keyed on the node: the document unmounts in the JSON/Payload views and has to be re-attached to the new node when it comes back.
+- The JSON and Payload views keep their plain `mx-auto max-w-5xl px-6 py-8` container — the free canvas is only for the canvas view.
 
 ## Reordering rows (drag the row itself)
 
