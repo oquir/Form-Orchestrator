@@ -2,8 +2,6 @@ import { type PointerEvent, useState } from "react";
 import { useCanvasViewport } from "../../../hooks/useCanvasViewport/useCanvasViewport";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { FieldContextMenuState } from "../../../types/fieldContextMenu";
-import { CanvasAddGroupButton } from "../CanvasAddGroupButton/CanvasAddGroupButton";
-import { CanvasAddRowButton } from "../CanvasAddRowButton/CanvasAddRowButton";
 import { CanvasRowsGrid } from "../CanvasRowsGrid/CanvasRowsGrid";
 import { CanvasToolLayer } from "../CanvasToolLayer/CanvasToolLayer";
 import { FieldContextMenu } from "../FieldContextMenu/FieldContextMenu";
@@ -85,26 +83,19 @@ export function Canvas() {
                 </span>
               </div>
               <CanvasRowsGrid rows={activeRows} onFieldContextMenu={openContextMenu} />
-              <CanvasAddRowButton />
             </div>
           </div>
         ) : (
-          <>
-            <div
-              onPointerDown={handleBackgroundPointerDown}
-              className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
-            >
-              <CanvasRowsGrid
-                rows={activeRows}
-                groups={activeGroups}
-                onFieldContextMenu={openContextMenu}
-              />
-            </div>
-            <div className="flex gap-3">
-              <CanvasAddRowButton />
-              <CanvasAddGroupButton />
-            </div>
-          </>
+          <div
+            onPointerDown={handleBackgroundPointerDown}
+            className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
+          >
+            <CanvasRowsGrid
+              rows={activeRows}
+              groups={activeGroups}
+              onFieldContextMenu={openContextMenu}
+            />
+          </div>
         )}
       </div>
 
