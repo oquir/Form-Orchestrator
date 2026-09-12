@@ -1,7 +1,7 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEvent } from "react";
 import { resolveRowStyles } from "../../../lib/cssStyles/cssStyles";
-import { useFormStore } from "../../../store/formStore";
+import { getSelectedFieldId, useFormStore } from "../../../store/formStore";
 import { CanvasFieldChip } from "../../molecules/CanvasFieldChip/CanvasFieldChip";
 import { RowZoneOverlay } from "../../molecules/RowZoneOverlay/RowZoneOverlay";
 import { RowToolbar } from "../RowToolbar/RowToolbar";
@@ -16,8 +16,10 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
     setNodeRef: setDragRef,
     isDragging,
   } = useDraggable({ id: row.id, data: { source: "canvas-row", row } });
-  const selectedFieldId = useFormStore((state) => state.selectedFieldId);
+  const selectedFieldIds = useFormStore((state) => state.selectedFieldIds);
+  const singleSelectedId = useFormStore(getSelectedFieldId);
   const selectField = useFormStore((state) => state.selectField);
+  const toggleFieldSelection = useFormStore((state) => state.toggleFieldSelection);
   const dragPlacement = useFormStore((state) => state.dragPlacement);
   const rowDropTarget = useFormStore((state) => state.rowDropTarget);
   const isRowDragActive = useFormStore((state) => state.rowDrag !== null);
@@ -26,12 +28,23 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
   // que ahi no puede ir: una fila de un grupo intentando salirse de el.
   const rejected = rowDropTarget?.rowId === row.id && !rowDropTarget.isValid;
   // La fila que contiene el campo seleccionado se queda con su marco y su barra a la vista, sin
-  // hover: es el camino que le queda a quien navega con el teclado o desde una pantalla tactil.
-  const pinned: boolean = row.fields.some((field) => field.id === selectedFieldId);
+  // hover: es el camino que le queda a quien navega con el teclado o desde una pantalla tactil. Solo
+  // con una seleccion unica: con varios seleccionados serian N juegos de tiradores fijos.
+  const pinned: boolean = row.fields.some((field) => field.id === singleSelectedId);
 
   function setRefs(node: HTMLLIElement | null): void {
     setDropRef(node);
     setDragRef(node);
+  }
+
+  // Shift, Ctrl o Cmd suman sin soltar lo que ya estaba, como en cualquier lista.
+  function handleFieldClick(event: MouseEvent<HTMLButtonElement>, fieldId: string): void {
+    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+      toggleFieldSelection(fieldId);
+      return;
+    }
+
+    selectField(fieldId);
   }
 
   return (
@@ -89,8 +102,9 @@ export function CanvasRow({ row, linkedLabels, offsetY = 0, onFieldContextMenu }
           rowColumns={row.columns}
           rowFields={row.fields}
           linkedLabel={linkedLabels.get(field.id) ?? null}
-          selected={selectedFieldId === field.id}
-          onClick={() => selectField(field.id)}
+          selected={selectedFieldIds.includes(field.id)}
+          pinned={field.id === singleSelectedId}
+          onClick={(event) => handleFieldClick(event, field.id)}
           onContextMenu={(event) => {
             event.preventDefault();
             selectField(field.id);

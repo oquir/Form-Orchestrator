@@ -1,4 +1,9 @@
-import { findFieldById, getActiveRows, useFormStore } from "../../../store/formStore";
+import {
+  findFieldById,
+  getActiveRows,
+  getSelectedFieldId,
+  useFormStore,
+} from "../../../store/formStore";
 import { PanelHeader } from "../../atoms/PanelHeader/PanelHeader";
 import { SidebarTabRail } from "../../molecules/SidebarTabRail/SidebarTabRail";
 import { FieldPalette } from "../FieldPalette/FieldPalette";
@@ -16,7 +21,7 @@ export function Sidebar() {
   const activeTab = useFormStore((state) => state.sidebarTab);
   const setActiveTab = useFormStore((state) => state.setSidebarTab);
   const rows = useFormStore(getActiveRows);
-  const selectedFieldId = useFormStore((state) => state.selectedFieldId);
+  const selectedFieldId = useFormStore(getSelectedFieldId);
   const selectedField = findFieldById(rows, selectedFieldId);
   const activeTabDef = TABS.find((tab) => tab.id === activeTab);
   const isDarkMode = useFormStore((state) => state.isDarkMode);

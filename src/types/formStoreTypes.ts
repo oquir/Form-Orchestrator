@@ -38,7 +38,9 @@ export interface FormState extends BanksSlice {
   // repetible, esa pregunta no tiene una respuesta unica.
   formScript: string;
   activeCanvas: CanvasTarget;
-  selectedFieldId: string | null;
+  // Siempre dentro del paso activo: cambiar de paso la vacia. Que haya exactamente uno -- lo unico
+  // que los paneles saben editar -- se deduce con getSelectedFieldId, nunca se guarda aparte.
+  selectedFieldIds: string[];
   canvasTool: CanvasTool;
   setupConfig: SetupConfig;
   isSidebarOpen: boolean;
@@ -100,6 +102,8 @@ export interface FormState extends BanksSlice {
   removeField: (fieldId: string) => void;
   moveField: (fieldId: string, targetRowId: string, requested?: FieldPlacement) => void;
   selectField: (fieldId: string | null) => void;
+  toggleFieldSelection: (fieldId: string) => void;
+  setFieldSelection: (fieldIds: string[]) => void;
   updateField: (
     fieldId: string,
     updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title" | "alwaysDisabled">>,

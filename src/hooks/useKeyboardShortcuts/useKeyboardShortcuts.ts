@@ -19,7 +19,7 @@ export function useKeyboardShortcuts() {
       if (!isMod) {
         if (state.isSimulatorOpen || !state.setupConfig.isComplete) return;
         if (isEditableTarget(event.target)) return;
-        if (state.selectedFieldId === null) return;
+        if (state.selectedFieldIds.length === 0) return;
 
         // Con el menu contextual abierto, Escape lo cierra (su propio listener) y ademas
         // deselecciona: las dos cosas son "cancelar", asi que se dejan juntas a proposito.
@@ -30,7 +30,7 @@ export function useKeyboardShortcuts() {
 
         if (event.key === "Delete" || event.key === "Backspace") {
           event.preventDefault();
-          state.removeField(state.selectedFieldId);
+          for (const fieldId of state.selectedFieldIds) state.removeField(fieldId);
         }
         return;
       }

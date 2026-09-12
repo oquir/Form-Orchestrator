@@ -8,6 +8,8 @@ export interface CanvasFieldChipProps {
   rowFields: CanvasField[];
   linkedLabel: CanvasField | null;
   selected: boolean;
-  onClick: () => void;
+  // Cromo fijo sin hover: solo el campo de una seleccion unica con la herramienta de mover.
+  pinned: boolean;
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
   onContextMenu: (event: MouseEvent<HTMLButtonElement>) => void;
 }

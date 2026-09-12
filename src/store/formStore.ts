@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import { ZOOM_DEFAULT } from "../constants/canvasZoom";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
+import { sameIdSet, toggleId, withoutIds } from "../lib/canvasSelection/canvasSelection";
 import { clampZoom } from "../lib/canvasZoom/canvasZoom";
 import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
@@ -46,7 +47,7 @@ import type {
 import type { CanvasTarget } from "../types/placement";
 import type { StateSlice } from "../types/store";
 import { createBanksSlice } from "./banksSlice";
-import { NO_GROUPS, NO_ROWS, THEME_STORAGE_KEY } from "./formStore.constants";
+import { NO_GROUPS, NO_ROWS, NO_SELECTION, THEME_STORAGE_KEY } from "./formStore.constants";
 import {
   allFieldNames,
   allRows,
@@ -95,7 +96,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
   introModal: { steps: [] },
   formScript: "",
   activeCanvas: { type: "formStep", stepId: "step-1" },
-  selectedFieldId: null,
+  selectedFieldIds: NO_SELECTION,
   canvasTool: "move",
   setupConfig: {
     isComplete: false,
@@ -143,7 +144,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       return { isDarkMode: next };
     }),
   selectFieldAndEdit: (fieldId, tab) =>
-    set({ selectedFieldId: fieldId, sidebarTab: tab, isSidebarOpen: true }),
+    set({ selectedFieldIds: [fieldId], sidebarTab: tab, isSidebarOpen: true }),
   completeSetup: (config) =>
     set(() => {
       const formSteps = buildInitialFormSteps(config.formType);
@@ -156,10 +157,10 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
             : [],
         },
         activeCanvas: { type: "formStep", stepId: formSteps[0].stepId },
-        selectedFieldId: null,
+        selectedFieldIds: NO_SELECTION,
       };
     }),
-  setActiveCanvas: (target) => set({ activeCanvas: target, selectedFieldId: null }),
+  setActiveCanvas: (target) => set({ activeCanvas: target, selectedFieldIds: NO_SELECTION }),
   updateFormStepTitle: (stepId, title) =>
     set((state) => ({
       formSteps: state.formSteps.map((step) =>
@@ -182,7 +183,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       return {
         formSteps: [...state.formSteps, newStep],
         activeCanvas: { type: "formStep", stepId: newStep.stepId },
-        selectedFieldId: null,
+        selectedFieldIds: NO_SELECTION,
       };
     }),
   removeFormStep: (stepId) =>
@@ -196,7 +197,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         activeCanvas: wasActive
           ? { type: "formStep", stepId: remainingSteps[0].stepId }
           : state.activeCanvas,
-        selectedFieldId: wasActive ? null : state.selectedFieldId,
+        selectedFieldIds: wasActive ? NO_SELECTION : state.selectedFieldIds,
       };
     }),
   updateIntroModalStepTitle: (stepId, title) =>
@@ -230,7 +231,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           introModalSteps: state.introModal.steps.length + 1,
         },
         activeCanvas: { type: "introStep", stepId: newStep.stepId },
-        selectedFieldId: null,
+        selectedFieldIds: NO_SELECTION,
       };
     }),
   removeIntroModalStep: (stepId) =>
@@ -248,7 +249,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         activeCanvas: wasActive
           ? { type: "formStep", stepId: state.formSteps[0].stepId }
           : state.activeCanvas,
-        selectedFieldId: wasActive ? null : state.selectedFieldId,
+        selectedFieldIds: wasActive ? NO_SELECTION : state.selectedFieldIds,
       };
     }),
   addRowToActiveCanvas: () =>
@@ -288,17 +289,26 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       mapRowEverywhere(state, rowId, (row) => ({ ...row, styles: { ...row.styles, ...updates } })),
     ),
   removeRow: (rowId) =>
-    set((state) => ({
-      formSteps: state.formSteps.map((step) =>
-        pruneEmptyGroups({ ...step, rows: step.rows.filter((row) => row.id !== rowId) }),
-      ),
-      introModal: {
-        steps: state.introModal.steps.map((step) => ({
-          ...step,
-          rows: step.rows.filter((row) => row.id !== rowId),
-        })),
-      },
-    })),
+    set((state) => {
+      // Los campos de la fila se van con ella, asi que tampoco pueden seguir seleccionados: con un
+      // conjunto, un id colgando haria mentir al contador de la barra del lienzo.
+      const removed: Set<string> = new Set<string>(
+        (findRowById(state, rowId)?.fields ?? []).map((field) => field.id),
+      );
+
+      return {
+        formSteps: state.formSteps.map((step) =>
+          pruneEmptyGroups({ ...step, rows: step.rows.filter((row) => row.id !== rowId) }),
+        ),
+        introModal: {
+          steps: state.introModal.steps.map((step) => ({
+            ...step,
+            rows: step.rows.filter((row) => row.id !== rowId),
+          })),
+        },
+        selectedFieldIds: withoutIds(state.selectedFieldIds, removed),
+      };
+    }),
   // Reordenar es solo cambiar de sitio dentro de `rows[]`: el orden de las filas no se guarda en
   // ningun campo, es el del arreglo. Por eso ni la persistencia ni la exportacion se enteran.
   // Se aplica al paso que contiene la fila; si el destino esta en otro, reorderRows lo rechaza.
@@ -358,7 +368,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         },
         // Sin esto el campo desaparece de la pantalla y no hay forma de saber si llego.
         activeCanvas: target,
-        selectedFieldId: fieldId,
+        selectedFieldIds: [fieldId],
         transferNotice: notice,
       };
     }),
@@ -502,7 +512,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
           ...current,
           fields: [...current.fields, newField],
         })),
-        selectedFieldId: newField.id,
+        selectedFieldIds: [newField.id],
       };
     }),
   // Borrar un campo obliga a limpiar todo lo que le apuntaba, o quedarian referencias colgando:
@@ -536,7 +546,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         introModal: {
           steps: state.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
         },
-        selectedFieldId: state.selectedFieldId === fieldId ? null : state.selectedFieldId,
+        selectedFieldIds: withoutIds(state.selectedFieldIds, new Set<string>([fieldId])),
       };
     }),
   moveField: (fieldId, targetRowId, requested) =>
@@ -660,7 +670,27 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
         return next;
       }),
     ),
-  selectField: (fieldId) => set({ selectedFieldId: fieldId }),
+  // Reemplaza la seleccion entera, que es lo que hace un clic comun. Elegir lo que ya estaba elegido
+  // no escribe: devolver el mismo estado le ahorra a cada fila volver a dibujarse.
+  selectField: (fieldId) =>
+    set((state) => {
+      const current: string[] = state.selectedFieldIds;
+
+      if (fieldId === null) {
+        return current.length === 0 ? state : { selectedFieldIds: NO_SELECTION };
+      }
+
+      return current.length === 1 && current[0] === fieldId
+        ? state
+        : { selectedFieldIds: [fieldId] };
+    }),
+  toggleFieldSelection: (fieldId) =>
+    set((state) => ({ selectedFieldIds: toggleId(state.selectedFieldIds, fieldId) })),
+  // La escribe el marco en cada movimiento del puntero: solo llega al store si el conjunto cambio.
+  setFieldSelection: (fieldIds) =>
+    set((state) =>
+      sameIdSet(state.selectedFieldIds, fieldIds) ? state : { selectedFieldIds: fieldIds },
+    ),
   updateField: (fieldId, updates) =>
     set((state) => {
       if (updates.colSpan === undefined) {
@@ -870,7 +900,7 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       formScript: draft.formScript,
       setupConfig: draft.setupConfig,
       activeCanvas: { type: "formStep", stepId: draft.formSteps[0].stepId },
-      selectedFieldId: null,
+      selectedFieldIds: NO_SELECTION,
     }),
 }));
 
@@ -903,6 +933,12 @@ export function getActiveGroups(state: {
   const step = state.formSteps.find((s) => s.stepId === state.activeCanvas.stepId);
 
   return step?.groups ?? NO_GROUPS;
+}
+
+// El unico campo que los paneles saben editar: su id si hay exactamente uno seleccionado, y null con
+// ninguno o con varios. Devuelve un primitivo, asi que es estable para useSyncExternalStore.
+export function getSelectedFieldId(state: { selectedFieldIds: string[] }): string | null {
+  return state.selectedFieldIds.length === 1 ? state.selectedFieldIds[0] : null;
 }
 
 export function findGroupForField(

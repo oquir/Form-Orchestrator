@@ -6,4 +6,7 @@ import type { CanvasRow, RepeatableGroup } from "../types/formStructure";
 // nunca escribir un [] literal dentro de un selector.
 export const NO_ROWS: CanvasRow[] = [];
 export const NO_GROUPS: RepeatableGroup[] = [];
+// La seleccion vacia, por la misma razon aunque sea estado y no un selector: CanvasRow se suscribe
+// al arreglo, y un [] nuevo en cada limpieza redibujaria todas las filas sin que nada cambie.
+export const NO_SELECTION: string[] = [];
 export const THEME_STORAGE_KEY: string = "form-orchestrator-theme";

@@ -24,6 +24,7 @@ export function CanvasFieldChip({
   rowFields,
   linkedLabel,
   selected,
+  pinned,
   onClick,
   onContextMenu,
 }: CanvasFieldChipProps) {
@@ -61,7 +62,7 @@ export function CanvasFieldChip({
   // fondo, color y el CSS libre -- va sobre la caja pintada, nunca sobre el div que solo lleva
   // gridColumn, porque ese es el que fija la posicion en la fila.
   const { marginTop, marginBottom, ...buttonStyles } = resolveFieldStyles(field.styles);
-  const chromeClasses: string = selected ? CHROME_PINNED_CLASSES : CHROME_ON_FIELD_CLASSES;
+  const chromeClasses: string = pinned ? CHROME_PINNED_CLASSES : CHROME_ON_FIELD_CLASSES;
 
   return (
     <div
@@ -82,7 +83,7 @@ export function CanvasFieldChip({
           attributes={attributes}
           colSpan={field.colSpan}
           rowColumns={rowColumns}
-          pinned={selected}
+          pinned={pinned}
         />
         <button
           type="button"
@@ -162,7 +163,7 @@ export function CanvasFieldChip({
           colSpan={field.colSpan}
           rowColumns={rowColumns}
           maxSpan={maxSpan}
-          pinned={selected}
+          pinned={pinned}
           onResize={(next) => updateField(field.id, { colSpan: next })}
         />
       </div>
