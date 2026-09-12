@@ -1,7 +1,7 @@
 import { useFormStore } from "../../store/formStore";
 import type { AppLayoutProps } from "./AppLayout.types";
 
-export function AppLayout({ sidebar, canvas, rightSidebar }: AppLayoutProps) {
+export function AppLayout({ sidebar, canvas, canvasOverlay, rightSidebar }: AppLayoutProps) {
   const isSidebarOpen: boolean = useFormStore((state) => state.isSidebarOpen);
 
   return (
@@ -16,14 +16,18 @@ export function AppLayout({ sidebar, canvas, rightSidebar }: AppLayoutProps) {
         </div>
       </aside>
 
-      {/* scrollbar-gutter estable porque el lienzo dimensiona su raiz con el ancho del puerto: si la
-          barra vertical apareciera y desapareciera, ese ancho oscilaria. */}
-      <main
-        data-canvas-scroll
-        className="relative flex-1 overflow-auto bg-slate-100 [scrollbar-gutter:stable] dark:bg-neutral-950"
-      >
-        {canvas}
-      </main>
+      {/* La capa flotante va al lado de main y no adentro: asi no se desplaza con el scroll ni se
+          escala con el zoom. scrollbar-gutter estable porque el lienzo dimensiona su raiz con el
+          ancho del puerto: si la barra vertical apareciera y desapareciera, ese ancho oscilaria. */}
+      <div className="relative flex min-w-0 flex-1">
+        <main
+          data-canvas-scroll
+          className="relative flex-1 overflow-auto bg-slate-100 [scrollbar-gutter:stable] dark:bg-neutral-950"
+        >
+          {canvas}
+        </main>
+        {canvasOverlay}
+      </div>
 
       {/* A diferencia del izquierdo, este no se pliega: el ancho es fijo y son sus dos pestañas las
           que cambian el contenido. Por eso no necesita el molde de hijo w-80 recortado. */}

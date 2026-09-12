@@ -6,6 +6,7 @@ import { SimulatorLoading } from "../../atoms/SimulatorLoading/SimulatorLoading"
 import { AppLayout } from "../../layout/AppLayout";
 import { DragPreview } from "../../molecules/DragPreview/DragPreview";
 import { Canvas } from "../Canvas/Canvas";
+import { CanvasToolbar } from "../CanvasToolbar/CanvasToolbar";
 import { RightSidebar } from "../RightSidebar/RightSidebar";
 import { Sidebar } from "../Sidebar/Sidebar";
 import { OVERLAY_STYLE } from "./FormBuilder.constants";
@@ -46,7 +47,12 @@ export function FormBuilder() {
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
     >
-      <AppLayout sidebar={<Sidebar />} canvas={<Canvas />} rightSidebar={<RightSidebar />} />
+      <AppLayout
+        sidebar={<Sidebar />}
+        canvas={<Canvas />}
+        canvasOverlay={<CanvasToolbar />}
+        rightSidebar={<RightSidebar />}
+      />
       {/* Sin animacion de caida para una fila: dnd-kit la devuelve volando al sitio donde empezo,
           que ya no es el suyo. El hueco se abrio antes, asi que la fila ya esta donde toca. */}
       <DragOverlay
