@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Layers, Plus, Trash6, Xmark } from "reicon-react";
+import { Layers, Plus, Redo, Trash6, Undo, Xmark } from "reicon-react";
 import { CANVAS_TOOLS } from "../../../constants/canvasTool";
 import { CANVAS_TOOLBAR_ACTION_CLASSES } from "../../../constants/uiClasses";
+import { useFormHistory } from "../../../hooks/useFormHistory/useFormHistory";
 import { getBandElement, getRowElement } from "../../../lib/canvasDom/canvasDom";
 import { confirmFieldRemoval } from "../../../lib/canvasSelection/canvasSelection";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
@@ -32,6 +33,7 @@ export function CanvasToolbar() {
   const selectField = useFormStore((state) => state.selectField);
   const removeFields = useFormStore((state) => state.removeFields);
   const moveFieldsToStep = useFormStore((state) => state.moveFieldsToStep);
+  const { canUndo, canRedo, undo, redo } = useFormHistory();
   // Lo agregado cae al final del paso, que con la barra flotando puede quedar lejos de lo que se
   // esta mirando. La vista se lleva hasta ahi despues del commit, cuando el nodo nuevo ya existe.
   const [pendingReveal, setPendingReveal] = useState<CanvasReveal | null>(null);
@@ -122,6 +124,31 @@ export function CanvasToolbar() {
           className={CANVAS_TOOLBAR_ACTION_CLASSES}
         >
           <Layers size={12} weight="Filled" /> Grupo repetible
+        </button>
+      </div>
+
+      <span aria-hidden className={TOOLBAR_DIVIDER_CLASSES} />
+
+      <div className={TOOLBAR_GROUP_CLASSES}>
+        <button
+          type="button"
+          onClick={undo}
+          disabled={!canUndo}
+          title="Deshacer (Ctrl+Z)"
+          aria-label="Deshacer"
+          className={TOOLBAR_ICON_ACTION_CLASSES}
+        >
+          <Undo size={15} />
+        </button>
+        <button
+          type="button"
+          onClick={redo}
+          disabled={!canRedo}
+          title="Rehacer (Ctrl+Y)"
+          aria-label="Rehacer"
+          className={TOOLBAR_ICON_ACTION_CLASSES}
+        >
+          <Redo size={15} />
         </button>
       </div>
 

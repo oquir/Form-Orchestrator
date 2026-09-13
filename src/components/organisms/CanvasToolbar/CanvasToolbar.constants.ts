@@ -31,7 +31,7 @@ export const TOOL_BUTTON_INACTIVE_CLASSES: string =
   "text-fg-muted hover:bg-surface-raised hover:text-fg-strong dark:hover:bg-surface-inset";
 
 export const TOOLBAR_ICON_ACTION_CLASSES: string =
-  "flex h-8 w-8 items-center justify-center rounded-lg text-fg-muted transition-colors hover:cursor-pointer hover:bg-surface-raised hover:text-fg-strong dark:hover:bg-surface-inset";
+  "flex h-8 w-8 items-center justify-center rounded-lg text-fg-muted transition-colors hover:cursor-pointer hover:bg-surface-raised hover:text-fg-strong dark:hover:bg-surface-inset disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-fg-muted dark:disabled:hover:bg-transparent";
 
 export const TOOLBAR_DANGER_CLASSES: string =
   "flex h-8 w-8 items-center justify-center rounded-lg text-fg-muted transition-colors hover:cursor-pointer hover:bg-danger-surface hover:text-danger";
