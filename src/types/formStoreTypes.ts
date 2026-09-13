@@ -104,6 +104,9 @@ export interface FormState extends BanksSlice {
   selectField: (fieldId: string | null) => void;
   toggleFieldSelection: (fieldId: string) => void;
   setFieldSelection: (fieldIds: string[]) => void;
+  // Deshacer y rehacer sobre el historial de zundo (useFormStore.temporal). Ver lib/history.
+  undo: () => void;
+  redo: () => void;
   updateField: (
     fieldId: string,
     updates: Partial<Pick<CanvasField, "label" | "colSpan" | "title" | "alwaysDisabled">>,

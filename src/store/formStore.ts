@@ -65,6 +65,7 @@ import {
   getInitialDarkMode,
   mapFieldEverywhere,
   mapRowEverywhere,
+  reconcileViewAfterHistory,
   rowsAcrossFrom,
   rowsOfTarget,
 } from "./formStore.utils";
@@ -947,6 +948,8 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
     // Deshacer no puede volver al lienzo de antes de recuperar el borrador.
     clearHistory();
   },
+  undo: () => travelHistory("undo"),
+  redo: () => travelHistory("redo"),
 });
 
 const HISTORY_OPTIONS: ZundoOptions<FormState, HistorySnapshot> = {
@@ -961,6 +964,19 @@ const HISTORY_OPTIONS: ZundoOptions<FormState, HistorySnapshot> = {
 export const useFormStore: UseBoundStore<
   Mutate<StoreApi<FormState>, [["temporal", StoreApi<TemporalState<HistorySnapshot>>]]>
 > = create<FormState>()(temporal(createFormState, HISTORY_OPTIONS));
+
+// Deshacer y rehacer escriben con el set crudo de zundo, asi que no se registran como pasos nuevos.
+// Despues se reconcilia la vista con el documento restaurado: esa escritura solo toca estado de vista
+// y la igualdad del historial la descarta.
+function travelHistory(direction: "undo" | "redo"): void {
+  historyGate.reset();
+
+  const temporalState: TemporalState<HistorySnapshot> = useFormStore.temporal.getState();
+  if (direction === "undo") temporalState.undo();
+  else temporalState.redo();
+
+  useFormStore.setState(reconcileViewAfterHistory);
+}
 
 function clearHistory(): void {
   historyGate.reset();
