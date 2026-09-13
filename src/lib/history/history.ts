@@ -1,7 +1,8 @@
-import type { HistorySnapshot } from "../../types/history";
+import type { BurstGate, HistorySnapshot } from "../../types/history";
 
-// Las piezas del historial que no dependen de zundo ni del store: que se guarda en cada paso y cuando
-// dos estados son el mismo documento. El cableado con zundo vive en formStore.ts.
+// Las piezas del historial que no dependen de zundo ni del store: que se guarda en cada paso, cuando
+// dos estados son el mismo documento y como se agrupan los cambios en rafagas. El cableado con zundo
+// vive en formStore.ts.
 
 export function toHistorySnapshot(state: HistorySnapshot): HistorySnapshot {
   return {
@@ -24,6 +25,31 @@ export function sameDocument(a: HistorySnapshot, b: HistorySnapshot): boolean {
     a.formScript === b.formScript &&
     sameValue(a.setupConfig, b.setupConfig)
   );
+}
+
+// Deja pasar el primer cambio de una rafaga y se traga los que llegan antes de que se cumpla la
+// ventana desde el anterior. El que pasa es el que guarda el estado de ANTES de la rafaga, que es a
+// donde tiene que volver deshacer; los tragados no guardan nada.
+//
+// reset() va en cada deshacer y rehacer: zundo solo vacia los pasos de rehacer cuando registra un
+// cambio, y un cambio tragado justo despues de deshacer los dejaria vivos, listos para pisar lo que
+// se acaba de escribir.
+export function createBurstGate(windowMs: number, now: () => number = Date.now): BurstGate {
+  let lastChange: number = Number.NEGATIVE_INFINITY;
+
+  function wrap<TArgs extends unknown[]>(fn: (...args: TArgs) => void): (...args: TArgs) => void {
+    return (...args: TArgs): void => {
+      const time: number = now();
+      if (time - lastChange > windowMs) fn(...args);
+      lastChange = time;
+    };
+  }
+
+  function reset(): void {
+    lastChange = Number.NEGATIVE_INFINITY;
+  }
+
+  return { wrap, reset };
 }
 
 // Igualdad por contenido que corta en la primera referencia igual. Una referencia distinta no siempre
