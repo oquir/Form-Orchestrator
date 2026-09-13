@@ -16,8 +16,6 @@ Known gaps:
 - **Renglones 31 and 37 need the intro modal** (`{periodo_anio}` lives there) but the setup wizard makes it optional even for `industria_comercio`. Without it the field stays typeable but silently uncalculated.
 - Selects mapped to `number` leaves show a permanent `⚠ tipo` warning (a two-line fix in `fieldMatchesSchemaType` has been offered, not approved).
 - **Moving a field out of a repeatable group to another step keeps its `apiBinding`** — `moveFieldsToStep` → `planLanding` copies the field as is, contrary to the rule in "Repeatable groups". Shared by drag-to-tab and "Mover a paso". One-line fix, not applied: it changes single-field transfers too.
-- **No undo/redo.** Scoped at ~200–250 lines (wrap the store `set`, coalesce keystroke bursts, prune the selection on undo) and deferred by the user; meanwhile bulk delete asks for confirmation.
-
 ## The right panel (`RightSidebar`)
 
 Header, `CanvasTabs`, `TransferNotice` and `StepTitleEditor` moved off the canvas into a right-hand panel (`organisms/RightSidebar/`). `AppLayout` takes four slots (`sidebar`, `canvas`, `canvasOverlay`, `rightSidebar`) — the overlay is the floating tool bar, see "Canvas tools and floating toolbar".
@@ -92,7 +90,7 @@ Settled:
 
 ## Canvas tools and floating toolbar (`canvasTool`, `CanvasToolbar`)
 
-A floating bar centered at the bottom of the canvas (`organisms/CanvasToolbar/`, Figma UI3's placement): pointer tools **Mover (V) / Selección múltiple (M) / Mano (H)**, **+ Fila / + Grupo repetible**, and — with 2+ fields selected — **N seleccionados · Mover a paso ▾ · Eliminar · Deseleccionar**. It lives in `AppLayout`'s `canvasOverlay` slot, a sibling of `main`, so it neither scrolls nor scales, and renders only in `canvas` view mode. Tools in `constants/canvasTool.ts` (`CANVAS_TOOLS`: tool, label, shortcut — read by both the keyboard hook and the buttons' `title`); icons are the bar's business (`TOOL_ICONS`).
+A floating bar centered at the bottom of the canvas (`organisms/CanvasToolbar/`, Figma UI3's placement): pointer tools **Mover (V) / Selección múltiple (M) / Mano (H)**, **+ Fila / + Grupo repetible**, **Deshacer / Rehacer**, and — with 2+ fields selected — **N seleccionados · Mover a paso ▾ · Eliminar · Deseleccionar**. It lives in `AppLayout`'s `canvasOverlay` slot, a sibling of `main`, so it neither scrolls nor scales, and renders only in `canvas` view mode. Tools in `constants/canvasTool.ts` (`CANVAS_TOOLS`: tool, label, shortcut — read by both the keyboard hook and the buttons' `title`); icons are the bar's business (`TOOL_ICONS`).
 
 Settled:
 - **Selection is `selectedFieldIds: string[]`**; "exactly one" is derived by `getSelectedFieldId` (a primitive, stable for `useSyncExternalStore`), never stored. Panels still edit one field: with 2+ the field tabs show `SelectionSummary`, and Lógica does *not* fall back to the prelude as if nothing were selected. The selection always lives in the active step (`setActiveCanvas` clears it) and is pruned by `removeFields` and `removeRow` (which used to leave a dangling id — harmless with one, a lying counter with a set). `NO_SELECTION` sentinel for the same identity reason as `NO_ROWS`.
@@ -108,7 +106,24 @@ Settled:
 - **The active tool gets the brand fill**, unlike `ViewModeSwitch`: the tool changes what a click does on the canvas, and staying in the wrong mode unnoticed means selecting or panning when you meant to move.
 - `canvasTool` isn't persisted (back to Mover on reload), like `canvasZoom`.
 - `lib/canvasDom/` holds the `data-*` DOM queries shared across folders (`getCanvasScrollPort`, `getFieldElements`, and `getRowElement`/`getBandElement` moved out of `useDragAndDrop.utils.ts`); `lib/canvasSelection/` holds the rect and id-set arithmetic.
-- Not built: dragging a multi-selection within the canvas, bulk property editing, edge auto-scroll during the marquee, undo/redo.
+- Not built: dragging a multi-selection within the canvas, bulk property editing, edge auto-scroll during the marquee.
+
+## Undo / redo (`zundo`)
+
+Ctrl/Cmd+Z undoes; Ctrl+Y and Ctrl/Cmd+Shift+Z redo; Deshacer/Rehacer sit in the floating bar. The store is wrapped in **`zundo`'s `temporal` middleware** — the one dependency added outside the original stack, chosen over a hand-rolled history (~200–250 lines) because the stacks, limit, pause and clear are generic; the project-specific parts below would exist either way. History lives in a separate store, `useFormStore.temporal`, which `useFormHistory` reads for `canUndo`/`canRedo`. Pure pieces in `src/lib/history/` (`toHistorySnapshot`, `sameDocument`, `createBurstGate`); wiring at the bottom of `formStore.ts` (`HISTORY_OPTIONS`, `travelHistory`, `clearHistory`).
+
+Settled:
+- **A step is the document plus the view of that moment** (`HistorySnapshot`: `formSteps`, `introModal`, `formScript`, `setupConfig`, `activeCanvas`, `selectedFieldIds`). Undo brings back the step and the selection where the change happened — undoing "Mover a paso" returns the fields *and* the view to the source step. `setupConfig` travels because adding/removing intro steps rewrites `hasIntroModal`/`introModalSteps`; without it, undoing the removal of the last intro step would bring the step back with its tabs hidden.
+- **Only the document decides whether there was a step** (`sameDocument`): selection, active step, zoom, tool and drag state never create one. **`equality` is mandatory with zundo** — without it every `set`, the ~100 `dragPlacement` writes per drag included, records a step.
+- **Equality is by content with a reference short-circuit** (`sameValue`), not by reference alone. Several actions rebuild steps and rows without changing anything — dropping a field where it was, a blur that confirms the same text — and each would leave an empty step that Ctrl+Z "undoes" with nothing visible. Structural sharing keeps the walk down to what was rebuilt.
+- **Keystroke bursts coalesce** (`createBurstGate`, `HISTORY_BURST_MS = 500`): the leading change of a sliding window records, so the saved past state is the one *before* the burst. A slow column-by-column resize (more than 500 ms between columns) still leaves one step per column — accepted.
+- **The gate resets on every undo/redo.** zundo only clears the redo stack when it records, so a change swallowed right after an undo would leave redo alive, ready to overwrite what was just typed.
+- Undo/redo write through zundo's raw `set`, so they never record themselves. `reconcileViewAfterHistory` then repairs an `activeCanvas`/selection pointing at something gone and clears `transferNotice` — a view-only write the equality discards.
+- **`completeSetup` and `restoreDraft` clear the history** — a new document must not undo into the blank canvas it replaced.
+- `HISTORY_LIMIT = 100`; steps are references, so the memory cost is negligible. **Not persisted** — a reload starts empty.
+- **Ctrl+Z inside an editable target is left alone** (`isEditableTarget`): inputs and CodeMirror keep their own text history. Ignored with the simulator open.
+- **`RichTextEditor` repaints when `value` arrives different from what it shows** (reference compare against what it last painted or emitted; the panels store the emitted object as is). It used to paint only on mount, so after an undo it kept the stale text and the next blur wrote it back, silently undoing the undo. `ScriptEditor` already synced external changes.
+- Verified with a tsx script against the real store: bursts, no-op writes, a change right after an undo, multi-delete, move-to-step, intro steps with `setupConfig`, clearing on setup/draft restore, view reconciliation.
 
 ## Reordering rows (drag the row itself)
 
@@ -650,7 +665,8 @@ Both import cycles this shape produced are fixed the same way: implementation mo
   - UI state: `selectedFieldIds`, `canvasTool`, `isSidebarOpen`, `sidebarTab`, `rightSidebarTab`, `canvasViewMode`, `canvasZoom`, `dragPlacement`, `rowDropTarget`, `rowDrag`, `draggingFieldId`, `hoveredTransferTarget`, `transferNotice`, `isDarkMode` (persisted separately), `lastSavedAt`.
   - `setupConfig` + the three banks (each own `localStorage` key, none in draft/export).
   - Selectors: `getActiveRows`, `getActiveGroups`, `getSelectedFieldId`, `findFieldById`, `getAllFields`, `findRowContainingField`, `findRowById`.
-  - Row/field mutations apply uniformly via `mapRowEverywhere`/`mapFieldEverywhere`. Key actions: `addFieldToRow`, `moveField`, `removeFields`, `selectField`/`toggleFieldSelection`/`setFieldSelection`, `updateField`, `setFieldName`, `updateFieldValidations/Styles/FileConfig`, `updateFieldApiBinding`, `setFieldScript`, `setFormScript`, `setFieldRounding/Formatted/AllowsNegative/Decimals/LabelFor/Content`, `addFieldRule`/`updateFieldRule`/`removeFieldRule`/`reorderFieldRule`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`/`setFieldVisibleWhen`, `addRowToActiveCanvas`/`updateRowColumns`/`removeRow`/`moveRow`, `moveFieldsToStep`/`moveRowToStep`, `setCanvasTool`, `addGroupToActiveStep`/`addRowToGroup`/`updateGroup`/`removeGroup`, step actions, `restoreDraft`.
+  - Row/field mutations apply uniformly via `mapRowEverywhere`/`mapFieldEverywhere`. Key actions: `addFieldToRow`, `moveField`, `removeFields`, `selectField`/`toggleFieldSelection`/`setFieldSelection`, `updateField`, `setFieldName`, `updateFieldValidations/Styles/FileConfig`, `updateFieldApiBinding`, `setFieldScript`, `setFormScript`, `setFieldRounding/Formatted/AllowsNegative/Decimals/LabelFor/Content`, `addFieldRule`/`updateFieldRule`/`removeFieldRule`/`reorderFieldRule`, `addFieldOption`/`removeFieldOption`/`updateFieldOptionLabel`, `setFieldEnableWhen`/`setFieldVisibleWhen`, `addRowToActiveCanvas`/`updateRowColumns`/`removeRow`/`moveRow`, `moveFieldsToStep`/`moveRowToStep`, `setCanvasTool`, `addGroupToActiveStep`/`addRowToGroup`/`updateGroup`/`removeGroup`, step actions, `restoreDraft`, `undo`/`redo`.
+  - **Wrapped in zundo's `temporal` middleware**: history lives in `useFormStore.temporal`, read through `useFormHistory`. The creator is `createFormState`, passed to `create<FormState>()(temporal(…))` — any further middleware has to keep that curried form. See "Undo / redo".
   - **Selectors must return stable references** — Zustand's `useSyncExternalStore` compares by identity; a fresh `[]` per call causes "Maximum update depth exceeded" (hence `NO_ROWS`/`NO_GROUPS`).
 - **Field model** (`CanvasField`, `src/types/field.ts`): `name` (unique slug), `type`, `label`, `colStart`, `colSpan`, `validations`, `styles`, `logic`, plus optional `title`, `options[]`, `fileConfig`, `alwaysDisabled`, `apiBinding`, `labelFor`, `content`, `tooltip`, `rounding`, `formatted`, `allowsNegative`, `decimals`, `enableWhen`, `visibleWhen` (`FieldCondition = {fieldId, operator, value}`). Operators: `equals|notEquals|greaterThan|lessThan|startsWith|endsWith|contains|matches|in|isEmpty|isNotEmpty|isTruthy|isFalsy`. `logic` = `{script?, rules?}`. Types in `FIELD_TYPES` (`src/constants/fieldTypes.ts`), grouped **básicos** (text, number, select, textarea, checkbox, calculated, file), **complejos** (search_select, toggle_group, radio_group, checkbox_group), **contenido** (label, rich_text). Adding a type is just a `FIELD_TYPES` entry (`PALETTE_SECTIONS` skips empty categories).
 - **Grid**: `src/constants/grid.ts` — `GRID_BASE_COLUMNS = 16` default; rows carry their own `columns` (clamped 1–24), shrinking clamps field `colSpan`s to fit.
@@ -669,6 +685,7 @@ Both import cycles this shape produced are fixed the same way: implementation mo
 - `@dnd-kit/core` + `@dnd-kit/sortable` (not react-dnd)
 - `react-hook-form` + `@hookform/resolvers` + `zod` (Zod schemas authored dynamically per-field, stored as strings)
 - `zustand` for the builder state tree
+- `zundo` for undo/redo — the `temporal` middleware wrapping the store; the one addition to the original stack (see "Undo / redo")
 - Tailwind v4 (`@tailwindcss/vite`), no CSS-in-JS, class-based dark mode — every new surface needs `dark:` variants
 - `uuid` for ids
 - `reicon-react` for icons (not lucide/heroicons)
