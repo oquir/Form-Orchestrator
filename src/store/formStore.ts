@@ -1,7 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
-import { create, type StoreApi, type UseBoundStore } from "zustand";
+import { type TemporalState, temporal, type ZundoOptions } from "zundo";
+import { create, type Mutate, type StateCreator, type StoreApi, type UseBoundStore } from "zustand";
 import { ZOOM_DEFAULT } from "../constants/canvasZoom";
 import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constants/grid";
+import { HISTORY_BURST_MS, HISTORY_LIMIT } from "../constants/history";
 import { sameIdSet, toggleId, withoutIds } from "../lib/canvasSelection/canvasSelection";
 import { clampZoom } from "../lib/canvasZoom/canvasZoom";
 import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
@@ -19,6 +21,7 @@ import {
   createValidationOverride,
   pruneOverridesReferencing,
 } from "../lib/fieldValidationOverride/fieldValidationOverride";
+import { createBurstGate, sameDocument, toHistorySnapshot } from "../lib/history/history";
 import {
   clampGroupBounds,
   createRepeatableGroup,
@@ -44,6 +47,7 @@ import type {
   IntroModalStep,
   RepeatableGroup,
 } from "../types/formStructure";
+import type { BurstGate, HistoryPastState, HistorySnapshot } from "../types/history";
 import type { CanvasTarget } from "../types/placement";
 import type { StateSlice } from "../types/store";
 import { createBanksSlice } from "./banksSlice";
@@ -68,6 +72,10 @@ import {
 // El unico store de la aplicacion. Sostiene los dos lienzos a la vez -formSteps y las pantallas
 // del modal de intro- y casi toda mutacion se aplica al que contenga el id, sin preguntar cual
 // esta activo: de ahi mapRowEverywhere y mapFieldEverywhere.
+//
+// Va envuelto en el middleware temporal de zundo, que lleva el historial de deshacer en un store
+// aparte (useFormStore.temporal). Que se guarda en cada paso y como se agrupan los cambios esta en
+// lib/history.
 
 export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null {
   for (const step of slice.formSteps) {
@@ -83,7 +91,11 @@ export function findRowById(slice: StateSlice, rowId: string): CanvasRow | null 
   return null;
 }
 
-export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState>((set) => ({
+// Agrupa las rafagas de cambios en un solo paso. Es de modulo porque lo comparten el handleSet de
+// zundo, que registra, y deshacer/rehacer, que lo reinician.
+const historyGate: BurstGate = createBurstGate(HISTORY_BURST_MS);
+
+const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (set) => ({
   // Los bancos del simulador entran enteros desde su propio archivo, estado y acciones incluidos.
   ...createBanksSlice(set),
   formSteps: [
@@ -929,7 +941,20 @@ export const useFormStore: UseBoundStore<StoreApi<FormState>> = create<FormState
       activeCanvas: { type: "formStep", stepId: draft.formSteps[0].stepId },
       selectedFieldIds: NO_SELECTION,
     }),
-}));
+});
+
+const HISTORY_OPTIONS: ZundoOptions<FormState, HistorySnapshot> = {
+  partialize: toHistorySnapshot,
+  equality: sameDocument,
+  limit: HISTORY_LIMIT,
+  // zundo le pasa a handleSet la funcion que guarda el paso; la compuerta decide cuales llegan.
+  handleSet: (handleSet) =>
+    historyGate.wrap((pastState: HistoryPastState): void => handleSet(pastState)),
+};
+
+export const useFormStore: UseBoundStore<
+  Mutate<StoreApi<FormState>, [["temporal", StoreApi<TemporalState<HistorySnapshot>>]]>
+> = create<FormState>()(temporal(createFormState, HISTORY_OPTIONS));
 
 // Selectores del lienzo activo. Devuelven NO_ROWS / NO_GROUPS y no un [] recien creado, porque
 // Zustand compara por identidad y un vacio nuevo en cada llamada provoca un bucle de renders.
