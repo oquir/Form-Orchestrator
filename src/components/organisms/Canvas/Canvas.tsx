@@ -21,11 +21,19 @@ export function Canvas() {
 
   const isIntro = activeCanvas.type === "introStep";
 
-  // Soltar la seleccion al pulsar el fondo. Solo cuenta si el evento nace en este mismo nodo: si
-  // vino de una fila o de un chip, event.target es ese otro nodo. Es pointerdown y no click por lo
-  // mismo que useClickOutside: el click llega despues de que el de abajo ya recibio la pulsacion.
-  function handleBackgroundPointerDown(event: PointerEvent<HTMLDivElement>): void {
-    if (event.target === event.currentTarget) selectField(null);
+  // Soltar la seleccion al pulsar cualquier punto vacio del lienzo, margen de paneo incluido: se
+  // busca hacia arriba un campo/fila/grupo en vez de comparar contra un contenedor puntual, que se
+  // rompe con envoltorios decorativos de por medio (el marco del modal). Solo en Mover: con otra
+  // herramienta el documento es inerte y la seleccion la maneja useCanvasMarquee.
+  function handleCanvasPointerDown(event: PointerEvent<HTMLDivElement>): void {
+    if (canvasTool !== "move") return;
+
+    const target = event.target;
+    const hitsSelectable: boolean =
+      target instanceof Element &&
+      target.closest("[data-field-id], [data-canvas-row], [data-band-id]") !== null;
+
+    if (!hitsSelectable) selectField(null);
   }
 
   function openContextMenu(fieldId: string, x: number, y: number): void {
@@ -42,7 +50,11 @@ export function Canvas() {
   }
 
   return (
-    <div style={rootStyle} className={TOOL_ROOT_CLASSES[canvasTool]}>
+    <div
+      style={rootStyle}
+      className={TOOL_ROOT_CLASSES[canvasTool]}
+      onPointerDown={handleCanvasPointerDown}
+    >
       {/* Con la mano o el marco el documento queda inerte: sin puntero no hay arrastre de dnd-kit,
           ni redimensionado, ni menu contextual, ni cromo por hover, y el puntero lo atiende el
           puerto. La paleta sigue soltando campos, porque dnd-kit resuelve la colision por rects y
@@ -72,10 +84,7 @@ export function Canvas() {
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-slate-900/10 dark:bg-black/40"
             />
-            <div
-              onPointerDown={handleBackgroundPointerDown}
-              className="relative z-10 flex min-h-110 w-full max-w-140 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
-            >
+            <div className="relative z-10 flex min-h-110 w-full max-w-140 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900">
               <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-neutral-800">
                 <span className="h-2.5 w-2.5 rounded-full bg-orange-400" />
                 <span className="text-xs font-semibold text-slate-500 dark:text-neutral-400">
@@ -86,10 +95,7 @@ export function Canvas() {
             </div>
           </div>
         ) : (
-          <div
-            onPointerDown={handleBackgroundPointerDown}
-            className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
-          >
+          <div className="min-h-[60vh] rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
             <CanvasRowsGrid
               rows={activeRows}
               groups={activeGroups}
