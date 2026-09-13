@@ -54,6 +54,31 @@ export function rowsOfTarget(state: StateSlice, target: CanvasTarget): CanvasRow
   return steps.find((step) => step.stepId === target.stepId)?.rows ?? [];
 }
 
+// Despues de deshacer o rehacer el documento es otro, y la vista tiene que seguir apuntando a algo
+// que exista en el. El historial ya guarda el paso activo y la seleccion de cada momento, asi que
+// casi nunca hay nada que corregir: esto es la red para cuando no coinciden.
+export function reconcileViewAfterHistory(
+  state: StateSlice & { activeCanvas: CanvasTarget; selectedFieldIds: string[] },
+): { activeCanvas: CanvasTarget; selectedFieldIds: string[]; transferNotice: null } {
+  const steps: { stepId: string }[] =
+    state.activeCanvas.type === "formStep" ? state.formSteps : state.introModal.steps;
+  const activeCanvas: CanvasTarget = steps.some((step) => step.stepId === state.activeCanvas.stepId)
+    ? state.activeCanvas
+    : { type: "formStep", stepId: state.formSteps[0].stepId };
+  const present: Set<string> = new Set<string>(
+    rowsOfTarget(state, activeCanvas).flatMap((row) => row.fields.map((field) => field.id)),
+  );
+  const kept: string[] = state.selectedFieldIds.filter((fieldId) => present.has(fieldId));
+
+  return {
+    activeCanvas,
+    // La misma referencia si no se cayo ninguno: el store compara por identidad.
+    selectedFieldIds: kept.length === state.selectedFieldIds.length ? state.selectedFieldIds : kept,
+    // El aviso de cruce hablaba de una mudanza que se acaba de deshacer.
+    transferNotice: null,
+  };
+}
+
 // El otro lado de la frontera modal / formulario respecto del destino. Es lo que hay que mirar para
 // saber que referencias quedan cruzadas despues de la mudanza.
 export function rowsAcrossFrom(state: StateSlice, target: CanvasTarget): CanvasRow[] {
