@@ -96,6 +96,17 @@ export function useKeyboardShortcuts() {
 
       if (state.isSimulatorOpen) return;
 
+      // Deshacer y rehacer el formulario. Dentro de un input o del editor de scripts manda el
+      // historial de texto de cada uno: el del formulario no se mete a mitad de una palabra.
+      if (key === "z" || key === "y") {
+        if (!state.setupConfig.isComplete || isEditableTarget(event.target)) return;
+
+        event.preventDefault();
+        if (key === "y" || event.shiftKey) state.redo();
+        else state.undo();
+        return;
+      }
+
       // Seleccionar todo el paso. Dentro de un input o fuera de la vista lienzo queda el Ctrl+A del
       // navegador, que ahi si significa algo.
       if (key === "a") {
