@@ -68,6 +68,9 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+      zundo:
+        specifier: ^2.3.0
+        version: 2.3.0(zustand@5.0.15(@types/react@19.2.18)(react@19.2.8))
       zustand:
         specifier: ^5.0.14
         version: 5.0.15(@types/react@19.2.18)(react@19.2.8)
@@ -1309,6 +1312,11 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
+  zundo@2.3.0:
+    resolution: {integrity: sha512-4GXYxXA17SIKYhVbWHdSEU04P697IMyVGXrC2TnzoyohEAWytFNOKqOp5gTGvaW93F/PM5Y0evbGtOPF0PWQwQ==}
+    peerDependencies:
+      zustand: ^4.3.0 || ^5.0.0
+
   zustand@5.0.15:
     resolution: {integrity: sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==}
     engines: {node: '>=12.20.0'}
@@ -2217,6 +2225,10 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@4.4.3: {}
+
+  zundo@2.3.0(zustand@5.0.15(@types/react@19.2.18)(react@19.2.8)):
+    dependencies:
+      zustand: 5.0.15(@types/react@19.2.18)(react@19.2.8)
 
   zustand@5.0.15(@types/react@19.2.18)(react@19.2.8):
     optionalDependencies:
