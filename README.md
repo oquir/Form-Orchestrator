@@ -8,6 +8,7 @@ El caso de uso que guía el diseño es el **autoliquidable de Industria y Comerc
 
 - **React 19** + **TypeScript** + **Vite 8**
 - **Zustand 5** para el estado global (canvas, steps, campos, grupos)
+- **zundo** para deshacer y rehacer: el middleware de historial de Zustand
 - **@dnd-kit** para drag-and-drop (paleta → fila, campo → fila, fila → nueva posición)
 - **react-hook-form** + **zod 4** para la validación de los campos generados (los schemas Zod se generan dinámicamente por campo y se guardan como string, ej. `"z.number().min(0)"`)
 - **Tailwind v4** (vía `@tailwindcss/vite`) para todo el estilado — sin CSS-in-JS. Modo oscuro por clase, con tokens de tema en `src/index.css`
@@ -66,11 +67,23 @@ Una barra flotante centrada abajo del lienzo (`organisms/CanvasToolbar/`) reúne
 
 - **Herramientas del puntero**: **Mover** (V, el comportamiento de siempre), **Selección múltiple** (M) y **Mano** (H). Mantener **Espacio** con el puntero sobre el lienzo activa la mano mientras dure.
 - **+ Fila** y **+ Grupo repetible**, que antes estaban al pie del lienzo. Lo nuevo se agrega al final del paso y la vista se desplaza hasta ahí; el grupo queda deshabilitado en el modal de entrada.
+- **Deshacer** y **Rehacer**, que también responden a **Ctrl/Cmd+Z** y a **Ctrl+Y** o **Ctrl/Cmd+Shift+Z**.
 - Con **dos o más campos seleccionados**: el contador, **Mover a paso**, **Eliminar** y **Deseleccionar**.
 
 El lienzo es **libre**: el documento tiene medio puerto de margen por lado, así que la mano, las barras y la rueda lo mueven en cualquier dirección aun al 100%. Al cambiar de paso la vista vuelve al inicio.
 
-Con la mano o la selección múltiple el documento queda inerte: ningún campo se arrastra, se redimensiona ni abre su menú. La paleta sigue soltando campos con cualquier herramienta. En selección múltiple todo suma: un clic agrega o quita un campo, el marco agrega lo que toca y un clic en el vacío limpia. Con Mover, **Shift/Ctrl+clic** también suma, y **Ctrl/Cmd+A** selecciona todo el paso. **Supr** borra la selección; con dos o más campos pide confirmación, porque no hay deshacer.
+Con la mano o la selección múltiple el documento queda inerte: ningún campo se arrastra, se redimensiona ni abre su menú. La paleta sigue soltando campos con cualquier herramienta. En selección múltiple todo suma: un clic agrega o quita un campo, el marco agrega lo que toca y un clic en el vacío limpia. Con Mover, **Shift/Ctrl+clic** también suma, y **Ctrl/Cmd+A** selecciona todo el paso. **Supr** borra la selección sin preguntar: Ctrl+Z la recupera.
+
+### Deshacer y rehacer
+
+El historial guarda el documento junto con el paso activo y la selección de cada momento, así que deshacer vuelve a mostrar el cambio donde ocurrió: deshacer un "Mover a paso" devuelve los campos y también la vista al paso de origen.
+
+- Lo que se teclea seguido cuenta como **un solo paso**; una pausa de medio segundo abre otro.
+- Cambiar de paso, seleccionar, hacer zoom o cambiar de herramienta **no dejan pasos**, y tampoco una acción que no cambia nada (soltar un campo donde ya estaba).
+- Dentro de un input o del editor de scripts, Ctrl+Z deshace el texto de ese control, no el formulario.
+- Guarda hasta 100 pasos y **no se conserva al recargar**. Terminar el asistente o recuperar un borrador lo vacía.
+
+Está hecho con `zundo`, el middleware de historial para Zustand.
 
 ### Componentes — Atomic Design
 
@@ -96,7 +109,7 @@ El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; el `DndContext`/
 
 Cada hook vive en su propia carpeta, igual que los componentes:
 
-- **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S, zoom, herramientas V/M/H, Espacio sostenido, Supr, Esc, Ctrl/Cmd+A), `useDraftRecovery`.
+- **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S, zoom, herramientas V/M/H, Espacio sostenido, Supr, Esc, Ctrl/Cmd+A, deshacer y rehacer), `useDraftRecovery`, `useFormHistory` (si hay algo que deshacer o rehacer, leído del historial de zundo).
 - **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`, `usePayloadPreviewCanvas`, `useCanvasViewport` (lienzo libre y zoom), `useCanvasPan` (la mano), `useCanvasMarquee` (el marco de selección).
 - **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useRichTextEditor`, `useJsonCode`, `useCatalogCard`, `useApiMappingPanel`, `useFormScriptEditor`, `useFieldScriptEditor`, `useGroupChecksEditor`.
 - **Simulador** — `useFormPreview` (el único que toca el store, y solo para alimentar el export), `usePreviewNavigation`, `usePreviewSearchSelect`.
