@@ -157,7 +157,7 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
     }),
   selectFieldAndEdit: (fieldId, tab) =>
     set({ selectedFieldIds: [fieldId], sidebarTab: tab, isSidebarOpen: true }),
-  completeSetup: (config) =>
+  completeSetup: (config) => {
     set(() => {
       const formSteps = buildInitialFormSteps(config.formType);
       return {
@@ -171,7 +171,10 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         activeCanvas: { type: "formStep", stepId: formSteps[0].stepId },
         selectedFieldIds: NO_SELECTION,
       };
-    }),
+    });
+    // Un formulario recien armado no se deshace hacia el lienzo en blanco de antes del asistente.
+    clearHistory();
+  },
   setActiveCanvas: (target) => set({ activeCanvas: target, selectedFieldIds: NO_SELECTION }),
   updateFormStepTitle: (stepId, title) =>
     set((state) => ({
@@ -932,7 +935,7 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         ),
       })),
     ),
-  restoreDraft: (draft) =>
+  restoreDraft: (draft) => {
     set({
       formSteps: draft.formSteps,
       introModal: draft.introModal,
@@ -940,7 +943,10 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
       setupConfig: draft.setupConfig,
       activeCanvas: { type: "formStep", stepId: draft.formSteps[0].stepId },
       selectedFieldIds: NO_SELECTION,
-    }),
+    });
+    // Deshacer no puede volver al lienzo de antes de recuperar el borrador.
+    clearHistory();
+  },
 });
 
 const HISTORY_OPTIONS: ZundoOptions<FormState, HistorySnapshot> = {
@@ -955,6 +961,11 @@ const HISTORY_OPTIONS: ZundoOptions<FormState, HistorySnapshot> = {
 export const useFormStore: UseBoundStore<
   Mutate<StoreApi<FormState>, [["temporal", StoreApi<TemporalState<HistorySnapshot>>]]>
 > = create<FormState>()(temporal(createFormState, HISTORY_OPTIONS));
+
+function clearHistory(): void {
+  historyGate.reset();
+  useFormStore.temporal.getState().clear();
+}
 
 // Selectores del lienzo activo. Devuelven NO_ROWS / NO_GROUPS y no un [] recien creado, porque
 // Zustand compara por identidad y un vacio nuevo en cada llamada provoca un bucle de renders.
