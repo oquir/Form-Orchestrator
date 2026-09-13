@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { serializeRichText } from "../../lib/richText/richText";
 import { safeHref } from "../../lib/richText/richText.utils";
-import type { RichTextCommand } from "../../types/richText";
+import type { RichTextCommand, RichTextContent } from "../../types/richText";
 import { INVALID_URL_MESSAGE, NO_SELECTION_MESSAGE } from "./useRichTextEditor.constants";
 import type { UseRichTextEditorParams, UseRichTextEditorResult } from "./useRichTextEditor.types";
 import {
@@ -19,19 +19,31 @@ export function useRichTextEditor({
 }: UseRichTextEditorParams): UseRichTextEditorResult {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const savedRange = useRef<Range | null>(null);
+  // El contenido que el DOM ya muestra: lo ultimo que se pinto o que el propio editor mando al store,
+  // null antes del primer pintado. Se compara por referencia porque los paneles guardan tal cual el
+  // contenido que reciben, asi que el eco de lo recien escrito vuelve como el mismo objeto.
+  const shown = useRef<RichTextContent | undefined | null>(null);
   const [linkOpen, setLinkOpen] = useState<boolean>(false);
   const [linkValue, setLinkValue] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // Solo al montar: repintar en cada cambio moveria el cursor al final mientras se escribe.
-  // El panel pasa key={field.id}, asi que cambiar de campo remonta y vuelve a pintar.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: depender de value romperia el cursor
+  // Se pinta al montar y cuando value llega distinto de lo que ya se muestra: deshacer o rehacer. El
+  // eco de lo que se acaba de escribir no se repinta, porque eso moveria el cursor al final. Sin el
+  // repintado, deshacer dejaria el texto viejo en pantalla y el siguiente blur lo volveria a escribir
+  // en el store, pisando lo deshecho. Cambiar de campo sigue remontando: el panel pasa key={field.id}.
   useEffect(() => {
-    if (editorRef.current) renderRichTextInto(editorRef.current, value);
-  }, []);
+    if (!editorRef.current || value === shown.current) return;
+
+    shown.current = value;
+    renderRichTextInto(editorRef.current, value);
+  }, [value]);
 
   function emit(): void {
-    if (editorRef.current) onChange(serializeRichText(editorRef.current));
+    if (!editorRef.current) return;
+
+    const content: RichTextContent = serializeRichText(editorRef.current);
+    shown.current = content;
+    onChange(content);
   }
 
   function runCommand(command: RichTextCommand): void {
