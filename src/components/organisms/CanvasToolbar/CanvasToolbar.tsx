@@ -4,7 +4,6 @@ import { CANVAS_TOOLS } from "../../../constants/canvasTool";
 import { CANVAS_TOOLBAR_ACTION_CLASSES } from "../../../constants/uiClasses";
 import { useFormHistory } from "../../../hooks/useFormHistory/useFormHistory";
 import { getBandElement, getRowElement } from "../../../lib/canvasDom/canvasDom";
-import { confirmFieldRemoval } from "../../../lib/canvasSelection/canvasSelection";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
 import type { CanvasRow, RepeatableGroup } from "../../../types/formStructure";
 import { MoveToStepMenu } from "../MoveToStepMenu/MoveToStepMenu";
@@ -66,10 +65,6 @@ export function CanvasToolbar() {
     if (groups.length > before) {
       setPendingReveal({ kind: "band", id: groups[groups.length - 1].id });
     }
-  }
-
-  function handleRemoveSelection(): void {
-    if (confirmFieldRemoval(selectedFieldIds.length)) removeFields(selectedFieldIds);
   }
 
   if (viewMode !== "canvas") return null;
@@ -161,7 +156,7 @@ export function CanvasToolbar() {
             <MoveToStepMenu onSelect={(target) => moveFieldsToStep(selectedFieldIds, target)} />
             <button
               type="button"
-              onClick={handleRemoveSelection}
+              onClick={() => removeFields(selectedFieldIds)}
               title="Eliminar los campos seleccionados (Supr)"
               aria-label="Eliminar los campos seleccionados"
               className={TOOLBAR_DANGER_CLASSES}
