@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Play } from "reicon-react";
 import { downloadFormExport } from "../../../lib/exportForm/exportForm";
 import { useFormStore } from "../../../store/formStore";
@@ -8,10 +9,12 @@ import { PanelBlock } from "../../molecules/PanelBlock/PanelBlock";
 import { TransferNotice } from "../../molecules/TransferNotice/TransferNotice";
 import { ViewModeSwitch } from "../../molecules/ViewModeSwitch/ViewModeSwitch";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
+import { ProjectImportModal } from "../ProjectImportModal/ProjectImportModal";
 import { SaveButton } from "../SaveButton/SaveButton";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
 import {
   EXPORT_BUTTON_CLASSES,
+  OPEN_PROJECT_BUTTON_CLASSES,
   PANEL_TAB_ACTIVE_CLASSES,
   PANEL_TAB_BASE_CLASSES,
   PANEL_TAB_DROP_DOT_CLASSES,
@@ -33,6 +36,7 @@ export function RightSidebar() {
   const setActiveTab = useFormStore((state) => state.setRightSidebarTab);
   const rowDrag = useFormStore((state) => state.rowDrag);
   const draggingFieldId = useFormStore((state) => state.draggingFieldId);
+  const [isImportOpen, setImportOpen] = useState<boolean>(false);
 
   const isIntro: boolean = activeCanvas.type === "introStep";
   const isCanvasView: boolean = viewMode === "canvas";
@@ -119,7 +123,19 @@ export function RightSidebar() {
               <ViewModeSwitch activeMode={viewMode} onSelect={setViewMode} />
             </PanelBlock>
 
-            <PanelBlock title="Formulario">
+            <PanelBlock
+              title="Formulario"
+              action={
+                <button
+                  type="button"
+                  onClick={() => setImportOpen(true)}
+                  title="Abrir un formulario exportado"
+                  className={OPEN_PROJECT_BUTTON_CLASSES}
+                >
+                  Abrir…
+                </button>
+              }
+            >
               <FormSummary />
             </PanelBlock>
           </>
@@ -143,6 +159,8 @@ export function RightSidebar() {
           </>
         )}
       </div>
+
+      {isImportOpen && <ProjectImportModal onClose={() => setImportOpen(false)} />}
     </div>
   );
 }

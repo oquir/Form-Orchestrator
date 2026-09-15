@@ -26,3 +26,8 @@ export const SIMULATOR_BUTTON_CLASSES: string =
 
 export const EXPORT_BUTTON_CLASSES: string =
   "rounded-md bg-brand px-2.5 py-1 text-xs font-medium text-on-brand transition-colors hover:bg-brand-hover hover:cursor-pointer";
+
+// La accion del bloque Formulario va como texto y no como boton con fondo: es secundaria, y el
+// primario del panel ya lo tiene la fila de acciones (Exportar).
+export const OPEN_PROJECT_BUTTON_CLASSES: string =
+  "text-[10px] font-medium text-fg-subtle transition-colors hover:text-fg-strong hover:cursor-pointer";
