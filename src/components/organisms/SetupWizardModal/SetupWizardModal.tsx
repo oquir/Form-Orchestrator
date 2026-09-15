@@ -1,33 +1,39 @@
-﻿import { FORM_TYPES } from "../../../constants/formType";
+import { FORM_TYPES } from "../../../constants/formType";
+import { useProjectImport } from "../../../hooks/useProjectImport/useProjectImport";
 import { useSetupWizard } from "../../../hooks/useSetupWizard/useSetupWizard";
 import { Button } from "../../atoms/Button/Button";
 import { ModalShell } from "../../atoms/ModalShell/ModalShell";
 import { WizardFooterActions } from "../../atoms/WizardFooterActions/WizardFooterActions";
 import { BinaryChoiceToggle } from "../../molecules/BinaryChoiceToggle/BinaryChoiceToggle";
 import { LabeledInput } from "../../molecules/LabeledInput/LabeledInput";
+import { ProjectFilePicker } from "../../molecules/ProjectFilePicker/ProjectFilePicker";
 import { SelectableOptionCard } from "../../molecules/SelectableOptionCard/SelectableOptionCard";
 import type { SetupWizardModalProps } from "./SetupWizardModal.types";
 
 export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalProps) {
   const {
     step,
-    formType,
+    selection,
     hasIntroModal,
     introModalSteps,
     canProceed,
     canFinish,
-    setFormType,
+    setSelection,
     setHasIntroModal,
     setIntroModalSteps,
     goNext,
     goBack,
     handleFinish,
   } = useSetupWizard();
+  const { fileName, result, summary, isReading, canOpen, pickFile, openProject } =
+    useProjectImport();
 
   return (
     <ModalShell maxWidthClassName="max-w-lg">
       <h2 className="mb-4 text-lg font-semibold text-slate-800 dark:text-neutral-100">
-        {step === 1 ? "Tipo de formulario" : "Modal de entrada"}
+        {step === 1 && "Tipo de formulario"}
+        {step === 2 && "Modal de entrada"}
+        {step === "import" && "Cargar formulario"}
       </h2>
 
       {draftWasInvalid && (
@@ -49,10 +55,19 @@ export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalPr
               key={option.value}
               label={option.label}
               description={option.description}
-              selected={formType === option.value}
-              onClick={() => setFormType(option.value)}
+              selected={selection === option.value}
+              onClick={() => setSelection(option.value)}
             />
           ))}
+
+          <div className="mt-2 flex flex-col border-t border-slate-200 pt-4 dark:border-neutral-700">
+            <SelectableOptionCard
+              label="Cargar formulario"
+              description="Abre un JSON exportado desde el builder para seguir editándolo."
+              selected={selection === "import"}
+              onClick={() => setSelection("import")}
+            />
+          </div>
 
           <WizardFooterActions justify="end">
             <Button
@@ -100,6 +115,36 @@ export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalPr
               className="px-4 py-1.5 text-sm hover:cursor-pointer"
             >
               Crear proyecto
+            </Button>
+          </WizardFooterActions>
+        </div>
+      )}
+
+      {step === "import" && (
+        <div className="flex flex-col gap-4">
+          <ProjectFilePicker
+            fileName={fileName}
+            result={result}
+            summary={summary}
+            isReading={isReading}
+            onPick={pickFile}
+          />
+
+          <WizardFooterActions justify="between" className="mt-2">
+            <Button
+              variant="ghost"
+              onClick={goBack}
+              className="px-4 py-1.5 text-sm hover:cursor-pointer"
+            >
+              Atrás
+            </Button>
+            <Button
+              variant="primary"
+              disabled={!canOpen}
+              onClick={openProject}
+              className="px-4 py-1.5 text-sm hover:cursor-pointer"
+            >
+              Abrir proyecto
             </Button>
           </WizardFooterActions>
         </div>
