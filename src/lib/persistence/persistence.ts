@@ -59,6 +59,10 @@ export function parseDraft(stored: unknown): DraftLoad {
     if (!parsed.success) return { status: "invalid" };
 
     const draft = parsed.data as DraftPayload;
+    // restoreDraft abre el primer paso, y sin ninguno no tiene donde aterrizar. El builder nunca
+    // deja el formulario sin pasos: esto solo lo alcanza un archivo o un borrador editado a mano.
+    if (draft.formSteps.length === 0) return { status: "invalid" };
+
     // El conjunto se comparte entre los dos lienzos porque el export los mezcla en un unico
     // espacio de nombres: un campo del modal de intro choca con uno del formulario.
     const takenNames = new Set<string>();
@@ -82,6 +86,15 @@ export function parseDraft(stored: unknown): DraftLoad {
   } catch {
     return { status: "invalid" };
   }
+}
+
+// Un borrador de una version posterior a la de este builder no se puede migrar hacia atras. Se
+// distingue del invalido para que quien abre un archivo sepa que lo que falta es actualizar.
+export function isNewerDraft(stored: unknown): boolean {
+  if (typeof stored !== "object" || stored === null) return false;
+
+  const version: unknown = (stored as LooseDraft).schemaVersion;
+  return typeof version === "number" && version > DRAFT_SCHEMA_VERSION;
 }
 
 export function clearDraft(): void {
