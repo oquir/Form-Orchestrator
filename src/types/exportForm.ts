@@ -8,6 +8,7 @@ import type {
   FieldOption,
   TooltipPosition,
 } from "./field";
+import type { DraftPayload } from "./persistenceTypes";
 import type { RichTextContent } from "./richText";
 import type { FormType } from "./setup";
 
@@ -171,3 +172,7 @@ export interface FormExport {
   setupConfig: ExportedSetupConfig;
   formSchema: ExportedFormSchema;
 }
+
+// Lo que baja el boton Exportar: el contrato mas `builderDraft`, la copia del proyecto con la que
+// el builder lo vuelve a abrir. El consumidor no la lee y tiene que ignorarla.
+export type FormExportFile = FormExport & { builderDraft: DraftPayload };
