@@ -10,28 +10,49 @@ import type { LooseDraft } from "./persistence.types";
 // la cadena de migraciones antes de validarse, y solo se descarta si ni siquiera asi llega a la
 // version de hoy. Lo que no cambia es el final: si no valida se pierde entero en vez de cargarse
 // a medias, porque un store a medio llenar es peor que uno vacio.
+//
+// El mismo borrador viaja dentro del JSON exportado (builderDraft) para volver a abrir el
+// proyecto, asi que armarlo y validarlo no dependen de localStorage: lib/projectFile usa estas
+// mismas piezas.
 
-export function saveDraft(payload: Omit<DraftPayload, "savedAt" | "schemaVersion">): void {
-  const draft: DraftPayload = {
+export function buildDraftPayload(
+  payload: Omit<DraftPayload, "savedAt" | "schemaVersion">,
+): DraftPayload {
+  return {
     ...payload,
     schemaVersion: DRAFT_SCHEMA_VERSION,
     savedAt: new Date().toISOString(),
   };
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+}
+
+export function saveDraft(payload: Omit<DraftPayload, "savedAt" | "schemaVersion">): void {
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(buildDraftPayload(payload)));
 }
 
 export function loadDraft(): DraftLoad {
   const raw = localStorage.getItem(DRAFT_KEY);
   if (!raw) return { status: "empty" };
 
+  // localStorage se puede editar desde las devtools, asi que lo guardado se trata como entrada
+  // no confiable: si no valida se descarta entero en vez de cargarlo a medias. Quien lo borra es
+  // useDraftRecovery: cargar no deberia tener el efecto de destruir, y el descarte tiene que
+  // quedar a la vista del que decide mostrar el aviso.
+  let stored: unknown;
   try {
-    // localStorage se puede editar desde las devtools, asi que lo guardado se trata como entrada
-    // no confiable: si no valida se descarta entero en vez de cargarlo a medias. Quien lo borra es
-    // useDraftRecovery: cargar no deberia tener el efecto de destruir, y el descarte tiene que
-    // quedar a la vista del que decide mostrar el aviso.
-    const stored: unknown = JSON.parse(raw);
-    if (typeof stored !== "object" || stored === null) return { status: "invalid" };
+    stored = JSON.parse(raw);
+  } catch {
+    return { status: "invalid" };
+  }
 
+  return parseDraft(stored);
+}
+
+// Valida un borrador ya parseado, venga de localStorage o de un archivo exportado. No tira nunca:
+// cualquier cosa que no llegue a la forma de hoy termina en "invalid".
+export function parseDraft(stored: unknown): DraftLoad {
+  if (typeof stored !== "object" || stored === null) return { status: "invalid" };
+
+  try {
     // Se migra antes de validar. Al reves seria descartar todo borrador de una version anterior
     // justo cuando la migracion podia salvarlo, que es para lo que existe.
     const parsed = draftPayloadSchema.safeParse(migrateDraft(stored as LooseDraft));
