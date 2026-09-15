@@ -1,7 +1,8 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { FormExport } from "../../types/exportForm";
+import type { FormExport, FormExportFile } from "../../types/exportForm";
 import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 import type { SetupConfig } from "../../types/setup";
+import { buildDraftPayload } from "../persistence/persistence";
 import { buildNameIndex, mapFormStep, mapRows } from "./exportForm.utils";
 
 // El JSON que se lleva el consumidor: todo lo que hace falta para dibujar y validar el formulario.
@@ -59,7 +60,19 @@ export function downloadFormExport(
   introModalSteps: IntroModalStep[],
   formScript: string,
 ): void {
-  const data: FormExport = buildFormExport(formSteps, setupConfig, introModalSteps, formScript);
+  // El archivo lleva, ademas del contrato, la copia del borrador con la que se vuelve a abrir el
+  // proyecto: lo compilado no alcanza para reeditar, porque las validaciones salen como texto
+  // Zod, los estilos fusionados y las comprobaciones apagadas no viajan. Va solo en la descarga:
+  // el simulador y la vista JSON leen buildFormExport, que no la trae.
+  const data: FormExportFile = {
+    ...buildFormExport(formSteps, setupConfig, introModalSteps, formScript),
+    builderDraft: buildDraftPayload({
+      formSteps,
+      introModal: { steps: introModalSteps },
+      formScript,
+      setupConfig,
+    }),
+  };
   const blob: Blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const anchor: HTMLAnchorElement = document.createElement("a");
