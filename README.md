@@ -113,8 +113,8 @@ Está hecho con `zundo`, el middleware de historial para Zustand.
 > Un `X.types.ts` o `X.constants.ts` es **privado a su carpeta**. En cuanto algo de afuera lo importa, la declaración pasa a `src/types/` o `src/constants/`. Ambas direcciones están auditadas en cero.
 
 - **`atoms/`** — primitivas sin lógica de negocio: `Button`, `Checkbox`, `CodeBlock`, `CopyIconButton`, `DashedAddButton`, `FieldDragHandle`, `FieldResizeHandle`, `FieldResizeHandleBar`, `FieldResizeHandleKnob`, `FieldTypeBadge`, `IconButton`, `Input`, `Label`, `ModalActions`, `ModalShell`, `PanelHeader`, `RichTextView`, `RowDragHandle`, `SimulatorLoading`, `TextArea`, `ToggleSwitch`, `TwoColumnFieldGroup`, `WizardFooterActions`.
-- **`molecules/`** — combinaciones reutilizables: `ApiPathSelect`, `BinaryChoiceToggle`, `CanvasFieldChip`, `CanvasZoomControl`, `CatalogCard`, `ColorPickerField`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `CssValidationHint`, `DragPreview`, `FieldIdentityCard`, `FieldNameInput`, `FieldPreviewControl`, `FieldRuleCard`, `FormSummary`, `GeneratedSchemaPreview`, `JsonCode`, `LabeledInput`, `LabeledRangeSlider`, `LabelTargetSelect`, `MaxDatesAnioRow`, `MaxDatesDeclaracionSection`, `MaxDatesPasteForm`, `PaletteChip`, `PanelBlock`, `PanelSection`, `PreviewTooltip`, `PxInput`, `RichTextEditor`, `RowDragPreview`, `RowZoneOverlay`, `RuleEffectRow`, `ScriptEditor`, `ScriptInput`, `SelectableOptionCard`, `SelectionSummary`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `TooltipBubble`, `TransferNotice`, `ValidationOverrideCard`, `ViewModeSwitch`.
-- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasToolbar`, `CanvasToolLayer`, `DraftRecoveryModal`, `FieldContextMenu`, `FieldOptionsModal`, `FieldPalette`, `FormBuilder`, `FormSimulator`, `JsonPreviewCanvas`, `MoveToStepMenu`, `PayloadPreviewCanvas`, `RepeatableGroupBand`, `RightSidebar`, `RowColumnsMenu`, `RowStylesMenu`, `RowToolbar`, `SaveButton`, `SetupWizardModal`, `Sidebar`, `StepTitleEditor`. Además:
+- **`molecules/`** — combinaciones reutilizables: `ApiPathSelect`, `BinaryChoiceToggle`, `CanvasFieldChip`, `CanvasZoomControl`, `CatalogCard`, `ColorPickerField`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `CssValidationHint`, `DragPreview`, `FieldIdentityCard`, `FieldNameInput`, `FieldPreviewControl`, `FieldRenameNotice`, `FieldRuleCard`, `FormSummary`, `GeneratedSchemaPreview`, `JsonCode`, `LabeledInput`, `LabeledRangeSlider`, `LabelTargetSelect`, `MaxDatesAnioRow`, `MaxDatesDeclaracionSection`, `MaxDatesPasteForm`, `PaletteChip`, `PanelBlock`, `PanelSection`, `PreviewTooltip`, `ProjectFilePicker`, `PxInput`, `RichTextEditor`, `RowDragPreview`, `RowZoneOverlay`, `RuleEffectRow`, `ScriptEditor`, `ScriptInput`, `SelectableOptionCard`, `SelectionSummary`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `TooltipBubble`, `TransferNotice`, `ValidationOverrideCard`, `ViewModeSwitch`.
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasToolbar`, `CanvasToolLayer`, `DraftRecoveryModal`, `FieldContextMenu`, `FieldOptionsModal`, `FieldPalette`, `FormBuilder`, `FormSimulator`, `JsonPreviewCanvas`, `MoveToStepMenu`, `PayloadPreviewCanvas`, `ProjectImportModal`, `RepeatableGroupBand`, `RightSidebar`, `RowColumnsMenu`, `RowStylesMenu`, `RowToolbar`, `SaveButton`, `SetupWizardModal`, `Sidebar`, `StepTitleEditor`. Además:
   - `organisms/panels/`, paneles y editores: `ApiMappingPanel`, `AttributesPanel`, `CatalogFillsEditor`, `CatalogsPanel`, `ConditionEditor`, `FieldDataSourceEditor`, `FieldOptionsEditor`, `FieldRulesEditor`, `FieldScriptEditor`, `FieldTooltipEditor`, `FileOptionsEditor`, `FormScriptEditor`, `GroupChecksEditor`, `LogicPanel`, `MaxDatesPanel`, `NumberOptionsEditor`, `StylesPanel`, `ValidationOverridesEditor`, `ValidationsPanel`, `ValoresAnualesEditor`.
   - `organisms/preview/`, las piezas del simulador: `PreviewField`, `PreviewFieldControl`, `PreviewForm`, `PreviewGroupBand`, `PreviewNumberInput`, `PreviewResults`, `PreviewRowsGrid`, `PreviewSearchSelect`, `PreviewStep`.
 - **`layout/AppLayout.tsx`** — el shell de la app, con cuatro espacios. Va fuera de la jerarquía atómica porque es el layout raíz.
@@ -129,7 +129,7 @@ Está hecho con `zundo`, el middleware de historial para Zustand.
 - **Panel derecho** (`organisms/RightSidebar/`): sigue el modelo del panel derecho de Figma y tiene ancho fijo; no se colapsa.
   - Arriba, la fila de acciones: **Guardar** a la izquierda; **Simulador** y **Exportar** a la derecha.
   - Debajo, las pestañas **Proyecto** y **Steps**, con el zoom a la derecha (solo en la vista Lienzo).
-  - **Proyecto**: "Vista", para elegir entre Lienzo, JSON y Payload, y "Formulario", con el tipo de formulario, cuántos steps, pasos de modal y campos tiene, y si está guardado.
+  - **Proyecto**: "Vista", para elegir entre Lienzo, JSON y Payload, y "Formulario", con el tipo de formulario, cuántos steps, pasos de modal y campos tiene, y si está guardado. El bloque Formulario trae **Abrir…**, que carga un JSON exportado en lugar del formulario actual (ver "Abrir un formulario exportado").
   - **Steps**: "Pasos", la grilla de chips numerados para cambiar de paso (**+** agrega uno y la **✕** del chip activo lo borra), y "Paso activo", con su título y subtítulo. Mientras arrastras un campo o una fila esta pestaña se abre sola, porque sus chips son donde se suelta para mudar algo a otro paso.
   - El aviso de referencias que cruzan de paso (`TransferNotice`) aparece arriba de las dos pestañas.
 
@@ -141,7 +141,7 @@ El wiring de drag-and-drop vive en `src/hooks/useDragAndDrop/`; el `DndContext`/
 
 Cada hook vive en su propia carpeta, igual que los componentes:
 
-- **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S, zoom, herramientas V/M/H, Espacio sostenido, Supr, Esc, Ctrl/Cmd+A, deshacer y rehacer), `useDraftRecovery`, `useFormHistory` (si hay algo que deshacer o rehacer, leído del historial de zundo).
+- **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S, zoom, herramientas V/M/H, Espacio sostenido, Supr, Esc, Ctrl/Cmd+A, deshacer y rehacer), `useDraftRecovery`, `useProjectImport` (abrir un JSON exportado, desde el asistente o desde el panel derecho), `useFormHistory` (si hay algo que deshacer o rehacer, leído del historial de zundo).
 - **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`, `usePayloadPreviewCanvas`, `useCanvasViewport` (lienzo libre y zoom), `useCanvasPan` (la mano), `useCanvasMarquee` (el marco de selección).
 - **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useRichTextEditor`, `useJsonCode`, `useCatalogCard`, `useApiMappingPanel`, `useFormScriptEditor`, `useFieldScriptEditor`, `useGroupChecksEditor`.
 - **Simulador** — `useFormPreview` (el único que toca el store, y solo para alimentar el export), `usePreviewNavigation`, `usePreviewSearchSelect`.
@@ -435,7 +435,7 @@ Mismo criterio que la sanción: la regla entera en el script del renglón 37. La
 
 `src/hooks/useAutosave/` + `src/lib/persistence/`: autoguarda el store en `localStorage` cada 3 minutos una vez completado el setup, y `Ctrl/Cmd+S` hace lo mismo. `DraftRecoveryModal` ofrece restaurar o descartar el borrador al iniciar.
 
-Al borrador van `formSteps`, `introModal`, `formScript` y `setupConfig`, bajo la clave `form-orchestrator-draft`. Hay **uno solo por navegador** y no se puede guardar ni abrir como archivo (ver gaps). El tema y los bancos del simulador van cada uno en su propia clave.
+Al borrador van `formSteps`, `introModal`, `formScript` y `setupConfig`, bajo la clave `form-orchestrator-draft`. Hay **uno solo por navegador**; para llevar el proyecto a otro computador o a otra persona está el archivo exportado (ver "Abrir un formulario exportado"). El tema y los bancos del simulador van cada uno en su propia clave.
 
 El borrador lleva **versión de esquema** y se **migra antes de validarse con Zod**: un borrador guardado por una versión anterior de la app se actualiza en vez de perderse. Si aun así no cuadra, se descarta entero en vez de corromper el estado — y se avisa, no se pierde en silencio.
 
@@ -444,6 +444,8 @@ El borrador lleva **versión de esquema** y se **migra antes de validarse con Zo
 `organisms/SetupWizardModal/`: modal de 2 pasos cuando `setupConfig.isComplete` es `false`. El paso 1 elige el `FormType` — `industria_comercio` carga la plantilla completa de ocho pasos desde `src/lib/baseTemplate/`; los otros dos (`retencion_industria_comercio` y `autorretencion`) arrancan con una fila vacía. El paso 2 pregunta si hace falta un modal introductorio y cuántos steps tiene.
 
 En Industria y Comercio, el modal de la plantilla trae dos pasos: "Seleccione año gravable y período" y "Seleccione tipo de declaración". El asistente lo deja como opcional, pero los renglones 31 y 37 lo necesitan (ver gaps).
+
+El paso 1 ofrece además **Cargar formulario**, que no crea nada: abre un JSON exportado y el proyecto entero sale del archivo (ver "Abrir un formulario exportado").
 
 ### Simulador
 
@@ -473,11 +475,26 @@ Detalles del contrato:
 - `styles` es un objeto CSS ya resuelto. En el campo viene siempre, aunque sea `{}`; en la fila, solo si tiene algo.
 - `projectMeta.formId` y `projectMeta.version` todavía no identifican nada (ver gaps).
 
+El archivo que baja **Exportar** lleva una clave más, `builderDraft`: la copia del proyecto, con la misma forma del borrador, para poder volver a abrirlo. El consumidor la ignora. `buildFormExport` no la incluye, así que el simulador y la vista JSON no la ven.
+
+### Abrir un formulario exportado
+
+El mismo JSON de **Exportar** sirve para seguir editando el formulario en otro computador o para pasárselo a otra persona. Se abre desde el asistente de inicio (**Cargar formulario**) o, ya dentro del builder, con **Abrir…** en el bloque Formulario del panel derecho, que pide confirmación porque reemplaza el formulario actual y no se puede deshacer.
+
+- **Se reconstruye desde `builderDraft`, no desde lo compilado.** `formSchema` pierde información —las validaciones salen como texto Zod, los estilos fusionados y las comprobaciones apagadas no viajan—, así que al abrir se ignora y se vuelve a generar.
+- **Pasa por el mismo camino que un borrador de `localStorage`**: migraciones, esquema de Zod (que también sanea los enlaces) y corrección de nombres repetidos (`parseDraft`, en `src/lib/persistence/`). Un archivo de una versión anterior del builder se actualiza solo.
+- Antes de abrirlo se muestra qué trae: tipo, pasos, campos y fecha de exportación. Lo abierto se guarda en el acto como borrador, sin esperar el autoguardado.
+- **Solo abre archivos exportados con `builderDraft`.** Uno anterior a este cambio no la trae y se pide volver a exportarlo; uno de una versión más nueva del builder se rechaza con su propio aviso.
+- **Los bancos del simulador no viajan**: quien abre el archivo pega sus propios catálogos, fechas y UVT.
+- **Abre solo archivos de personas de confianza**: sus scripts se ejecutan en tu navegador cuando usas el simulador.
+
+Vive en `src/lib/projectFile/`, `useProjectImport`, `ProjectFilePicker` y `ProjectImportModal`.
+
 ## Gaps conocidos / no implementado
 
 - El `script` se exporta compilado a JS y el consumidor lo ejecuta con `new Function`. **Esto define el límite de confianza del archivo**: cualquiera que le pueda entregar un JSON al consumidor obtiene ejecución de código en él. Es una decisión coordinada, no una restricción de API pública.
 - **Un bucle infinito en un script congela la pestaña.** No hay defensa barata en el hilo principal; la salida real sería un Web Worker con timeout. Riesgo asumido: quien escribe el script es quien lo prueba.
-- **Hay un solo borrador y ningún archivo.** El borrador vive en una sola clave de `localStorage`: no caben dos formularios guardados, no viaja entre computadores ni navegadores, y no hay forma de guardar ni abrir un proyecto como archivo. Si al abrir no valida, se borra —con aviso— y no queda copia.
+- **Hay un solo borrador por navegador.** No caben dos formularios guardados a la vez, y un borrador que no valida al abrir la app se borra —con aviso— sin dejar copia. La salida es exportar: el JSON trae el proyecto completo y se puede volver a abrir (ver "Abrir un formulario exportado").
 - **Los renglones 31 y 37 necesitan el modal de entrada**, porque leen `{periodo_anio}` de ahí, pero el asistente lo deja como opcional incluso para ICA. Sin modal, el campo sigue escribible pero no calcula, y no avisa.
 - **El renglón 31 tiene escritos a mano dos ids del catálogo `tipos_sancion`**: `TIPO_SANCION_EXTEMPORANEIDAD = "1"` y `TIPO_SANCION_OTRA = "4"`, en `baseTemplate.constants.ts`. Si el catálogo cambia esos ids, la regla se rompe en silencio.
 - **Mudar a otro paso un campo que estaba en un grupo repetible conserva su `apiBinding`**, contra la regla de que salir del grupo limpia el mapeo. Pasa igual arrastrándolo a un chip de paso que con "Mover a paso".
