@@ -443,7 +443,7 @@ El borrador lleva **versión de esquema** y se **migra antes de validarse con Zo
 
 `organisms/SetupWizardModal/`: modal de 2 pasos cuando `setupConfig.isComplete` es `false`. El paso 1 elige el `FormType` — `industria_comercio` carga la plantilla completa de ocho pasos desde `src/lib/baseTemplate/`; los otros dos (`retencion_industria_comercio` y `autorretencion`) arrancan con una fila vacía. El paso 2 pregunta si hace falta un modal introductorio y cuántos steps tiene.
 
-En Industria y Comercio, el modal de la plantilla trae dos pasos: "Seleccione año gravable y período" y "Seleccione tipo de declaración". El asistente lo deja como opcional, pero los renglones 31 y 37 lo necesitan (ver gaps).
+En Industria y Comercio el asistente no pregunta por el modal: lo crea con los dos pasos de la plantilla, "Seleccione año gravable y período" y "Seleccione tipo de declaración". Los renglones 31 y 37 leen `{periodo_anio}` de ahí, así que borrar esos pasos después los deja sin calcular (ver gaps).
 
 El paso 1 ofrece además **Cargar formulario**, que no crea nada: abre un JSON exportado y el proyecto entero sale del archivo (ver "Abrir un formulario exportado").
 
@@ -495,7 +495,7 @@ Vive en `src/lib/projectFile/`, `useProjectImport`, `ProjectFilePicker` y `Proje
 - El `script` se exporta compilado a JS y el consumidor lo ejecuta con `new Function`. **Esto define el límite de confianza del archivo**: cualquiera que le pueda entregar un JSON al consumidor obtiene ejecución de código en él. Es una decisión coordinada, no una restricción de API pública.
 - **Un bucle infinito en un script congela la pestaña.** No hay defensa barata en el hilo principal; la salida real sería un Web Worker con timeout. Riesgo asumido: quien escribe el script es quien lo prueba.
 - **Hay un solo borrador por navegador.** No caben dos formularios guardados a la vez, y un borrador que no valida al abrir la app se borra —con aviso— sin dejar copia. La salida es exportar: el JSON trae el proyecto completo y se puede volver a abrir (ver "Abrir un formulario exportado").
-- **Los renglones 31 y 37 necesitan el modal de entrada**, porque leen `{periodo_anio}` de ahí, pero el asistente lo deja como opcional incluso para ICA. Sin modal, el campo sigue escribible pero no calcula, y no avisa.
+- **Los renglones 31 y 37 necesitan el modal de entrada**, porque leen `{periodo_anio}` de ahí. El asistente lo crea siempre para ICA, pero nada impide borrar esos pasos después: sin ellos, el campo sigue escribible pero no calcula, y no avisa.
 - **El renglón 31 tiene escritos a mano dos ids del catálogo `tipos_sancion`**: `TIPO_SANCION_EXTEMPORANEIDAD = "1"` y `TIPO_SANCION_OTRA = "4"`, en `baseTemplate.constants.ts`. Si el catálogo cambia esos ids, la regla se rompe en silencio.
 - **Mudar a otro paso un campo que estaba en un grupo repetible conserva su `apiBinding`**, contra la regla de que salir del grupo limpia el mapeo. Pasa igual arrastrándolo a un chip de paso que con "Mover a paso".
 - **Tres campos con opciones todavía infieren su catálogo desde `apiBinding.path`**: `periodo_anio`, `clasificacion_contribuyente` y `tipo_representante`; los otros diez ya declaran `dataSource`. `juegos_permitidos` está en `CATALOGS` pero ningún campo lo usa, y los nombres de catálogo todavía hay que acordarlos con el otro proyecto. Sigue abierto: `FieldOption.id` es un uuid, así que una opción escrita a mano no tiene id de catálogo que enviar.
