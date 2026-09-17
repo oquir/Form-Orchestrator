@@ -10,7 +10,7 @@ Known gaps:
 - No test runner, none planned (project too volatile per the user). Verification uses throwaway `pnpm exec tsx` scripts in the scratchpad.
 - `logic.script` exports **compiled JS**, run by the consumer with `new Function` — this is the file's trust boundary (anyone handing the consumer a JSON gets code execution there). Coordinated decision since the user builds both ends.
 - `persistence.ts` versions and migrates drafts (`DRAFT_SCHEMA_VERSION`) before validating. Zod validates *shape*, not coherence (`colSpan: -999`, a `dataSource` on a `text` field, a dangling `labelFor` all pass).
-- `validations.pattern` isn't validated at authoring time — an invalid regex throws in the consumer. A `try { new RegExp(value) }` guard in `ValidationsPanel` was offered, not yet built.
+- `validations.pattern` isn't validated while typing (a `try { new RegExp(value) }` guard in `ValidationsPanel` was offered, not built), but the export review blocks an invalid regex from shipping.
 - **Renglón 31 hardcodes two catalog ids**: `TIPO_SANCION_OTRA = "4"` and `TIPO_SANCION_EXTEMPORANEIDAD = "1"` in `baseTemplate.constants.ts`. Reordering `tipos_sancion` breaks both in silence. Fix (read the catalog bank, not `lib/mockCatalog`) is scoped and deferred.
 - **Two catalog-fed selects still use path-inference instead of `dataSource`**: `periodo_anio`, `clasificacion_contribuyente` (+ the `tipo_representante` toggle). `CATALOGS` declares 9 names, only 8 are wired. `juegos_permitidos` has no field pointing at it yet. Catalog ids are unconfirmed contract names with the consumer.
 - **Renglones 31 and 37 need the intro modal** (`{periodo_anio}` lives there). The wizard always creates it for `industria_comercio` (step 2 is skipped), but nothing stops deleting those intro steps afterwards. Without them the field stays typeable but silently uncalculated.
@@ -608,6 +608,24 @@ Settled:
 - The opened project is saved immediately (`saveDraft` + `markSaved`), not on the 3-minute autosave.
 - **Trust**: a file from someone else carries their scripts, which run in the simulator. The picker tells the user to open only trusted files; nothing sandboxes them.
 
+## Export review (`diagnoseForm`)
+
+**Exportar** runs `diagnoseForm` (`src/lib/formDiagnostics/`) before downloading; `useExportReview` owns when it runs and where "Ir" leads, and `ExportReviewModal` lists the problems. No problems → straight download.
+
+Errors (block the download): a field, rule-effect or enabled group-check script that doesn't compile (alone, or once composed with the prelude); a prelude that doesn't compile or reads fields; an invalid regex in `validations.pattern`, an override's `pattern` or a `matches` condition; a dependency cycle. Warnings (never block): unknown `{x}`, a binding to a path the contract lacks or to a host-provided leaf, unsupported CSS in field/row/tooltip styles.
+
+Settled:
+- **Runs only on Exportar**, never live — no per-keystroke cost, which matters on the user's slow work PC.
+- **Errors block, warnings don't** — only certainly-broken things are errors; an unknown `{a}` may be destructuring.
+- **`⚠ tipo` and payload coverage are left out on purpose** (user's call): the 12 known type warnings would show on every export, and the contract doesn't mark which leaves are required. Both stay in Mapeo API and the Payload view.
+- **Judges what actually ships**: `knownNames` from both canvases (as `buildFormExport` does), disabled checks skipped, `pattern` checked only where `buildSchemaFor` embeds it (`TYPES_WITHOUT_PATTERN`).
+- **A broken prelude is reported once**, and scripts are then checked without it. With a valid prelude, a script that only fails once composed (e.g. `const UVT` in both) gets its own "no compila junto con el script del formulario" message — built from `compileScript`/`checkScriptSyntax`/`composeScriptBody` instead of parsing `validateFieldScript`'s prefixed message.
+- One cycle per export (`topologicalOrder` reports the first); fixing it reveals the next.
+- **Rule-effect scripts had no validation anywhere before this** — the review is the first check they get.
+- "Ir": `setCanvasViewMode("canvas")` → `setActiveCanvas` → `selectFieldAndEdit` (order matters: `setActiveCanvas` clears the selection), then `scrollIntoView` in an effect after the commit — the same `pendingReveal` pattern as `CanvasToolbar`. `getFieldElement` joined `lib/canvasDom`.
+- Stays out of the lazy chunks: imports nothing from `formRuntime`/`scriptRuntime`/`zodHydrate`/`mockCatalog` (measured: `FormSimulator` and `ScriptEditor` unchanged, main chunk +8 kB).
+- The JSON view's copy button doesn't go through the review.
+
 ## Commit conventions
 
 - Spanish, present tense, imperative ("Agrega X", "Corrige Y", "Amplía Z") — matches existing history.
@@ -692,7 +710,7 @@ Both import cycles this shape produced are fixed the same way: implementation mo
   - Drag-and-drop wiring in `src/hooks/useDragAndDrop/`; `FormBuilder` wires `DndContext`/`DragOverlay` (and swaps to the lazy `FormSimulator`). Every palette drop creates the field directly; options are configured later.
 - **Payload mapping** (`src/lib/payloadSchema/`, `src/lib/payloadMapping/`): `PAYLOAD_SCHEMA` is the hardcoded `DeclaracionIcaE` contract. `buildMappingTree` pairs leaves with bound fields, flags type mismatches/orphans/host-provided leaves; rendered by `PayloadPreviewCanvas`.
 - **Persistence** (`useAutosave/`, `src/lib/persistence/persistence.ts`): autosaves on interval once setup is complete; Ctrl/Cmd+S via `useKeyboardShortcuts/`. `loadDraft`/`clearDraft` back the recovery modal. `loadDraft` is `JSON.parse` + `parseDraft`, which `lib/projectFile` reuses for exported files; `buildDraftPayload` (shared with the export) stamps `schemaVersion`/`savedAt`. Draft carries `schemaVersion`, **migrates before validating** (the reverse order would discard old drafts precisely when migration could save them). Migration steps in `persistence.migrations.ts`, indexed by source version, work on the raw object (no shape assumed) — a gap in the chain stops the walk and the version rejection kicks in. **Every shape change needs a migration step**; `z.object` silently strips undeclared keys, so skipping the step loses data without a word. A purely additive optional key (like `rounding`) needs no version bump, just its `persistence.schema.ts` line — forgetting that line is the same silent-strip trap from the other direction.
-- **Output** (`src/lib/exportForm/`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, `formSchema.steps[]` (each field's `colStart`/`colSpan`/`styles`/`validations.zodSchema`/`logic`/`options`/`fileConfig`/`alwaysDisabled`/`apiBinding`/`labelFor`/`content`/`tooltip`/`rounding`/`formatted`/`allowsNegative`/`decimals`/`enableWhen`/`visibleWhen`) plus `groups[]` (`min`/`max`/`arrayPath`, array Zod schema, `checks[]`) and `rows[].groupId`, plus `formSchema.gridBaseColumns`/`prelude` (sent once, not repeated per `compiled`). Field ids in conditions/rules/`labelFor` are **resolved to names** on export. `validations.zodSchema` is optional — its absence is how the consumer knows there's nothing to validate. `downloadFormExport` adds `builderDraft` (the draft payload) to the downloaded file only — `buildFormExport`, which the simulator and the JSON view read, never carries it.
+- **Output** (`src/lib/exportForm/`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, `formSchema.steps[]` (each field's `colStart`/`colSpan`/`styles`/`validations.zodSchema`/`logic`/`options`/`fileConfig`/`alwaysDisabled`/`apiBinding`/`labelFor`/`content`/`tooltip`/`rounding`/`formatted`/`allowsNegative`/`decimals`/`enableWhen`/`visibleWhen`) plus `groups[]` (`min`/`max`/`arrayPath`, array Zod schema, `checks[]`) and `rows[].groupId`, plus `formSchema.gridBaseColumns`/`prelude` (sent once, not repeated per `compiled`). Field ids in conditions/rules/`labelFor` are **resolved to names** on export. `validations.zodSchema` is optional — its absence is how the consumer knows there's nothing to validate. `downloadFormExport` adds `builderDraft` (the draft payload) to the downloaded file only — `buildFormExport`, which the simulator and the JSON view read, never carries it. The Exportar button goes through the export review first (see "Export review").
 
 ### Prescribed stack
 
