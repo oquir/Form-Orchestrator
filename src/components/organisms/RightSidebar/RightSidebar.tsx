@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Play } from "reicon-react";
-import { downloadFormExport } from "../../../lib/exportForm/exportForm";
+import { useExportReview } from "../../../hooks/useExportReview/useExportReview";
 import { useFormStore } from "../../../store/formStore";
 import type { RightSidebarTab } from "../../../types/ui";
 import { CanvasZoomControl } from "../../molecules/CanvasZoomControl/CanvasZoomControl";
@@ -9,6 +9,7 @@ import { PanelBlock } from "../../molecules/PanelBlock/PanelBlock";
 import { TransferNotice } from "../../molecules/TransferNotice/TransferNotice";
 import { ViewModeSwitch } from "../../molecules/ViewModeSwitch/ViewModeSwitch";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
+import { ExportReviewModal } from "../ExportReviewModal/ExportReviewModal";
 import { ProjectImportModal } from "../ProjectImportModal/ProjectImportModal";
 import { SaveButton } from "../SaveButton/SaveButton";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
@@ -25,9 +26,7 @@ import {
 
 export function RightSidebar() {
   const formSteps = useFormStore((state) => state.formSteps);
-  const setupConfig = useFormStore((state) => state.setupConfig);
   const introSteps = useFormStore((state) => state.introModal.steps);
-  const formScript = useFormStore((state) => state.formScript);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const setSimulatorOpen = useFormStore((state) => state.setSimulatorOpen);
   const viewMode = useFormStore((state) => state.canvasViewMode);
@@ -37,6 +36,14 @@ export function RightSidebar() {
   const rowDrag = useFormStore((state) => state.rowDrag);
   const draggingFieldId = useFormStore((state) => state.draggingFieldId);
   const [isImportOpen, setImportOpen] = useState<boolean>(false);
+  const {
+    problems,
+    hasErrors,
+    requestExport,
+    exportAnyway,
+    goTo,
+    close: closeReview,
+  } = useExportReview();
 
   const isIntro: boolean = activeCanvas.type === "introStep";
   const isCanvasView: boolean = viewMode === "canvas";
@@ -75,8 +82,8 @@ export function RightSidebar() {
         </button>
         <button
           type="button"
-          onClick={() => downloadFormExport(formSteps, setupConfig, introSteps, formScript)}
-          title="Descargar la configuración del formulario como JSON"
+          onClick={requestExport}
+          title="Revisar el formulario y descargarlo como JSON"
           className={EXPORT_BUTTON_CLASSES}
         >
           Exportar
@@ -161,6 +168,16 @@ export function RightSidebar() {
       </div>
 
       {isImportOpen && <ProjectImportModal onClose={() => setImportOpen(false)} />}
+
+      {problems && (
+        <ExportReviewModal
+          problems={problems}
+          hasErrors={hasErrors}
+          onGoTo={goTo}
+          onExport={exportAnyway}
+          onClose={closeReview}
+        />
+      )}
     </div>
   );
 }
