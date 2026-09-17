@@ -114,7 +114,7 @@ Está hecho con `zundo`, el middleware de historial para Zustand.
 
 - **`atoms/`** — primitivas sin lógica de negocio: `Button`, `Checkbox`, `CodeBlock`, `CopyIconButton`, `DashedAddButton`, `FieldDragHandle`, `FieldResizeHandle`, `FieldResizeHandleBar`, `FieldResizeHandleKnob`, `FieldTypeBadge`, `IconButton`, `Input`, `Label`, `ModalActions`, `ModalShell`, `PanelHeader`, `RichTextView`, `RowDragHandle`, `SimulatorLoading`, `TextArea`, `ToggleSwitch`, `TwoColumnFieldGroup`, `WizardFooterActions`.
 - **`molecules/`** — combinaciones reutilizables: `ApiPathSelect`, `BinaryChoiceToggle`, `CanvasFieldChip`, `CanvasZoomControl`, `CatalogCard`, `ColorPickerField`, `ConditionFieldSelect`, `ConditionOperatorSelect`, `ConditionValueInput`, `CssValidationHint`, `DragPreview`, `FieldIdentityCard`, `FieldNameInput`, `FieldPreviewControl`, `FieldRenameNotice`, `FieldRuleCard`, `FormSummary`, `GeneratedSchemaPreview`, `JsonCode`, `LabeledInput`, `LabeledRangeSlider`, `LabelTargetSelect`, `MaxDatesAnioRow`, `MaxDatesDeclaracionSection`, `MaxDatesPasteForm`, `PaletteChip`, `PanelBlock`, `PanelSection`, `PreviewTooltip`, `ProjectFilePicker`, `PxInput`, `RichTextEditor`, `RowDragPreview`, `RowZoneOverlay`, `RuleEffectRow`, `ScriptEditor`, `ScriptInput`, `SelectableOptionCard`, `SelectionSummary`, `SidebarTabRail`, `StepTabChip`, `TabButtonGroup`, `TooltipBubble`, `TransferNotice`, `ValidationOverrideCard`, `ViewModeSwitch`.
-- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasToolbar`, `CanvasToolLayer`, `DraftRecoveryModal`, `FieldContextMenu`, `FieldOptionsModal`, `FieldPalette`, `FormBuilder`, `FormSimulator`, `JsonPreviewCanvas`, `MoveToStepMenu`, `PayloadPreviewCanvas`, `ProjectImportModal`, `RepeatableGroupBand`, `RightSidebar`, `RowColumnsMenu`, `RowStylesMenu`, `RowToolbar`, `SaveButton`, `SetupWizardModal`, `Sidebar`, `StepTitleEditor`. Además:
+- **`organisms/`** — secciones autocontenidas: `Canvas`, `CanvasRow`, `CanvasRowsGrid`, `CanvasTabs`, `CanvasToolbar`, `CanvasToolLayer`, `DraftRecoveryModal`, `ExportReviewModal`, `FieldContextMenu`, `FieldOptionsModal`, `FieldPalette`, `FormBuilder`, `FormSimulator`, `JsonPreviewCanvas`, `MoveToStepMenu`, `PayloadPreviewCanvas`, `ProjectImportModal`, `RepeatableGroupBand`, `RightSidebar`, `RowColumnsMenu`, `RowStylesMenu`, `RowToolbar`, `SaveButton`, `SetupWizardModal`, `Sidebar`, `StepTitleEditor`. Además:
   - `organisms/panels/`, paneles y editores: `ApiMappingPanel`, `AttributesPanel`, `CatalogFillsEditor`, `CatalogsPanel`, `ConditionEditor`, `FieldDataSourceEditor`, `FieldOptionsEditor`, `FieldRulesEditor`, `FieldScriptEditor`, `FieldTooltipEditor`, `FileOptionsEditor`, `FormScriptEditor`, `GroupChecksEditor`, `LogicPanel`, `MaxDatesPanel`, `NumberOptionsEditor`, `StylesPanel`, `ValidationOverridesEditor`, `ValidationsPanel`, `ValoresAnualesEditor`.
   - `organisms/preview/`, las piezas del simulador: `PreviewField`, `PreviewFieldControl`, `PreviewForm`, `PreviewGroupBand`, `PreviewNumberInput`, `PreviewResults`, `PreviewRowsGrid`, `PreviewSearchSelect`, `PreviewStep`.
 - **`layout/AppLayout.tsx`** — el shell de la app, con cuatro espacios. Va fuera de la jerarquía atómica porque es el layout raíz.
@@ -143,7 +143,7 @@ Cada hook vive en su propia carpeta, igual que los componentes:
 
 - **Arranque y estado global** — `useThemeClass` (aplica la clase `dark` en el `<html>`), `useAutosave`, `useKeyboardShortcuts` (Ctrl/Cmd+S, zoom, herramientas V/M/H, Espacio sostenido, Supr, Esc, Ctrl/Cmd+A, deshacer y rehacer), `useDraftRecovery`, `useProjectImport` (abrir un JSON exportado, desde el asistente o desde el panel derecho), `useFormHistory` (si hay algo que deshacer o rehacer, leído del historial de zundo).
 - **Interacción del canvas** — `useDragAndDrop`, `useFieldResize`, `useFieldContextMenu`, `usePayloadPreviewCanvas`, `useCanvasViewport` (lienzo libre y zoom), `useCanvasPan` (la mano), `useCanvasMarquee` (el marco de selección).
-- **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useRichTextEditor`, `useJsonCode`, `useCatalogCard`, `useApiMappingPanel`, `useFormScriptEditor`, `useFieldScriptEditor`, `useGroupChecksEditor`.
+- **Paneles** — `useConditionEditor` (compartido por los dos editores de condición), `useFieldRules`, `useSetupWizard`, `useSaveButton`, `useExportReview` (la revisión antes de exportar), `useRichTextEditor`, `useJsonCode`, `useCatalogCard`, `useApiMappingPanel`, `useFormScriptEditor`, `useFieldScriptEditor`, `useGroupChecksEditor`.
 - **Simulador** — `useFormPreview` (el único que toca el store, y solo para alimentar el export), `usePreviewNavigation`, `usePreviewSearchSelect`.
 - **Genéricos** — `useClickOutside`.
 
@@ -477,6 +477,16 @@ Detalles del contrato:
 
 El archivo que baja **Exportar** lleva una clave más, `builderDraft`: la copia del proyecto, con la misma forma del borrador, para poder volver a abrirlo. El consumidor la ignora. `buildFormExport` no la incluye, así que el simulador y la vista JSON no la ven.
 
+#### Revisión antes de exportar
+
+**Exportar** revisa el formulario completo antes de descargarlo (`diagnoseForm`, en `src/lib/formDiagnostics/`). Si no encuentra nada, descarga directo; si encuentra problemas, abre una lista donde cada uno tiene un botón **Ir** que lleva al paso, al campo y a la pestaña donde se corrige.
+
+- **Errores, que bloquean la exportación:** un script de campo, de efecto de regla o de comprobación de grupo que no compila; un script del formulario que no compila o que lee campos; una expresión regular inválida en `validations.pattern`, en una validación condicional o en una condición `matches`; y un ciclo entre campos.
+- **Avisos, que no bloquean:** `{x}` que no son campos, campos mapeados a una ruta que no existe o a una hoja que llena el aplicativo receptor, y CSS que el navegador no reconoce.
+- **Se revisa lo que de verdad se exporta:** los mismos nombres de campo que usa el export, sin las comprobaciones apagadas, y la regex de `pattern` solo en los tipos donde el schema la incluye.
+- **Quedan fuera a propósito** los `⚠ tipo` y la cobertura del payload: siguen en Mapeo API y en la vista Payload.
+- Corre solo al darle Exportar, no mientras se edita. Copiar el JSON desde la vista JSON no pasa por la revisión.
+
 ### Abrir un formulario exportado
 
 El mismo JSON de **Exportar** sirve para seguir editando el formulario en otro computador o para pasárselo a otra persona. Se abre desde el asistente de inicio (**Cargar formulario**) o, ya dentro del builder, con **Abrir…** en el bloque Formulario del panel derecho, que pide confirmación porque reemplaza el formulario actual y no se puede deshacer.
@@ -504,7 +514,7 @@ Vive en `src/lib/projectFile/`, `useProjectImport`, `ProjectFilePicker` y `Proje
 - **El mapeo solo conoce el contrato de ICA.** Hay un único `PAYLOAD_SCHEMA` (`DeclaracionIcaE`), así que un formulario de Retención o de Autorretención se mapea contra las hojas de ICA.
 - **`projectMeta.formId` cambia en cada exportación** (`frm_` más la hora) **y `version` siempre es `"1.0.0"`**: el consumidor no puede saber si dos JSON son el mismo formulario ni cuál es más nuevo.
 - Un campo del formulario no puede condicionar contra un campo del modal introductorio: la lista de candidatos sale solo de `formSteps`.
-- `validations.pattern` no se valida donde se escribe. Ya no puede ejecutar nada, pero una expresión regular inválida hace fallar la construcción del schema del lado del consumidor.
+- `validations.pattern` no se valida mientras se escribe. Una expresión regular inválida ya no llega al consumidor: la revisión antes de exportar la marca como error y no deja exportar.
 - **Zod valida la forma del borrador, no su coherencia**: un `colSpan` negativo, un `dataSource` en un campo de texto o un `labelFor` que apunta a un campo que ya no existe pasan igual.
 - Con varios campos seleccionados no se pueden **arrastrar juntos dentro del lienzo** ni **editar propiedades en lote**, y el marco de selección no desplaza el lienzo al llegar al borde.
 - ~~El simulador no aplica `styles`~~ **Resuelto.** El simulador ahora pinta `field.styles`, `row.styles` y `tooltip.styles` tal como llegan del export.
