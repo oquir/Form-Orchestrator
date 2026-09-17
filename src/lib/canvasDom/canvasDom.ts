@@ -13,6 +13,10 @@ export function getBandElement(groupId: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[data-band-id="${groupId}"]`);
 }
 
+export function getFieldElement(fieldId: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`[data-field-id="${fieldId}"]`);
+}
+
 // Los chips de campo del lienzo. Solo hay un paso montado a la vez, asi que no hace falta acotar la
 // busqueda al paso activo.
 export function getFieldElements(): HTMLElement[] {
