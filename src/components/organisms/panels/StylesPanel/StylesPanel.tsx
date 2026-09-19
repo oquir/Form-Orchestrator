@@ -60,6 +60,7 @@ export function StylesPanel({ field }: { field: CanvasField }) {
             value={s.textColor ?? ""}
             defaultColor="#0f172a"
             placeholder="#0F172A"
+            align="right"
             onChange={(value) => updateFieldStyles(field.id, { textColor: value })}
           />
         </TwoColumnFieldGroup>

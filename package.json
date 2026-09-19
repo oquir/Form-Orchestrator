@@ -27,6 +27,7 @@
     "@lezer/highlight": "^1.2.3",
     "@tailwindcss/vite": "^4.3.2",
     "react": "^19.2.7",
+    "react-colorful": "^5.8.1",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.81.0",
     "reicon-react": "1.1.2",
