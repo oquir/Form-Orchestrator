@@ -22,7 +22,7 @@ export function AppLayout({ sidebar, canvas, canvasOverlay, rightSidebar }: AppL
       <div className="relative flex min-w-0 flex-1">
         <main
           data-canvas-scroll
-          className="relative flex-1 overflow-auto bg-slate-100 [scrollbar-gutter:stable] dark:bg-neutral-950"
+          className="relative flex-1 overflow-auto bg-slate-100 scrollbar-gutter-stable dark:bg-neutral-950"
         >
           {canvas}
         </main>
