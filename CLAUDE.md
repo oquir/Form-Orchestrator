@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The core builder is implemented: the eight-step Industria y Comercio template, repeatable groups, the script/rules engine, presentational field types and the **simulator** (a working prototype of the consuming app that runs the exported JSON). `docs/Project.md` (Spanish) is the original spec — still the reference for the target JSON schema; check it before adding features.
 
+**Tax domain: read `docs/Dominio-ICA.md` before working on the `industria_comercio`, `retencion_industria_comercio` or `autorretencion` templates, their renglones, scripts, sanctions or deadlines.** It explains how the three declarations work (the national FUN renglón by renglón, ReteICA and autorretención with their per-municipality variations) and marks with ⏳ the data that expires (UVT, minimum bases, deadlines, rates): re-verify only those, not the whole document.
+
 Known gaps:
 - No test runner, none planned (project too volatile per the user). Verification uses throwaway `pnpm exec tsx` scripts in the scratchpad.
 - `logic.script` exports **compiled JS**, run by the consumer with `new Function` — this is the file's trust boundary (anyone handing the consumer a JSON gets code execution there). Coordinated decision since the user builds both ends.
