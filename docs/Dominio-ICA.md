@@ -109,6 +109,15 @@ Es un **mecanismo de recaudo anticipado**, no un impuesto adicional. Quien paga 
 - **Agentes retenedores**: entidades públicas, grandes contribuyentes y los contribuyentes que el municipio designa por resolución (en Bogotá, por ejemplo, los del régimen común del ICA).
 - **A quién no se le retiene**: a los inscritos en el SIMPLE, a los no sujetos, a las actividades exentas y a los autorretenedores. En algunas ciudades tampoco a los grandes contribuyentes, salvo que el pago lo haga una entidad pública o un gran contribuyente (Bogotá, Resolución DDI-000305 de 2020).
 
+### Inscripción en el RIT
+
+El **RIT (Registro de Información Tributaria)** es el registro municipal que identifica y clasifica a cada sujeto **según la calidad en que actúa**: contribuyente, declarante, **agente de retención**, etc. No es el RUT de la DIAN; cada municipio lleva el suyo (algunos lo llaman registro de industria y comercio o matrícula).
+
+- La calidad de agente retenedor **nace de la norma o del acto de designación**, no de la inscripción. Pero una vez designado, hay que **inscribirse o actualizar el RIT** con esa responsabilidad, y sin eso el portal no deja presentar la declaración de retención.
+- **Medellín (guía oficial de 2026)**: los agentes se designan de dos formas, por el Estatuto Tributario del Distrito (de forma general) o por acto administrativo de la Subsecretaría de Ingresos (de forma particular). Para inscribirse como agente se diligencia el **formulario RIT** y se adjuntan: certificado de existencia y representación legal (con no más de 30 días), RUT, cédula del representante legal y el documento que acredite la condición de agente (designación, mandato o poder). La Subsecretaría revisa y notifica la inscripción.
+- **Bogotá**: el RIT registra explícitamente la calidad de agente de retención; los contribuyentes de ICA tienen dos meses desde el inicio de actividades para inscribirse, y las novedades (incluido el cese) se reportan en el mismo RIT.
+- Los detalles (formulario, soportes, plazos) dependen de cada municipio.
+
 ### Cómo se liquida
 
 - **Base**: el valor del pago **antes de IVA**, solo si supera la **base mínima** del municipio (expresada en UVT).
@@ -163,6 +172,12 @@ El FUN es solo para el ICA anual. La Resolución 4056 dice expresamente que, cua
 - **Sin pago total, la declaración no produce efecto** (es ineficaz, sin necesidad de acto administrativo; es la lógica del art. 580-1 del Estatuto Tributario, recogida por Medellín en su estatuto). A diferencia del renglón 35 del FUN, **no hay pago parcial**.
 - **No produce saldo a favor.** Lo retenido de más se recupera restándolo en el renglón de devoluciones y anulaciones de ese periodo o de los siguientes.
 - **Certificados**: el agente debe expedirlos (plazos y contenido según el municipio; suelen incluir partes, NIT, concepto o actividad, base, valor retenido y periodo). No expedirlos se sanciona (art. 667 del Estatuto Tributario: 5% de los pagos sin certificado). Se conservan 5 años.
+- **Sin retenciones en el periodo, no se declara en ceros** (Medellín: si en el bimestre no hubo pagos sujetos a retención, no hay obligación de declarar). Verificar en cada municipio: algunos sí exigen la declaración en ceros.
+- **Retención en exceso, anulaciones y devoluciones** (Medellín): el agente puede devolverle el excedente al proveedor o descontarlo en las declaraciones siguientes, en el renglón 17, **anulando los certificados** emitidos y conservando la solicitud escrita del proveedor y los soportes.
+- **Si el agente no retiene estando obligado, responde por el valor no retenido**, además de las sanciones.
+- **Las sanciones se calculan sobre la retención a cargo** (Medellín: 5% por mes o fracción con tope del 100% antes del emplazamiento; 10% con tope del 200% después; mínima de 10 UVT).
+- **Información exógena**: el agente reporta a los terceros a quienes les retuvo, según la resolución del municipio (en Medellín no hay que reportar si en el año no hubo retenciones).
+- Los agentes no tienen estado de cuenta ni paz y salvo: la modalidad es "declare y pague", y el soporte son las declaraciones presentadas.
 - **Riesgo penal**: no consignar lo retenido puede encuadrar en el art. 402 del Código Penal (omisión del agente retenedor). Es la razón por la que los municipios son tan estrictos con estas declaraciones.
 
 ## 4. Autorretención
@@ -197,7 +212,12 @@ Los designa el municipio por resolución (o lo pide el contribuyente y la admini
 - **Art. 59 de la Ley 788 de 2002**: los municipios aplican el procedimiento y el régimen sancionatorio del **Estatuto Tributario nacional**. **Pueden reducir el monto de las sanciones y simplificar los procedimientos, pero no imponer sanciones mayores ni distintas.** Es el fundamento de la regla del proyecto: *la ley es el tope por defecto, el municipio solo puede bajarla*.
 - **Extemporaneidad antes del emplazamiento** (art. 641): 5% por mes o fracción, con tope del 100%.
 - **Extemporaneidad después del emplazamiento** (art. 642): 10% por mes o fracción, con tope del 200%. Por eso los formularios de retención separan dos tipos de sanción.
-- **Corrección** (art. 644), **sanción mínima de 10 UVT** (art. 639) y **gradualidad** (art. 640).
+- **Sanción mínima de 10 UVT** (art. 639) y **gradualidad** (art. 640).
+- **Corrección frente a inexactitud**: las dos tratan de un error en lo declarado; la diferencia está en **quién lo detecta**.
+  - **Corrección** (art. 644): el contribuyente corrige **por su cuenta** y paga **10%** del mayor valor a pagar (o del menor saldo a favor) si corrige antes de cualquier actuación de la administración, o **20%** si corrige después del emplazamiento para corregir o del auto de inspección, pero antes del requerimiento especial. Se autoliquida en la propia declaración de corrección. Solo aplica si la corrección **sube** el valor a pagar o **baja** el saldo a favor; corregir a la baja sigue otro trámite (art. 589) que la administración tiene que aprobar.
+  - **Inexactitud** (arts. 647–648): la administración **encuentra** ingresos omitidos, costos o descuentos inexistentes, retenciones que no existieron, datos falsos, etc. La sanción es **100%** de la diferencia entre lo que determina la administración y lo declarado (200% en casos de abuso). Se reduce a una cuarta parte si el contribuyente acepta los hechos al responder el requerimiento especial y corrige (art. 709), o a la mitad si los acepta al recurrir la liquidación oficial (art. 713). Una diferencia de criterio sobre cómo interpretar el derecho aplicable **no es inexactitud**, siempre que los hechos y las cifras declarados sean completos y verdaderos.
+  - **En los formularios**: la sanción por corrección la liquida el contribuyente al corregir (por ejemplo, la "sanción 2" del formulario de Medellín). La de inexactitud normalmente la impone la administración en un acto oficial; solo aparece en la declaración cuando el contribuyente corrige aceptando un requerimiento especial, con la sanción reducida.
+  - Los municipios pueden bajar estos porcentajes, pero no subirlos. En la plantilla ICA **ninguna de las dos está construida**: las dos necesitan la declaración anterior, que todavía no existe (ver `CLAUDE.md`, "Sanciones").
 - **Intereses de mora** (arts. 634–635): diarios, con la tasa de usura menos 2 puntos vigente al momento del pago.
 - Lo implementado y lo descartado a propósito en la plantilla ICA está en `CLAUDE.md` ("Sanciones", "Intereses de mora").
 
@@ -239,6 +259,8 @@ Todos verificados el 2026-09-22. Revisar antes de reutilizarlos.
 - [Instructivo del Formulario Único Nacional ICA (Resolución 4056 de 2017)](https://www.giron-santander.gov.co/Transparencia/BancoDocumentos/INSTRUCTIVO%20DILIGENCIAMIENTO%20FORMULARIO%20UNICO%20NACIONAL%20-%202018.pdf)
 - [MinHacienda: formulario del impuesto de industria y comercio](https://www.minhacienda.gov.co/apoyo-fiscal-territorial/formulario-impuesto-de-industria-y-comercio)
 - [Formulario e instructivo de ReteICA de Medellín](https://www.medellin.gov.co/irj/go/km/docs/pccdesign/SubportaldelCiudadano_2/PlandeDesarrollo_0_9/ProgramasyProyectos/Shared%20Content/Documentos/PortalTributario/Formulario%20ReteIca.pdf) (WebFetch no lo lee: bajarlo con `curl -A "Mozilla/5.0"` y extraer el texto con `pdftotext`)
+- [Guía de preguntas frecuentes de retención ICA de Medellín (2026)](https://www.medellin.gov.co/es/wp-content/uploads/2026/03/5.-DE-GEHA-ING-Guia-de-Preguntas-y-Respuestas-Frecuentes_Declaracion-Bimestral-de-Retenciones-de-Industria-y-Comercio.pdf) (fuente primaria: RIT, retención en exceso, declaración en ceros, sanciones, exógena). Cita el **Acuerdo 93 de 2023** como estatuto vigente de Medellín; el formulario de ReteICA enlazado arriba puede ser de una versión anterior.
+- [Bogotá: cómo obtener el RIT (2026)](https://bogota.gov.co/mi-ciudad/hacienda/como-obtener-el-registro-de-informacion-tributaria-rit-en-bogota-2026)
 - [Manual de autorretenedores ICA de Medellín](https://www.medellin.gov.co/irj/go/km/docs/pccdesign/medellin/Temas/Hacienda/Programas/Shared%20Content/Documentos/2021/Manual-Tecnico-Registro-declaracion-Agentes-Autorretencion-ICA.pdf)
 - [Gerencie: retención en la fuente por ICA](https://www.gerencie.com/retencion-en-la-fuente-en-el-ica.html)
 - [Alegra: retención de ICA 2026](https://blog.alegra.com/colombia/certificado-retencion-de-ica/)
