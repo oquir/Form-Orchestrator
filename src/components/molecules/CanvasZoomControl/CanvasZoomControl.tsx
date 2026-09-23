@@ -19,6 +19,11 @@ import {
 export function CanvasZoomControl() {
   const canvasZoom = useFormStore((state) => state.canvasZoom);
   const setCanvasZoom = useFormStore((state) => state.setCanvasZoom);
+  // Fuera de la vista lienzo el zoom no significa nada, pero se apaga en vez de esconderse: sus dos
+  // montajes -- la tira del panel y el chip flotante -- cambiarian de ancho al cambiar de vista, y
+  // el chip ademas crece hacia la izquierda. Es la misma razon por la que "+ Grupo repetible" se
+  // deshabilita en el modal de entrada en vez de desaparecer.
+  const isCanvasView: boolean = useFormStore((state) => state.canvasViewMode === "canvas");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -36,7 +41,8 @@ export function CanvasZoomControl() {
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
-        title="Zoom del lienzo"
+        disabled={!isCanvasView}
+        title={isCanvasView ? "Zoom del lienzo" : "El zoom solo aplica a la vista de lienzo"}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         className={ZOOM_TRIGGER_CLASSES}

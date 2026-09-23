@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Layers, Plus, Redo, Trash6, Undo, Xmark } from "reicon-react";
 import { CANVAS_TOOLS } from "../../../constants/canvasTool";
-import { CANVAS_TOOLBAR_ACTION_CLASSES } from "../../../constants/uiClasses";
+import {
+  CANVAS_TOOLBAR_ACTION_CLASSES,
+  CANVAS_TOOLBAR_DIVIDER_CLASSES,
+  CANVAS_TOOLBAR_ICON_ACTION_CLASSES,
+} from "../../../constants/uiClasses";
 import { useFormHistory } from "../../../hooks/useFormHistory/useFormHistory";
 import { getBandElement, getRowElement } from "../../../lib/canvasDom/canvasDom";
 import { getActiveGroups, getActiveRows, useFormStore } from "../../../store/formStore";
@@ -15,9 +19,7 @@ import {
   TOOL_ICONS,
   TOOLBAR_CLASSES,
   TOOLBAR_DANGER_CLASSES,
-  TOOLBAR_DIVIDER_CLASSES,
   TOOLBAR_GROUP_CLASSES,
-  TOOLBAR_ICON_ACTION_CLASSES,
 } from "./CanvasToolbar.constants";
 import type { CanvasReveal } from "./CanvasToolbar.types";
 
@@ -94,7 +96,7 @@ export function CanvasToolbar() {
         })}
       </div>
 
-      <span aria-hidden className={TOOLBAR_DIVIDER_CLASSES} />
+      <span aria-hidden className={CANVAS_TOOLBAR_DIVIDER_CLASSES} />
 
       <div className={TOOLBAR_GROUP_CLASSES}>
         <button
@@ -122,7 +124,7 @@ export function CanvasToolbar() {
         </button>
       </div>
 
-      <span aria-hidden className={TOOLBAR_DIVIDER_CLASSES} />
+      <span aria-hidden className={CANVAS_TOOLBAR_DIVIDER_CLASSES} />
 
       <div className={TOOLBAR_GROUP_CLASSES}>
         <button
@@ -131,7 +133,7 @@ export function CanvasToolbar() {
           disabled={!canUndo}
           title="Deshacer (Ctrl+Z)"
           aria-label="Deshacer"
-          className={TOOLBAR_ICON_ACTION_CLASSES}
+          className={CANVAS_TOOLBAR_ICON_ACTION_CLASSES}
         >
           <Undo size={15} />
         </button>
@@ -141,7 +143,7 @@ export function CanvasToolbar() {
           disabled={!canRedo}
           title="Rehacer (Ctrl+Y)"
           aria-label="Rehacer"
-          className={TOOLBAR_ICON_ACTION_CLASSES}
+          className={CANVAS_TOOLBAR_ICON_ACTION_CLASSES}
         >
           <Redo size={15} />
         </button>
@@ -149,7 +151,7 @@ export function CanvasToolbar() {
 
       {selectedFieldIds.length > 1 && (
         <>
-          <span aria-hidden className={TOOLBAR_DIVIDER_CLASSES} />
+          <span aria-hidden className={CANVAS_TOOLBAR_DIVIDER_CLASSES} />
 
           <div className={TOOLBAR_GROUP_CLASSES}>
             <span className={SELECTION_COUNT_CLASSES}>{selectedFieldIds.length} seleccionados</span>
@@ -168,7 +170,7 @@ export function CanvasToolbar() {
               onClick={() => selectField(null)}
               title="Deseleccionar (Esc)"
               aria-label="Deseleccionar"
-              className={TOOLBAR_ICON_ACTION_CLASSES}
+              className={CANVAS_TOOLBAR_ICON_ACTION_CLASSES}
             >
               <Xmark size={12} weight="Filled" />
             </button>

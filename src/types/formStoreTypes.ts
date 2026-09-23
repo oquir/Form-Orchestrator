@@ -44,6 +44,7 @@ export interface FormState extends BanksSlice {
   canvasTool: CanvasTool;
   setupConfig: SetupConfig;
   isSidebarOpen: boolean;
+  isRightSidebarOpen: boolean;
   isSimulatorOpen: boolean;
   canvasZoom: number;
   canvasViewMode: CanvasViewMode;
@@ -64,6 +65,7 @@ export interface FormState extends BanksSlice {
   setHoveredTransferTarget: (target: CanvasTarget | null) => void;
   dismissTransferNotice: () => void;
   setSidebarOpen: (open: boolean) => void;
+  setRightSidebarOpen: (open: boolean) => void;
   setCanvasViewMode: (mode: CanvasViewMode) => void;
   setSimulatorOpen: (open: boolean) => void;
   setCanvasZoom: (zoom: number) => void;

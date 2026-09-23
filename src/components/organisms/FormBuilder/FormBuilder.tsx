@@ -7,6 +7,7 @@ import { AppLayout } from "../../layout/AppLayout";
 import { DragPreview } from "../../molecules/DragPreview/DragPreview";
 import { Canvas } from "../Canvas/Canvas";
 import { CanvasToolbar } from "../CanvasToolbar/CanvasToolbar";
+import { CollapsedRightSidebar } from "../CollapsedRightSidebar/CollapsedRightSidebar";
 import { RightSidebar } from "../RightSidebar/RightSidebar";
 import { Sidebar } from "../Sidebar/Sidebar";
 import { OVERLAY_STYLE } from "./FormBuilder.constants";
@@ -50,7 +51,12 @@ export function FormBuilder() {
       <AppLayout
         sidebar={<Sidebar />}
         canvas={<Canvas />}
-        canvasOverlay={<CanvasToolbar />}
+        canvasOverlay={
+          <>
+            <CanvasToolbar />
+            <CollapsedRightSidebar />
+          </>
+        }
         rightSidebar={<RightSidebar />}
       />
       {/* Sin animacion de caida para una fila: dnd-kit la devuelve volando al sitio donde empezo,

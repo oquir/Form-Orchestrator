@@ -152,6 +152,53 @@
    `local` la ancla al contenido y no al puerto, que es justo lo que la hace correr con el paneo.
    No escala con el zoom, y esta bien: es textura, no una cuadricula a la que algo se alinee. Por
    eso tampoco son lineas, que competirian con las 16 columnas reales de la fila. */
+/* El panel derecho entra deslizandose y el chip que lo reemplaza entra apareciendo.
+
+   Son animaciones sobre transform y no transiciones de ancho a proposito: el ancho del puerto lo
+   vigila un ResizeObserver que rehace la geometria del lienzo libre, asi que animar el ancho
+   dispararia un re-render del lienzo entero por frame. Con transform el layout cambia una sola vez,
+   al montar, y lo unico que se mueve despues es el pintado.
+
+   TRAMPA: ninguna de las dos puede llevar animation-fill-mode. El transform tiene que desaparecer
+   al terminar, porque mientras exista crea bloque contenedor, y los modales que el panel y el chip
+   dibujan adentro son position:fixed con inset-0: se mesurarian contra ellos en vez de contra la
+   ventana. Con la animacion sin fill-mode el transform solo vive los milisegundos que dura. */
+@keyframes right-panel-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes collapsed-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-right-panel-in {
+  animation: right-panel-in 220ms cubic-bezier(0.32, 0.72, 0, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility animate-collapsed-panel-in {
+  animation: collapsed-panel-in 180ms cubic-bezier(0.32, 0.72, 0, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @utility bg-dot-grid {
   background-image: radial-gradient(
     circle at 11px 11px,

@@ -1,26 +1,25 @@
 import { useState } from "react";
-import { Play } from "reicon-react";
-import { useExportReview } from "../../../hooks/useExportReview/useExportReview";
 import { useFormStore } from "../../../store/formStore";
 import type { RightSidebarTab } from "../../../types/ui";
 import { CanvasZoomControl } from "../../molecules/CanvasZoomControl/CanvasZoomControl";
 import { FormSummary } from "../../molecules/FormSummary/FormSummary";
 import { PanelBlock } from "../../molecules/PanelBlock/PanelBlock";
+import { RightPanelToggle } from "../../molecules/RightPanelToggle/RightPanelToggle";
 import { TransferNotice } from "../../molecules/TransferNotice/TransferNotice";
 import { ViewModeSwitch } from "../../molecules/ViewModeSwitch/ViewModeSwitch";
 import { CanvasTabs } from "../CanvasTabs/CanvasTabs";
-import { ExportReviewModal } from "../ExportReviewModal/ExportReviewModal";
+import { ExportButton } from "../ExportButton/ExportButton";
 import { ProjectImportModal } from "../ProjectImportModal/ProjectImportModal";
 import { SaveButton } from "../SaveButton/SaveButton";
+import { SimulatorButton } from "../SimulatorButton/SimulatorButton";
 import { StepTitleEditor } from "../StepTitleEditor/StepTitleEditor";
 import {
-  EXPORT_BUTTON_CLASSES,
   OPEN_PROJECT_BUTTON_CLASSES,
+  PANEL_COLLAPSE_BUTTON_CLASSES,
   PANEL_TAB_ACTIVE_CLASSES,
   PANEL_TAB_BASE_CLASSES,
   PANEL_TAB_DROP_DOT_CLASSES,
   PANEL_TAB_INACTIVE_CLASSES,
-  SIMULATOR_BUTTON_CLASSES,
   TABS,
 } from "./RightSidebar.constants";
 
@@ -28,7 +27,6 @@ export function RightSidebar() {
   const formSteps = useFormStore((state) => state.formSteps);
   const introSteps = useFormStore((state) => state.introModal.steps);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
-  const setSimulatorOpen = useFormStore((state) => state.setSimulatorOpen);
   const viewMode = useFormStore((state) => state.canvasViewMode);
   const setViewMode = useFormStore((state) => state.setCanvasViewMode);
   const activeTab = useFormStore((state) => state.rightSidebarTab);
@@ -36,17 +34,8 @@ export function RightSidebar() {
   const rowDrag = useFormStore((state) => state.rowDrag);
   const draggingFieldId = useFormStore((state) => state.draggingFieldId);
   const [isImportOpen, setImportOpen] = useState<boolean>(false);
-  const {
-    problems,
-    hasErrors,
-    requestExport,
-    exportAnyway,
-    goTo,
-    close: closeReview,
-  } = useExportReview();
 
   const isIntro: boolean = activeCanvas.type === "introStep";
-  const isCanvasView: boolean = viewMode === "canvas";
   const canvasLabel: string = isIntro ? "Modal de entrada" : "Formulario";
 
   // El chip del paso activo ya no lleva su nombre, asi que el numero tiene que reaparecer aca: es
@@ -61,33 +50,24 @@ export function RightSidebar() {
   // Mientras hay un arrastre manda la pestaña de steps: es la unica que dibuja las pestañas de
   // paso, o sea las zonas de soltar para mudar un campo o una fila a otro step, y desde Proyecto
   // esa mudanza no tendria a donde apuntar. Es derivado y no un set: al soltar vuelve solo a la
-  // pestaña que el usuario eligio. Lo que antes lo hacia inviable -- abrir el panel reacomodaba el
-  // lienzo debajo del puntero, a mitad del gesto -- ya no aplica: el ancho del panel es fijo.
+  // pestaña que el usuario eligio. El panel ahora se pliega, pero eso no reabre el viejo problema
+  // de reacomodar el lienzo a mitad del gesto: mientras existe su ancho es fijo, y el unico modo de
+  // plegarlo es un boton, que no se puede pulsar con una fila colgando del cursor.
   const isTransferring: boolean = rowDrag !== null || draggingFieldId !== null;
   const visibleTab: RightSidebarTab = isTransferring ? "steps" : activeTab;
 
   return (
     <div className="flex h-full flex-col">
-      {/* Guardar a la izquierda, las dos salidas a la derecha: Simulador es el "reproducir" y
-          Exportar la unica accion primaria del panel. */}
+      {/* Guardar a la izquierda, las salidas a la derecha: Simulador es el "reproducir" y Exportar
+          la unica accion primaria del panel. El ml-auto va en el grupo y no en el primer boton para
+          que ninguno de los tres necesite saber donde lo montan. */}
       <div className="flex items-center gap-1.5 border-b border-border px-3 py-2">
         <SaveButton />
-        <button
-          type="button"
-          onClick={() => setSimulatorOpen(true)}
-          className={`ml-auto ${SIMULATOR_BUTTON_CLASSES}`}
-        >
-          <Play size={12} weight="Filled" />
-          Simulador
-        </button>
-        <button
-          type="button"
-          onClick={requestExport}
-          title="Revisar el formulario y descargarlo como JSON"
-          className={EXPORT_BUTTON_CLASSES}
-        >
-          Exportar
-        </button>
+        <div className="ml-auto flex items-center gap-1.5">
+          <SimulatorButton />
+          <ExportButton />
+          <RightPanelToggle className={PANEL_COLLAPSE_BUTTON_CLASSES} iconSize={14} />
+        </div>
       </div>
 
       {/* El zoom vive aca y no dentro de Proyecto porque es del lienzo, no de una seccion: se
@@ -111,11 +91,9 @@ export function RightSidebar() {
             )}
           </button>
         ))}
-        {isCanvasView && (
-          <div className="ml-auto flex items-center">
-            <CanvasZoomControl />
-          </div>
-        )}
+        <div className="ml-auto flex items-center">
+          <CanvasZoomControl />
+        </div>
       </nav>
 
       {/* min-h-0 es lo que deja que este flex item se encoja por debajo de su contenido: sin el,
@@ -168,16 +146,6 @@ export function RightSidebar() {
       </div>
 
       {isImportOpen && <ProjectImportModal onClose={() => setImportOpen(false)} />}
-
-      {problems && (
-        <ExportReviewModal
-          problems={problems}
-          hasErrors={hasErrors}
-          onGoTo={goTo}
-          onExport={exportAnyway}
-          onClose={closeReview}
-        />
-      )}
     </div>
   );
 }

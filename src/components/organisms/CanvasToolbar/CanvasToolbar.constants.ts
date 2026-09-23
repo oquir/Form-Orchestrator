@@ -17,8 +17,6 @@ export const TOOLBAR_CLASSES: string =
 
 export const TOOLBAR_GROUP_CLASSES: string = "flex items-center gap-0.5";
 
-export const TOOLBAR_DIVIDER_CLASSES: string = "mx-0.5 h-5 w-px bg-border";
-
 export const TOOL_BUTTON_BASE_CLASSES: string =
   "flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:cursor-pointer";
 
@@ -29,9 +27,6 @@ export const TOOL_BUTTON_ACTIVE_CLASSES: string = "bg-brand text-on-brand";
 
 export const TOOL_BUTTON_INACTIVE_CLASSES: string =
   "text-fg-muted hover:bg-surface-raised hover:text-fg-strong dark:hover:bg-surface-inset";
-
-export const TOOLBAR_ICON_ACTION_CLASSES: string =
-  "flex h-8 w-8 items-center justify-center rounded-lg text-fg-muted transition-colors hover:cursor-pointer hover:bg-surface-raised hover:text-fg-strong dark:hover:bg-surface-inset disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-fg-muted dark:disabled:hover:bg-transparent";
 
 export const TOOLBAR_DANGER_CLASSES: string =
   "flex h-8 w-8 items-center justify-center rounded-lg text-fg-muted transition-colors hover:cursor-pointer hover:bg-danger-surface hover:text-danger";

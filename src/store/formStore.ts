@@ -118,6 +118,7 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
     introModalSteps: 1,
   },
   isSidebarOpen: true,
+  isRightSidebarOpen: true,
   isSimulatorOpen: false,
   canvasZoom: ZOOM_DEFAULT,
   canvasViewMode: "canvas",
@@ -138,6 +139,10 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
   setHoveredTransferTarget: (target) => set({ hoveredTransferTarget: target }),
   dismissTransferNotice: () => set({ transferNotice: null }),
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
+  // Plegado el panel no se renderiza y lo reemplaza CollapsedRightSidebar desde la capa flotante.
+  // No lleva guarda de arrastre: el unico disparador es un boton, que no se puede pulsar con una
+  // fila colgando del cursor. Un atajo de teclado si la necesitaria.
+  setRightSidebarOpen: (open) => set({ isRightSidebarOpen: open }),
   // Sube al store porque ahora lo escribe el panel derecho y lo lee el lienzo, que son dos
   // subarboles distintos. Es estado de vista, igual que sidebarTab.
   setCanvasViewMode: (mode) => set({ canvasViewMode: mode }),
