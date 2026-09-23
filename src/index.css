@@ -45,6 +45,12 @@
   --ui-code-number: oklch(50% 0.134 242.749); /* sky-700 */
   --ui-code-comment: oklch(70.4% 0.04 256.788); /* slate-400 */
   --ui-code-fn: oklch(54.6% 0.245 262.881); /* blue-600 */
+
+  /* Punto de la malla del lienzo. Es un token y no un color fijo dentro de la utilidad porque es
+     lo unico que cambia entre los dos temas: la geometria es la misma. */
+  /* neutral-400, gris puro y no slate: el fondo del lienzo es casi acromatico y un punto con croma
+     0.04 en el matiz azul se nota tenido al lado de todo lo demas. El oscuro usa la misma familia. */
+  --ui-canvas-dot: color-mix(in oklab, oklch(70.8% 0 0) 55%, transparent); /* neutral-400 */
 }
 
 .dark {
@@ -93,6 +99,10 @@
   --ui-code-number: oklch(74.6% 0.16 232.661); /* sky-400 */
   --ui-code-comment: oklch(55.6% 0 0); /* neutral-500 */
   --ui-code-fn: oklch(70.7% 0.165 254.624); /* blue-400 */
+
+  /* neutral-500, dos escalones mas claro que el token claro respecto de su fondo: sobre neutral-950
+     un gris medio se apaga casi del todo y la malla deja de verse. */
+  --ui-canvas-dot: color-mix(in oklab, oklch(55.6% 0 0) 55%, transparent);
 }
 
 @theme inline {
@@ -130,4 +140,24 @@
 
   --color-success: var(--ui-success);
   --color-info: var(--ui-info);
+}
+
+/* Malla de puntos del lienzo: un punto por baldosa de 22px, centrado. A 11px de cada borde no hay
+   manera de que el repetido lo corte por la mitad.
+
+   No es decoracion. El lienzo lleva media pantalla de margen de paneo por lado y sobre un fondo
+   plano ese paneo es invisible hasta que asoma el borde del documento: no se distingue un gesto
+   que funciono de uno que no.
+
+   `local` la ancla al contenido y no al puerto, que es justo lo que la hace correr con el paneo.
+   No escala con el zoom, y esta bien: es textura, no una cuadricula a la que algo se alinee. Por
+   eso tampoco son lineas, que competirian con las 16 columnas reales de la fila. */
+@utility bg-dot-grid {
+  background-image: radial-gradient(
+    circle at 11px 11px,
+    var(--ui-canvas-dot) 0 1.3px,
+    transparent 1.8px
+  );
+  background-size: 22px 22px;
+  background-attachment: local;
 }
