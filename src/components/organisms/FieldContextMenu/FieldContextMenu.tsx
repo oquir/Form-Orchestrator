@@ -26,8 +26,13 @@ export function FieldContextMenu({
 
   return (
     <div
-      style={{ left: position.left, top: position.top, width: position.width }}
-      className="fixed z-50 flex max-h-[80vh] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
+      style={{
+        left: position.left,
+        top: position.top,
+        width: position.width,
+        maxHeight: position.maxHeight,
+      }}
+      className="fixed z-50 flex flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
       onPointerDown={(event) => event.stopPropagation()}
     >
       <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2 dark:border-neutral-800">

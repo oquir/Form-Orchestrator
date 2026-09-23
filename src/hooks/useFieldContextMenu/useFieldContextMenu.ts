@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { findFieldById, getActiveRows, useFormStore } from "../../store/formStore";
 import type { ContextMenuTab } from "../../types/fieldContextMenu";
-import { MENU_HEIGHT_PX, MENU_WIDTH_PX, VIEWPORT_MARGIN_PX } from "./useFieldContextMenu.constants";
+import {
+  MENU_MAX_HEIGHT_RATIO,
+  MENU_MIN_HEIGHT_PX,
+  MENU_WIDTH_PX,
+  VIEWPORT_MARGIN_PX,
+} from "./useFieldContextMenu.constants";
 import type {
   UseFieldContextMenuParams,
   UseFieldContextMenuResult,
 } from "./useFieldContextMenu.types";
 
-// Menu contextual del campo (clic derecho). Las constantes de tamano existen para poder voltear el
-// menu cuando abriria fuera de la ventana: hay que saber cuanto mide antes de pintarlo.
+// Menu contextual del campo (clic derecho). El alto real depende de la pestana abierta y no se
+// conoce antes de pintar, asi que no se estima: se le entrega el alto maximo que cabe desde donde
+// se abrio y el cuerpo hace scroll dentro de ese limite.
 export function useFieldContextMenu({
   menu,
   onClose,
@@ -42,8 +48,17 @@ export function useFieldContextMenu({
     };
   }, [onClose]);
 
-  const left = Math.min(menu.x, window.innerWidth - MENU_WIDTH_PX - VIEWPORT_MARGIN_PX);
-  const top = Math.min(menu.y, window.innerHeight - MENU_HEIGHT_PX - VIEWPORT_MARGIN_PX);
+  const viewportHeight: number = window.innerHeight;
+  const left: number = Math.min(menu.x, window.innerWidth - MENU_WIDTH_PX - VIEWPORT_MARGIN_PX);
+
+  // Si debajo del clic no cabe ni el minimo utilizable, el menu sube lo justo para alcanzarlo.
+  const spaceBelow: number = viewportHeight - menu.y - VIEWPORT_MARGIN_PX;
+  const top: number = Math.max(
+    VIEWPORT_MARGIN_PX,
+    spaceBelow >= MENU_MIN_HEIGHT_PX
+      ? menu.y
+      : viewportHeight - MENU_MIN_HEIGHT_PX - VIEWPORT_MARGIN_PX,
+  );
 
   return {
     field,
@@ -52,8 +67,12 @@ export function useFieldContextMenu({
     handleDelete,
     position: {
       left: Math.max(VIEWPORT_MARGIN_PX, left),
-      top: Math.max(VIEWPORT_MARGIN_PX, top),
+      top,
       width: MENU_WIDTH_PX,
+      maxHeight: Math.min(
+        viewportHeight * MENU_MAX_HEIGHT_RATIO,
+        viewportHeight - top - VIEWPORT_MARGIN_PX,
+      ),
     },
   };
 }

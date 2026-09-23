@@ -10,6 +10,7 @@ export interface FieldContextMenuPosition {
   left: number;
   top: number;
   width: number;
+  maxHeight: number;
 }
 
 export interface UseFieldContextMenuResult {
