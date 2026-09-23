@@ -167,107 +167,107 @@ importers:
   .:
     dependencies:
       '@codemirror/autocomplete':
-        specifier: ^6.20.3
+        specifier: 6.20.3
         version: 6.20.3
       '@codemirror/commands':
-        specifier: ^6.10.4
+        specifier: 6.11.0
         version: 6.11.0
       '@codemirror/lang-javascript':
-        specifier: ^6.2.5
+        specifier: 6.2.5
         version: 6.2.5
       '@codemirror/language':
-        specifier: ^6.12.4
+        specifier: 6.12.4
         version: 6.12.4
       '@codemirror/lint':
-        specifier: ^6.9.7
+        specifier: 6.9.7
         version: 6.9.7
       '@codemirror/state':
-        specifier: ^6.7.1
+        specifier: 6.7.1
         version: 6.7.1
       '@codemirror/view':
-        specifier: ^6.43.8
+        specifier: 6.43.9
         version: 6.43.9
       '@dnd-kit/core':
-        specifier: ^6.3.1
+        specifier: 6.3.1
         version: 6.3.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@dnd-kit/sortable':
-        specifier: ^10.0.0
+        specifier: 10.0.0
         version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       '@dnd-kit/utilities':
-        specifier: ^3.2.2
+        specifier: 3.2.2
         version: 3.2.2(react@19.2.8)
       '@hookform/resolvers':
-        specifier: ^5.4.0
+        specifier: 5.9.1
         version: 5.9.1(react-hook-form@7.85.0(react@19.2.8))(zod@4.4.3)
       '@lezer/highlight':
-        specifier: ^1.2.3
+        specifier: 1.2.3
         version: 1.2.3
       '@tailwindcss/vite':
-        specifier: ^4.3.2
+        specifier: 4.3.3
         version: 4.3.3(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
       react:
-        specifier: ^19.2.7
+        specifier: 19.2.8
         version: 19.2.8
       react-colorful:
-        specifier: ^5.8.1
+        specifier: 5.8.1
         version: 5.8.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react-dom:
-        specifier: ^19.2.7
+        specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
       react-hook-form:
-        specifier: ^7.81.0
+        specifier: 7.85.0
         version: 7.85.0(react@19.2.8)
       reicon-react:
         specifier: 1.1.2
         version: 1.1.2(react@19.2.8)
       tailwindcss:
-        specifier: ^4.3.2
+        specifier: 4.3.3
         version: 4.3.3
       uuid:
-        specifier: ^14.0.1
+        specifier: 14.0.2
         version: 14.0.2
       zod:
-        specifier: ^4.4.3
+        specifier: 4.4.3
         version: 4.4.3
       zundo:
-        specifier: ^2.3.0
+        specifier: 2.3.0
         version: 2.3.0(zustand@5.0.15(@types/react@19.2.18)(react@19.2.8))
       zustand:
-        specifier: ^5.0.14
+        specifier: 5.0.15
         version: 5.0.15(@types/react@19.2.18)(react@19.2.8)
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.5.2
+        specifier: 2.5.9
         version: 2.5.9
       '@types/node':
-        specifier: ^24.13.2
+        specifier: 24.13.3
         version: 24.13.3
       '@types/react':
-        specifier: ^19.2.17
+        specifier: 19.2.18
         version: 19.2.18
       '@types/react-dom':
-        specifier: ^19.2.3
+        specifier: 19.2.4
         version: 19.2.4(@types/react@19.2.18)
       '@types/uuid':
-        specifier: ^11.0.0
+        specifier: 11.0.0
         version: 11.0.0
       '@vitejs/plugin-react':
-        specifier: ^6.0.3
+        specifier: 6.1.0
         version: 6.1.0(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
       eslint-plugin-react-refresh:
-        specifier: ^0.5.3
+        specifier: 0.5.4
         version: 0.5.4(eslint@10.8.1(jiti@2.7.0))
       globals:
-        specifier: ^17.7.0
+        specifier: 17.11.0
         version: 17.11.0
       tsx:
-        specifier: ^4.23.12
+        specifier: 4.23.12
         version: 4.23.12
       typescript:
-        specifier: ~6.0.2
+        specifier: 6.0.3
         version: 6.0.3
       vite:
-        specifier: ^8.1.1
+        specifier: 8.2.2
         version: 8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)
 
 packages:
