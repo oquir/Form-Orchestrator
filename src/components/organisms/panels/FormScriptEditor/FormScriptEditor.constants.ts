@@ -7,4 +7,4 @@ export const PRELUDE_HINT: string =
   "Se antepone al script de todos los campos, así que lo que declares acá está en ámbito en cualquiera de ellos. Para los cálculos que se repiten en varios renglones.";
 
 export const PRELUDE_SCOPE_HINT: string =
-  "No puede leer campos: {campo} no vale acá, porque fuera de un campo —y sobre todo dentro de un grupo repetible— no hay una única respuesta a cuál sería su valor. Los valores entran por parámetro.";
+  "No puede leer campos: {{campo}} no vale acá, porque fuera de un campo —y sobre todo dentro de un grupo repetible— no hay una única respuesta a cuál sería su valor. Los valores entran por parámetro.";
