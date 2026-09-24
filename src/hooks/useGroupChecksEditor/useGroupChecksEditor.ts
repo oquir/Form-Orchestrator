@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { createGroupCheck } from "../../lib/groupCheck/groupCheck";
-import { getAllFields, useFormStore } from "../../store/formStore";
-import type { CanvasField } from "../../types/field";
+import { useFormStore } from "../../store/formStore";
 import type { GroupCheck } from "../../types/groupCheck";
+import { useKnownFieldNames } from "../useKnownFieldNames/useKnownFieldNames";
 import type {
   UseGroupChecksEditorParams,
   UseGroupChecksEditorResult,
@@ -12,19 +12,11 @@ export function useGroupChecksEditor({
   group,
 }: UseGroupChecksEditorParams): UseGroupChecksEditorResult {
   const updateGroup = useFormStore((state) => state.updateGroup);
-  const formSteps = useFormStore((state) => state.formSteps);
   const formScript = useFormStore((state) => state.formScript);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const checks: GroupCheck[] = group.checks ?? [];
-  const candidates: CanvasField[] = useMemo(
-    () => getAllFields(formSteps.flatMap((step) => step.rows)),
-    [formSteps],
-  );
-  const knownNames: Set<string> = useMemo(
-    () => new Set(candidates.map((field) => field.name)),
-    [candidates],
-  );
+  const knownNames: Set<string> = useKnownFieldNames();
 
   function write(next: GroupCheck[]): void {
     updateGroup(group.id, { checks: next });
