@@ -34,6 +34,17 @@ export function unknownRefsMessage(names: string[]): string {
     : `${refs} no son campos del formulario.`;
 }
 
+// Las referencias que encuentra `pattern` con el mismo recorrido del compilador. Existe para la
+// migracion de la sintaxis vieja: lo que hay que reescribir ahi es exactamente lo que el
+// compilador de entonces sustituia, ni una referencia mas ni una menos.
+export function findScriptRefs(
+  source: string,
+  knownNames: Set<string>,
+  pattern: RegExp,
+): ScriptRef[] {
+  return scanScript(source, knownNames, pattern).refs;
+}
+
 export function compileScript(source: string, knownNames: Set<string>): ScriptCompileResult {
   const { code, refs } = scanScript(source, knownNames);
   const reads: string[] = [];
