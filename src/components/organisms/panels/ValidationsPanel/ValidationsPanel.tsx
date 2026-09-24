@@ -9,6 +9,7 @@ import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPrevie
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ValidationOverridesEditor } from "../ValidationOverridesEditor/ValidationOverridesEditor";
+import { BASIC_RULES_DESCRIPTION, FORMAT_DESCRIPTION } from "./ValidationsPanel.constants";
 import { toNumberOrUndefined } from "./ValidationsPanel.utils";
 
 export function ValidationsPanel({ field }: { field: CanvasField }) {
@@ -40,7 +41,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
   return (
     <div className="flex flex-col gap-3">
       {showsBasicRules && (
-        <PanelSection title="Reglas básicas">
+        <PanelSection title="Reglas básicas" description={BASIC_RULES_DESCRIPTION}>
           {field.type !== "checkbox" && (
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm text-fg">Campo requerido</span>
@@ -133,7 +134,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
       )}
 
       {isTextLike && (
-        <PanelSection title="Formato y mensaje">
+        <PanelSection title="Formato y mensaje" description={FORMAT_DESCRIPTION}>
           <LabeledInput
             id="pattern"
             label="Expresión regular"
