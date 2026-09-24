@@ -1,4 +1,5 @@
-import { formulaToScript } from "../scriptMigration/scriptMigration";
+import { slugifyFieldName } from "../fieldName/fieldName";
+import { formulaToScript, upgradeFieldRefs } from "../scriptMigration/scriptMigration";
 import { DRAFT_SCHEMA_VERSION } from "./persistence.constants";
 import type { DraftMigration, FieldMigration, LooseDraft } from "./persistence.types";
 
@@ -207,6 +208,114 @@ function ruleFormulasToScripts(field: LooseDraft): LooseDraft {
   };
 }
 
+// El espacio de nombres contra el que el compilador viejo decidia que {x} era un campo: los dos
+// lienzos juntos, como el export. Un campo sin nombre toma el slug de su rotulo, que es el que le
+// pone migrateFieldNames al cargar y por lo tanto el que ese compilador llegaba a ver.
+function collectDraftNames(draft: LooseDraft): Set<string> {
+  const names = new Set<string>();
+  const introModal: unknown = draft.introModal;
+  const steps: unknown[] = [
+    ...(Array.isArray(draft.formSteps) ? draft.formSteps : []),
+    ...(isRecord(introModal) && Array.isArray(introModal.steps) ? introModal.steps : []),
+  ];
+
+  for (const step of steps) {
+    if (!isRecord(step) || !Array.isArray(step.rows)) continue;
+
+    for (const row of step.rows) {
+      if (!isRecord(row) || !Array.isArray(row.fields)) continue;
+
+      for (const field of row.fields) {
+        if (!isRecord(field)) continue;
+
+        if (typeof field.name === "string" && field.name.length > 0) names.add(field.name);
+        else if (typeof field.label === "string") names.add(slugifyFieldName(field.label));
+      }
+    }
+  }
+
+  return names;
+}
+
+function upgradeRuleRefs(rule: unknown, names: Set<string>): unknown {
+  if (!isRecord(rule) || !Array.isArray(rule.effects)) return rule;
+
+  return {
+    ...rule,
+    effects: rule.effects.map((effect) =>
+      isRecord(effect) && effect.kind === "script" && typeof effect.source === "string"
+        ? { ...effect, source: upgradeFieldRefs(effect.source, names) }
+        : effect,
+    ),
+  };
+}
+
+function upgradeFieldLogicRefs(field: LooseDraft, names: Set<string>): LooseDraft {
+  const logic: unknown = field.logic;
+  if (!isRecord(logic)) return field;
+
+  const next: LooseDraft = { ...logic };
+  if (typeof logic.script === "string") next.script = upgradeFieldRefs(logic.script, names);
+  if (Array.isArray(logic.rules)) {
+    next.rules = logic.rules.map((rule) => upgradeRuleRefs(rule, names));
+  }
+
+  return { ...field, logic: next };
+}
+
+type GroupMigration = (group: LooseDraft) => LooseDraft;
+
+// Los grupos repetibles solo existen en los pasos del formulario: el modal de entrada no tiene.
+function mapDraftGroups(draft: LooseDraft, migrate: GroupMigration): LooseDraft {
+  if (!Array.isArray(draft.formSteps)) return draft;
+
+  return {
+    ...draft,
+    formSteps: draft.formSteps.map((step) => {
+      if (!isRecord(step) || !Array.isArray(step.groups)) return step;
+
+      return {
+        ...step,
+        groups: step.groups.map((group) => (isRecord(group) ? migrate(group) : group)),
+      };
+    }),
+  };
+}
+
+function upgradeGroupCheckRefs(group: LooseDraft, names: Set<string>): LooseDraft {
+  if (!Array.isArray(group.checks)) return group;
+
+  return {
+    ...group,
+    checks: group.checks.map((check) =>
+      isRecord(check) && typeof check.script === "string"
+        ? { ...check, script: upgradeFieldRefs(check.script, names) }
+        : check,
+    ),
+  };
+}
+
+// Todos los sitios donde se escribe un script: el del campo, los efectos de sus reglas, las
+// comprobaciones de grupo y el preludio. El preludio tambien, aunque no pueda leer campos: un
+// {campo} ahi era un error, y sin migrarlo pasaria a ser un objeto literal que nadie denuncia.
+function upgradeDraftRefs(draft: LooseDraft): LooseDraft {
+  const names: Set<string> = collectDraftNames(draft);
+  const withFields: LooseDraft = mapDraftFields(draft, (field) =>
+    upgradeFieldLogicRefs(field, names),
+  );
+  const withGroups: LooseDraft = mapDraftGroups(withFields, (group) =>
+    upgradeGroupCheckRefs(group, names),
+  );
+
+  return {
+    ...withGroups,
+    formScript:
+      typeof draft.formScript === "string"
+        ? upgradeFieldRefs(draft.formScript, names)
+        : draft.formScript,
+  };
+}
+
 const MIGRATIONS: Record<number, DraftMigration> = {
   // 1 -> 2: aparece el preludio del formulario.
   1: (draft) => ({ ...draft, formScript: "" }),
@@ -228,6 +337,9 @@ const MIGRATIONS: Record<number, DraftMigration> = {
   // escanea el fuente del consumidor, no el JSON exportado, asi que una clase ahi solo funcionaba
   // por casualidad.
   5: (draft) => mapDraftRows(mapDraftFields(draft, fieldClassesToCss), rowClassesToCss),
+  // 6 -> 7: las referencias a campos pasan de {campo} a {{campo}}. Solo las que el compilador de
+  // entonces sustituia, asi el script migrado compila al mismo cuerpo y el simulador calcula igual.
+  6: upgradeDraftRefs,
 };
 
 // Un hueco en la cadena corta el recorrido y devuelve el borrador con su version vieja, que es
