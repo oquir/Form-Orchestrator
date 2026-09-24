@@ -19,6 +19,8 @@ export function printNode(node: FormulaNode, parent: number, isRight: boolean): 
     case "number":
       return String(node.value);
 
+    // La sintaxis de su epoca, de una sola llave, y no fieldRefText: esto es el paso 2 -> 3 de la
+    // migracion, y el paso 6 -> 7 lleva su salida a {{x}} como a cualquier script de entonces.
     case "ref":
       return `{${node.name}}`;
 
