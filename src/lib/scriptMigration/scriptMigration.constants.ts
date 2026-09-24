@@ -32,3 +32,8 @@ export const UNARY_PRECEDENCE: number = 3;
 // Los agregados se vuelven helpers normales porque en el script la columna de un grupo llega como
 // array de verdad: sumOf(x) era sintaxis especial, sum({x}) es una llamada con un array adentro.
 export const AGGREGATE_TO_HELPER: Record<string, string> = { sumOf: "sum", countOf: "count" };
+
+// La referencia de una sola llave, tal cual la reconocia el compilador hasta la version 6 del
+// borrador. Congelada a proposito: la migracion tiene que reescribir exactamente lo que ese
+// compilador sustituia, asi que no puede seguir los cambios de REF_PATTERN.
+export const LEGACY_REF_PATTERN: RegExp = /\{[ \t]*([A-Za-z_][A-Za-z0-9_]*)[ \t]*\}/y;
