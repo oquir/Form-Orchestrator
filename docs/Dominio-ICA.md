@@ -2,7 +2,7 @@
 
 > Contexto de negocio para trabajar en las plantillas `industria_comercio`, `retencion_industria_comercio` y `autorretencion`. No describe el código (para eso está `CLAUDE.md`): describe cómo funcionan las declaraciones que el builder modela, para que las decisiones de plantilla y de script tengan fundamento.
 >
-> **Verificado el 2026-09-22.** La ley y la estructura de los formularios son estables. Lo que caduca (UVT, bases mínimas, plazos, tasas) está marcado con ⏳ y reunido en "Datos que caducan": antes de usarlo, revisar solo eso, no todo el documento.
+> **Verificado el 2026-09-22; actualizado el 2026-09-24** con los tipos de declaración, el descuento por pronto pago y las reglas de sistema de sanciones (lo que aún no tiene fuente está en la sección 8). La ley y la estructura de los formularios son estables. Lo que caduca (UVT, bases mínimas, plazos, tasas) está marcado con ⏳ y reunido en "Datos que caducan": antes de usarlo, revisar solo eso, no todo el documento.
 
 ## 1. Panorama: tres declaraciones, un solo impuesto
 
@@ -18,6 +18,14 @@ Cómo se conectan: la retención y la autorretención **no son impuestos distint
 
 - Lo que **le retuvieron** al contribuyente (con certificados) → **renglón 27** del formulario anual.
 - Lo que **se autorretuvo** durante el año → **renglón 28**.
+
+### 1.1 Roles en el RIT
+
+El RIT (Registro de Información Tributaria) es el equivalente municipal del RUT; cada municipio lleva el suyo (el detalle de la inscripción está en la sección 3). Clasifica a cada sujeto según su rol:
+
+- **Contribuyentes**: se inscriben para reportar sus actividades (códigos CIIU) y poder declarar ICA.
+- **Agentes retenedores**: asumen la responsabilidad legal de retener el impuesto a terceros. Deben actualizar su RIT con esa responsabilidad para que el portal habilite la declaración de ReteICA.
+- **Autorretenedores**: usualmente los designa la Secretaría de Hacienda por resolución; el municipio actualiza su RIT para que no les practiquen ReteICA.
 
 ## 2. ICA anual
 
@@ -99,6 +107,25 @@ Complementarios y figuras del formulario:
 - El **38** es `max(35 − 36 + 37 − 34, 0)`: el `− 34` evita cobrar intereses de mora sobre una deuda que no existe.
 - El **31** (sanción) y el **37** (intereses) se liquidan en el `logic.script` del propio renglón.
 
+### Tipos de declaración en el ERP
+
+Además de la "opción de uso" del FUN (inicial, solamente pago, corrección), para el ICA anual el sistema debe contemplar tres naturalezas de formulario:
+
+1. **Inicial (o normal)**: primera presentación del periodo fiscal.
+2. **Corrección**: reemplaza jurídica y financieramente a la anterior. **Regla de sistema**: el usuario debe digitar o vincular el ID/sticker de la declaración que va a corregir.
+3. **Clausura (cese de actividades o fracción de año)**: se presenta cuando la empresa cierra definitivamente o se traslada. **Regla de sistema**: el formulario exige la **fecha exacta de cierre** (para prorratear topes de ingresos a los meses operados) y, al presentarse, debe gatillar la cancelación del RIT del contribuyente en ese municipio.
+
+Retención y autorretención solo tienen Inicial y Corrección (secciones 3 y 4).
+
+### Descuento por pronto pago
+
+Beneficio potestativo de los concejos municipales (usualmente entre 5% y 15%), pensado para incentivar el pago temprano. Es **exclusivo del ICA anual** (renglón 36): nunca aplica en ReteICA ni en autorretención. Reglas de parametrización en el ERP:
+
+- **Paz y salvo**: el contribuyente no puede deber vigencias anteriores; si debe, el sistema oculta el beneficio.
+- **Base de cálculo**: solo sobre el impuesto neto a cargo, jamás sobre sanciones ni intereses.
+- **Pérdida del beneficio**: automática si el pago es parcial, extemporáneo o entra en un acuerdo de pago.
+- **En correcciones**: si declaró a tiempo con descuento y luego corrige aumentando el impuesto, el descuento se recalcula sobre la base real, pero la diferencia adicional no tiene descuento.
+
 ## 3. Retención de ICA (ReteICA)
 
 ### Qué es y quién la practica
@@ -111,7 +138,7 @@ Es un **mecanismo de recaudo anticipado**, no un impuesto adicional. Quien paga 
 
 ### Inscripción en el RIT
 
-El **RIT (Registro de Información Tributaria)** es el registro municipal que identifica y clasifica a cada sujeto **según la calidad en que actúa**: contribuyente, declarante, **agente de retención**, etc. No es el RUT de la DIAN; cada municipio lleva el suyo (algunos lo llaman registro de industria y comercio o matrícula).
+El **RIT (Registro de Información Tributaria)** es el registro municipal que identifica y clasifica a cada sujeto **según la calidad en que actúa**: contribuyente, declarante, **agente de retención**, etc. No es el RUT de la DIAN; cada municipio lleva el suyo (algunos lo llaman registro de industria y comercio o matrícula). Los roles se resumen en la sección 1.1.
 
 - La calidad de agente retenedor **nace de la norma o del acto de designación**, no de la inscripción. Pero una vez designado, hay que **inscribirse o actualizar el RIT** con esa responsabilidad, y sin eso el portal no deja presentar la declaración de retención.
 - **Medellín (guía oficial de 2026)**: los agentes se designan de dos formas, por el Estatuto Tributario del Distrito (de forma general) o por acto administrativo de la Subsecretaría de Ingresos (de forma particular). Para inscribirse como agente se diligencia el **formulario RIT** y se adjuntan: certificado de existencia y representación legal (con no más de 30 días), RUT, cédula del representante legal y el documento que acredite la condición de agente (designación, mandato o poder). La Subsecretaría revisa y notifica la inscripción.
@@ -169,6 +196,8 @@ El FUN es solo para el ICA anual. La Resolución 4056 dice expresamente que, cua
 
 ### Reglas que lo diferencian del ICA anual (importan para el diseño)
 
+- **Tipos de declaración**: solo Inicial y Corrección. No existe Clausura: la retención es transaccional y no grava la existencia del negocio; si la empresa cierra, simplemente deja de retener en los bimestres siguientes.
+- **Sin descuento por pronto pago**: son dineros de terceros, no impuesto propio, y los municipios no lo otorgan en ReteICA.
 - **Sin pago total, la declaración no produce efecto** (es ineficaz, sin necesidad de acto administrativo; es la lógica del art. 580-1 del Estatuto Tributario, recogida por Medellín en su estatuto). A diferencia del renglón 35 del FUN, **no hay pago parcial**.
 - **No produce saldo a favor.** Lo retenido de más se recupera restándolo en el renglón de devoluciones y anulaciones de ese periodo o de los siguientes.
 - **Certificados**: el agente debe expedirlos (plazos y contenido según el municipio; suelen incluir partes, NIT, concepto o actividad, base, valor retenido y periodo). No expedirlos se sanciona (art. 667 del Estatuto Tributario: 5% de los pagos sin certificado). Se conservan 5 años.
@@ -178,7 +207,7 @@ El FUN es solo para el ICA anual. La Resolución 4056 dice expresamente que, cua
 - **Las sanciones se calculan sobre la retención a cargo** (Medellín: 5% por mes o fracción con tope del 100% antes del emplazamiento; 10% con tope del 200% después; mínima de 10 UVT).
 - **Información exógena**: el agente reporta a los terceros a quienes les retuvo, según la resolución del municipio (en Medellín no hay que reportar si en el año no hubo retenciones).
 - Los agentes no tienen estado de cuenta ni paz y salvo: la modalidad es "declare y pague", y el soporte son las declaraciones presentadas.
-- **Riesgo penal**: no consignar lo retenido puede encuadrar en el art. 402 del Código Penal (omisión del agente retenedor). Es la razón por la que los municipios son tan estrictos con estas declaraciones.
+- **Riesgo penal**: no consignar lo retenido puede encuadrar en el art. 402 del Código Penal (omisión del agente retenedor). Es la razón por la que los municipios son tan estrictos con estas declaraciones. Por eso algunos tratan la declaración de retención como un "recibo de pago": no autoliquidan sanciones de corrección ni de inexactitud en el portal y cobran solo intereses de mora diarios sobre el excedente.
 
 ## 4. Autorretención
 
@@ -206,17 +235,28 @@ Los designa el municipio por resolución (o lo pide el contribuyente y la admini
 - Sanciones, intereses y total a pagar.
 - Firmas.
 - **La misma regla de ineficacia**: presentada sin pago total no produce efecto (Medellín lo dice expresamente).
+- **Tipos de declaración**: solo Inicial y Corrección; tampoco aplica Clausura ni descuento por pronto pago.
+- Puede presentarse por separado o en un formulario conjunto con el de ReteICA (Barranquilla y Cartagena, entre otros; ver sección 3).
 
 ## 5. Sanciones e intereses (aplican a las tres)
+
+El sistema debe diferenciar estrictamente qué sanciones autoliquida el usuario (extemporaneidad, corrección) y cuáles impone la alcaldía (inexactitud).
 
 - **Art. 59 de la Ley 788 de 2002**: los municipios aplican el procedimiento y el régimen sancionatorio del **Estatuto Tributario nacional**. **Pueden reducir el monto de las sanciones y simplificar los procedimientos, pero no imponer sanciones mayores ni distintas.** Es el fundamento de la regla del proyecto: *la ley es el tope por defecto, el municipio solo puede bajarla*.
 - **Extemporaneidad antes del emplazamiento** (art. 641): 5% por mes o fracción, con tope del 100%.
 - **Extemporaneidad después del emplazamiento** (art. 642): 10% por mes o fracción, con tope del 200%. Por eso los formularios de retención separan dos tipos de sanción.
-- **Sanción mínima de 10 UVT** (art. 639) y **gradualidad** (art. 640).
+- **Regla en correcciones**: si la declaración inicial se presentó a tiempo, en la de corrección **no se liquida extemporaneidad**.
+- **Emplazamiento**: notificación formal de la alcaldía que separa la sanción voluntaria de la agravada. En ambos casos da 1 mes de plazo:
+  - **Para declarar** (art. 715 ETN): notifica la omisión de presentar. Si el contribuyente declara, la extemporaneidad pasa al 10% por mes; si no, la alcaldía emite *liquidación oficial de aforo*.
+  - **Para corregir** (art. 688 ETN): notifica inconsistencias detectadas. Si el contribuyente corrige, la sanción por corrección pasa al 20%; si no, la alcaldía emite *requerimiento especial*.
+- **Sanción mínima de 10 UVT** (art. 639) y **gradualidad** (art. 640). El sistema debe comparar la sanción calculada con el mínimo (en 2026, $523.740) y cobrar la mayor.
 - **Corrección frente a inexactitud**: las dos tratan de un error en lo declarado; la diferencia está en **quién lo detecta**.
   - **Corrección** (art. 644): el contribuyente corrige **por su cuenta** y paga **10%** del mayor valor a pagar (o del menor saldo a favor) si corrige antes de cualquier actuación de la administración, o **20%** si corrige después del emplazamiento para corregir o del auto de inspección, pero antes del requerimiento especial. Se autoliquida en la propia declaración de corrección. Solo aplica si la corrección **sube** el valor a pagar o **baja** el saldo a favor; corregir a la baja sigue otro trámite (art. 589) que la administración tiene que aprobar.
+    - **Corrección dentro del plazo legal de presentación**: sin sanción ni intereses, y conserva el descuento por pronto pago.
+    - **Corrección fuera de plazo (mayor valor)**: se cobran intereses de mora solo sobre la diferencia.
+    - **Regla de sistema para la corrección a la baja (menor valor, art. 589)**: es un riesgo de fraude, así que el ERP **debe bloquear** la liquidación automática y dejar el estado en "Proyecto de Corrección", sin validez de pago. El contribuyente aporta pruebas y, si la alcaldía aprueba mediante acto administrativo, el sistema genera el **saldo a favor** para compensación o devolución.
   - **Inexactitud** (arts. 647–648): la administración **encuentra** ingresos omitidos, costos o descuentos inexistentes, retenciones que no existieron, datos falsos, etc. La sanción es **100%** de la diferencia entre lo que determina la administración y lo declarado (200% en casos de abuso). Se reduce a una cuarta parte si el contribuyente acepta los hechos al responder el requerimiento especial y corrige (art. 709), o a la mitad si los acepta al recurrir la liquidación oficial (art. 713). Una diferencia de criterio sobre cómo interpretar el derecho aplicable **no es inexactitud**, siempre que los hechos y las cifras declarados sean completos y verdaderos.
-  - **En los formularios**: la sanción por corrección la liquida el contribuyente al corregir (por ejemplo, la "sanción 2" del formulario de Medellín). La de inexactitud normalmente la impone la administración en un acto oficial; solo aparece en la declaración cuando el contribuyente corrige aceptando un requerimiento especial, con la sanción reducida.
+  - **En los formularios**: la sanción por corrección la liquida el contribuyente al corregir (por ejemplo, la "sanción 2" del formulario de Medellín). La de inexactitud normalmente la impone la administración en un acto oficial; solo aparece en la declaración cuando el contribuyente corrige aceptando un requerimiento especial, con la sanción reducida. **Regla de sistema**: el portal no debe permitir autoliquidarla; es de uso exclusivo del módulo interno de fiscalización de la alcaldía (la excepción es esa corrección que acepta un requerimiento especial).
   - Los municipios pueden bajar estos porcentajes, pero no subirlos. En la plantilla ICA **ninguna de las dos está construida**: las dos necesitan la declaración anterior, que todavía no existe (ver `CLAUDE.md`, "Sanciones").
 - **Intereses de mora** (arts. 634–635): diarios, con la tasa de usura menos 2 puntos vigente al momento del pago.
 - Lo implementado y lo descartado a propósito en la plantilla ICA está en `CLAUDE.md` ("Sanciones", "Intereses de mora").
@@ -225,11 +265,15 @@ Los designa el municipio por resolución (o lo pide el contribuyente y la admini
 
 - **Retención y autorretención reutilizan casi todo lo que ya existe**:
   - La tabla (tarifa × base, o actividad × base × tarifa) es un `RepeatableGroup`. Cuando el municipio no pide actividades, es solo una o varias filas de base y tarifa.
+  - Omiten la lógica de clausura y de pronto pago, que no existen en ninguna de las dos.
   - Los helpers `fechaLimite(año, periodo, documento)`, `diasDeMora` y `mesesDeMora` ya reciben el periodo. En el ICA anual es `const periodo = 1`; aquí sale del bimestre elegido.
   - El banco `FechasMaximasPresentacion` ya tiene las listas `reteica` y `autoretencionIca`, hoy vacías a propósito (no inventar plazos).
   - El redondeo al mil y el patrón de sanción e intereses en el `logic.script` del renglón.
 - **La diferencia de fondo es el pago**: el total a pagar tiene que ser el 100% (sin pago parcial) y no hay saldo a favor.
 - **El tipo de declaración** (normal, extemporánea, corrección, respuesta a emplazamiento o a auto) decide qué sanción aplica. Es la misma pieza que hoy falta para el art. 642 en el ICA anual.
+- **Bloqueo de periodos**: una corrección exige el ID de una declaración inicial aprobada.
+- **Herencia de saldos**: en una corrección, el sistema debe traer automáticamente como crédito lo ya pagado en la declaración inicial.
+- **Exclusión mutua**: en el frontend, o se cobra extemporaneidad (llegó tarde) o se cobra corrección (se equivocó).
 - **Plantilla base + ajuste por municipio**: como no hay formulario nacional, la plantilla debe partir de lo común y dejar opcionales las variaciones (actividades sí o no, complementarios, pagos a no residentes, formulario conjunto de retención y autorretención).
 - **Falta el contrato con el consumidor**: `PAYLOAD_SCHEMA` solo describe `DeclaracionIcaE`. `retencion_industria_comercio` y `autorretencion` arrancan en blanco en el wizard y no tienen payload definido.
 
@@ -240,6 +284,7 @@ Todos verificados el 2026-09-22. Revisar antes de reutilizarlos.
 | Dato | Valor | Vigencia |
 |---|---|---|
 | UVT | $52.374 | 2026 |
+| Sanción mínima (10 UVT) | $523.740 | 2026 |
 | Base mínima ReteICA Bogotá | Servicios 4 UVT · compras 27 UVT | 2026 |
 | Base mínima ReteICA Barranquilla | Servicios 4 UVT · compras 27 UVT | 2026 |
 | Base mínima ReteICA Cali | Servicios 3 UVT · compras 15 UVT | 2026 |
@@ -253,6 +298,9 @@ Todos verificados el 2026-09-22. Revisar antes de reutilizarlos.
 - El único formulario de **retención** leído completo, renglón por renglón, es el de **Medellín**. Lo de las demás ciudades sale de fuentes secundarias y de las páginas de las alcaldías, no del formulario. **Los formularios reales de los municipios con los que trabaja el usuario valen más que este documento**: si aparecen, agregarlos aquí.
 - No se leyó completo ningún formulario de **autorretención** (el de Medellín es un manual de portal sin renglones numerados).
 - Umbral exacto a partir del cual un contribuyente declara bimestralmente en Bogotá: no verificado.
+- Lo incorporado el 2026-09-24 (tipos de declaración y clausura, descuento por pronto pago, reglas de sistema de sanciones) no trae fuente citada; confirmar con el estatuto de cada municipio.
+- **Art. 688 ETN** como base del emplazamiento para corregir (sección 5): confirmar el artículo exacto (posible confusión con el art. 685).
+- El renglón 2 del formulario de Medellín lista más opciones que Inicial y Corrección (extemporánea, respuesta a emplazamiento, respuesta a auto); confirmar si el sistema las modela como campos de contexto y no como otro tipo de declaración.
 
 ## Fuentes
 
@@ -271,4 +319,5 @@ Todos verificados el 2026-09-22. Revisar antes de reutilizarlos.
 - [Actualícese: descuento por ICA tras la Ley 2277 de 2022](https://actualicese.com/descuento-por-industria-y-comercio-estos-son-los-cambios-de-la-reforma-tributaria-2022/)
 - [DIAN: declaración anual consolidada del Régimen Simple](https://micrositios.dian.gov.co/regimen-simple-tributacion/declaracion-anual-consolidada-rst/)
 - [Ley 788 de 2002 (art. 59)](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=7260)
+- Estatuto Tributario Nacional (arts. 589, 641, 644, 647, 688, 715)
 - [Ámbito Jurídico: hecho generador de avisos y tableros](https://www.ambitojuridico.com/noticias/tributario/asi-se-determina-el-hecho-generador-del-impuesto-de-avisos-y-tableros-1104-am)
