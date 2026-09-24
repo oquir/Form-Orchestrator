@@ -21,7 +21,6 @@ export function GroupChecksEditor({ group }: GroupChecksEditorProps) {
     toggleOpen,
     checks,
     activeCount,
-    candidates,
     knownNames,
     formScript,
     addCheck,
@@ -95,7 +94,6 @@ export function GroupChecksEditor({ group }: GroupChecksEditorProps) {
                 rows={4}
                 knownNames={knownNames}
                 placeholder={CHECK_PLACEHOLDER}
-                insertCandidates={candidates}
                 onChange={(next) => patchCheck(check.id, { script: next })}
               />
 
