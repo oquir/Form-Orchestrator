@@ -36,7 +36,14 @@ function skipQuoted(source: string, start: number, quote: string): number {
   return source.length;
 }
 
-export function scanScript(source: string, knownNames: Set<string>): ScanResult {
+// El patron es parametro por la migracion de la sintaxis vieja de una llave, que recorre con este
+// mismo codigo: lo delicado es distinguir codigo de texto, y copiarlo dejaria dos sitios que
+// arreglar. Tiene que llevar la bandera sticky, porque se prueba en cada llave y no se busca.
+export function scanScript(
+  source: string,
+  knownNames: Set<string>,
+  pattern: RegExp = REF_PATTERN,
+): ScanResult {
   const refs: ScriptRef[] = [];
   const pieces: string[] = [];
   const stack: ScanFrame[] = [{ kind: "code", depth: 0 }];
@@ -94,8 +101,8 @@ export function scanScript(source: string, knownNames: Set<string>): ScanResult 
     }
 
     if (char === "{") {
-      REF_PATTERN.lastIndex = i;
-      const match: RegExpExecArray | null = REF_PATTERN.exec(source);
+      pattern.lastIndex = i;
+      const match: RegExpExecArray | null = pattern.exec(source);
 
       if (match) {
         const name: string = match[1];
