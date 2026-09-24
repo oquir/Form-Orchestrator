@@ -130,13 +130,16 @@ export function validateFieldScript(
 }
 
 // El preludio no puede leer campos: es funciones y constantes puras, y los valores entran por
-// argumento. Sin esta regla habria que decidir que significa {ingresos} fuera de todo ambito, y
+// argumento. Sin esta regla habria que decidir que significa {{ingresos}} fuera de todo ambito, y
 // dentro de un grupo repetible esa pregunta no tiene una respuesta unica.
-export function validatePrelude(source: string, knownNames: Set<string>): PreludeValidation {
+//
+// Cuenta cualquier {{x}}, sea campo o no: aca ninguno puede sustituirse, y todos rompen igual.
+// Con alguno presente no se revisa la sintaxis, porque el error seria ese mismo {{x}} otra vez.
+export function validatePrelude(source: string): PreludeValidation {
   // El codigo sustituido se descarta: escanear es la unica forma de ver si nombro algun campo.
-  const refs: ScriptRef[] = scanScript(source, knownNames).refs.filter((ref) => ref.known);
+  const refs: ScriptRef[] = scanScript(source, new Set<string>()).refs;
   const isEmpty: boolean = source.trim().length === 0;
-  const error: string | null = isEmpty ? null : checkScriptSyntax(source);
+  const error: string | null = isEmpty || refs.length > 0 ? null : checkScriptSyntax(source);
 
   return { refs, error, isEmpty, isValid: error === null && refs.length === 0 };
 }

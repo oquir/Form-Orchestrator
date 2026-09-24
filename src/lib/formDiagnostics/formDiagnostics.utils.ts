@@ -15,6 +15,7 @@ import {
   checkScriptSyntax,
   compileScript,
   composeScriptBody,
+  fieldRefText,
   validatePrelude,
 } from "../fieldScript/fieldScript";
 import { enabledChecks } from "../groupCheck/groupCheck";
@@ -101,8 +102,8 @@ export function regexError(source: string): string | null {
   }
 }
 
-export function checkPrelude(formScript: string, knownNames: Set<string>): PreludeCheck {
-  const validation = validatePrelude(formScript, knownNames);
+export function checkPrelude(formScript: string): PreludeCheck {
+  const validation = validatePrelude(formScript);
   const target: ProblemTarget = { kind: "prelude" };
   const problems: ProblemDraft[] = [];
 
@@ -116,7 +117,7 @@ export function checkPrelude(formScript: string, knownNames: Set<string>): Prelu
   }
 
   if (validation.refs.length > 0) {
-    const names: string[] = [...new Set(validation.refs.map((ref) => `{${ref.name}}`))];
+    const names: string[] = [...new Set(validation.refs.map((ref) => fieldRefText(ref.name)))];
     problems.push({
       severity: "error",
       where: PRELUDE_WHERE,
@@ -126,8 +127,9 @@ export function checkPrelude(formScript: string, knownNames: Set<string>): Prelu
   }
 
   // Con el preludio roto los scripts se validan sin el: si no, su error se repetiria en cada campo
-  // del formulario en vez de reportarse una sola vez.
-  return { problems, prelude: validation.error === null ? formScript : undefined };
+  // del formulario en vez de reportarse una sola vez. Roto incluye leer campos: un {{x}} ahi
+  // tampoco compila pegado delante de cada script.
+  return { problems, prelude: validation.isValid ? formScript : undefined };
 }
 
 // Mismo criterio que validateFieldScript, pero separando de quien es el error: el del script solo

@@ -26,9 +26,9 @@ import {
 export function diagnoseForm(input: DiagnoseFormInput): FormProblem[] {
   const items: LocatedItems = locateItems(input);
   // Los mismos nombres que arma buildFormExport: los dos lienzos comparten espacio de nombres, asi
-  // que cada {x} se juzga con el mismo criterio con que se va a compilar.
+  // que cada {{x}} se juzga con el mismo criterio con que se va a compilar.
   const knownNames: Set<string> = new Set(items.fields.map((located) => located.field.name));
-  const prelude: PreludeCheck = checkPrelude(input.formScript, knownNames);
+  const prelude: PreludeCheck = checkPrelude(input.formScript);
 
   const drafts: ProblemDraft[] = [
     ...prelude.problems,

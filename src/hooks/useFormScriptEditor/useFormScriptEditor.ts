@@ -9,14 +9,11 @@ export function useFormScriptEditor(): UseFormScriptEditorResult {
   const formScript = useFormStore((state) => state.formScript);
   const setFormScript = useFormStore((state) => state.setFormScript);
 
-  // Los dos lienzos comparten espacio de nombres, asi que el aviso de "esto es un campo" tiene que
-  // mirarlos juntos.
+  // Solo para pintar: en el preludio ningun {{x}} es legal, sea campo o no, asi que la validacion
+  // no los necesita. El editor si, para que un campo real se vea como ficha y no como un typo.
   const knownNames: Set<string> = useKnownFieldNames();
 
-  const validation: PreludeValidation = useMemo(
-    () => validatePrelude(formScript, knownNames),
-    [formScript, knownNames],
-  );
+  const validation: PreludeValidation = useMemo(() => validatePrelude(formScript), [formScript]);
 
   return {
     formScript,
