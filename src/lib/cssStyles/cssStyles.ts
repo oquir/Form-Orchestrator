@@ -62,9 +62,9 @@ export function resolveTooltipStyles(tooltip: FieldTooltip): CssStyleMap {
   return parseCssText(tooltip.customCss ?? "");
 }
 
-// Las declaraciones que el navegador no reconoce, para avisar donde se escriben sin bloquear --
-// misma regla que un {campo} desconocido en un script. CSS.supports es API de navegador: falta en
-// un script de verificacion con tsx, y sin la guarda ahi explotaria.
+// Las declaraciones que el navegador no reconoce, para avisar donde se escriben sin bloquear: lo
+// que este no reconoce puede funcionar en el del consumidor. CSS.supports es API de navegador:
+// falta en un script de verificacion con tsx, y sin la guarda ahi explotaria.
 export function unsupportedDeclarations(text: string): string[] {
   if (typeof CSS === "undefined" || typeof CSS.supports !== "function") return [];
 
