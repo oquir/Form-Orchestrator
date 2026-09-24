@@ -14,7 +14,7 @@ export function RuleEffectRow({ effect, knownNames, onChange, onRemove }: RuleEf
             value={effect.source}
             rows={2}
             knownNames={knownNames}
-            placeholder="return {base_gravable} * 0.007;"
+            placeholder="return {{base_gravable}} * 0.007;"
             onChange={(source) => onChange({ id: effect.id, kind: "script", source })}
           />
         ) : (
