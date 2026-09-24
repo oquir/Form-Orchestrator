@@ -6,7 +6,7 @@ import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ConditionEditor } from "../ConditionEditor/ConditionEditor";
 import { FieldRulesEditor } from "../FieldRulesEditor/FieldRulesEditor";
 import { FieldScriptEditor } from "../FieldScriptEditor/FieldScriptEditor";
-import { HINT_CLASSES } from "./LogicPanel.constants";
+import { HINT_CLASSES, READ_ONLY_DESCRIPTION } from "./LogicPanel.constants";
 
 export function LogicPanel({ field }: { field: CanvasField }) {
   const formSteps = useFormStore((state) => state.formSteps);
@@ -36,6 +36,7 @@ export function LogicPanel({ field }: { field: CanvasField }) {
     <div className="flex flex-col gap-3">
       <PanelSection
         title="Solo lectura"
+        description={READ_ONLY_DESCRIPTION}
         aside={
           <ToggleSwitch
             checked={isAlwaysDisabled}
@@ -43,12 +44,7 @@ export function LogicPanel({ field }: { field: CanvasField }) {
             label="Dejar el campo siempre deshabilitado"
           />
         }
-      >
-        <p className={HINT_CLASSES}>
-          El campo se muestra pero el usuario no puede editarlo. Útil para valores calculados o
-          informativos.
-        </p>
-      </PanelSection>
+      />
 
       <ConditionEditor field={field} otherFields={otherFields} kind="visible" />
 
