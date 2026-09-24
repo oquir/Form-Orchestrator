@@ -13,3 +13,6 @@ export const DECLARACIONES: { kind: DeclaracionKind; label: string }[] = [
   { kind: "reteica", label: "Retención (ReteICA)" },
   { kind: "autoretencionIca", label: "Autorretención" },
 ];
+
+export const TABLE_DESCRIPTION: string =
+  "La tabla con la que fechaLimite(), diasDeMora() y mesesDeMora() calculan en el simulador. La generada se recalcula sola con el año en curso; editarla o pegar una guarda una copia tuya.";

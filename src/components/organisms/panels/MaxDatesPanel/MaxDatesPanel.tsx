@@ -14,6 +14,7 @@ import {
   DECLARACIONES,
   HINT_CLASSES,
   INPUT_CLASSES,
+  TABLE_DESCRIPTION,
 } from "./MaxDatesPanel.constants";
 
 export function MaxDatesPanel() {
@@ -46,6 +47,7 @@ export function MaxDatesPanel() {
 
       <PanelSection
         title="Tabla en uso"
+        description={TABLE_DESCRIPTION}
         aside={
           <span className={isCustom ? BADGE_LOADED_CLASSES : BADGE_EMPTY_CLASSES}>
             {isCustom ? "Cargada" : "Generada"}
