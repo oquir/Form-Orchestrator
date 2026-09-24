@@ -46,8 +46,8 @@ export const SCRIPT_THEME = EditorView.theme({
     color: "var(--ui-fg-strong)",
   },
 
-  // Una referencia se pinta como ficha para que se lea distinta del JS que la rodea, que es
-  // exactamente el problema que tiene la sintaxis: {x} tambien es una llave de JavaScript.
+  // Una referencia se pinta como ficha para que se lea distinta del JS que la rodea sin tener que
+  // contar llaves. La desconocida va en rojo: es un error, no un aviso.
   ".cm-field-ref": {
     backgroundColor: "var(--ui-brand-surface)",
     color: "var(--ui-brand-fg)",
@@ -55,8 +55,8 @@ export const SCRIPT_THEME = EditorView.theme({
     padding: "1px 0",
   },
   ".cm-field-ref-unknown": {
-    color: "var(--ui-fg-muted)",
-    textDecoration: "underline dotted var(--ui-warning)",
+    color: "var(--ui-danger)",
+    textDecoration: "underline dotted var(--ui-danger)",
   },
 });
 
