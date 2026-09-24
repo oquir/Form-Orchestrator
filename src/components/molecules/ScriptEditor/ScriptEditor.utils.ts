@@ -4,7 +4,7 @@ import { RangeSetBuilder } from "@codemirror/state";
 import type { DecorationSet, EditorView, ViewUpdate } from "@codemirror/view";
 import { Decoration, ViewPlugin } from "@codemirror/view";
 import { SCRIPT_CONTEXT_PARAMS, SCRIPT_HELPER_NAMES } from "../../../constants/fieldScript";
-import { compileScript } from "../../../lib/fieldScript/fieldScript";
+import { compileScript, fieldRefText } from "../../../lib/fieldScript/fieldScript";
 import type { ScriptRef } from "../../../types/fieldScript";
 
 // Las tres extensiones que saben del lenguaje del proyecto: pintar las referencias, ofrecerlas al
@@ -50,16 +50,16 @@ export function fieldRefHighlighter(getKnownNames: () => Set<string>) {
   );
 }
 
-// Al aceptar se cierra la llave, salvo que ya este cerrada: si no, escribir "{" con el cierre
-// automatico de brackets y despues elegir del desplegable dejaria "{ingresos}}".
+// Al aceptar se cierran las llaves que falten. Escribir "{{" con el cierre automatico de brackets
+// deja "{{|}}", y sin mirar lo que ya hay despues del cursor quedaria "{{ingresos}}}}".
 function applyFieldRef(name: string) {
   return (view: EditorView, _completion: Completion, from: number, to: number): void => {
-    const alreadyClosed: boolean = view.state.doc.sliceString(to, to + 1) === "}";
-    const insert: string = alreadyClosed ? name : `${name}}`;
+    const after: string = view.state.doc.sliceString(to, to + 2);
+    const closing: string = after === "}}" ? "" : after.startsWith("}") ? "}" : "}}";
 
     view.dispatch({
-      changes: { from, to, insert },
-      selection: { anchor: from + name.length + 1 },
+      changes: { from, to, insert: `${name}${closing}` },
+      selection: { anchor: from + name.length + 2 },
     });
   };
 }
@@ -74,22 +74,46 @@ export function scriptCompletions(getKnownNames: () => Set<string>) {
   ];
 
   return (context: CompletionContext): CompletionResult | null => {
-    const insideBraces = context.matchBefore(/\{[A-Za-z0-9_]*/);
+    // Dentro de {{ solo campos. Una llave sola ya no abre la lista: es JS -- un bloque, un
+    // objeto -- y ofrecer campos ahi hacia que el Enter para saltar de linea metiera uno.
+    const insideRef = context.matchBefore(/\{\{[ \t]*\w*/);
 
-    if (insideBraces) {
+    if (insideRef) {
+      const typed: number = /\w*$/.exec(insideRef.text)?.[0].length ?? 0;
+
       return {
-        from: insideBraces.from + 1,
+        from: insideRef.to - typed,
         options: [...getKnownNames()].map((name) => ({
           label: name,
           type: "variable",
           apply: applyFieldRef(name),
         })),
-        validFor: /^[A-Za-z0-9_]*$/,
+        validFor: /^\w*$/,
       };
     }
 
     const word = context.matchBefore(/\w+/);
-    if (!word || (word.from === word.to && !context.explicit)) return null;
+
+    // Ctrl+Espacio muestra todo lo que se puede usar aca, y los campos entran ya envueltos en sus
+    // llaves. Mientras se escribe solo salen las funciones: con los campos en cada palabra, un
+    // Enter al final del nombre de una variable la cambiaria por un campo.
+    if (context.explicit) {
+      return {
+        from: word?.from ?? context.pos,
+        options: [
+          ...scopeOptions,
+          ...[...getKnownNames()].map((name) => ({
+            label: name,
+            type: "variable",
+            detail: "campo",
+            apply: fieldRefText(name),
+          })),
+        ],
+        validFor: /^\w*$/,
+      };
+    }
+
+    if (!word) return null;
 
     return { from: word.from, options: scopeOptions, validFor: /^\w*$/ };
   };
