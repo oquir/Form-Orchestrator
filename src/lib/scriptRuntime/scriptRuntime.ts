@@ -53,7 +53,7 @@ export function coerceValues(values: RuntimeValues, model: RuntimeModel): Runtim
   const coerced: RuntimeValues = {};
 
   // Se recorre el modelo entero y no solo las claves que trae `values`: un campo que el usuario
-  // no toco todavia no tiene clave, y sin esta vuelta {campo} daria undefined en vez de 0. En una
+  // no toco todavia no tiene clave, y sin esta vuelta {{campo}} daria undefined en vez de 0. En una
   // resta ese undefined se vuelve NaN y apaga toda la cadena de renglones que venga detras, que
   // es exactamente como el renglon 35 -- el que no tiene formula -- dejaba en null al 38.
   for (const [name, field] of model.fieldsByName) {
