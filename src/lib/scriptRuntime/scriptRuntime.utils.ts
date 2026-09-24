@@ -38,9 +38,9 @@ export function compileCached(compiled: string, prelude: string): ScriptFunction
   return built;
 }
 
-// Lo que ve el script bajo {campo}, coaccionado por el tipo del campo que lo declara. Sin esto
-// {a} + {b} sobre dos numeros concatena los textos que vienen del input -- "5" + "3" es "53" --,
-// que es el peor error posible en una calculadora de impuestos porque no falla, miente.
+// Lo que ve el script bajo {{campo}}, coaccionado por el tipo del campo que lo declara. Sin esto
+// {{a}} + {{b}} sobre dos numeros concatena los textos que vienen del input -- "5" + "3" es
+// "53" --, que es el peor error posible en una calculadora de impuestos porque no falla, miente.
 export function coerceForScript(value: unknown, type: string): unknown {
   // La columna de un grupo repetible llega como array; se coacciona elemento por elemento con el
   // tipo de la columna, no del array.
