@@ -3,7 +3,7 @@ export interface ScriptEditorProps {
   id: string;
   ariaLabel: string;
   value: string;
-  // Con que nombres se sustituye un {campo}: alimenta el pintado, el autocompletado y el aviso.
+  // Con que nombres se sustituye un {{campo}}: alimenta el pintado, el autocompletado y el error.
   knownNames: Set<string>;
   placeholder?: string;
   minHeight?: string;
