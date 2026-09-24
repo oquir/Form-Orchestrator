@@ -22,3 +22,6 @@ export const DATE_HELPERS_HINT: string =
 // en UVT, asi que el respaldo lo pone el autor y queda a la vista en el script.
 export const VALUE_HELPERS_HINT: string =
   "uvt(año) y smmlv(año) dan la UVT y el salario mínimo; sin año usan el que corre. Salen de la pestaña Catálogos y devuelven null si ese año no está cargado, así que conviene escribir uvt() ?? 52374.";
+
+export const SCRIPT_DESCRIPTION: string =
+  "Calcula el valor de este campo a partir de otros, con JavaScript. Se vuelve a correr cada vez que cambia algo que lee, y lo que devuelve reemplaza lo que haya escrito el usuario.";

@@ -6,6 +6,7 @@ import {
   ERROR_CLASSES,
   HINT_CLASSES,
   READS_CLASSES,
+  SCRIPT_DESCRIPTION,
   SCRIPT_HINT,
   SCRIPT_PLACEHOLDER,
   SCRIPT_SCOPE_HINT,
@@ -19,7 +20,7 @@ export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps)
     useFieldScriptEditor({ field, candidates });
 
   return (
-    <PanelSection title="Cálculo del campo">
+    <PanelSection title="Cálculo del campo" description={SCRIPT_DESCRIPTION}>
       <ScriptInput
         id="field-script"
         label="Script"
