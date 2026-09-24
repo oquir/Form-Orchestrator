@@ -13,3 +13,6 @@ export const ROW_CLASSES: string =
   "grid grid-cols-[auto_1fr_1fr] gap-x-3 border-b border-border/60 py-1 text-[11px] tabular-nums last:border-b-0";
 
 export const PASTE_PLACEHOLDER: string = '[{ "anio": 2026, "uvt": 52374, "smmlv": 1750905 }, ...]';
+
+export const VALORES_DESCRIPTION: string =
+  "Los valores por año que devuelven uvt() y smmlv() en los scripts del simulador. Sin cargar nada se usa una tabla de fábrica con los valores publicados; en el aplicativo real llegan por API.";

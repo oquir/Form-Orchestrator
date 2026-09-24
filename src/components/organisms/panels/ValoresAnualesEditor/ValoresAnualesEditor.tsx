@@ -26,6 +26,7 @@ import {
   PASTE_PLACEHOLDER,
   ROW_CLASSES,
   TEXTAREA_CLASSES,
+  VALORES_DESCRIPTION,
   WARNING_CLASSES,
 } from "./ValoresAnualesEditor.constants";
 
@@ -71,6 +72,7 @@ export function ValoresAnualesEditor() {
   return (
     <PanelSection
       title="UVT y salario mínimo"
+      description={VALORES_DESCRIPTION}
       aside={
         <span className={cargadas > 0 ? BADGE_LOADED_CLASSES : BADGE_EMPTY_CLASSES}>
           {cargadas > 0 ? `${cargadas} años` : "Por defecto"}
