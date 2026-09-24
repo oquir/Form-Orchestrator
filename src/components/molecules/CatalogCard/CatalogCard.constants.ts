@@ -9,3 +9,6 @@ export {
 } from "../../../constants/uiClasses";
 
 export const PASTE_PLACEHOLDER: string = '[{ "id": "05", "nombre": "Antioquia" }, ...]';
+
+export const CATALOG_DESCRIPTION: string =
+  "Las opciones con que el simulador llena los campos que usan este catálogo. Solo sirven para probar: en el aplicativo real las trae su endpoint y nunca viajan en el JSON.";

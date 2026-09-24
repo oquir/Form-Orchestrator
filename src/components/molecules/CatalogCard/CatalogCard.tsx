@@ -7,6 +7,7 @@ import {
   ACTION_CLASSES,
   BADGE_EMPTY_CLASSES,
   BADGE_LOADED_CLASSES,
+  CATALOG_DESCRIPTION,
   ERROR_CLASSES,
   HINT_CLASSES,
   INPUT_CLASSES,
@@ -44,6 +45,7 @@ export function CatalogCard({ catalog, stored }: CatalogCardProps) {
   return (
     <PanelSection
       title={catalog.label}
+      description={CATALOG_DESCRIPTION}
       aside={<span className={loaded ? BADGE_LOADED_CLASSES : BADGE_EMPTY_CLASSES}>{badge}</span>}
     >
       <div className="flex items-center justify-between gap-2">
