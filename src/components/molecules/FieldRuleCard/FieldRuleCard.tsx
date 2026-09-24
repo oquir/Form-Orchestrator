@@ -142,7 +142,6 @@ export function FieldRuleCard({
           <RuleEffectRow
             key={effect.id}
             effect={effect}
-            candidates={candidates}
             knownNames={knownNames}
             onChange={(next) => rules.updateEffect(rule.id, effect.id, next)}
             onRemove={() => rules.removeEffect(rule.id, effect.id)}
