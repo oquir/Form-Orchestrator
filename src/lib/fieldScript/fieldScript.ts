@@ -20,6 +20,12 @@ import { scanScript } from "./fieldScript.utils";
 // Ninguna funcion de aca lanza: el error viaja en el resultado, porque el editor las llama en
 // cada tecla y necesita pintar el mensaje sin envolver todo en try/catch.
 
+// El unico sitio que escribe la sintaxis de una referencia: los mensajes, el autocompletado y la
+// migracion la arman con esto, asi que cambiarla otra vez seria tocar esta linea y REF_PATTERN.
+export function fieldRefText(name: string): string {
+  return `{{${name}}}`;
+}
+
 export function compileScript(source: string, knownNames: Set<string>): ScriptCompileResult {
   const { code, refs } = scanScript(source, knownNames);
   const reads: string[] = [];
