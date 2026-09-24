@@ -10,3 +10,6 @@ export const FILE_FORMAT_PRESETS: FileFormatPreset[] = [
   { id: "zip", label: "ZIP/RAR", tokens: [".zip", ".rar"] },
   { id: "txt", label: "Texto", tokens: [".txt"] },
 ];
+
+export const FILE_DESCRIPTION: string =
+  "Qué tipos de archivo acepta el campo y cuánto puede pesar cada uno. Los dos límites quedan en su esquema de validación, así que el aplicativo los hace cumplir al adjuntar.";

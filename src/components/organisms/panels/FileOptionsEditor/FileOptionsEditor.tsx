@@ -1,6 +1,6 @@
 import { useFormStore } from "../../../../store/formStore";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
-import { FILE_FORMAT_PRESETS } from "./FileOptionsEditor.constants";
+import { FILE_DESCRIPTION, FILE_FORMAT_PRESETS } from "./FileOptionsEditor.constants";
 import type { FileOptionsEditorProps } from "./FileOptionsEditor.types";
 import { togglePreset } from "./FileOptionsEditor.utils";
 
@@ -10,7 +10,7 @@ export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
   const formatsText = config.acceptedFormats.join(", ");
 
   return (
-    <PanelSection title="Archivo">
+    <PanelSection title="Archivo" description={FILE_DESCRIPTION}>
       <div className="flex flex-col gap-2">
         <label
           htmlFor="field-file-formats"
