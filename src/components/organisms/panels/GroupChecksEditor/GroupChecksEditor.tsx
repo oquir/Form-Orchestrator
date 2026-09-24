@@ -99,13 +99,6 @@ export function GroupChecksEditor({ group }: GroupChecksEditorProps) {
 
               {validation.error && <p className={ERROR_CLASSES}>{validation.error}</p>}
 
-              {validation.unknown.length > 0 && (
-                <p className={ERROR_CLASSES}>
-                  {validation.unknown.map((name) => `{${name}}`).join(", ")} no coincide con ningún
-                  campo.
-                </p>
-              )}
-
               <input
                 type="text"
                 value={check.message}
