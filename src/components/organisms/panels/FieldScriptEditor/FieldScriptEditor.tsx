@@ -27,7 +27,6 @@ export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps)
         rows={8}
         knownNames={knownNames}
         placeholder={SCRIPT_PLACEHOLDER}
-        insertCandidates={candidates}
         onChange={handleChange}
       />
 
