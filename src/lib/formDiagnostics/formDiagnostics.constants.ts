@@ -13,7 +13,7 @@ export const PRELUDE_READS_FIELDS_MESSAGE: string =
   "El script del formulario no puede leer campos, y lee:";
 
 export const UNKNOWN_REFS_HINT: string =
-  "Si era un campo, ese cálculo no va a funcionar; si es una desestructuración, se puede ignorar.";
+  "Si el campo se borró o cambió de nombre, hay que corregir la referencia.";
 
 export const INVALID_PATTERN_MESSAGE: string = "La expresión regular no es válida:";
 
