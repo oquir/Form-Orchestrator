@@ -4,11 +4,15 @@ import { RangeSetBuilder } from "@codemirror/state";
 import type { DecorationSet, EditorView, ViewUpdate } from "@codemirror/view";
 import { Decoration, ViewPlugin } from "@codemirror/view";
 import { SCRIPT_CONTEXT_PARAMS, SCRIPT_HELPER_NAMES } from "../../../constants/fieldScript";
-import { compileScript, fieldRefText } from "../../../lib/fieldScript/fieldScript";
+import {
+  compileScript,
+  fieldRefText,
+  unknownRefsMessage,
+} from "../../../lib/fieldScript/fieldScript";
 import type { ScriptRef } from "../../../types/fieldScript";
 
 // Las tres extensiones que saben del lenguaje del proyecto: pintar las referencias, ofrecerlas al
-// autocompletar y avisar de las que no existen. Todas leen los nombres con un getter y no con un
+// autocompletar y marcar las que no existen. Todas leen los nombres con un getter y no con un
 // valor: las extensiones se crean una sola vez al montar, y recrearlas cuando alguien agrega un
 // campo tiraria el estado del editor -- cursor, historial, el desplegable abierto.
 
@@ -119,16 +123,17 @@ export function scriptCompletions(getKnownNames: () => Set<string>) {
   };
 }
 
-// Solo se marcan las referencias desconocidas. El error de sintaxis se reporta como texto en el
-// panel y no aca: el editor solo tiene la fuente con {campo}, que no es JS, y lo que de verdad se
-// compila es la version sustituida, donde las posiciones ya no coinciden con las de esta.
+// Una referencia que no es un campo es error: con llaves dobles no hay JS legitimo que se escriba
+// asi. El error de sintaxis se reporta como texto en el panel y no aca: el editor solo tiene la
+// fuente con {{campo}}, que no es JS, y lo que de verdad se compila es la version sustituida,
+// donde las posiciones ya no coinciden con las de esta.
 export function unknownRefDiagnostics(view: EditorView, knownNames: Set<string>): Diagnostic[] {
   return scriptRefs(view.state.doc.toString(), knownNames)
     .filter((ref) => !ref.known)
     .map((ref) => ({
       from: ref.start,
       to: ref.end,
-      severity: "warning" as const,
-      message: `{${ref.name}} no coincide con ningún campo: se deja tal cual como JavaScript.`,
+      severity: "error" as const,
+      message: unknownRefsMessage([ref.name]),
     }));
 }
