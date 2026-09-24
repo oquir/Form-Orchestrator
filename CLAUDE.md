@@ -15,7 +15,7 @@ Known gaps:
 - `validations.pattern` isn't validated while typing (a `try { new RegExp(value) }` guard in `ValidationsPanel` was offered, not built), but the export review blocks an invalid regex from shipping.
 - **Renglón 31 hardcodes two catalog ids**: `TIPO_SANCION_OTRA = "4"` and `TIPO_SANCION_EXTEMPORANEIDAD = "1"` in `baseTemplate.constants.ts`. Reordering `tipos_sancion` breaks both in silence. Fix (read the catalog bank, not `lib/mockCatalog`) is scoped and deferred.
 - **Two catalog-fed selects still use path-inference instead of `dataSource`**: `periodo_anio`, `clasificacion_contribuyente` (+ the `tipo_representante` toggle). `CATALOGS` declares 9 names, only 8 are wired. `juegos_permitidos` has no field pointing at it yet. Catalog ids are unconfirmed contract names with the consumer.
-- **Renglones 31 and 37 need the intro modal** (`{periodo_anio}` lives there). The wizard always creates it for `industria_comercio` (step 2 is skipped), but nothing stops deleting those intro steps afterwards. Without them the field stays typeable but silently uncalculated.
+- **Renglones 31 and 37 need the intro modal** (`{{periodo_anio}}` lives there). The wizard always creates it for `industria_comercio` (step 2 is skipped), but nothing stops deleting those intro steps afterwards. Without them the field stays typeable but uncalculated — no longer silently: the unknown `{{periodo_anio}}` shows red and the export review blocks.
 - Selects mapped to `number` leaves show a permanent `⚠ tipo` warning (a two-line fix in `fieldMatchesSchemaType` has been offered, not approved).
 - **Moving a field out of a repeatable group to another step keeps its `apiBinding`** — `moveFieldsToStep` → `planLanding` copies the field as is, contrary to the rule in "Repeatable groups". Shared by drag-to-tab and "Mover a paso". One-line fix, not applied: it changes single-field transfers too.
 ## The right panel (`RightSidebar`)
@@ -176,7 +176,7 @@ Settled:
 Settled:
 - **Export carries one flat `CssStyleMap`** per field/row/tooltip, not named properties + a class string. `textColor` → `color` only on export; internal name stays `textColor`.
 - **The free text wins** (`{...namedProperties, ...parseCssText(customCss)}`, ordinary cascade) — canvas paints what the consumer will paint.
-- **No sanitizer** — CSS via React `style` executes nothing; `unsupportedDeclarations` is informational, not blocking, same treatment as an unrecognized `{campo}`.
+- **No sanitizer** — CSS via React `style` executes nothing; `unsupportedDeclarations` is informational, not blocking (a declaration this browser rejects may work in the consumer's).
 - **Structural placement always wins**, enforced by DOM node separation (field's `gridColumn` lives on a different node than `customCss`) or spread order (row's structural props spread after resolved styles).
 - Canvas splits `marginTop`/`marginBottom` onto the spacing wrapper and the rest onto the `<button>` that paints (applying custom CSS to the wrapper would be invisible under the button's opaque background). `CanvasRow`/`TooltipBubble` have one node each, apply the map directly.
 - Simulator doesn't re-resolve anything — consumes `ExportedField/Row/Tooltip.styles` as already-resolved objects.
@@ -236,25 +236,23 @@ Settled:
 
 ## The field script (`logic.script`, `formScript`, `logic.rules`)
 
-**A field's value is computed in exactly one place: `logic.script`**, JS with `{campo}` to read other fields. Replaced a self-contained formula language + rules editor + an unexecuted `logic.typeScript` textarea — three mechanisms for one question.
+**A field's value is computed in exactly one place: `logic.script`**, JS with `{{campo}}` to read other fields. Replaced a self-contained formula language + rules editor + an unexecuted `logic.typeScript` textarea — three mechanisms for one question.
 
-`src/lib/fieldScript/fieldScript.ts`: `compileScript`, `validateFieldScript`, `validatePrelude`, `buildScriptFunction`, `composeScriptBody`, `preludeLineOffset`, `normalizeScriptResult`. **No function throws** — errors travel in the result since the editor calls them on every keystroke.
+`src/lib/fieldScript/fieldScript.ts`: `compileScript`, `validateFieldScript`, `validatePrelude`, `buildScriptFunction`, `composeScriptBody`, `preludeLineOffset`, `normalizeScriptResult`, `fieldRefText`, `unknownRefsMessage`, `findScriptRefs`. **No function throws** — errors travel in the result since the editor calls them on every keystroke.
 
 Contract (identical for a script and a rule effect):
 - `return` gives the value; **`return undefined` means "leave what the user typed"** (not `computed`, stays editable).
 - Scope: `value`, `index` (repetition inside a group), and helpers from `src/constants/fieldScript.ts` — `num`, `sum`, `count`, `abs`, `min`, `max`, `round`, `floor`, `ceil`, `dvNit` — passed as **named parameters**, not a container object.
-- Inside a group `{sibling}` is that row's scalar; from root `{column}` is the whole array (`sum` flattens it).
+- Inside a group `{{sibling}}` is that row's scalar; from root `{{column}}` is the whole array (`sum` flattens it).
 - Non-finite result → `null` (`normalizeScriptResult`).
 
-**Only `{x}` where `x` is an actual field name is substituted** — lets the syntax coexist with JS destructuring (`const {a} = obj` untouched). Unknown `{x}` is a **warning, not an error** (no way to tell typo from destructuring).
+**`scanScript` is a scanner, not a regex** — blind substitution broke on `{{campo}}` inside strings/comments. Skips strings/comments/template text, **substitutes inside `${...}`**. Known limit: regex literals aren't detected (now needs a regex with a field name between double braces to bite).
 
-**`scanScript` is a scanner, not a regex** — blind substitution broke on `{campo}` inside strings/comments. Skips strings/comments/template text, **substitutes inside `${...}`**. Known limit: regex literals aren't detected.
-
-`formScript` (the prelude) is form-wide, **cannot read fields** (`{campo}` invalid there — no single answer inside a repeatable group). Concatenated ahead of the body, so the compile cache absorbs the repetition; `validateFieldScript` checks the body alone first so a broken prelude reports as the form's problem, not every field's.
+`formScript` (the prelude) is form-wide, **cannot read fields** (`{{campo}}` invalid there — no single answer inside a repeatable group). Concatenated ahead of the body, so the compile cache absorbs the repetition; `validateFieldScript` checks the body alone first so a broken prelude reports as the form's problem, not every field's.
 
 `FieldRule` = `{id, label?, matchAll, when: RuleCondition[], effects: RuleEffect[]}`, effect is `{kind:"script", source}` or `{kind:"constant", value}` — **survived on purpose** (declarative condition+effect, not a second language). Run **after** the script, overwrite in list order. `src/lib/fieldRule/fieldRule.ts`, UI in `FieldRulesEditor`/`useFieldRules`.
 
-`src/lib/fieldGraph/fieldGraph.ts` unifies **four** edge sources (`visibleWhen`, `enableWhen`, `rules[].when[]`, `{campo}` refs) into one dependency graph — `buildNameToIdIndex` normalizes refs to ids, `topologicalOrder` returns `{order, unresolved, cycle}`, never throws.
+`src/lib/fieldGraph/fieldGraph.ts` unifies **four** edge sources (`visibleWhen`, `enableWhen`, `rules[].when[]`, `{{campo}}` refs) into one dependency graph — `buildNameToIdIndex` normalizes refs to ids, `topologicalOrder` returns `{order, unresolved, cycle}`, never throws.
 
 Settled:
 - **A script cycle is warned about, never blocked** (free text, refusing input mid-word fights the person typing); condition editors *do* block with an `alert` since those are picked from a list.
@@ -263,6 +261,19 @@ Settled:
 - `evaluationOrder` is **not exported** (silently appended cycle members to the end). What's exported instead is `script.reads` per field.
 - `lib/formula/` is gone except its parser, which survives in `lib/scriptMigration/` purely to open pre-migration drafts. Delete once no old drafts remain.
 - **An unparseable formula is preserved as a comment inside the script**, field falls back to `return undefined` — neither dropped nor crashes the draft (old formula editor stored invalid text too).
+
+### References are `{{campo}}` (double braces)
+
+**The single-brace `{campo}` syntax was replaced by `{{campo}}`** so a reference can't be mistaken for JS: `{a}` could be a field or a destructuring/object literal, `{{x}}` is valid JS in no expression. Spaces inside are tolerated (`{{ campo }}`), newlines never (`REF_PATTERN`). **`fieldRefText(name)` is the one place that writes the syntax** (messages, autocomplete, migration) — changing it again means that function plus `REF_PATTERN`.
+
+Settled:
+- **Only a known name is substituted, and an unknown `{{x}}` is an error, not a warning** (typo, deleted or renamed field). `validateFieldScript` checks it *before* syntax — the leftover `{{x}}` is almost always also the syntax error, and "Unexpected token '{'" says nothing — and the export review blocks on it, reported alone. The old "warning, because it might be destructuring" reasoning died with the single brace.
+- **Editors judge refs against the same names as the export**: `useKnownFieldNames()` (both canvases), used by the field script, rule effects, group checks and the prelude. They used to see `formSteps` only, which falsely flagged `{periodo_anio}` on renglones 31/37. `candidates`/dependencies/cycle stay `formSteps`-only.
+- **Any `{{x}}` in the prelude is an error, field or not** (`validatePrelude` takes no names); with one present the syntax check is skipped, and `checkPrelude` treats the prelude as broken (`isValid`, not just `error === null`) so field scripts aren't composed with it.
+- **Autocomplete**: `{{` opens the field list and closes with `}}` respecting what closeBrackets already inserted. A single `{` no longer opens it (it popped on every JS block, and Enter then accepted a field). **Ctrl+Space anywhere offers helpers + fields**, a field inserted already wrapped; plain typing offers helpers only, for the same Enter reason.
+- **The "+ Insertar campo…" select is gone** from `ScriptInput` (and so from the field script, rule effects and group checks, sidebar and right-click alike) — the autocomplete covers it.
+- **The simulator and the consumer never read the syntax**: they run `compiled` (`__v["campo"]`) and `reads`, byte-identical under both syntaxes — the change needed zero runtime code. `source` carries `{{campo}}` and is still never executed.
+- **Drafts migrate at `DRAFT_SCHEMA_VERSION` 7** (`upgradeFieldRefs` in `lib/scriptMigration/`): field scripts, rule effects, group checks and the prelude, both canvases. It rewrites **exactly what the old compiler substituted** — `findScriptRefs` runs the same scanner with the frozen `LEGACY_REF_PATTERN` (`scanScript` takes the pattern as a parameter for this) and only known names change — so a migrated script compiles to the same body. Verified with a tsx script over 34 scripts with trap cases (destructuring, strings, comments, template `${}`, regex quantifiers, unknown refs, a nameless field): identical compiled output before/after. The rewritten ICA template compiles identically too, except one comment that names `{{total_a_pagar}}`. Comments in saved scripts keep `{campo}` (the scanner skips comments, on purpose). `formulaToScript` still prints `{x}`: it is step 2→3, and step 6→7 lifts its output.
 
 ## Presentational fields (`label`, `rich_text`)
 
@@ -529,7 +540,7 @@ Settled:
 - **`diasDeMora` returns `0`, not `NaN`, with no table loaded** — a sanción must never be born from missing data.
 - Dates parsed by hand into UTC (`aUtc`) — `new Date("2025/03/31")` (local) vs `"2025-03-31"` (UTC) differ by a day depending on timezone, and a day here decides on-time vs. late. Also round-trips to catch invalid dates like 31 Feb.
 - `hoy` is a parameter, not a clock read — makes mora testable without touching system time.
-- No graph changes needed — `{campo}` inputs are already scanned as reads.
+- No graph changes needed — `{{campo}}` inputs are already scanned as reads.
 - Names come from `DATE_HELPER_NAMES` in both places (same anti-drift trick as `SCRIPT_HELPER_VALUES`).
 - Used by renglón 31 (`mesesDeMora`) and renglón 37 (`fechaLimite`, `diasDeMora`).
 
@@ -561,7 +572,7 @@ Settled:
 Same shape as the sanción: whole rule inside `logic.script` (`INTERES_MORA_SCRIPT` seed). Formula (art. 634-635 ET): **`base × (TASA_ANUAL / DIAS_ANIO) × días`**, daily/simple, rounded **up** to the thousand. Rate = tasa de usura (Superfinanciera) − 2 points, **the rate at time of payment applies to the whole delay** (why one constant is correct instead of a per-period table). Ships August 2026 value (27,66% E.A.).
 
 Settled:
-- **`const base = {valor_a_pagar};` is meant to be edited** per municipality — falls out of `{campo}` substitution for free. **Only renglón 38 is illegal** as a base (consumes the interest itself, would close a cycle); 33/34/35/25 were all checked against `fieldGraph` and don't.
+- **`const base = {{valor_a_pagar}};` is meant to be edited** per municipality — falls out of `{{campo}}` substitution for free. **Only renglón 38 is illegal** as a base (consumes the interest itself, would close a cycle); 33/34/35/25 were all checked against `fieldGraph` and don't.
 - **Default base is renglón 35** — inherits 33's `max(…,0)`, so a saldo a favor charges zero interest on a non-debt.
 - **Rounding is `ceil`, done in the script** (matches the municipality's `ROUNDUP(…;-3)`) — the one renglón whose rounding isn't the project's default round-to-nearest; `applyRounding` afterward is a no-op since the value is already a multiple of 1000.
 - **`fechaLimite` decides whether to compute at all; `diasDeMora` only supplies the number** — they look redundant but aren't: `diasDeMora=0` means either "on time" or "no table loaded", which must not be treated the same. `fechaLimite === null` → script returns `undefined`, field stays typeable (a locked `0` would be indistinguishable from a real on-time result).
@@ -619,11 +630,11 @@ Settled:
 
 **Exportar** runs `diagnoseForm` (`src/lib/formDiagnostics/`) before downloading; `useExportReview` owns when it runs and where "Ir" leads, and `ExportReviewModal` lists the problems. No problems → straight download.
 
-Errors (block the download): a field, rule-effect or enabled group-check script that doesn't compile (alone, or once composed with the prelude); a prelude that doesn't compile or reads fields; an invalid regex in `validations.pattern`, an override's `pattern` or a `matches` condition; a dependency cycle. Warnings (never block): unknown `{x}`, a binding to a path the contract lacks or to a host-provided leaf, unsupported CSS in field/row/tooltip styles.
+Errors (block the download): a field, rule-effect or enabled group-check script that doesn't compile (alone, or once composed with the prelude) or reads an unknown `{{x}}`; a prelude that doesn't compile or reads fields; an invalid regex in `validations.pattern`, an override's `pattern` or a `matches` condition; a dependency cycle. Warnings (never block): a binding to a path the contract lacks or to a host-provided leaf, unsupported CSS in field/row/tooltip styles.
 
 Settled:
 - **Runs only on Exportar**, never live — no per-keystroke cost, which matters on the user's slow work PC.
-- **Errors block, warnings don't** — only certainly-broken things are errors; an unknown `{a}` may be destructuring.
+- **Errors block, warnings don't** — only certainly-broken things are errors. An unknown `{{x}}` is one since the double braces (it can't be destructuring); it is reported alone, without the "no compila" it almost always also causes.
 - **`⚠ tipo` and payload coverage are left out on purpose** (user's call): the 12 known type warnings would show on every export, and the contract doesn't mark which leaves are required. Both stay in Mapeo API and the Payload view.
 - **Judges what actually ships**: `knownNames` from both canvases (as `buildFormExport` does), disabled checks skipped, `pattern` checked only where `buildSchemaFor` embeds it (`TYPES_WITHOUT_PATTERN`).
 - **A broken prelude is reported once**, and scripts are then checked without it. With a valid prelude, a script that only fails once composed (e.g. `const UVT` in both) gets its own "no compila junto con el script del formulario" message — built from `compileScript`/`checkScriptSyntax`/`composeScriptBody` instead of parsing `validateFieldScript`'s prefixed message.
