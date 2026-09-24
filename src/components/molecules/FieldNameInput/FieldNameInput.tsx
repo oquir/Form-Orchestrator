@@ -2,12 +2,7 @@ import { useMemo, useState } from "react";
 import { slugifyFieldName } from "../../../lib/fieldName/fieldName";
 import { useFormStore } from "../../../store/formStore";
 import { LabeledInput } from "../LabeledInput/LabeledInput";
-import {
-  ERROR_CLASSES,
-  ERROR_INPUT_CLASSES,
-  HINT_CLASSES,
-  PREVIEW_CLASSES,
-} from "./FieldNameInput.constants";
+import { ERROR_CLASSES, ERROR_INPUT_CLASSES, PREVIEW_CLASSES } from "./FieldNameInput.constants";
 import type { FieldNameInputProps } from "./FieldNameInput.types";
 import { takenFieldNames } from "./FieldNameInput.utils";
 
@@ -69,11 +64,6 @@ export function FieldNameInput({ field }: FieldNameInputProps) {
           Se va a guardar como <code>{slug}</code>.
         </p>
       )}
-
-      <p className={HINT_CLASSES}>
-        Con este nombre lo referencian las fórmulas y el formulario generado. Se normaliza a
-        minúsculas con guiones bajos y tiene que ser único en todo el formulario.
-      </p>
     </div>
   );
 }

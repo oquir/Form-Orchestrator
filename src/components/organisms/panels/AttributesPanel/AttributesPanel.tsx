@@ -33,7 +33,13 @@ import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FieldTooltipEditor } from "../FieldTooltipEditor/FieldTooltipEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
 import { NumberOptionsEditor } from "../NumberOptionsEditor/NumberOptionsEditor";
-import { SOURCE_BADGE_CLASSES, SOURCE_LINK_CLASSES } from "./AttributesPanel.constants";
+import {
+  GENERAL_DESCRIPTION,
+  LAYOUT_DESCRIPTION,
+  OPTIONS_SOURCE_DESCRIPTION,
+  SOURCE_BADGE_CLASSES,
+  SOURCE_LINK_CLASSES,
+} from "./AttributesPanel.constants";
 
 export function AttributesPanel({ field }: { field: CanvasField }) {
   const updateField = useFormStore((state) => state.updateField);
@@ -62,7 +68,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
     <div className="flex flex-col gap-3">
       <FieldIdentityCard field={field} linkedLabel={linkedLabel} />
 
-      <PanelSection title="General">
+      <PanelSection title="General" description={GENERAL_DESCRIPTION}>
         <div className="flex flex-col gap-1">
           <LabeledInput
             id="field-label"
@@ -99,6 +105,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
 
       <PanelSection
         title="Diseño"
+        description={LAYOUT_DESCRIPTION}
         aside={
           <span className="text-[11px] tabular-nums text-fg-muted">
             {field.colSpan} / {rowColumns} · desde col {field.colStart}
@@ -139,6 +146,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       {isOptionBased && !canEditOptions && (
         <PanelSection
           title="Origen de opciones"
+          description={OPTIONS_SOURCE_DESCRIPTION}
           aside={
             <span className={SOURCE_BADGE_CLASSES}>
               {field.dataSource ? "Catálogo" : "Base de datos"}
