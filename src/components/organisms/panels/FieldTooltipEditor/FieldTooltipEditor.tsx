@@ -11,6 +11,7 @@ import {
   POSITION_ACTIVE_CLASSES,
   POSITION_BUTTON_CLASSES,
   POSITION_IDLE_CLASSES,
+  TOOLTIP_DESCRIPTION,
   TOOLTIP_POSITION_OPTIONS,
 } from "./FieldTooltipEditor.constants";
 import type { FieldTooltipEditorProps } from "./FieldTooltipEditor.types";
@@ -22,6 +23,7 @@ export function FieldTooltipEditor({ field }: FieldTooltipEditorProps) {
   return (
     <PanelSection
       title="Tooltip de ayuda"
+      description={TOOLTIP_DESCRIPTION}
       aside={
         <ToggleSwitch
           checked={tooltip !== undefined}
@@ -30,13 +32,6 @@ export function FieldTooltipEditor({ field }: FieldTooltipEditorProps) {
         />
       }
     >
-      {!tooltip && (
-        <p className="text-xs text-fg-subtle">
-          Agrega un ícono de información junto a la etiqueta. El contribuyente ve el mensaje al
-          pasar el mouse o al tocarlo desde el celular.
-        </p>
-      )}
-
       {tooltip && (
         <>
           <RichTextEditor

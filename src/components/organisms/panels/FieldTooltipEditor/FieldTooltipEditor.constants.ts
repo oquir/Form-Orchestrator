@@ -16,3 +16,6 @@ export const POSITION_ACTIVE_CLASSES: string = "border-brand-border bg-brand-sur
 
 export const POSITION_IDLE_CLASSES: string =
   "border-border bg-field text-fg-muted hover:border-border-strong";
+
+export const TOOLTIP_DESCRIPTION: string =
+  "Agrega un ícono de información junto a la etiqueta. El contribuyente ve el mensaje al pasar el mouse o al tocarlo desde el celular.";
