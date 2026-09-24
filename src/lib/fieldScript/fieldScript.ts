@@ -9,7 +9,7 @@ import type {
 } from "../../types/fieldScript";
 import { scanScript } from "./fieldScript.utils";
 
-// API publica del script de campo: de texto con {campo} a cuerpo de funcion ejecutable, mas las
+// API publica del script de campo: de texto con {{campo}} a cuerpo de funcion ejecutable, mas las
 // dependencias que ese texto declara al leerlas. Nada de React ni del store entra aca.
 //
 // lib/formula existia justamente para no ejecutar texto del usuario. Esto hace lo contrario y es
@@ -106,8 +106,13 @@ export function validateFieldScript(
 
   if (isEmpty) return { ...compiled, error: null, isEmpty, isValid: true };
 
-  // Las referencias desconocidas no invalidan nada: {a} puede ser una desestructuracion legitima.
-  // Se reportan aparte, como aviso, y quien pinte el panel decide como mostrarlas.
+  // Una referencia desconocida es error: con llaves dobles no hay JS legitimo que se escriba asi.
+  // Va antes que la sintaxis porque el {{x}} que queda sin sustituir casi siempre tambien rompe
+  // el parseo, y "Unexpected token '{'" no le dice a nadie que el campo no existe.
+  if (compiled.unknown.length > 0) {
+    return { ...compiled, error: unknownRefsMessage(compiled.unknown), isEmpty, isValid: false };
+  }
+
   const ownError: string | null = checkScriptSyntax(compiled.code);
   if (ownError) return { ...compiled, error: ownError, isEmpty, isValid: false };
 
