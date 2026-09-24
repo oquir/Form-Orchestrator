@@ -46,7 +46,7 @@ export interface ExportedValidations {
 }
 
 // `compiled` es cuerpo de funcion listo para new Function, precedido del preludio del formulario
-// si lo hay. `source` viaja solo para poder reeditarlo: ejecutarlo seria un error, porque {campo}
+// si lo hay. `source` viaja solo para poder reeditarlo: ejecutarlo seria un error, porque {{campo}}
 // no es JS. `reads` son los nombres que lee, para poder ordenar el calculo sin volver a parsear.
 export interface ExportedScript {
   source: string;
