@@ -198,7 +198,7 @@ function buildActividadesStep(): FormStepTemplate {
             colSpan: 5,
             path: "actividades[].valorImpuestoActividad",
             alwaysDisabled: true,
-            script: "return round({ingresos_gravados} * {tarifa_x_mil} / 1000);",
+            script: "return round({{ingresos_gravados}} * {{tarifa_x_mil}} / 1000);",
           },
         ],
         group.id,
@@ -263,7 +263,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
                 {
                   label: "Digito de verificacion del NIT",
                   when: [SOLO_PERSONA_JURIDICA],
-                  script: "return dvNit({numero_documento});",
+                  script: "return dvNit({{numero_documento}});",
                 },
               ],
             },
@@ -423,7 +423,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               colSpan: GRID_BASE_COLUMNS,
               path: "baseGravable.totalIngresosOrdinarios",
               alwaysDisabled: true,
-              script: "return {total_ingresos_nacionales} - {ingresos_fuera_municipio};",
+              script: "return {{total_ingresos_nacionales}} - {{ingresos_fuera_municipio}};",
             },
           ]),
           buildRow([
@@ -492,7 +492,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               path: "baseGravable.totalIngresosGravables",
               alwaysDisabled: true,
               script:
-                "return {total_ingresos_ordinarios} - {ingresos_devoluciones_descuentos} - {ingresos_exportaciones} - {ingresos_venta_activos} - {ingresos_excluidos_no_gravados} - {ingresos_exentos_municipio};",
+                "return {{total_ingresos_ordinarios}} - {{ingresos_devoluciones_descuentos}} - {{ingresos_exportaciones}} - {{ingresos_venta_activos}} - {{ingresos_excluidos_no_gravados}} - {{ingresos_exentos_municipio}};",
             },
           ]),
         ],
@@ -509,7 +509,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               colSpan: GRID_BASE_COLUMNS,
               excluded: true,
               alwaysDisabled: true,
-              script: "return sum({impuesto_actividad});",
+              script: "return sum({{impuesto_actividad}});",
             },
           ]),
           buildRow([
@@ -542,7 +542,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               colSpan: GRID_BASE_COLUMNS,
               excluded: true,
               alwaysDisabled: true,
-              script: "return {total_impuesto} + {impuesto_ley_56};",
+              script: "return {{total_impuesto}} + {{impuesto_ley_56}};",
             },
           ]),
           buildRow([
@@ -553,7 +553,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               colSpan: GRID_BASE_COLUMNS,
               path: "impuestoACargo.impuestoAvisosTableros",
               alwaysDisabled: true,
-              script: "return {total_impuesto_industria_comercio} * 0.15;",
+              script: "return {{total_impuesto_industria_comercio}} * 0.15;",
             },
           ]),
           buildRow([
@@ -600,7 +600,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               path: "impuestoACargo.totalImpuestoACargo",
               alwaysDisabled: true,
               script:
-                "return {total_impuesto_industria_comercio} + {impuesto_avisos_tableros} + {pago_unidades_sector_financiero} + {sobretasa_bomberil} + {sobretasa_seguridad};",
+                "return {{total_impuesto_industria_comercio}} + {{impuesto_avisos_tableros}} + {{pago_unidades_sector_financiero}} + {{sobretasa_bomberil}} + {{sobretasa_seguridad}};",
             },
           ]),
         ],
@@ -787,7 +787,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               colSpan: GRID_BASE_COLUMNS,
               excluded: true,
               alwaysDisabled: true,
-              script: "return {total_saldo_a_cargo};",
+              script: "return {{total_saldo_a_cargo}};",
             },
           ]),
           buildRow([
@@ -831,7 +831,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               // favor. El max(..., 0) es el otro lado de lo mismo -- por debajo de cero el
               // resultado ya es el saldo a favor, y ese se declara en el 34, no aca en negativo.
               script:
-                "return max({valor_a_pagar} - {descuento_pronto_pago} + {interes_mora} - {total_saldo_a_favor}, 0);",
+                "return max({{valor_a_pagar}} - {{descuento_pronto_pago}} + {{interes_mora}} - {{total_saldo_a_favor}}, 0);",
             },
           ]),
         ],
@@ -859,7 +859,7 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
               colSpan: GRID_BASE_COLUMNS,
               excluded: true,
               alwaysDisabled: true,
-              script: "return {total_a_pagar} + {valor_aporte_voluntario};",
+              script: "return {{total_a_pagar}} + {{valor_aporte_voluntario}};",
             },
           ]),
           buildRow([

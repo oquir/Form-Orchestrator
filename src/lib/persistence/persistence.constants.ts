@@ -8,4 +8,5 @@ export const DRAFT_KEY: string = "form-orchestrator-draft";
 //   4: el efecto de regla deja la formula y pasa a ser un script.
 //   5: se va el almacen de partes y con el savedComponents.
 //   6: las clases de Tailwind (customClasses) pasan a ser CSS plano (customCss).
-export const DRAFT_SCHEMA_VERSION: number = 6;
+//   7: las referencias a campos en los scripts pasan de {campo} a {{campo}}.
+export const DRAFT_SCHEMA_VERSION: number = 7;

@@ -148,7 +148,7 @@ const TOPE = 1;
 //
 // Ojo con poner acá el 33, el 34, el 35 o el 38: todos incluyen a este mismo
 // renglón en su cuenta, así que se armaría un cálculo circular.
-const base = {total_impuesto_a_cargo};
+const base = {{total_impuesto_a_cargo}};
 
 // El período dentro del año. La declaración de ICA es anual, así que es 1.
 const periodo = 1;
@@ -158,11 +158,11 @@ const periodo = 1;
 // Solo la extemporaneidad se autoliquida. Para los otros tipos devolvemos
 // undefined, que significa "dejá lo que escriba el usuario": el campo no se
 // marca como calculado y se sigue pudiendo teclear.
-if ({tipo_sancion} !== "${TIPO_SANCION_EXTEMPORANEIDAD}") return undefined;
+if ({{tipo_sancion}} !== "${TIPO_SANCION_EXTEMPORANEIDAD}") return undefined;
 
 // Meses o fracción de atraso contra la tabla de la pestaña Fechas.
 // Sin tabla cargada devuelve 0, y entonces no hay sanción.
-const meses = mesesDeMora({periodo_anio}, periodo, {numero_documento});
+const meses = mesesDeMora({{periodo_anio}}, periodo, {{numero_documento}});
 
 // Sin atraso no hay sanción, y esta salida va antes que el mínimo: el mínimo
 // es el piso de una sanción que existe, no crea una donde no la había.
@@ -198,9 +198,9 @@ const DIAS_ANIO = 365;
 // una deuda que no existe.
 //
 // Cambiar esta línea por otro renglón es todo lo que hace falta. El único que
-// NO puede ir acá es el 38 ({total_a_pagar}), que es el que consume estos
+// NO puede ir acá es el 38 ({{total_a_pagar}}), que es el que consume estos
 // intereses y cerraría un cálculo circular.
-const base = {valor_a_pagar};
+const base = {{valor_a_pagar}};
 
 // El período dentro del año. La declaración de ICA es anual, así que es 1.
 const periodo = 1;
@@ -210,10 +210,10 @@ const periodo = 1;
 // Sin fecha límite no hay con qué comparar, y entonces no se sabe si hay mora
 // ni de cuánto. Se devuelve undefined para dejar el campo escribible a mano en
 // vez de mostrar un 0 bloqueado que parece un cálculo ya hecho.
-const limite = fechaLimite({periodo_anio}, periodo, {numero_documento});
+const limite = fechaLimite({{periodo_anio}}, periodo, {{numero_documento}});
 if (limite === null) return undefined;
 
-const dias = diasDeMora({periodo_anio}, periodo, {numero_documento});
+const dias = diasDeMora({{periodo_anio}}, periodo, {{numero_documento}});
 if (dias <= 0) return 0;
 
 // Hacia arriba al millar, que es el ROUNDUP(...;-3) con el que se liquida.
@@ -226,7 +226,7 @@ return ceil((base * (TASA_ANUAL / DIAS_ANIO) * dias) / 1000) * 1000;`;
 // Se compara con una tolerancia de un peso y no con === por la coma flotante. Hoy los dos lados se
 // aproximan al millar y darian exactos, pero la regla no tiene por que depender de eso.
 export const INGRESOS_ACTIVIDADES_SCRIPT: string =
-  "return abs(sum({ingresos_gravados}) - {total_ingresos_gravables}) < 1;";
+  "return abs(sum({{ingresos_gravados}}) - {{total_ingresos_gravables}}) < 1;";
 
 export const INGRESOS_ACTIVIDADES_MESSAGE: string =
   "La suma de los ingresos gravados de las actividades debe ser igual al renglón 16 (Total ingresos gravables).";
@@ -234,4 +234,4 @@ export const INGRESOS_ACTIVIDADES_MESSAGE: string =
 // El neto sin recortar, que comparten los renglones 33 y 34: uno lo toma en positivo y el otro
 // en negativo. Va como expresion suelta -- sin return -- porque se interpola dentro de max(...).
 export const SALDO_NETO: string =
-  "{total_impuesto_a_cargo} - {valor_exencion_exoneracion_impuesto} - {retenciones_a_favor} - {autorretenciones_a_favor} - {anticipo_liquidado_anio_anterior} + {anticipo_anio_siguiente} + {valor_sancion} - {saldo_favor_periodo_anterior}";
+  "{{total_impuesto_a_cargo}} - {{valor_exencion_exoneracion_impuesto}} - {{retenciones_a_favor}} - {{autorretenciones_a_favor}} - {{anticipo_liquidado_anio_anterior}} + {{anticipo_anio_siguiente}} + {{valor_sancion}} - {{saldo_favor_periodo_anterior}}";
