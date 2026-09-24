@@ -85,7 +85,7 @@ export function resolveValidations(
   };
 }
 
-// El script se compila aca y no del lado del consumidor: {campo} no es JS, y hacer que cada
+// El script se compila aca y no del lado del consumidor: {{campo}} no es JS, y hacer que cada
 // consumidor implemente el recorrido que distingue codigo de texto seria repartir la parte
 // delicada. Sale ya en JS, con las dependencias que declara al leerlas.
 function compileSource(source: string, knownNames: Set<string>): ExportedScript {
