@@ -146,6 +146,23 @@ function scriptDrafts(
   if (source.trim().length === 0) return [];
 
   const compiled: ScriptCompileResult = compileScript(source, knownNames);
+
+  // Una referencia que no es campo va primero y sola: ese {{x}} sin sustituir casi siempre es
+  // tambien el error de sintaxis, y reportar los dos seria contar dos veces el mismo problema.
+  if (compiled.unknown.length > 0) {
+    const refs: string = compiled.unknown.map(fieldRefText).join(", ");
+    const noun: string = compiled.unknown.length === 1 ? "que no es un campo" : "que no son campos";
+
+    return [
+      {
+        severity: "error",
+        where,
+        message: `${subject} lee ${refs}, ${noun}. ${UNKNOWN_REFS_HINT}`,
+        target,
+      },
+    ];
+  }
+
   const drafts: ProblemDraft[] = [];
   const ownError: string | null = checkScriptSyntax(compiled.code);
   const body: string = composeScriptBody(compiled.code, prelude);
@@ -164,17 +181,6 @@ function scriptDrafts(
       severity: "error",
       where,
       message: `${subject} no compila junto con el script del formulario: ${sharedError}`,
-      target,
-    });
-  }
-
-  if (compiled.unknown.length > 0) {
-    const refs: string = compiled.unknown.map((name) => `{${name}}`).join(", ");
-    const noun: string = compiled.unknown.length === 1 ? "que no es un campo" : "que no son campos";
-    drafts.push({
-      severity: "warning",
-      where,
-      message: `${subject} lee ${refs}, ${noun}. ${UNKNOWN_REFS_HINT}`,
       target,
     });
   }
