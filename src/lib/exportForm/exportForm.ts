@@ -21,8 +21,8 @@ export function buildFormExport(
     ...introModalSteps.flatMap((step) => step.rows),
   ];
   const names: Map<string, string> = buildNameIndex(allRows);
-  // El compilador del script necesita saber que nombres existen para decidir que {x} es un campo
-  // y que {x} es JS del autor. Se arma una vez y baja a cada paso.
+  // El compilador del script necesita saber que nombres existen para decidir que {{x}} es un campo
+  // y cual no existe. Se arma una vez y baja a cada paso.
   const knownNames: Set<string> = new Set(names.values());
   const prelude: string = formScript.trim();
 
