@@ -50,7 +50,7 @@ export function validateRuntime(
 }
 
 // El ambito en el que corre una comprobacion: el root con las columnas del grupo aplanadas a
-// arrays, que es lo que hace que sum({ingresos_gravados}) tenga algo que sumar.
+// arrays, que es lo que hace que sum({{ingresos_gravados}}) tenga algo que sumar.
 //
 // Las columnas se arman desde snapshot.groups y no desde snapshot.root.values, que ya trae unas.
 // No son las mismas: resolveRuntime mete en el root las de la PRIMERA pasada, y las definitivas son
