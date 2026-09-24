@@ -26,6 +26,14 @@ export function fieldRefText(name: string): string {
   return `{{${name}}}`;
 }
 
+export function unknownRefsMessage(names: string[]): string {
+  const refs: string = names.map(fieldRefText).join(", ");
+
+  return names.length === 1
+    ? `${refs} no es un campo del formulario.`
+    : `${refs} no son campos del formulario.`;
+}
+
 export function compileScript(source: string, knownNames: Set<string>): ScriptCompileResult {
   const { code, refs } = scanScript(source, knownNames);
   const reads: string[] = [];
