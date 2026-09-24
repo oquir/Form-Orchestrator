@@ -23,7 +23,7 @@ export function toScriptNumber(value: unknown): number {
 }
 
 // Aplana un nivel de arrays: la columna de un grupo repetible llega como array, asi que
-// sum({impuesto_actividad}) y sum(a, b) tienen que ser la misma llamada.
+// sum({{impuesto_actividad}}) y sum(a, b) tienen que ser la misma llamada.
 function toNumbers(args: unknown[]): number[] {
   const flat: number[] = [];
 
@@ -101,7 +101,7 @@ export const SCRIPT_HELPER_NAMES: string[] = [
   ...CONTEXT_HELPER_NAMES,
 ];
 
-// El objeto de valores no se nombra nunca a mano: {campo} se compila a __v["campo"]. El guion
+// El objeto de valores no se nombra nunca a mano: {{campo}} se compila a __v["campo"]. El guion
 // bajo doble es para que no choque con una variable del autor.
 export const SCRIPT_VALUES_PARAM: string = "__v";
 
