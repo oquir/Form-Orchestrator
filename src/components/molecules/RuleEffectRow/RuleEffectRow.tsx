@@ -3,13 +3,7 @@ import { IconButton } from "../../atoms/IconButton/IconButton";
 import { ScriptInput } from "../ScriptInput/ScriptInput";
 import type { RuleEffectRowProps } from "./RuleEffectRow.types";
 
-export function RuleEffectRow({
-  effect,
-  candidates,
-  knownNames,
-  onChange,
-  onRemove,
-}: RuleEffectRowProps) {
+export function RuleEffectRow({ effect, knownNames, onChange, onRemove }: RuleEffectRowProps) {
   return (
     <li className="flex items-start gap-2 rounded-md border border-border-subtle bg-surface p-2">
       <div className="flex flex-1 flex-col gap-1">
@@ -21,7 +15,6 @@ export function RuleEffectRow({
             rows={2}
             knownNames={knownNames}
             placeholder="return {base_gravable} * 0.007;"
-            insertCandidates={candidates}
             onChange={(source) => onChange({ id: effect.id, kind: "script", source })}
           />
         ) : (
