@@ -1,4 +1,5 @@
 import { useFormScriptEditor } from "../../../../hooks/useFormScriptEditor/useFormScriptEditor";
+import { fieldRefText } from "../../../../lib/fieldScript/fieldScript";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ScriptInput } from "../../../molecules/ScriptInput/ScriptInput";
 import {
@@ -28,8 +29,9 @@ export function FormScriptEditor() {
 
       {validation.refs.length > 0 && (
         <p className={ERROR_CLASSES}>
-          {validation.refs.map((ref) => `{${ref.name}}`).join(", ")}: el script del formulario no
-          puede leer campos. Pasá el valor por parámetro desde el script del campo.
+          {[...new Set(validation.refs.map((ref) => fieldRefText(ref.name)))].join(", ")}: el script
+          del formulario no puede leer campos. Pasá el valor por parámetro desde el script del
+          campo.
         </p>
       )}
 
