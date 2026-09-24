@@ -2,7 +2,7 @@ import { allowsNegative } from "../../../../lib/fieldSign/fieldSign";
 import { useFormStore } from "../../../../store/formStore";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
-import { DECIMAL_CHOICES } from "./NumberOptionsEditor.constants";
+import { DECIMAL_CHOICES, NUMBER_DESCRIPTION } from "./NumberOptionsEditor.constants";
 import type { NumberOptionsEditorProps } from "./NumberOptionsEditor.types";
 
 export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
@@ -12,7 +12,7 @@ export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
   const setFieldDecimals = useFormStore((state) => state.setFieldDecimals);
 
   return (
-    <PanelSection title="Número">
+    <PanelSection title="Número" description={NUMBER_DESCRIPTION}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-fg">Redondear al millar</span>
         <ToggleSwitch
