@@ -24,6 +24,7 @@ export function ConditionEditor({ field, otherFields, kind }: ConditionEditorPro
   return (
     <PanelSection
       title={CONDITION_COPY[kind].label}
+      description={CONDITION_COPY[kind].description}
       aside={
         <ToggleSwitch
           checked={Boolean(condition)}
