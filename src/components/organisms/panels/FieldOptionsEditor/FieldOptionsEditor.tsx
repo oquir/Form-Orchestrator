@@ -8,6 +8,7 @@ import {
   COUNT_CLASSES,
   MIN_OPTIONS,
   OPTION_INPUT_CLASSES,
+  OPTIONS_DESCRIPTION,
   REMOVE_OPTION_CLASSES,
 } from "./FieldOptionsEditor.constants";
 import type { FieldOptionsEditorProps } from "./FieldOptionsEditor.types";
@@ -22,7 +23,11 @@ export function FieldOptionsEditor({ field }: FieldOptionsEditorProps) {
   const canRemove: boolean = options.length > MIN_OPTIONS;
 
   return (
-    <PanelSection title="Opciones" aside={<span className={COUNT_CLASSES}>{options.length}</span>}>
+    <PanelSection
+      title="Opciones"
+      description={OPTIONS_DESCRIPTION}
+      aside={<span className={COUNT_CLASSES}>{options.length}</span>}
+    >
       <LabeledInput
         id="field-options-title"
         label="Título del grupo (opcional)"
