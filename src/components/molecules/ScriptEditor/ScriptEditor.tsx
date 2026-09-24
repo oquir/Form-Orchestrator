@@ -79,8 +79,8 @@ export function ScriptEditor({
     };
   }, []);
 
-  // Cambios que vienen de afuera -- el insertador de campos, cargar un borrador, cambiar de campo
-  // seleccionado. La comparacion es lo que impide pisar el documento mientras alguien escribe.
+  // Cambios que vienen de afuera -- deshacer, cargar un borrador, cambiar de campo seleccionado.
+  // La comparacion es lo que impide pisar el documento mientras alguien escribe.
   useEffect(() => {
     const view: EditorView | null = viewRef.current;
     if (!view || view.state.doc.toString() === value) return;
