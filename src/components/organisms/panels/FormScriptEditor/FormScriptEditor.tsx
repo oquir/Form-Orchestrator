@@ -14,7 +14,7 @@ export function FormScriptEditor() {
   const { formScript, setFormScript, knownNames, validation } = useFormScriptEditor();
 
   return (
-    <PanelSection title="Script del formulario">
+    <PanelSection title="Script del formulario" description={PRELUDE_HINT}>
       <ScriptInput
         id="form-script"
         label="Funciones compartidas"
@@ -35,7 +35,6 @@ export function FormScriptEditor() {
         </p>
       )}
 
-      <p className={HINT_CLASSES}>{PRELUDE_HINT}</p>
       <p className={HINT_CLASSES}>{PRELUDE_SCOPE_HINT}</p>
     </PanelSection>
   );
