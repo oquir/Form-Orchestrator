@@ -5,6 +5,7 @@ import { useFormStore } from "../../store/formStore";
 import type { CanvasField } from "../../types/field";
 import type { FieldGraph } from "../../types/fieldGraph";
 import type { ScriptValidation } from "../../types/fieldScript";
+import { useKnownFieldNames } from "../useKnownFieldNames/useKnownFieldNames";
 import type {
   UseFieldScriptEditorParams,
   UseFieldScriptEditorResult,
@@ -19,12 +20,9 @@ export function useFieldScriptEditor({
 
   const source: string = field.logic.script ?? "";
 
-  // El propio campo entra en los nombres conocidos: asi {mi_campo} se sustituye y se puede avisar
-  // de la autorreferencia, en vez de quedar como JS roto sin explicacion.
-  const knownNames: Set<string> = useMemo(
-    () => new Set([field, ...candidates].map((candidate) => candidate.name)),
-    [field, candidates],
-  );
+  // El propio campo entra en los nombres conocidos: asi {{mi_campo}} se sustituye y se puede avisar
+  // de la autorreferencia, en vez de marcarlo como un campo que no existe.
+  const knownNames: Set<string> = useKnownFieldNames();
 
   const validation: ScriptValidation = useMemo(
     () => validateFieldScript(source, knownNames, formScript),
