@@ -12,6 +12,7 @@ export function FieldRulesEditor({ field, candidates }: FieldRulesEditorProps) {
   return (
     <PanelSection
       title="Reglas condicionales"
+      description={RULES_HINT}
       aside={
         rules.rules.length > 0 ? <span className={COUNT_CLASSES}>{rules.rules.length}</span> : null
       }
