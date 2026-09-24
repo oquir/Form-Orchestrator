@@ -8,6 +8,7 @@ import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { FieldOptionsModal } from "../../FieldOptionsModal/FieldOptionsModal";
 import { FieldDataSourceEditor } from "../FieldDataSourceEditor/FieldDataSourceEditor";
 import {
+  DESTINATION_DESCRIPTION,
   ERROR_CLASSES,
   HINT_CLASSES,
   NOTE_CLASSES,
@@ -45,6 +46,7 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
     <div className="flex flex-col gap-3">
       <PanelSection
         title="Destino en el payload"
+        description={DESTINATION_DESCRIPTION}
         aside={
           <ToggleSwitch
             checked={isExcluded}
