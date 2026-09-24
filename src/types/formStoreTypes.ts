@@ -34,7 +34,7 @@ export interface FormState extends BanksSlice {
   formSteps: FormStep[];
   introModal: IntroModalState;
   // Preludio: funciones y constantes que todos los scripts de campo ven en ambito. No lee campos
-  // -- {campo} no vale aca -- porque fuera de todo ambito, y sobre todo dentro de un grupo
+  // -- {{campo}} no vale aca -- porque fuera de todo ambito, y sobre todo dentro de un grupo
   // repetible, esa pregunta no tiene una respuesta unica.
   formScript: string;
   activeCanvas: CanvasTarget;
