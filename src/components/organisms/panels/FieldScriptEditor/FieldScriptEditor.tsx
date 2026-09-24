@@ -41,13 +41,6 @@ export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps)
         </p>
       )}
 
-      {validation.unknown.length > 0 && (
-        <p className={WARNING_CLASSES}>
-          {validation.unknown.map((name) => `{${name}}`).join(", ")} no coincide con ningún campo,
-          así que se deja tal cual como JavaScript.
-        </p>
-      )}
-
       {dependencies.length > 0 && (
         <div className="flex flex-col gap-1">
           <span className={HINT_CLASSES}>Lee estos campos:</span>
