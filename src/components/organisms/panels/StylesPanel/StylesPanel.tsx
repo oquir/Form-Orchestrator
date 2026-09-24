@@ -6,6 +6,11 @@ import { ColorPickerField } from "../../../molecules/ColorPickerField/ColorPicke
 import { CssValidationHint } from "../../../molecules/CssValidationHint/CssValidationHint";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { PxInput } from "../../../molecules/PxInput/PxInput";
+import {
+  COLORS_DESCRIPTION,
+  CUSTOM_CSS_DESCRIPTION,
+  MARGINS_DESCRIPTION,
+} from "./StylesPanel.constants";
 
 export function StylesPanel({ field }: { field: CanvasField }) {
   const updateFieldStyles = useFormStore((state) => state.updateFieldStyles);
@@ -13,7 +18,7 @@ export function StylesPanel({ field }: { field: CanvasField }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <PanelSection title="CSS personalizado">
+      <PanelSection title="CSS personalizado" description={CUSTOM_CSS_DESCRIPTION}>
         <Textarea
           id="custom-css"
           aria-label="CSS personalizado del campo"
@@ -27,7 +32,7 @@ export function StylesPanel({ field }: { field: CanvasField }) {
         <CssValidationHint text={s.customCss ?? ""} />
       </PanelSection>
 
-      <PanelSection title="Márgenes">
+      <PanelSection title="Márgenes" description={MARGINS_DESCRIPTION}>
         <TwoColumnFieldGroup>
           <PxInput
             id="margin-top"
@@ -44,7 +49,7 @@ export function StylesPanel({ field }: { field: CanvasField }) {
         </TwoColumnFieldGroup>
       </PanelSection>
 
-      <PanelSection title="Colores">
+      <PanelSection title="Colores" description={COLORS_DESCRIPTION}>
         <TwoColumnFieldGroup>
           <ColorPickerField
             id="background-color"
