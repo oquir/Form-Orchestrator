@@ -39,7 +39,7 @@ export interface FieldStyles {
 // solo se aplicaria ahi por casualidad. Ver lib/cssStyles.
 export type CssStyleMap = Record<string, string>;
 
-// El calculo de un campo vive en un solo lugar: `script`, codigo con {campo} para leer a los
+// El calculo de un campo vive en un solo lugar: `script`, codigo con {{campo}} para leer a los
 // demas. Las reglas siguen aparte porque no son otro lenguaje sino una estructura declarativa
 // encima del mismo: condicion mas efecto, y el efecto habla este script.
 export interface FieldLogic {
@@ -92,7 +92,7 @@ export interface RuleCondition extends FieldCondition {
   id: string;
 }
 
-// El efecto habla el mismo lenguaje que `logic.script` -- {campo} y un return que da el valor --
+// El efecto habla el mismo lenguaje que `logic.script` -- {{campo}} y un return que da el valor --
 // y no el de formulas. Las reglas siguen siendo una estructura declarativa, pero un solo lenguaje
 // de calculo en todo el aplicativo: dos era el problema que este cambio vino a sacar.
 export type RuleEffect =
