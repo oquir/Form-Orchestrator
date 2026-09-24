@@ -1,5 +1,5 @@
-// Una referencia {campo} encontrada en la fuente. `start` cae sobre la llave de apertura y `end`
-// justo despues de la de cierre, para que el editor pueda decorar el tramo completo.
+// Una referencia {{campo}} encontrada en la fuente. `start` cae sobre la primera llave de apertura
+// y `end` justo despues de la ultima de cierre, para que el editor pueda decorar el tramo completo.
 export interface ScriptRef {
   name: string;
   start: number;
@@ -22,7 +22,7 @@ export interface ScriptValidation extends ScriptCompileResult {
 }
 
 export interface PreludeValidation {
-  // Las referencias a campos son ilegales en el preludio: viajan aca para poder nombrarlas.
+  // Toda {{x}} es ilegal en el preludio, sea campo o no: viajan aca para poder nombrarlas.
   refs: ScriptRef[];
   error: string | null;
   isEmpty: boolean;
