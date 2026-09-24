@@ -51,6 +51,13 @@
   /* neutral-400, gris puro y no slate: el fondo del lienzo es casi acromatico y un punto con croma
      0.04 en el matiz azul se nota tenido al lado de todo lo demas. El oscuro usa la misma familia. */
   --ui-canvas-dot: color-mix(in oklab, oklch(70.8% 0 0) 55%, transparent); /* neutral-400 */
+
+  /* Barras de scroll: negras en claro y blancas en oscuro, con alfa que sube al pasar el mouse y
+     otra vez al arrastrar. Con alfa y no opacas porque la misma barra pasa por el lienzo, los paneles
+     y los modales, y asi se asienta en cada fondo en vez de verse como una pieza pegada encima. */
+  --ui-scrollbar-thumb: color-mix(in oklab, oklch(14.5% 0 0) 45%, transparent); /* neutral-950 */
+  --ui-scrollbar-thumb-hover: color-mix(in oklab, oklch(14.5% 0 0) 65%, transparent);
+  --ui-scrollbar-thumb-active: color-mix(in oklab, oklch(14.5% 0 0) 90%, transparent);
 }
 
 .dark {
@@ -103,6 +110,57 @@
   /* neutral-500, dos escalones mas claro que el token claro respecto de su fondo: sobre neutral-950
      un gris medio se apaga casi del todo y la malla deja de verse. */
   --ui-canvas-dot: color-mix(in oklab, oklch(55.6% 0 0) 55%, transparent);
+
+  --ui-scrollbar-thumb: color-mix(in oklab, oklch(100% 0 0) 40%, transparent); /* white */
+  --ui-scrollbar-thumb-hover: color-mix(in oklab, oklch(100% 0 0) 60%, transparent);
+  --ui-scrollbar-thumb-active: color-mix(in oklab, oklch(100% 0 0) 90%, transparent);
+}
+
+/* Barras de scroll de toda la app.
+
+   TRAMPA: en Chrome/Edge 121+, poner scrollbar-width o scrollbar-color en un elemento APAGA sus
+   ::-webkit-scrollbar. Por eso las propiedades estandar van solo donde no existe el pseudo-elemento
+   (Firefox), y en Chromium manda la version con forma: sin fondo de carril y un pulgar redondo que
+   engorda al pasar el mouse. El engorde es el borde transparente que adelgaza, no el ancho de la
+   barra, que no se puede animar ni cambiar sin mover el contenido. */
+@layer base {
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--ui-scrollbar-thumb) transparent;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-color: var(--ui-scrollbar-thumb);
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    border-width: 2px;
+    background-color: var(--ui-scrollbar-thumb-hover);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    border-width: 2px;
+    background-color: var(--ui-scrollbar-thumb-active);
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
 }
 
 @theme inline {

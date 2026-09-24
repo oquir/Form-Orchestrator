@@ -5,11 +5,11 @@ import type { PanelSectionProps } from "./PanelSection.types";
 // tenia que ver con cual.
 export function PanelSection({ title, aside, children }: PanelSectionProps) {
   return (
-    // Un velo negro y no un token de superficie: la tarjeta tiene que quedar apenas mas oscura que
-    // el panel, y entre surface (neutral-900) y surface-sunken (neutral-950) no hay ningun paso
-    // intermedio en la escala. Al ser translucido oscurece relativo a lo que tenga detras, asi que
-    // el mismo valor sirve en claro y en oscuro.
-    <section className="rounded-lg border border-border bg-black/5 p-3 dark:bg-black/25">
+    // En oscuro, un velo negro y no un token: la tarjeta tiene que quedar apenas mas oscura que el
+    // panel, y entre surface (neutral-900) y surface-sunken (neutral-950) no hay paso intermedio. En
+    // claro el velo no sirve: negro al 5% sobre blanco da un gris neutro que al lado de la escala
+    // slate del resto se lee amarillento. Ahi va surface-raised (slate-100), gris frio como todo.
+    <section className="rounded-lg border border-border bg-surface-raised p-3 dark:bg-black/25">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">
           {title}

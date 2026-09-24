@@ -24,6 +24,9 @@ import {
 // deja la caja de flujo ocupando exactamente lo que se ve.
 export function useCanvasViewport(): CanvasViewportReturn {
   const zoom: number = useFormStore((state) => state.canvasZoom);
+  const panelsCollapsed: boolean = useFormStore(
+    (state) => !state.isSidebarOpen && !state.isRightSidebarOpen,
+  );
   const canvasKey: string = useFormStore(
     (state) => `${state.activeCanvas.type}:${state.activeCanvas.stepId}`,
   );
@@ -115,7 +118,12 @@ export function useCanvasViewport(): CanvasViewportReturn {
   }
 
   const layout: ViewportLayout | null = portSize
-    ? getViewportLayout({ portWidth: portSize.width, portHeight: portSize.height, zoom })
+    ? getViewportLayout({
+        portWidth: portSize.width,
+        portHeight: portSize.height,
+        zoom,
+        panelsCollapsed,
+      })
     : null;
 
   // Despues del commit: antes, la raiz todavia tiene el tamano viejo y el navegador recortaria el

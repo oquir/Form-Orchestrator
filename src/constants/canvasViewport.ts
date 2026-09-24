@@ -2,6 +2,10 @@
 // cada lado. Hacer libre el lienzo no cambia cuanto mide el formulario.
 export const DOCUMENT_MAX_WIDTH_PX: number = 976;
 
+// Con los dos paneles plegados el lienzo tiene casi toda la pantalla: el documento se estira hasta lo
+// que daria max-w-7xl (80rem) menos el mismo px-6 de cada lado.
+export const DOCUMENT_MAX_WIDTH_FOCUSED_PX: number = 1180;
+
 // Aire minimo a cada lado del documento cuando el zoom lo hace mas ancho que la vista.
 export const DOCUMENT_GUTTER_PX: number = 24;
 

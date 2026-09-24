@@ -2,6 +2,7 @@ export interface ViewportInput {
   portWidth: number;
   portHeight: number;
   zoom: number;
+  panelsCollapsed: boolean;
 }
 
 // Todo en pixeles del puerto. `homeLeft`/`homeTop` son el scroll que deja el documento centrado en
