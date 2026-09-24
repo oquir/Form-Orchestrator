@@ -1,4 +1,3 @@
-import { InfoCircle } from "reicon-react";
 import { useFormStore } from "../../../../store/formStore";
 import type { FieldValidationOverride } from "../../../../types/field";
 import { DashedAddButton } from "../../../atoms/DashedAddButton/DashedAddButton";
@@ -12,14 +11,7 @@ export function ValidationOverridesEditor({ field, candidates }: ValidationOverr
   const overrides: FieldValidationOverride[] = field.validations.overrides ?? [];
 
   return (
-    <PanelSection
-      title="Validaciones condicionales"
-      aside={
-        <span title={HINT} className="text-fg-subtle">
-          <InfoCircle size={13} />
-        </span>
-      }
-    >
+    <PanelSection title="Validaciones condicionales" description={HINT}>
       {/* La regla de precedencia solo hace falta leerla cuando ya hay algo que ordenar; con la
           lista vacia el icono del encabezado alcanza y el panel arranca mas corto. */}
       {overrides.length > 0 && <p className={HINT_CLASSES}>{HINT}</p>}
