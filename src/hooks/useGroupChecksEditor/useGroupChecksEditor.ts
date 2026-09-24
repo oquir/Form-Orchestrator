@@ -50,7 +50,6 @@ export function useGroupChecksEditor({
     toggleOpen: () => setIsOpen((prev) => !prev),
     checks,
     activeCount,
-    candidates,
     knownNames,
     formScript,
     addCheck,
