@@ -14,7 +14,7 @@ export interface GroupCheck {
   // Apagada no viaja en el export: el consumidor no se entera de que existio. Existe porque hay
   // municipios que prefieren dejar pasar el error y cobrar la multa despues.
   enabled: boolean;
-  // Script con {campo}, evaluado en el ambito raiz, donde la columna del grupo es el array entero
+  // Script con {{campo}}, evaluado en el ambito raiz, donde la columna del grupo es el array entero
   // y `sum` lo aplana. Verdadero pasa, falso falla.
   script: string;
   message: string;
