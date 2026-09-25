@@ -2,7 +2,7 @@
 
 > Contexto de negocio para trabajar en las plantillas `industria_comercio`, `retencion_industria_comercio` y `autorretencion`. No describe el código (para eso está `CLAUDE.md`): describe cómo funcionan las declaraciones que el builder modela, para que las decisiones de plantilla y de script tengan fundamento.
 >
-> **Verificado el 2026-09-22; actualizado el 2026-09-24** con los tipos de declaración, el descuento por pronto pago y las reglas de sistema de sanciones (lo que aún no tiene fuente está en la sección 8). La ley y la estructura de los formularios son estables. Lo que caduca (UVT, bases mínimas, plazos, tasas) está marcado con ⏳ y reunido en "Datos que caducan": antes de usarlo, revisar solo eso, no todo el documento.
+> **Verificado el 2026-09-22; actualizado el 2026-09-24** con los tipos de declaración, el descuento por pronto pago y las reglas de sistema de sanciones, y **validado contra el Estatuto Tributario el 2026-09-25** (lo que depende de cada municipio o aún no tiene fuente está en la sección 8). La ley y la estructura de los formularios son estables. Lo que caduca (UVT, bases mínimas, plazos, tasas) está marcado con ⏳ y reunido en "Datos que caducan": antes de usarlo, revisar solo eso, no todo el documento.
 
 ## 1. Panorama: tres declaraciones, un solo impuesto
 
@@ -113,13 +113,13 @@ Además de la "opción de uso" del FUN (inicial, solamente pago, corrección), p
 
 1. **Inicial (o normal)**: primera presentación del periodo fiscal.
 2. **Corrección**: reemplaza jurídica y financieramente a la anterior. **Regla de sistema**: el usuario debe digitar o vincular el ID/sticker de la declaración que va a corregir.
-3. **Clausura (cese de actividades o fracción de año)**: se presenta cuando la empresa cierra definitivamente o se traslada. **Regla de sistema**: el formulario exige la **fecha exacta de cierre** (para prorratear topes de ingresos a los meses operados) y, al presentarse, debe gatillar la cancelación del RIT del contribuyente en ese municipio.
+3. **Clausura (cese de actividades o fracción de año)**: se presenta cuando la empresa cierra definitivamente o se traslada. **Regla de sistema**: el formulario exige la **fecha exacta de cierre** (para prorratear topes de ingresos a los meses operados) y, al presentarse, debe iniciar la cancelación del RIT del contribuyente en ese municipio. Esto último es una **decisión de diseño, no una regla legal**: en varios municipios la cancelación es una novedad aparte que la administración verifica antes de aprobar, así que el sistema no debería darla por hecha al presentar la clausura.
 
 Retención y autorretención solo tienen Inicial y Corrección (secciones 3 y 4).
 
 ### Descuento por pronto pago
 
-Beneficio potestativo de los concejos municipales (usualmente entre 5% y 15%), pensado para incentivar el pago temprano. Es **exclusivo del ICA anual** (renglón 36): nunca aplica en ReteICA ni en autorretención. Reglas de parametrización en el ERP:
+Beneficio potestativo de los concejos municipales (usualmente entre 5% y 15%), pensado para incentivar el pago temprano. Es **exclusivo del ICA anual** (renglón 36): nunca aplica en ReteICA ni en autorretención. **No hay norma nacional**: porcentaje, condiciones y efectos los fija el acuerdo de cada concejo, así que las reglas siguientes son la parametrización por defecto y deben poder ajustarse por municipio:
 
 - **Paz y salvo**: el contribuyente no puede deber vigencias anteriores; si debe, el sistema oculta el beneficio.
 - **Base de cálculo**: solo sobre el impuesto neto a cargo, jamás sobre sanciones ni intereses.
@@ -207,7 +207,7 @@ El FUN es solo para el ICA anual. La Resolución 4056 dice expresamente que, cua
 - **Las sanciones se calculan sobre la retención a cargo** (Medellín: 5% por mes o fracción con tope del 100% antes del emplazamiento; 10% con tope del 200% después; mínima de 10 UVT).
 - **Información exógena**: el agente reporta a los terceros a quienes les retuvo, según la resolución del municipio (en Medellín no hay que reportar si en el año no hubo retenciones).
 - Los agentes no tienen estado de cuenta ni paz y salvo: la modalidad es "declare y pague", y el soporte son las declaraciones presentadas.
-- **Riesgo penal**: no consignar lo retenido puede encuadrar en el art. 402 del Código Penal (omisión del agente retenedor). Es la razón por la que los municipios son tan estrictos con estas declaraciones. Por eso algunos tratan la declaración de retención como un "recibo de pago": no autoliquidan sanciones de corrección ni de inexactitud en el portal y cobran solo intereses de mora diarios sobre el excedente.
+- **Riesgo penal**: **no consignar** lo retenido dentro de los dos meses siguientes puede encuadrar en el art. 402 del Código Penal (omisión del agente retenedor). Declarar con errores no es delito: se trata con sanciones administrativas (corrección o inexactitud). Es la razón por la que los municipios son tan estrictos con estas declaraciones.
 
 ## 4. Autorretención
 
@@ -245,16 +245,18 @@ El sistema debe diferenciar estrictamente qué sanciones autoliquida el usuario 
 - **Art. 59 de la Ley 788 de 2002**: los municipios aplican el procedimiento y el régimen sancionatorio del **Estatuto Tributario nacional**. **Pueden reducir el monto de las sanciones y simplificar los procedimientos, pero no imponer sanciones mayores ni distintas.** Es el fundamento de la regla del proyecto: *la ley es el tope por defecto, el municipio solo puede bajarla*.
 - **Extemporaneidad antes del emplazamiento** (art. 641): 5% por mes o fracción, con tope del 100%.
 - **Extemporaneidad después del emplazamiento** (art. 642): 10% por mes o fracción, con tope del 200%. Por eso los formularios de retención separan dos tipos de sanción.
-- **Regla en correcciones**: si la declaración inicial se presentó a tiempo, en la de corrección **no se liquida extemporaneidad**.
+- **Regla en correcciones**: la extemporaneidad es de la declaración inicial; **en la corrección nunca se liquida como una sanción aparte**. Si la inicial fue a tiempo, la corrección solo lleva la sanción por corrección. Si la inicial fue extemporánea, la sanción por corrección **aumenta un 5% del mayor valor por cada mes o fracción** entre el vencimiento y la presentación de la inicial, sin superar el 100% del mayor valor (art. 644, parágrafo 1).
 - **Emplazamiento**: notificación formal de la alcaldía que separa la sanción voluntaria de la agravada. En ambos casos da 1 mes de plazo:
   - **Para declarar** (art. 715 ETN): notifica la omisión de presentar. Si el contribuyente declara, la extemporaneidad pasa al 10% por mes; si no, la alcaldía emite *liquidación oficial de aforo*.
-  - **Para corregir** (art. 688 ETN): notifica inconsistencias detectadas. Si el contribuyente corrige, la sanción por corrección pasa al 20%; si no, la alcaldía emite *requerimiento especial*.
+  - **Para corregir** (art. 685 ETN): la alcaldía lo envía cuando tiene indicios de inexactitud. Si el contribuyente corrige dentro del mes, la sanción por corrección pasa al 20%. Es **facultativo**: no responderlo no genera sanción, y la alcaldía *puede* seguir con requerimiento especial, pero no es automático ni obligatorio.
 - **Sanción mínima de 10 UVT** (art. 639) y **gradualidad** (art. 640). El sistema debe comparar la sanción calculada con el mínimo (en 2026, $523.740) y cobrar la mayor.
 - **Corrección frente a inexactitud**: las dos tratan de un error en lo declarado; la diferencia está en **quién lo detecta**.
-  - **Corrección** (art. 644): el contribuyente corrige **por su cuenta** y paga **10%** del mayor valor a pagar (o del menor saldo a favor) si corrige antes de cualquier actuación de la administración, o **20%** si corrige después del emplazamiento para corregir o del auto de inspección, pero antes del requerimiento especial. Se autoliquida en la propia declaración de corrección. Solo aplica si la corrección **sube** el valor a pagar o **baja** el saldo a favor; corregir a la baja sigue otro trámite (art. 589) que la administración tiene que aprobar.
-    - **Corrección dentro del plazo legal de presentación**: sin sanción ni intereses, y conserva el descuento por pronto pago.
-    - **Corrección fuera de plazo (mayor valor)**: se cobran intereses de mora solo sobre la diferencia.
-    - **Regla de sistema para la corrección a la baja (menor valor, art. 589)**: es un riesgo de fraude, así que el ERP **debe bloquear** la liquidación automática y dejar el estado en "Proyecto de Corrección", sin validez de pago. El contribuyente aporta pruebas y, si la alcaldía aprueba mediante acto administrativo, el sistema genera el **saldo a favor** para compensación o devolución.
+  - **Corrección** (art. 644): el contribuyente corrige **por su cuenta** y paga **10%** del mayor valor a pagar (o del menor saldo a favor) si corrige después del vencimiento del plazo y antes de cualquier actuación de la administración, o **20%** si corrige después del emplazamiento para corregir o del auto de inspección, pero antes del requerimiento especial. Se autoliquida en la propia declaración de corrección. Solo aplica si la corrección **sube** el valor a pagar o **baja** el saldo a favor; corregir a la baja sigue otro trámite (art. 589) que la administración tiene que aprobar.
+    - **Corrección dentro del plazo legal de presentación**: sin sanción (el 10% solo aplica después del vencimiento) ni intereses (aún no hay mora). Si conserva el descuento por pronto pago depende del acuerdo municipal.
+    - **Corrección fuera de plazo (mayor valor)**: se cobran intereses de mora solo sobre la diferencia (art. 644, parágrafo 2).
+    - **Corrección a la baja (menor valor, art. 589)**: con el procedimiento clásico, el contribuyente radica una solicitud con el **proyecto de corrección** dentro del **año siguiente** al vencimiento del plazo para declarar. La administración tiene **6 meses** para expedir la liquidación oficial de corrección o rechazarla; **si no se pronuncia, el proyecto sustituye a la declaración** (silencio positivo).
+    - **Regla de sistema**: el ERP bloquea la liquidación automática y deja el estado en "Proyecto de Corrección", sin validez de pago. Debe validar el plazo de 1 año, controlar el vencimiento de los 6 meses y, si hay aprobación expresa o silencio, aplicar la corrección y generar el saldo a favor cuando lo haya.
+    - **Ojo**: la Ley 1819 de 2016 (art. 274) modificó el art. 589. A nivel nacional, con el sistema electrónico, la DIAN pasó a recibir directamente la declaración de corrección en vez del proyecto. Cada municipio puede seguir un esquema u otro según su estatuto: confirmar cuál aplica antes de fijar el flujo.
   - **Inexactitud** (arts. 647–648): la administración **encuentra** ingresos omitidos, costos o descuentos inexistentes, retenciones que no existieron, datos falsos, etc. La sanción es **100%** de la diferencia entre lo que determina la administración y lo declarado (200% en casos de abuso). Se reduce a una cuarta parte si el contribuyente acepta los hechos al responder el requerimiento especial y corrige (art. 709), o a la mitad si los acepta al recurrir la liquidación oficial (art. 713). Una diferencia de criterio sobre cómo interpretar el derecho aplicable **no es inexactitud**, siempre que los hechos y las cifras declarados sean completos y verdaderos.
   - **En los formularios**: la sanción por corrección la liquida el contribuyente al corregir (por ejemplo, la "sanción 2" del formulario de Medellín). La de inexactitud normalmente la impone la administración en un acto oficial; solo aparece en la declaración cuando el contribuyente corrige aceptando un requerimiento especial, con la sanción reducida. **Regla de sistema**: el portal no debe permitir autoliquidarla; es de uso exclusivo del módulo interno de fiscalización de la alcaldía (la excepción es esa corrección que acepta un requerimiento especial).
   - Los municipios pueden bajar estos porcentajes, pero no subirlos. En la plantilla ICA **ninguna de las dos está construida**: las dos necesitan la declaración anterior, que todavía no existe (ver `CLAUDE.md`, "Sanciones").
@@ -273,7 +275,8 @@ El sistema debe diferenciar estrictamente qué sanciones autoliquida el usuario 
 - **El tipo de declaración** (normal, extemporánea, corrección, respuesta a emplazamiento o a auto) decide qué sanción aplica. Es la misma pieza que hoy falta para el art. 642 en el ICA anual.
 - **Bloqueo de periodos**: una corrección exige el ID de una declaración inicial aprobada.
 - **Herencia de saldos**: en una corrección, el sistema debe traer automáticamente como crédito lo ya pagado en la declaración inicial.
-- **Exclusión mutua**: en el frontend, o se cobra extemporaneidad (llegó tarde) o se cobra corrección (se equivocó).
+- **Exclusión mutua**: en el frontend, una declaración inicial lleva extemporaneidad (llegó tarde) y una corrección lleva sanción por corrección (se equivocó); nunca las dos como renglones separados. El caso de una inicial extemporánea que luego se corrige no suma las dos sanciones: se resuelve con el recargo del 5% mensual dentro de la sanción por corrección (sección 5).
+- **Corrección a la baja**: flujo propio con estados (proyecto, aprobada, rechazada, aprobada por silencio) y control de los plazos de 1 año y 6 meses (sección 5).
 - **Plantilla base + ajuste por municipio**: como no hay formulario nacional, la plantilla debe partir de lo común y dejar opcionales las variaciones (actividades sí o no, complementarios, pagos a no residentes, formulario conjunto de retención y autorretención).
 - **Falta el contrato con el consumidor**: `PAYLOAD_SCHEMA` solo describe `DeclaracionIcaE`. `retencion_industria_comercio` y `autorretencion` arrancan en blanco en el wizard y no tienen payload definido.
 
@@ -291,7 +294,7 @@ Todos verificados el 2026-09-22. Revisar antes de reutilizarlos.
 | Base mínima ReteICA Medellín | 15 UVT para todo pago (tarifa 2 por mil) | 2026 |
 | Base mínima ReteICA Bucaramanga | Servicios 25 UVT · compras 50 UVT | 2026 |
 | Plazos ReteICA Bogotá | 20 mar, 22 may, 17 jul, 18 sep, 20 nov de 2026; 15 ene de 2027 | 2026 |
-| Tasa de interés de mora | 27,66% E.A. (usura − 2 puntos) | Agosto de 2026; se usa en `INTERES_MORA_SCRIPT` |
+| Tasa de interés de mora | 27,66% E.A. (usura − 2 puntos) | **Solo agosto de 2026**: la tasa es mensual y la de septiembre de 2026 no se encontró publicada; actualizar antes de usarla en `INTERES_MORA_SCRIPT` |
 
 ## 8. Sin verificar o pendiente
 
@@ -299,7 +302,10 @@ Todos verificados el 2026-09-22. Revisar antes de reutilizarlos.
 - No se leyó completo ningún formulario de **autorretención** (el de Medellín es un manual de portal sin renglones numerados).
 - Umbral exacto a partir del cual un contribuyente declara bimestralmente en Bogotá: no verificado.
 - Lo incorporado el 2026-09-24 (tipos de declaración y clausura, descuento por pronto pago, reglas de sistema de sanciones) no trae fuente citada; confirmar con el estatuto de cada municipio.
-- **Art. 688 ETN** como base del emplazamiento para corregir (sección 5): confirmar el artículo exacto (posible confusión con el art. 685).
+- **Descuento por pronto pago** (sección 2): no hay norma nacional; el rango, el paz y salvo, la base, la pérdida del beneficio y el trato en correcciones deben confirmarse en el acuerdo de cada municipio.
+- **Clausura** (sección 2): confirmar en cada municipio si la cancelación del RIT es automática o requiere verificación.
+- **Corrección a la baja** (sección 5): confirmar si cada municipio usa el proyecto de corrección clásico del art. 589 o la corrección directa introducida por la Ley 1819 de 2016.
+- **ReteICA como "recibo de pago"** sin sanción de corrección: no se encontró ningún municipio que lo haga, y choca con el art. 59 de la Ley 788 (el propio formulario de Medellín tiene sanción por corrección en el renglón 20). Se retiró de la sección 3 hasta encontrar un caso real.
 - El renglón 2 del formulario de Medellín lista más opciones que Inicial y Corrección (extemporánea, respuesta a emplazamiento, respuesta a auto); confirmar si el sistema las modela como campos de contexto y no como otro tipo de declaración.
 
 ## Fuentes
@@ -319,5 +325,7 @@ Todos verificados el 2026-09-22. Revisar antes de reutilizarlos.
 - [Actualícese: descuento por ICA tras la Ley 2277 de 2022](https://actualicese.com/descuento-por-industria-y-comercio-estos-son-los-cambios-de-la-reforma-tributaria-2022/)
 - [DIAN: declaración anual consolidada del Régimen Simple](https://micrositios.dian.gov.co/regimen-simple-tributacion/declaracion-anual-consolidada-rst/)
 - [Ley 788 de 2002 (art. 59)](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=7260)
-- Estatuto Tributario Nacional (arts. 589, 641, 644, 647, 688, 715)
+- Estatuto Tributario Nacional (arts. 589, 634, 635, 639, 641, 642, 644, 647, 685, 715)
+- Código Penal, art. 402 (omisión del agente retenedor)
+- [DIAN, Concepto 14116 de 2017: art. 589 tras la Ley 1819 de 2016](https://normograma.dian.gov.co/dian/compilacion/docs/concepto_tributario_dian_0014116_2017.htm)
 - [Ámbito Jurídico: hecho generador de avisos y tableros](https://www.ambitojuridico.com/noticias/tributario/asi-se-determina-el-hecho-generador-del-impuesto-de-avisos-y-tableros-1104-am)
