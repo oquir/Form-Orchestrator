@@ -12,10 +12,6 @@ export function ValidationOverridesEditor({ field, candidates }: ValidationOverr
 
   return (
     <PanelSection title="Validaciones condicionales" description={HINT}>
-      {/* La regla de precedencia solo hace falta leerla cuando ya hay algo que ordenar; con la
-          lista vacia el icono del encabezado alcanza y el panel arranca mas corto. */}
-      {overrides.length > 0 && <p className={HINT_CLASSES}>{HINT}</p>}
-
       {candidates.length === 0 && overrides.length === 0 && (
         <p className={HINT_CLASSES}>No hay otros campos que observar todavía.</p>
       )}

@@ -9,7 +9,11 @@ import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPrevie
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ValidationOverridesEditor } from "../ValidationOverridesEditor/ValidationOverridesEditor";
-import { BASIC_RULES_DESCRIPTION, FORMAT_DESCRIPTION } from "./ValidationsPanel.constants";
+import {
+  BASIC_RULES_DESCRIPTION,
+  FORMAT_DESCRIPTION,
+  MAX_DIGITS_DESCRIPTION,
+} from "./ValidationsPanel.constants";
 import { toNumberOrUndefined } from "./ValidationsPanel.utils";
 
 export function ValidationsPanel({ field }: { field: CanvasField }) {
@@ -41,7 +45,14 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
   return (
     <div className="flex flex-col gap-3">
       {showsBasicRules && (
-        <PanelSection title="Reglas básicas" description={BASIC_RULES_DESCRIPTION}>
+        <PanelSection
+          title="Reglas básicas"
+          description={
+            isNumeric
+              ? `${BASIC_RULES_DESCRIPTION}\n${MAX_DIGITS_DESCRIPTION}`
+              : BASIC_RULES_DESCRIPTION
+          }
+        >
           {field.type !== "checkbox" && (
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm text-fg">Campo requerido</span>
@@ -110,25 +121,19 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
           )}
 
           {isNumeric && (
-            <div>
-              <LabeledInput
-                id="max-digits"
-                label="Máximo de dígitos"
-                type="number"
-                min={1}
-                placeholder="—"
-                value={v.maxLength ?? ""}
-                onChange={(event) =>
-                  updateFieldValidations(field.id, {
-                    maxLength: toNumberOrUndefined(event.target.value),
-                  })
-                }
-              />
-              <p className="mt-1 text-[11px] text-fg-subtle">
-                Cuenta los dígitos de la parte entera. Los puntos de miles, la coma decimal y el
-                signo no cuentan.
-              </p>
-            </div>
+            <LabeledInput
+              id="max-digits"
+              label="Máximo de dígitos"
+              type="number"
+              min={1}
+              placeholder="—"
+              value={v.maxLength ?? ""}
+              onChange={(event) =>
+                updateFieldValidations(field.id, {
+                  maxLength: toNumberOrUndefined(event.target.value),
+                })
+              }
+            />
           )}
         </PanelSection>
       )}
