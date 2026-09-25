@@ -7,6 +7,6 @@ export const VIEWPORT_MARGIN_PX: number = 8;
 // alto permite y desbordar la pantalla.
 export const MENU_MAX_HEIGHT_RATIO: number = 0.8;
 
-// Por debajo de esto el menu deja de servir, asi que cerca del borde inferior se sube en vez de
-// seguir encogiendolo.
+// Por debajo de esto el menu deja de servir, asi que cerca del borde inferior se voltea hacia arriba
+// en vez de seguir encogiendolo.
 export const MENU_MIN_HEIGHT_PX: number = 240;

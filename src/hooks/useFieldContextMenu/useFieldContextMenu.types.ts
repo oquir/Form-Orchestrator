@@ -8,7 +8,9 @@ export interface UseFieldContextMenuParams {
 
 export interface FieldContextMenuPosition {
   left: number;
-  top: number;
+  // Uno de los dos, segun hacia donde abra: hacia arriba se ancla por el borde inferior.
+  top: number | undefined;
+  bottom: number | undefined;
   width: number;
   maxHeight: number;
 }

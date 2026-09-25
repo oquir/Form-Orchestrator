@@ -29,6 +29,7 @@ export function FieldContextMenu({
       style={{
         left: position.left,
         top: position.top,
+        bottom: position.bottom,
         width: position.width,
         maxHeight: position.maxHeight,
       }}

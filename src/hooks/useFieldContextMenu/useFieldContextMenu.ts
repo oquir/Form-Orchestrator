@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
 import { findFieldById, getActiveRows, useFormStore } from "../../store/formStore";
 import type { ContextMenuTab } from "../../types/fieldContextMenu";
-import {
-  MENU_MAX_HEIGHT_RATIO,
-  MENU_MIN_HEIGHT_PX,
-  MENU_WIDTH_PX,
-  VIEWPORT_MARGIN_PX,
-} from "./useFieldContextMenu.constants";
 import type {
   UseFieldContextMenuParams,
   UseFieldContextMenuResult,
 } from "./useFieldContextMenu.types";
+import { getMenuPosition } from "./useFieldContextMenu.utils";
 
 // Menu contextual del campo (clic derecho). El alto real depende de la pestana abierta y no se
 // conoce antes de pintar, asi que no se estima: se le entrega el alto maximo que cabe desde donde
@@ -48,31 +43,11 @@ export function useFieldContextMenu({
     };
   }, [onClose]);
 
-  const viewportHeight: number = window.innerHeight;
-  const left: number = Math.min(menu.x, window.innerWidth - MENU_WIDTH_PX - VIEWPORT_MARGIN_PX);
-
-  // Si debajo del clic no cabe ni el minimo utilizable, el menu sube lo justo para alcanzarlo.
-  const spaceBelow: number = viewportHeight - menu.y - VIEWPORT_MARGIN_PX;
-  const top: number = Math.max(
-    VIEWPORT_MARGIN_PX,
-    spaceBelow >= MENU_MIN_HEIGHT_PX
-      ? menu.y
-      : viewportHeight - MENU_MIN_HEIGHT_PX - VIEWPORT_MARGIN_PX,
-  );
-
   return {
     field,
     activeTab,
     handleSelectTab,
     handleDelete,
-    position: {
-      left: Math.max(VIEWPORT_MARGIN_PX, left),
-      top,
-      width: MENU_WIDTH_PX,
-      maxHeight: Math.min(
-        viewportHeight * MENU_MAX_HEIGHT_RATIO,
-        viewportHeight - top - VIEWPORT_MARGIN_PX,
-      ),
-    },
+    position: getMenuPosition(menu.x, menu.y, window.innerWidth, window.innerHeight),
   };
 }
