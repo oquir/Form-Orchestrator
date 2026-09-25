@@ -29,15 +29,74 @@ export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalPr
     useProjectImport();
 
   return (
-    <ModalShell maxWidthClassName="max-w-lg">
-      <h2 className="mb-4 text-lg font-semibold text-slate-800 dark:text-neutral-100">
-        {step === 1 && "Tipo de formulario"}
-        {step === 2 && "Modal de entrada"}
-        {step === "import" && "Cargar formulario"}
-      </h2>
+    <ModalShell
+      maxWidthClassName="max-w-lg"
+      title={
+        <>
+          {step === 1 && "Tipo de formulario"}
+          {step === 2 && "Modal de entrada"}
+          {step === "import" && "Cargar formulario"}
+        </>
+      }
+      footer={
+        <>
+          {step === 1 && (
+            <WizardFooterActions justify="end">
+              <Button
+                variant="primary"
+                disabled={!canProceed}
+                onClick={goNext}
+                className="px-4 py-1.5 text-sm hover:cursor-pointer"
+              >
+                Siguiente
+              </Button>
+            </WizardFooterActions>
+          )}
 
+          {step === 2 && (
+            <WizardFooterActions justify="between">
+              <Button
+                variant="ghost"
+                onClick={goBack}
+                className="px-4 py-1.5 text-sm hover:cursor-pointer"
+              >
+                Atrás
+              </Button>
+              <Button
+                variant="primary"
+                disabled={!canFinish}
+                onClick={handleFinish}
+                className="px-4 py-1.5 text-sm hover:cursor-pointer"
+              >
+                Crear proyecto
+              </Button>
+            </WizardFooterActions>
+          )}
+
+          {step === "import" && (
+            <WizardFooterActions justify="between">
+              <Button
+                variant="ghost"
+                onClick={goBack}
+                className="px-4 py-1.5 text-sm hover:cursor-pointer"
+              >
+                Atrás
+              </Button>
+              <Button
+                variant="primary"
+                disabled={!canOpen}
+                onClick={openProject}
+                className="px-4 py-1.5 text-sm hover:cursor-pointer"
+              >
+                Abrir proyecto
+              </Button>
+            </WizardFooterActions>
+          )}
+        </>
+      }
+    >
       {draftWasInvalid && (
-        <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 dark:border-red-500/40 dark:bg-red-500/10">
+        <div className="rounded border border-red-200 bg-red-50 px-3 py-2 dark:border-red-500/40 dark:bg-red-500/10">
           <p className="text-[11px] font-medium text-red-700 dark:text-red-400">
             El borrador guardado no tenía una estructura válida y se descartó.
           </p>
@@ -68,22 +127,11 @@ export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalPr
               onClick={() => setSelection("import")}
             />
           </div>
-
-          <WizardFooterActions justify="end">
-            <Button
-              variant="primary"
-              disabled={!canProceed}
-              onClick={goNext}
-              className="mt-4 px-4 py-1.5 text-sm hover:cursor-pointer"
-            >
-              Siguiente
-            </Button>
-          </WizardFooterActions>
         </div>
       )}
 
       {step === 2 && (
-        <div className="flex flex-col gap-4">
+        <>
           <p className="text-sm text-slate-600 dark:text-neutral-300">
             ¿El formulario compilado requerirá un modal introductorio para el usuario final?
           </p>
@@ -99,55 +147,17 @@ export function SetupWizardModal({ draftWasInvalid = false }: SetupWizardModalPr
               onChange={(event) => setIntroModalSteps(Number(event.target.value))}
             />
           )}
-
-          <WizardFooterActions justify="between" className="mt-2">
-            <Button
-              variant="ghost"
-              onClick={goBack}
-              className="px-4 py-1.5 text-sm hover:cursor-pointer"
-            >
-              Atrás
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!canFinish}
-              onClick={handleFinish}
-              className="px-4 py-1.5 text-sm hover:cursor-pointer"
-            >
-              Crear proyecto
-            </Button>
-          </WizardFooterActions>
-        </div>
+        </>
       )}
 
       {step === "import" && (
-        <div className="flex flex-col gap-4">
-          <ProjectFilePicker
-            fileName={fileName}
-            result={result}
-            summary={summary}
-            isReading={isReading}
-            onPick={pickFile}
-          />
-
-          <WizardFooterActions justify="between" className="mt-2">
-            <Button
-              variant="ghost"
-              onClick={goBack}
-              className="px-4 py-1.5 text-sm hover:cursor-pointer"
-            >
-              Atrás
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!canOpen}
-              onClick={openProject}
-              className="px-4 py-1.5 text-sm hover:cursor-pointer"
-            >
-              Abrir proyecto
-            </Button>
-          </WizardFooterActions>
-        </div>
+        <ProjectFilePicker
+          fileName={fileName}
+          result={result}
+          summary={summary}
+          isReading={isReading}
+          onPick={pickFile}
+        />
       )}
     </ModalShell>
   );

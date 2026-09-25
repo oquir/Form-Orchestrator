@@ -16,24 +16,11 @@ export function ProjectImportModal({ onClose }: ProjectImportModalProps) {
   }
 
   return (
-    <ModalShell maxWidthClassName="max-w-md">
-      <h2 className="mb-2 text-lg font-semibold text-slate-800 dark:text-neutral-100">
-        Abrir formulario
-      </h2>
-      <p className={`mb-4 ${WARNING_BANNER_CLASSES}`}>
-        Abrir un formulario reemplaza el actual y no se puede deshacer. Si quieres conservarlo,
-        expórtalo antes.
-      </p>
-
-      <ProjectFilePicker
-        fileName={fileName}
-        result={result}
-        summary={summary}
-        isReading={isReading}
-        onPick={pickFile}
-      />
-
-      <div className="mt-4">
+    <ModalShell
+      maxWidthClassName="max-w-md"
+      title="Abrir formulario"
+      onClose={onClose}
+      footer={
         <ModalActions>
           <Button
             variant="ghost"
@@ -51,7 +38,20 @@ export function ProjectImportModal({ onClose }: ProjectImportModalProps) {
             Abrir formulario
           </Button>
         </ModalActions>
-      </div>
+      }
+    >
+      <p className={WARNING_BANNER_CLASSES}>
+        Abrir un formulario reemplaza el actual y no se puede deshacer. Si quieres conservarlo,
+        expórtalo antes.
+      </p>
+
+      <ProjectFilePicker
+        fileName={fileName}
+        result={result}
+        summary={summary}
+        isReading={isReading}
+        onPick={pickFile}
+      />
     </ModalShell>
   );
 }

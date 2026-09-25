@@ -18,12 +18,31 @@ export function ExportReviewModal({
   onClose,
 }: ExportReviewModalProps) {
   return (
-    <ModalShell maxWidthClassName="max-w-xl">
-      <h2 className="mb-1 text-lg font-semibold text-slate-800 dark:text-neutral-100">
-        Revisión antes de exportar
-      </h2>
-      <p className="mb-4 text-sm text-slate-500 dark:text-neutral-400">{summaryLabel(problems)}</p>
-
+    <ModalShell
+      maxWidthClassName="max-w-xl"
+      title="Revisión antes de exportar"
+      description={summaryLabel(problems)}
+      onClose={onClose}
+      footer={
+        <ModalActions>
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="px-4 py-1.5 text-sm hover:cursor-pointer"
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            disabled={hasErrors}
+            onClick={onExport}
+            className="px-4 py-1.5 text-sm hover:cursor-pointer"
+          >
+            Exportar
+          </Button>
+        </ModalActions>
+      }
+    >
       <ul className={LIST_CLASSES}>
         {problems.map((problem) => (
           <li key={problem.id} className={ITEM_CLASSES}>
@@ -52,30 +71,10 @@ export function ExportReviewModal({
       </ul>
 
       {hasErrors && (
-        <p className="mt-3 text-[11px] text-red-600 dark:text-red-400">
+        <p className="text-[11px] text-red-600 dark:text-red-400">
           Corrige los errores para exportar.
         </p>
       )}
-
-      <div className="mt-4">
-        <ModalActions>
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            className="px-4 py-1.5 text-sm hover:cursor-pointer"
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            disabled={hasErrors}
-            onClick={onExport}
-            className="px-4 py-1.5 text-sm hover:cursor-pointer"
-          >
-            Exportar
-          </Button>
-        </ModalActions>
-      </div>
     </ModalShell>
   );
 }

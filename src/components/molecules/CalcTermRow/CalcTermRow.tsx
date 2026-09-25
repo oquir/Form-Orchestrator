@@ -1,9 +1,11 @@
-import { Xmark } from "reicon-react";
+import { AngleDown2, Xmark } from "reicon-react";
 import { IconButton } from "../../atoms/IconButton/IconButton";
 import {
   CALC_SIGN_CHOICES,
   CYCLE_SUFFIX,
   REMOVE_BUTTON_CLASSES,
+  ROW_CLASSES,
+  SELECT_CHEVRON_CLASSES,
   SELECT_CLASSES,
   SIGN_ITEM_ACTIVE_CLASSES,
   SIGN_ITEM_BASE_CLASSES,
@@ -23,7 +25,7 @@ export function CalcTermRow({
   onRemove,
 }: CalcTermRowProps) {
   return (
-    <li className="flex items-center gap-2">
+    <li className={ROW_CLASSES}>
       <fieldset aria-label={`Signo del campo ${position}`} className={SIGN_TRACK_CLASSES}>
         {CALC_SIGN_CHOICES.map((choice) => (
           <button
@@ -42,26 +44,29 @@ export function CalcTermRow({
         ))}
       </fieldset>
 
-      <select
-        ref={selectRef}
-        aria-label={`Campo ${position}`}
-        value={term.fieldId ?? ""}
-        onChange={(event) => onFieldChange(event.target.value)}
-        className={SELECT_CLASSES}
-      >
-        <option value="" disabled>
-          Elegí un campo…
-        </option>
-        {optionGroups.map((group) => (
-          <optgroup key={group.id} label={group.label}>
-            {group.options.map((option) => (
-              <option key={option.fieldId} value={option.fieldId} disabled={option.createsCycle}>
-                {option.createsCycle ? `${option.label} ${CYCLE_SUFFIX}` : option.label}
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </select>
+      <div className="relative min-w-0 flex-1">
+        <select
+          ref={selectRef}
+          aria-label={`Campo ${position}`}
+          value={term.fieldId ?? ""}
+          onChange={(event) => onFieldChange(event.target.value)}
+          className={SELECT_CLASSES}
+        >
+          <option value="" disabled>
+            Elegí un campo…
+          </option>
+          {optionGroups.map((group) => (
+            <optgroup key={group.id} label={group.label}>
+              {group.options.map((option) => (
+                <option key={option.fieldId} value={option.fieldId} disabled={option.createsCycle}>
+                  {option.createsCycle ? `${option.label} ${CYCLE_SUFFIX}` : option.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        <AngleDown2 size={14} className={SELECT_CHEVRON_CLASSES} />
+      </div>
 
       <IconButton
         onClick={onRemove}
@@ -70,7 +75,7 @@ export function CalcTermRow({
         title="Quitar"
         className={REMOVE_BUTTON_CLASSES}
       >
-        <Xmark size={12} weight="Filled" />
+        <Xmark size={14} />
       </IconButton>
     </li>
   );

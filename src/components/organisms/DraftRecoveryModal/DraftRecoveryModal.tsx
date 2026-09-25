@@ -13,33 +13,34 @@ export function DraftRecoveryModal({
   const savedAtLabel = new Date(draft.savedAt).toLocaleString();
 
   return (
-    <ModalShell maxWidthClassName="max-w-md">
-      <h2 className="mb-2 text-lg font-semibold text-slate-800 dark:text-neutral-100">
-        Se encontró un borrador
-      </h2>
-      <p className="mb-4 text-sm text-slate-500 dark:text-neutral-400">
+    <ModalShell
+      maxWidthClassName="max-w-md"
+      title="Se encontró un borrador"
+      footer={
+        <ModalActions>
+          <Button
+            variant="ghost"
+            onClick={onDiscard}
+            className="px-4 py-1.5 text-sm hover:cursor-pointer"
+          >
+            Empezar de nuevo
+          </Button>
+          <Button
+            variant="primary"
+            onClick={onRestore}
+            className="px-4 py-1.5 text-sm hover:cursor-pointer"
+          >
+            Restaurar borrador
+          </Button>
+        </ModalActions>
+      }
+    >
+      <p className="text-sm text-slate-500 dark:text-neutral-400">
         Hay un proyecto guardado automáticamente el {savedAtLabel}. ¿Quieres restaurarlo o empezar
         de nuevo?
       </p>
 
-      <FieldRenameNotice renamed={renamed} className="mb-4" />
-
-      <ModalActions>
-        <Button
-          variant="ghost"
-          onClick={onDiscard}
-          className="px-4 py-1.5 text-sm hover:cursor-pointer"
-        >
-          Empezar de nuevo
-        </Button>
-        <Button
-          variant="primary"
-          onClick={onRestore}
-          className="px-4 py-1.5 text-sm hover:cursor-pointer"
-        >
-          Restaurar borrador
-        </Button>
-      </ModalActions>
+      <FieldRenameNotice renamed={renamed} />
     </ModalShell>
   );
 }
