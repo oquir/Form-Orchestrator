@@ -2,15 +2,11 @@ import { useFieldScriptEditor } from "../../../../hooks/useFieldScriptEditor/use
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ScriptInput } from "../../../molecules/ScriptInput/ScriptInput";
 import {
-  DATE_HELPERS_HINT,
   ERROR_CLASSES,
   HINT_CLASSES,
   READS_CLASSES,
   SCRIPT_DESCRIPTION,
-  SCRIPT_HINT,
   SCRIPT_PLACEHOLDER,
-  SCRIPT_SCOPE_HINT,
-  VALUE_HELPERS_HINT,
   WARNING_CLASSES,
 } from "./FieldScriptEditor.constants";
 import type { FieldScriptEditorProps } from "./FieldScriptEditor.types";
@@ -54,11 +50,6 @@ export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps)
           </ul>
         </div>
       )}
-
-      <p className={HINT_CLASSES}>{SCRIPT_HINT}</p>
-      <p className={HINT_CLASSES}>{SCRIPT_SCOPE_HINT}</p>
-      <p className={HINT_CLASSES}>{DATE_HELPERS_HINT}</p>
-      <p className={HINT_CLASSES}>{VALUE_HELPERS_HINT}</p>
     </PanelSection>
   );
 }
