@@ -60,7 +60,7 @@ export function FieldContextMenu({
 
       <TabButtonGroup tabs={CONTEXT_MENU_TABS} activeTab={activeTab} onSelect={handleSelectTab} />
 
-      <div className="overflow-y-auto p-3">
+      <div className="overflow-y-auto p-3 [scrollbar-gutter:stable]">
         {activeTab === "attributes" && <AttributesPanel field={field} />}
         {activeTab === "validations" && <ValidationsPanel field={field} />}
         {activeTab === "styles" && <StylesPanel field={field} />}
