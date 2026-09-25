@@ -14,4 +14,8 @@ export interface UseFieldScriptEditorResult {
   readsSelf: boolean;
   dependencies: CanvasField[];
   handleChange: (next: string) => void;
+  offersSimpleCalc: boolean;
+  isSimpleCalcOpen: boolean;
+  openSimpleCalc: () => void;
+  closeSimpleCalc: () => void;
 }

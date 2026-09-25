@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { buildFieldGraph, describeCycle, topologicalOrder } from "../../lib/fieldGraph/fieldGraph";
+import { isNumericField } from "../../lib/fieldKind/fieldKind";
 import { validateFieldScript } from "../../lib/fieldScript/fieldScript";
 import { useFormStore } from "../../store/formStore";
 import type { CanvasField } from "../../types/field";
@@ -46,8 +47,20 @@ export function useFieldScriptEditor({
     return found ? [found] : [];
   });
 
+  // El calculo sin codigo solo suma y resta numeros: en un campo de texto no tiene nada que armar.
+  const offersSimpleCalc: boolean = isNumericField(field.type);
+  const [isSimpleCalcOpen, setIsSimpleCalcOpen] = useState<boolean>(false);
+
   function handleChange(next: string): void {
     setFieldScript(field.id, next);
+  }
+
+  function openSimpleCalc(): void {
+    setIsSimpleCalcOpen(true);
+  }
+
+  function closeSimpleCalc(): void {
+    setIsSimpleCalcOpen(false);
   }
 
   return {
@@ -58,5 +71,9 @@ export function useFieldScriptEditor({
     readsSelf,
     dependencies,
     handleChange,
+    offersSimpleCalc,
+    isSimpleCalcOpen,
+    openSimpleCalc,
+    closeSimpleCalc,
   };
 }

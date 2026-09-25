@@ -1,22 +1,51 @@
 import { useFieldScriptEditor } from "../../../../hooks/useFieldScriptEditor/useFieldScriptEditor";
+import { Button } from "../../../atoms/Button/Button";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ScriptInput } from "../../../molecules/ScriptInput/ScriptInput";
+import { SimpleCalcModal } from "../../SimpleCalcModal/SimpleCalcModal";
 import {
   ERROR_CLASSES,
   HINT_CLASSES,
   READS_CLASSES,
   SCRIPT_DESCRIPTION,
   SCRIPT_PLACEHOLDER,
+  SIMPLE_CALC_DESCRIPTION,
   WARNING_CLASSES,
 } from "./FieldScriptEditor.constants";
 import type { FieldScriptEditorProps } from "./FieldScriptEditor.types";
 
 export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps) {
-  const { source, knownNames, validation, cycle, readsSelf, dependencies, handleChange } =
-    useFieldScriptEditor({ field, candidates });
+  const {
+    source,
+    knownNames,
+    validation,
+    cycle,
+    readsSelf,
+    dependencies,
+    handleChange,
+    offersSimpleCalc,
+    isSimpleCalcOpen,
+    openSimpleCalc,
+    closeSimpleCalc,
+  } = useFieldScriptEditor({ field, candidates });
 
   return (
-    <PanelSection title="Cálculo del campo" description={SCRIPT_DESCRIPTION}>
+    <PanelSection
+      title="Cálculo del campo"
+      description={
+        offersSimpleCalc ? `${SCRIPT_DESCRIPTION}\n${SIMPLE_CALC_DESCRIPTION}` : SCRIPT_DESCRIPTION
+      }
+    >
+      {offersSimpleCalc && (
+        <Button
+          variant="secondary"
+          onClick={openSimpleCalc}
+          className="px-3 py-1.5 text-xs hover:cursor-pointer"
+        >
+          Editar sin código
+        </Button>
+      )}
+
       <ScriptInput
         id="field-script"
         label="Script"
@@ -49,6 +78,10 @@ export function FieldScriptEditor({ field, candidates }: FieldScriptEditorProps)
             ))}
           </ul>
         </div>
+      )}
+
+      {isSimpleCalcOpen && (
+        <SimpleCalcModal field={field} candidates={candidates} onClose={closeSimpleCalc} />
       )}
     </PanelSection>
   );

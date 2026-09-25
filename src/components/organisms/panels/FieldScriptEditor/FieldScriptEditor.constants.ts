@@ -10,3 +10,6 @@ export const SCRIPT_PLACEHOLDER: string =
 // silencio cualquier piso o tope escrito en UVT, asi que devuelven null y el autor pone el valor.
 export const SCRIPT_DESCRIPTION: string =
   "Calcula el valor del campo con JavaScript y se vuelve a correr cada vez que cambia algo que lee. Devolvé el resultado con return: reemplaza lo que haya escrito el usuario, y return undefined lo deja como está. {{campo}} lee otro campo (escribí {{ o usá Ctrl+Espacio). También tenés value, index y funciones como sum, max o round. fechaLimite, diasDeMora y mesesDeMora salen de la pestaña Fechas; uvt y smmlv, de Catálogos. Sin datos cargados devuelven null o 0, así que dejá un respaldo: uvt() ?? 52374.";
+
+export const SIMPLE_CALC_DESCRIPTION: string =
+  "Si no programás, usá Editar sin código: armás el cálculo eligiendo campos que se suman o se restan, y el script se escribe solo.";

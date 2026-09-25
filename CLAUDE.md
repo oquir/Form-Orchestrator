@@ -275,6 +275,19 @@ Settled:
 - **The simulator and the consumer never read the syntax**: they run `compiled` (`__v["campo"]`) and `reads`, byte-identical under both syntaxes — the change needed zero runtime code. `source` carries `{{campo}}` and is still never executed.
 - **Drafts migrate at `DRAFT_SCHEMA_VERSION` 7** (`upgradeFieldRefs` in `lib/scriptMigration/`): field scripts, rule effects, group checks and the prelude, both canvases. It rewrites **exactly what the old compiler substituted** — `findScriptRefs` runs the same scanner with the frozen `LEGACY_REF_PATTERN` (`scanScript` takes the pattern as a parameter for this) and only known names change — so a migrated script compiles to the same body. Verified with a tsx script over 34 scripts with trap cases (destructuring, strings, comments, template `${}`, regex quantifiers, unknown refs, a nameless field): identical compiled output before/after. The rewritten ICA template compiles identically too, except one comment that names `{{total_a_pagar}}`. Comments in saved scripts keep `{campo}` (the scanner skips comments, on purpose). `formulaToScript` still prints `{x}`: it is step 2→3, and step 6→7 lifts its output.
 
+### No-code calculation (`SimpleCalcModal`)
+
+Asked for explicitly by the user's boss (the user disagreed: everyone on the team programs), so a non-programmer can set a field's calculation. "Editar sin código" in "Cálculo del campo" (numeric fields only) opens a modal: rows of `[+|−] field`, "Multiplicar el resultado por", "No bajar de 0", a `<details>` with the generated JS. Pure core in `src/lib/simpleCalc/` (`buildCalcTermOptions`, `indexCalcTermOptions`, `buildSimpleCalcScript`, `parseSimpleCalcScript`), state in `useSimpleCalcBuilder`, rows in `molecules/CalcTermRow`.
+
+Settled:
+- **`logic.script` stays the only truth** — no stored model, no draft/export/consumer change. Apply writes once through `setFieldScript` (one undo step); Cancel leaves nothing.
+- **Generated text copies the ICA template style letter for letter** (`return {{a}} - {{b}};`, `max(…, 0)`, `({{a}} + {{b}}) * 0.15`), which is what lets the modal reopen template renglones. **The floor wraps the multiplier**: what can't go below zero is the field's value.
+- **Reopening = read leniently, regenerate, compare without whitespace.** The modal only claims scripts it would write identically; anything else opens empty with a "Aplicar lo reemplaza" banner. On the ICA template it recognizes 10: renglones 10, 16, 17, 20, 21, 25, 33, 35, 38, 40. A line break right after `return` is rejected (ASI would return `undefined`).
+- **`sum({{x}})` iff `x` lives in a group other than the edited field's** — there `{{x}}` is the column array and `+` would concatenate it as text. Same-group siblings and root fields go bare.
+- **Picker**: numeric form-step fields only, labels (not slugs), one `<optgroup>` per step and per group ("misma fila" / "suma de todas las filas"). Options that already depend on the edited field are disabled (`wouldCreateCycle`, the export review's verdict).
+- **Keyboard guard**: a capture-phase `keydown` on `window` stops every key while the modal is mounted (Escape cancels). Without it Delete would delete the field being edited and Escape would deselect it, unmounting the modal — focus may be on `body` after a backdrop click, so a React `onKeyDown` isn't enough. Ctrl+S is swallowed meanwhile; autosave keeps running.
+- Not built: field × field (`impuesto_actividad`), constants as terms, renglón 34's `-(…)`, a searchable picker.
+
 ## Presentational fields (`label`, `rich_text`)
 
 **Input fields** collect a value; **presentational fields** only show content. Predicate: `isPresentationalField` (`src/lib/fieldKind/fieldKind.ts`), backed by `PRESENTATIONAL_FIELD_TYPES`.
