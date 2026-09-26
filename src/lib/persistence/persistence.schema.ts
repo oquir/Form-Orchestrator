@@ -115,9 +115,13 @@ const fieldLogicSchema = z.object({
   rules: z.array(fieldRuleSchema).optional(),
 });
 
+// El idConcepto se pide numero y nada mas: un 0 o un decimal es un problema del formulario, no del
+// archivo, y exigir aca un entero positivo tiraria el borrador entero. Lo reporta la revision de
+// exportacion.
 const apiBindingSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("mapped"), path: z.string() }),
   z.object({ kind: z.literal("excluded") }),
+  z.object({ kind: z.literal("concept"), idConcepto: z.number().optional() }),
 ]);
 
 const fieldDataSourceSchema = z.object({
