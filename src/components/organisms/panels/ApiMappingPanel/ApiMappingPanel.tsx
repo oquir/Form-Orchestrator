@@ -1,10 +1,12 @@
+import { CONCEPT_VALUE_KEY } from "../../../../constants/fieldConcept";
 import { useApiMappingPanel } from "../../../../hooks/useApiMappingPanel/useApiMappingPanel";
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { allowsManualOptions, isOptionBasedField } from "../../../../lib/fieldOptions/fieldOptions";
 import type { CanvasField } from "../../../../types/field";
-import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { ApiPathSelect } from "../../../molecules/ApiPathSelect/ApiPathSelect";
+import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
+import { PayloadDestinationSwitch } from "../../../molecules/PayloadDestinationSwitch/PayloadDestinationSwitch";
 import { FieldOptionsModal } from "../../FieldOptionsModal/FieldOptionsModal";
 import { FieldDataSourceEditor } from "../FieldDataSourceEditor/FieldDataSourceEditor";
 import {
@@ -17,7 +19,8 @@ import {
 
 export function ApiMappingPanel({ field }: { field: CanvasField }) {
   const {
-    isExcluded,
+    destination,
+    disabledDestinations,
     path,
     leaves,
     isOrphan,
@@ -26,12 +29,16 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
     resolvedType,
     group,
     awaitsGroupArrayPath,
+    conceptId,
+    conceptKind,
+    conceptClash,
     dataSourceCandidates,
     isAskingOptions,
-    setIsAskingOptions,
-    handleExcludedToggle,
+    handleDestinationChange,
     handleOptionsConfirm,
+    handleOptionsCancel,
     handlePathChange,
+    handleConceptIdChange,
   } = useApiMappingPanel({ field });
 
   if (isPresentationalField(field.type)) {
@@ -44,30 +51,22 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <PanelSection
-        title="Destino en el payload"
-        description={DESTINATION_DESCRIPTION}
-        aside={
-          <ToggleSwitch
-            checked={isExcluded}
-            onChange={handleExcludedToggle}
-            label="Excluir el campo del payload"
-          />
-        }
-      >
-        <p className={HINT_CLASSES}>
-          {isExcluded ? (
-            <>
-              Excluido: no se enviará al objeto final aunque participe en cálculos o condiciones.
-              {allowsManualOptions(field) &&
-                " Si lo volvés a incluir, las opciones que cargaste se descartan."}
-            </>
-          ) : (
-            "Apagá el interruptor de la derecha solo si el campo es de uso interno del formulario y no viaja a la API."
-          )}
-        </p>
+      <PanelSection title="Destino en el payload" description={DESTINATION_DESCRIPTION}>
+        <PayloadDestinationSwitch
+          destination={destination}
+          disabledReasons={disabledDestinations}
+          onChange={handleDestinationChange}
+        />
 
-        {!isExcluded && group !== null && (
+        {destination === "excluded" && (
+          <p className={HINT_CLASSES}>
+            Excluido: no se enviará al objeto final aunque participe en cálculos o condiciones.
+            {allowsManualOptions(field) &&
+              " Si lo pasás a Contrato, las opciones que cargaste se descartan."}
+          </p>
+        )}
+
+        {destination === "contract" && group !== null && (
           <p className={NOTE_CLASSES}>
             {awaitsGroupArrayPath
               ? `Este campo vive dentro del grupo repetible “${group.title}”. Elegí primero a qué arreglo del payload corresponde el grupo.`
@@ -75,7 +74,7 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
           </p>
         )}
 
-        {!isExcluded && !awaitsGroupArrayPath && (
+        {destination === "contract" && !awaitsGroupArrayPath && (
           <>
             <ApiPathSelect
               path={path}
@@ -106,6 +105,44 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
             )}
           </>
         )}
+
+        {destination === "concept" && (
+          <>
+            <LabeledInput
+              id="concept-id"
+              label="idConcepto"
+              type="number"
+              min={1}
+              step={1}
+              placeholder="Ej. 5"
+              value={conceptId ?? ""}
+              onChange={(event) => handleConceptIdChange(event.target.value)}
+            />
+
+            {conceptKind !== null && (
+              <p className={HINT_CLASSES}>
+                El id del concepto en la tabla de conceptos del backend. Viaja con tipo{" "}
+                <span className="font-semibold">{conceptKind}</span> en{" "}
+                <code className="font-mono">{CONCEPT_VALUE_KEY[conceptKind]}</code>.
+                {allowsManualOptions(field) &&
+                  " Las opciones viajan por su texto; si lo pasás a Contrato, se descartan."}
+              </p>
+            )}
+
+            {conceptId === undefined && (
+              <p className={ERROR_CLASSES}>
+                Falta el idConcepto: sin él, el formulario no se puede exportar.
+              </p>
+            )}
+
+            {conceptClash !== null && (
+              <p className={ERROR_CLASSES}>
+                El campo “{conceptClash.label}” ya usa el idConcepto {conceptId}: dos conceptos con
+                el mismo id se pisarían en el backend.
+              </p>
+            )}
+          </>
+        )}
       </PanelSection>
 
       {isOptionBasedField(field.type) && (
@@ -116,7 +153,7 @@ export function ApiMappingPanel({ field }: { field: CanvasField }) {
         <FieldOptionsModal
           fieldTypeLabel={field.label}
           onConfirm={handleOptionsConfirm}
-          onCancel={() => setIsAskingOptions(false)}
+          onCancel={handleOptionsCancel}
         />
       )}
     </div>
