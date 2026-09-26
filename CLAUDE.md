@@ -449,21 +449,49 @@ Settled:
 - `select` lost the dead "Longitud" fieldset (option-based fields go the `z.enum` branch, which never reads `minLength`/`maxLength`).
 - ICA declares no cap — `numero_documento`'s 7–10 digit rule already lives in its `pattern`.
 
+## Conceptos tributarios (`apiBinding.kind: "concept"`)
+
+A third destination for a field's value, besides a contract leaf (`mapped`) or nowhere (`excluded`): what the fixed `DeclaracionIcaE` contract doesn't cover (a file, an "acepto", an extra datum a municipality asks for) travels in a **`conceptos` list at the root of the payload**, each item identified by the `idConcepto` of the backend's `MaestroConcepto` table. Asked for by the user's boss. The backend stores it EAV-style, typed (`MaestroConcepto` + `DeclaracionConcepto` with one column per value kind). Pieces: `lib/fieldConcept/` (`conceptKindOf`, `isValidConceptId`, `parseConceptId`, `conceptOwners`), `constants/fieldConcept.ts` (`CONCEPT_KIND_BY_FIELD_TYPE`, `CONCEPT_VALUE_KEY`, `CONCEPTS_PAYLOAD_KEY`, `CONCEPT_ID_MAX`), `types/fieldConcept.ts` (`ConceptValueKind`, `ConceptoPayload`), `conceptEntry` in `runtimePayload.utils.ts`, `molecules/PayloadDestinationSwitch/`.
+
+The contract (Spanish names on purpose: it *is* the API contract):
+```json
+"conceptos": [
+  { "idConcepto": 5, "tipo": "archivo",  "valorTexto": "recibo.pdf" },
+  { "idConcepto": 3, "tipo": "booleano", "valorBooleano": true },
+  { "idConcepto": 4, "tipo": "lista",    "valorLista": ["RUT", "Cámara de comercio"] }
+]
+```
+`tipo` ∈ `texto | numero | booleano | lista | archivo`; exactly one `valor*` travels (`valorTexto`/`valorNumero`/`valorBooleano`/`valorLista`). On the C# side it is a flat `ConceptoDto` with nullable `ValorX` properties.
+
+Settled:
+- **One property per value kind ("opción A"), not a polymorphic `valor`** — C# receives it with a plain class, no `JsonElement`/converters, and it maps 1:1 to the typed EAV columns.
+- **`tipo` is the data kind, not the control type** — the backend doesn't care whether it was a radio or a select; it equals `MaestroConcepto.TipoDato`. text/textarea → `texto`; number/calculated → `numero`; checkbox → `booleano`; select/search_select/radio_group/toggle_group → `texto`; checkbox_group → `lista`; file → `archivo` (in `valorTexto`).
+- **`tipo` is derived, never stored** — the draft keeps `{kind: "concept", idConcepto?}`; `resolveApiBinding` (export) adds `tipo` from the field type, so the consumer reads it instead of copying the table. `ExportedField.apiBinding` is `ExportedApiBinding` for that reason. A presentational field never exports as a concept.
+- **`idConcepto` is optional in the draft** (it doesn't exist until typed) and the schema only asks for a number: a `0` or a decimal is a form problem, not a file problem, and rejecting it in Zod would throw the whole draft away. The export review blocks anything that isn't a positive int32 (`CONCEPT_ID_MAX`: `IdConcepto` is an `int` in C#). Typed by hand; picking it from a pasted `MaestroConcepto` catalog was left for later.
+- **Array rules**: only visible concepts travel; **an unanswered one doesn't travel** (empty text, no number, empty list, no file) so no empty rows land in `DeclaracionConcepto` — **except the checkbox, which always travels** (unticked is an answer). Order is form order (intro modal, then steps). The `conceptos` key appears only when the form declares at least one concept, so the ICA template's payload is byte-identical.
+- **Options: manually authored → the option's text; catalog-fed → the id.** Manual option ids are uuids nobody else knows; catalog ids are the backend's own. The consumer tells them apart by `options[]` being present, like everything else.
+- **A file travels by name only**; the binary goes separately (multipart or an attachments endpoint) — the consumer's and backend's call, not the builder's.
+- **No concepts inside repeatable groups** — the list is flat and wouldn't know which repetition a value belongs to (a `grupo` index was proposed and dropped). The panel disables "Concepto" inside a group (disabled, not hidden), `moveField` turns a concept dropped into a group row into `excluded` (keeps its manual options, loses the id), `buildPayload` doesn't walk group concepts, and the export review errors on one (only reachable through a hand-edited file). `planLanding` already skips group rows.
+- **Manual options are allowed for concepts** (`allowsManualOptions`: excluded *or* concept, no `dataSource`) — a concept has no path to infer a catalog from. Excluded ↔ concept keeps the options; going back to the contract discards them.
+- **`ApiMappingPanel` has a three-way segmented control** (Contrato · Concepto · Excluido) instead of the old "Excluir" toggle. It reuses `ViewModeSwitch`'s look; the `SWITCH_*` classes moved to `constants/uiClasses.ts`. Live errors for a missing id and for an id another field already uses (both canvases). `FieldOptionsModal` fires when leaving the contract for either destination on an option field with no options (`pendingDestination` remembers which).
+- Additive: no `DRAFT_SCHEMA_VERSION` bump, just the `apiBindingSchema` variant.
+- The Payload view appends a `conceptos` node (one line per field, amber when the id is missing or repeated, `— ninguno —` when empty); the simulator shows "N mapeados · M conceptos".
+
 ## Options and `apiBinding`
 
-Option-based types (`select`, `search_select`, `toggle_group`, `radio_group`, `checkbox_group`) get **manually authored options only when excluded from the payload *and* declares no `dataSource`**; otherwise options are injected at runtime. Predicates in `src/lib/fieldOptions/fieldOptions.ts` — use `allowsManualOptions`, not an inline `apiBinding` check (exactly 4 call sites enforce this).
+Option-based types (`select`, `search_select`, `toggle_group`, `radio_group`, `checkbox_group`) get **manually authored options only when they don't go to the contract (excluded from the payload *or* sent as a concept) *and* declare no `dataSource`**; otherwise options are injected at runtime. Predicates in `src/lib/fieldOptions/fieldOptions.ts` — use `allowsManualOptions`, not an inline `apiBinding` check (exactly 4 call sites enforce this).
 
 **Precedence the consumer applies:**
-1. `options[]` present → use them (only ever emitted for excluded, no-`dataSource` fields).
+1. `options[]` present → use them (only ever emitted for excluded or concept, no-`dataSource` fields).
 2. `dataSource` present → query `dataSource.catalog`, gated by `dependsOn` if set.
 3. Neither, `apiBinding.kind === "mapped"` → infer catalog from `apiBinding.path` (legacy fallback, most ICA selects still here).
 
 **`options[]` and `dataSource` are mutually exclusive by construction** — `allowsManualOptions` returns false whenever `dataSource` is set, so the JSON can never carry both.
 
 Settled:
-- Dropping an option-field from the palette creates it with no options; `FieldOptionsModal` fires from `ApiMappingPanel` at exclusion time, skipped if the field already has a `dataSource`.
-- Leaving excluded state, or declaring a `dataSource`, **discards** `options` — deliberate, not kept hidden.
-- `buildZodSchema` only emits `z.enum` for excluded fields; mapped ones fall back to `z.string()`.
+- Dropping an option-field from the palette creates it with no options; `FieldOptionsModal` fires from `ApiMappingPanel` when the field leaves the contract (excluded or concept), skipped if the field already has a `dataSource`.
+- Going back to the contract, or declaring a `dataSource`, **discards** `options` — deliberate, not kept hidden.
+- `buildZodSchema` only emits `z.enum` for excluded or concept fields; mapped ones fall back to `z.string()`.
 - `ConditionValueInput` offers a dropdown only for fields with *local* options — a mapped select degrades to free-text-by-id in condition editors.
 - `checkbox` (single boolean) and `checkbox_group` (multi-select array) are **different types on purpose** — do not merge.
 - `PAYLOAD_SCHEMA` has 75 leaves (53 number, 22 string, no boolean, no scalar arrays) — a `checkbox_group` has nowhere real to map. `fieldMatchesSchemaType` lets `checkbox` match `number` leaves (0/1) to avoid a permanent unavoidable type warning.
@@ -643,7 +671,7 @@ Settled:
 
 **Exportar** runs `diagnoseForm` (`src/lib/formDiagnostics/`) before downloading; `useExportReview` owns when it runs and where "Ir" leads, and `ExportReviewModal` lists the problems. No problems → straight download.
 
-Errors (block the download): a field, rule-effect or enabled group-check script that doesn't compile (alone, or once composed with the prelude) or reads an unknown `{{x}}`; a prelude that doesn't compile or reads fields; an invalid regex in `validations.pattern`, an override's `pattern` or a `matches` condition; a dependency cycle. Warnings (never block): a binding to a path the contract lacks or to a host-provided leaf, unsupported CSS in field/row/tooltip styles.
+Errors (block the download): a field, rule-effect or enabled group-check script that doesn't compile (alone, or once composed with the prelude) or reads an unknown `{{x}}`; a prelude that doesn't compile or reads fields; an invalid regex in `validations.pattern`, an override's `pattern` or a `matches` condition; a dependency cycle; a concept without a valid `idConcepto`, sharing its id with another field (reported on both), or inside a repeatable group. Warnings (never block): a binding to a path the contract lacks or to a host-provided leaf, unsupported CSS in field/row/tooltip styles.
 
 Settled:
 - **Runs only on Exportar**, never live — no per-keystroke cost, which matters on the user's slow work PC.
@@ -740,9 +768,9 @@ Both import cycles this shape produced are fixed the same way: implementation mo
   - Right panel (`RightSidebar/`): action row (`SaveButton`, `SimulatorButton`, `ExportButton`, `RightPanelToggle`) over a text tab strip carrying `CanvasZoomControl`, over the blocks of the active tab — view mode and project info under **Proyecto** (the Formulario block's `Abrir…` opens `ProjectImportModal`); `CanvasTabs` (which switches `activeCanvas`) and `StepTitleEditor` under **Steps**. `TransferNotice` shows above both. Collapsed (`isRightSidebarOpen`), the whole `<aside>` is unrendered and `CollapsedRightSidebar` replaces it. See "The right panel".
   - Canvas overlay (`CanvasToolbar/`, `CollapsedRightSidebar/`): the floating bar with the pointer tools, + Fila / + Grupo repetible and the multi-selection actions, plus the right panel's chip when it is folded. See "Canvas tools and floating toolbar".
   - Drag-and-drop wiring in `src/hooks/useDragAndDrop/`; `FormBuilder` wires `DndContext`/`DragOverlay` (and swaps to the lazy `FormSimulator`). Every palette drop creates the field directly; options are configured later.
-- **Payload mapping** (`src/lib/payloadSchema/`, `src/lib/payloadMapping/`): `PAYLOAD_SCHEMA` is the hardcoded `DeclaracionIcaE` contract. `buildMappingTree` pairs leaves with bound fields, flags type mismatches/orphans/host-provided leaves; rendered by `PayloadPreviewCanvas`.
+- **Payload mapping** (`src/lib/payloadSchema/`, `src/lib/payloadMapping/`): `PAYLOAD_SCHEMA` is the hardcoded `DeclaracionIcaE` contract. `buildMappingTree` pairs leaves with bound fields, flags type mismatches/orphans/host-provided leaves; rendered by `PayloadPreviewCanvas`, which appends the `conceptos` list (`summarizeConcepts`) — it lives outside the contract (see "Conceptos tributarios").
 - **Persistence** (`useAutosave/`, `src/lib/persistence/persistence.ts`): autosaves on interval once setup is complete; Ctrl/Cmd+S via `useKeyboardShortcuts/`. `loadDraft`/`clearDraft` back the recovery modal. `loadDraft` is `JSON.parse` + `parseDraft`, which `lib/projectFile` reuses for exported files; `buildDraftPayload` (shared with the export) stamps `schemaVersion`/`savedAt`. Draft carries `schemaVersion`, **migrates before validating** (the reverse order would discard old drafts precisely when migration could save them). Migration steps in `persistence.migrations.ts`, indexed by source version, work on the raw object (no shape assumed) — a gap in the chain stops the walk and the version rejection kicks in. **Every shape change needs a migration step**; `z.object` silently strips undeclared keys, so skipping the step loses data without a word. A purely additive optional key (like `rounding`) needs no version bump, just its `persistence.schema.ts` line — forgetting that line is the same silent-strip trap from the other direction.
-- **Output** (`src/lib/exportForm/`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, `formSchema.steps[]` (each field's `colStart`/`colSpan`/`styles`/`validations.zodSchema`/`logic`/`options`/`fileConfig`/`alwaysDisabled`/`apiBinding`/`labelFor`/`content`/`tooltip`/`rounding`/`formatted`/`allowsNegative`/`decimals`/`enableWhen`/`visibleWhen`) plus `groups[]` (`min`/`max`/`arrayPath`, array Zod schema, `checks[]`) and `rows[].groupId`, plus `formSchema.gridBaseColumns`/`prelude` (sent once, not repeated per `compiled`). Field ids in conditions/rules/`labelFor` are **resolved to names** on export. `validations.zodSchema` is optional — its absence is how the consumer knows there's nothing to validate. `downloadFormExport` adds `builderDraft` (the draft payload) to the downloaded file only — `buildFormExport`, which the simulator and the JSON view read, never carries it. The Exportar button goes through the export review first (see "Export review").
+- **Output** (`src/lib/exportForm/`): `downloadFormExport`/`buildFormExport` serialize `projectMeta`, `setupConfig.introModal`, `formSchema.steps[]` (each field's `colStart`/`colSpan`/`styles`/`validations.zodSchema`/`logic`/`options`/`fileConfig`/`alwaysDisabled`/`apiBinding`/`labelFor`/`content`/`tooltip`/`rounding`/`formatted`/`allowsNegative`/`decimals`/`enableWhen`/`visibleWhen`) plus `groups[]` (`min`/`max`/`arrayPath`, array Zod schema, `checks[]`) and `rows[].groupId`, plus `formSchema.gridBaseColumns`/`prelude` (sent once, not repeated per `compiled`). Field ids in conditions/rules/`labelFor` are **resolved to names** on export; a concept `apiBinding` goes out with its derived `tipo`. `validations.zodSchema` is optional — its absence is how the consumer knows there's nothing to validate. `downloadFormExport` adds `builderDraft` (the draft payload) to the downloaded file only — `buildFormExport`, which the simulator and the JSON view read, never carries it. The Exportar button goes through the export review first (see "Export review").
 
 ### Prescribed stack
 
