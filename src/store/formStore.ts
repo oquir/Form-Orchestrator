@@ -613,11 +613,20 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
       const sourceRow = findRowContainingField(state, fieldId);
       const leavesItemScope: boolean =
         sourceRow?.groupId !== targetRow.groupId && movedField.apiBinding?.kind === "mapped";
+      // Un concepto no puede vivir dentro de un grupo: la lista de conceptos es plana y no sabria a
+      // que repeticion pertenece cada valor. Queda excluido y no suelto -- sigue sin ir al contrato,
+      // y asi conserva las opciones que tuviera escritas a mano.
+      const entersGroupAsConcept: boolean =
+        targetRow.groupId !== undefined && movedField.apiBinding?.kind === "concept";
 
       const placed: CanvasField = {
         ...movedField,
         ...placement,
-        apiBinding: leavesItemScope ? undefined : movedField.apiBinding,
+        apiBinding: leavesItemScope
+          ? undefined
+          : entersGroupAsConcept
+            ? { kind: "excluded" }
+            : movedField.apiBinding,
       };
       const applyTo = (rows: CanvasRow[]): CanvasRow[] =>
         rows.map((row) => {
