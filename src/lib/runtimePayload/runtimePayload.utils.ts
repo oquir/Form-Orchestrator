@@ -1,3 +1,7 @@
+import type { ExportedField } from "../../types/exportForm";
+import type { ConceptoPayload } from "../../types/fieldConcept";
+import { isValidConceptId } from "../fieldConcept/fieldConcept";
+
 // Escritura por ruta sobre el objeto del payload. Las rutas del contrato vienen como
 // "contribuyente.primerNombre" o "actividades[0].idActividad", y hay que crear los tramos que
 // falten sobre la marcha porque el objeto empieza vacio.
@@ -57,4 +61,48 @@ export function setDeepValue(target: Record<string, unknown>, path: string, valu
 
     cursor = list[segment.index];
   });
+}
+
+// Un concepto con su valor ya convertido, o null si no hay nada que mandar. Son las reglas del
+// contrato con el backend (CLAUDE.md, "Conceptos tributarios") y se leen solo del export, como las
+// va a leer el consumidor: el tipo viene resuelto en el binding y las opciones en `options`.
+// Un concepto sin respuesta no viaja, para no llenar filas vacias del otro lado.
+export function conceptEntry(field: ExportedField, value: unknown): ConceptoPayload | null {
+  const binding = field.apiBinding;
+  if (binding?.kind !== "concept" || !isValidConceptId(binding.idConcepto)) return null;
+
+  const idConcepto: number = binding.idConcepto;
+
+  switch (binding.tipo) {
+    case "texto": {
+      const text: string = value === undefined || value === null ? "" : optionText(field, value);
+      return text.trim() === "" ? null : { idConcepto, tipo: "texto", valorTexto: text };
+    }
+    case "numero":
+      return typeof value === "number" && Number.isFinite(value)
+        ? { idConcepto, tipo: "numero", valorNumero: value }
+        : null;
+    // Desmarcado tambien es una respuesta, asi que el checkbox viaja siempre.
+    case "booleano":
+      return { idConcepto, tipo: "booleano", valorBooleano: value === true };
+    case "lista": {
+      const items: string[] = Array.isArray(value)
+        ? value.map((item: unknown) => optionText(field, item))
+        : [];
+      return items.length > 0 ? { idConcepto, tipo: "lista", valorLista: items } : null;
+    }
+    // El archivo no cabe en el JSON: aca va su nombre, y el binario viaja aparte por donde lo
+    // acuerden el consumidor y el backend.
+    case "archivo":
+      return value instanceof File ? { idConcepto, tipo: "archivo", valorTexto: value.name } : null;
+  }
+}
+
+// Las opciones escritas a mano tienen un uuid por id, que el backend no conoce: viaja el texto que
+// vio el contribuyente. Las de un catalogo no salen en `options` -el export solo trae las manuales-
+// y su id ya es el del backend, asi que van tal cual. Un campo sin opciones devuelve su texto.
+function optionText(field: ExportedField, value: unknown): string {
+  const id: string = String(value);
+
+  return field.options?.find((option) => option.id === id)?.label ?? id;
 }
