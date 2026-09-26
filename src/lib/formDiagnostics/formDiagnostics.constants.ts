@@ -29,6 +29,14 @@ export const ORPHAN_MAPPING_MESSAGE: string =
 export const HOST_MAPPING_MESSAGE: string =
   "Está mapeado a una hoja que llena el aplicativo receptor:";
 
+export const INVALID_CONCEPT_ID_MESSAGE: string =
+  "Se envía como concepto pero no tiene un idConcepto válido (un entero positivo).";
+
+export const DUPLICATE_CONCEPT_ID_MESSAGE: string = "Otro campo usa el mismo idConcepto:";
+
+export const CONCEPT_IN_GROUP_MESSAGE: string =
+  "Un concepto no puede vivir dentro de un grupo repetible: la lista de conceptos lo ignoraría.";
+
 export const CYCLE_MESSAGE: string = "Ciclo entre campos:";
 
 export const UNSUPPORTED_CSS_MESSAGE: string =

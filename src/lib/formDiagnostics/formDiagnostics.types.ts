@@ -9,6 +9,7 @@ export type ProblemDraft = Omit<FormProblem, "id">;
 export interface LocatedField {
   field: CanvasField;
   canvas: CanvasTarget;
+  inGroup: boolean;
 }
 
 export interface LocatedRow {

@@ -8,6 +8,7 @@ import type { SchemaLeaf } from "../../types/payloadSchema";
 import type { CanvasTarget } from "../../types/placement";
 import type { SidebarTab } from "../../types/ui";
 import { unsupportedDeclarations } from "../cssStyles/cssStyles";
+import { isValidConceptId } from "../fieldConcept/fieldConcept";
 import { buildFieldGraph, describeCycle, topologicalOrder } from "../fieldGraph/fieldGraph";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { isOptionBasedField } from "../fieldOptions/fieldOptions";
@@ -21,8 +22,11 @@ import {
 import { enabledChecks } from "../groupCheck/groupCheck";
 import { resolveLeaf } from "../payloadSchema/payloadSchema";
 import {
+  CONCEPT_IN_GROUP_MESSAGE,
   CYCLE_MESSAGE,
+  DUPLICATE_CONCEPT_ID_MESSAGE,
   HOST_MAPPING_MESSAGE,
+  INVALID_CONCEPT_ID_MESSAGE,
   INVALID_CONDITION_PATTERN_MESSAGE,
   INVALID_OVERRIDE_PATTERN_MESSAGE,
   INVALID_PATTERN_MESSAGE,
@@ -72,7 +76,9 @@ function addRows(
 ): void {
   for (const [index, row] of rows.entries()) {
     items.rows.push({ row, canvas, where: `Fila ${index + 1} · ${stepTitle}` });
-    for (const field of row.fields) items.fields.push({ field, canvas });
+    for (const field of row.fields) {
+      items.fields.push({ field, canvas, inGroup: row.groupId !== undefined });
+    }
   }
 }
 
@@ -328,6 +334,46 @@ export function mappingProblems(located: LocatedField): ProblemDraft[] {
   }
 
   return [];
+}
+
+// Los tres son errores porque el payload saldria mal sin avisar: sin id el concepto no viaja, con
+// el id repetido dos valores se pisan en la misma fila del backend, y dentro de un grupo la lista
+// plana lo ignora. El builder no deja meter uno en un grupo; ese solo llega en un JSON editado a
+// mano. `owners` se arma una vez para todo el formulario.
+export function conceptProblems(
+  located: LocatedField,
+  owners: Map<number, CanvasField[]>,
+): ProblemDraft[] {
+  const binding = located.field.apiBinding;
+  if (binding?.kind !== "concept" || isPresentationalField(located.field.type)) return [];
+
+  const where: string = fieldWhere(located.field);
+  const target: ProblemTarget = fieldTarget(located, "apiMapping");
+  const problems: ProblemDraft[] = [];
+
+  if (located.inGroup) {
+    problems.push({ severity: "error", where, message: CONCEPT_IN_GROUP_MESSAGE, target });
+  }
+
+  if (!isValidConceptId(binding.idConcepto)) {
+    problems.push({ severity: "error", where, message: INVALID_CONCEPT_ID_MESSAGE, target });
+    return problems;
+  }
+
+  const others: CanvasField[] = (owners.get(binding.idConcepto) ?? []).filter(
+    (owner) => owner.id !== located.field.id,
+  );
+
+  if (others.length > 0) {
+    problems.push({
+      severity: "error",
+      where,
+      message: `${DUPLICATE_CONCEPT_ID_MESSAGE} ${binding.idConcepto} (${others.map(fieldWhere).join(", ")})`,
+      target,
+    });
+  }
+
+  return problems;
 }
 
 function cssDrafts(

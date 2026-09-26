@@ -1,7 +1,10 @@
+import type { CanvasField } from "../../types/field";
 import type { DiagnoseFormInput, FormProblem } from "../../types/formDiagnostics";
+import { conceptOwners } from "../fieldConcept/fieldConcept";
 import type { LocatedItems, PreludeCheck, ProblemDraft } from "./formDiagnostics.types";
 import {
   checkPrelude,
+  conceptProblems,
   conditionPatternProblems,
   cycleProblems,
   fieldCssProblems,
@@ -14,9 +17,9 @@ import {
 } from "./formDiagnostics.utils";
 
 // Revision del formulario antes de exportar. Junta en una sola lista lo que los editores ya avisan
-// por separado -- scripts que no compilan, ciclos, mapeos huerfanos, CSS no reconocido -- y lo que
-// nadie revisaba: la regex de `pattern` y de las condiciones `matches`, y los scripts de los
-// efectos de reglas.
+// por separado -- scripts que no compilan, ciclos, mapeos huerfanos, conceptos sin id o repetidos,
+// CSS no reconocido -- y lo que nadie revisaba: la regex de `pattern` y de las condiciones
+// `matches`, y los scripts de los efectos de reglas.
 //
 // Un error es algo que se sabe roto y bloquea la exportacion; un aviso puede ser a proposito. Los
 // `⚠ tipo` y la cobertura del payload quedan fuera a proposito: siguen en Mapeo API y en la vista
@@ -29,6 +32,9 @@ export function diagnoseForm(input: DiagnoseFormInput): FormProblem[] {
   // que cada {{x}} se juzga con el mismo criterio con que se va a compilar.
   const knownNames: Set<string> = new Set(items.fields.map((located) => located.field.name));
   const prelude: PreludeCheck = checkPrelude(input.formScript);
+  const owners: Map<number, CanvasField[]> = conceptOwners(
+    items.fields.map((located) => located.field),
+  );
 
   const drafts: ProblemDraft[] = [
     ...prelude.problems,
@@ -37,6 +43,7 @@ export function diagnoseForm(input: DiagnoseFormInput): FormProblem[] {
       ...patternProblems(located),
       ...conditionPatternProblems(located),
       ...mappingProblems(located),
+      ...conceptProblems(located, owners),
       ...fieldCssProblems(located),
     ]),
     ...items.rows.flatMap((located) => rowCssProblems(located)),
