@@ -3,12 +3,13 @@ import {
   MULTI_VALUE_FIELD_TYPES,
   OPTION_BASED_FIELD_TYPES,
 } from "../../constants/fieldTypes";
-import type { CanvasField, FieldOption } from "../../types/field";
+import type { ApiBinding, CanvasField, FieldOption } from "../../types/field";
 import type { InlineCapableField } from "./fieldOptions.types";
 
-// Quien pone las opciones de un select. Solo un campo excluido del payload las lleva escritas a
-// mano; uno mapeado -o uno sin decidir todavia- las recibe del consumidor, que consulta el
-// catalogo por su apiBinding.path. Salir del estado excluido descarta las opciones a proposito.
+// Quien pone las opciones de un select. Solo un campo que no va al contrato -excluido del payload o
+// enviado como concepto- las lleva escritas a mano; uno mapeado -o uno sin decidir todavia- las
+// recibe del consumidor, que consulta el catalogo por su apiBinding.path. Un concepto no tiene
+// ruta de la cual inferir un catalogo. Volver al contrato descarta las opciones a proposito.
 
 export function isOptionBasedField(type: string): boolean {
   return OPTION_BASED_FIELD_TYPES.includes(type);
@@ -21,9 +22,11 @@ export function isMultiValueField(type: string): boolean {
 // Un dataSource declara que las opciones las trae un catalogo. Permitir ademas opciones a mano
 // dejaria el JSON con dos ordenes contradictorias y el consumidor tendria que adivinar cual gana.
 export function allowsManualOptions(field: CanvasField): boolean {
+  const kind: ApiBinding["kind"] | undefined = field.apiBinding?.kind;
+
   return (
     isOptionBasedField(field.type) &&
-    field.apiBinding?.kind === "excluded" &&
+    (kind === "excluded" || kind === "concept") &&
     field.dataSource === undefined
   );
 }

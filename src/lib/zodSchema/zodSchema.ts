@@ -59,9 +59,9 @@ function buildSchemaFor(field: CanvasField, v: FieldValidationRules): string {
   let schema: string;
 
   if (isOptionBasedField(field.type)) {
-    // Solo se enumeran los valores de un campo excluido del payload, que es el unico caso en que
-    // el builder los conoce. Uno mapeado recibe sus opciones del catalogo en tiempo de ejecucion,
-    // asi que cae en z.string(): no se puede enumerar lo que no se ha visto.
+    // Solo se enumeran los valores de un campo que no va al contrato -excluido o concepto-, que es
+    // el unico caso en que el builder los conoce. Uno mapeado recibe sus opciones del catalogo en
+    // tiempo de ejecucion, asi que cae en z.string(): no se puede enumerar lo que no se ha visto.
     const options: FieldOption[] = exportableOptions(field) ?? [];
     const ids: string[] = options.map((option) => JSON.stringify(option.id));
     schema = ids.length > 0 ? `z.enum([${ids.join(", ")}])` : "z.string()";
