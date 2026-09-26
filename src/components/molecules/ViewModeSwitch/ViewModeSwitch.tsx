@@ -4,8 +4,8 @@ import {
   SWITCH_ITEM_BASE_CLASSES,
   SWITCH_ITEM_INACTIVE_CLASSES,
   SWITCH_TRACK_CLASSES,
-  VIEW_MODE_ICONS,
-} from "./ViewModeSwitch.constants";
+} from "../../../constants/uiClasses";
+import { VIEW_MODE_ICONS } from "./ViewModeSwitch.constants";
 import type { ViewModeSwitchProps } from "./ViewModeSwitch.types";
 
 export function ViewModeSwitch({ activeMode, onSelect }: ViewModeSwitchProps) {

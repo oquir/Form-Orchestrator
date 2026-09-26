@@ -76,3 +76,19 @@ export const CANVAS_TOOLBAR_ICON_ACTION_CLASSES: string =
   "flex h-8 w-8 items-center justify-center rounded-lg text-fg-muted transition-colors hover:cursor-pointer hover:bg-surface-raised hover:text-fg-strong dark:hover:bg-surface-inset disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-fg-muted dark:disabled:hover:bg-transparent";
 
 export const CANVAS_TOOLBAR_DIVIDER_CLASSES: string = "mx-0.5 h-5 w-px bg-border";
+
+// El control segmentado: riel hundido con la opcion activa en pastilla elevada. Lo comparten
+// ViewModeSwitch y PayloadDestinationSwitch. El activo no va en naranja aunque sea la eleccion
+// vigente: el naranja del panel esta reservado para Exportar, que es la unica accion primaria, y
+// dos naranjas a un centimetro de distancia se disputan la mirada.
+export const SWITCH_TRACK_CLASSES: string =
+  "flex gap-0.5 rounded-lg border border-border bg-surface-sunken p-[3px]";
+
+export const SWITCH_ITEM_BASE_CLASSES: string =
+  "flex h-7 flex-1 items-center justify-center gap-1.5 rounded-md text-[11px] transition-colors hover:cursor-pointer";
+
+export const SWITCH_ITEM_ACTIVE_CLASSES: string =
+  "bg-surface font-semibold text-fg-strong shadow-sm dark:bg-surface-inset";
+
+export const SWITCH_ITEM_INACTIVE_CLASSES: string =
+  "font-medium text-fg-muted hover:text-fg-strong";
