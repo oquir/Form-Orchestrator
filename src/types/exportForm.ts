@@ -8,9 +8,16 @@ import type {
   FieldOption,
   TooltipPosition,
 } from "./field";
+import type { ConceptValueKind } from "./fieldConcept";
 import type { DraftPayload } from "./persistenceTypes";
 import type { RichTextContent } from "./richText";
 import type { FormType } from "./setup";
+
+// El binding tal cual, salvo el concepto, que sale con su tipo de dato ya resuelto: asi el
+// consumidor sabe que valor* llenar sin copiar la tabla de tipos del builder.
+export type ExportedApiBinding =
+  | Exclude<ApiBinding, { kind: "concept" }>
+  | { kind: "concept"; idConcepto?: number; tipo: ConceptValueKind };
 
 export interface ExportedCondition {
   field: string;
@@ -86,7 +93,7 @@ export interface ExportedField {
   alwaysDisabled?: boolean;
   enableWhen?: ExportedCondition;
   visibleWhen?: ExportedCondition;
-  apiBinding?: ApiBinding;
+  apiBinding?: ExportedApiBinding;
   dataSource?: FieldDataSource;
   labelFor?: string;
   content?: RichTextContent;
