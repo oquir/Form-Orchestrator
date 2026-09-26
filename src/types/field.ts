@@ -107,7 +107,14 @@ export interface FieldRule {
   effects: RuleEffect[];
 }
 
-export type ApiBinding = { kind: "mapped"; path: string } | { kind: "excluded" };
+// A donde va el valor del campo: a una hoja del contrato, a la lista de conceptos del payload o a
+// ninguna parte. El concepto es la salida para lo que el contrato fijo no contempla; su
+// `idConcepto` falta mientras nadie lo escriba, y la revision de exportacion bloquea hasta que
+// exista. Ver lib/fieldConcept.
+export type ApiBinding =
+  | { kind: "mapped"; path: string }
+  | { kind: "excluded" }
+  | { kind: "concept"; idConcepto?: number };
 
 // Que columna de la opcion elegida se copia a que campo. Vive en el campo que ORIGINA la
 // seleccion y no en los que se llenan: un solo dueno, sin dos puntas que mantener sincronizadas,
