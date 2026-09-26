@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { mappedFieldCount } from "../../../../lib/runtimePayload/runtimePayload";
+import { conceptFieldCount, mappedFieldCount } from "../../../../lib/runtimePayload/runtimePayload";
 import type { RuntimeIssue } from "../../../../types/formRuntime";
 import { JsonCode } from "../../../molecules/JsonCode/JsonCode";
 import { TabButtonGroup } from "../../../molecules/TabButtonGroup/TabButtonGroup";
@@ -10,6 +10,7 @@ export function PreviewResults({ preview }: PreviewResultsProps) {
   const [tab, setTab] = useState<ResultTab>("payload");
   const errorEntries: [string, string][] = Object.entries(preview.errors);
   const issues: RuntimeIssue[] = preview.issues;
+  const conceptCount: number = conceptFieldCount(preview.model);
 
   const payloadJson: string = useMemo(
     () => JSON.stringify(preview.payload, null, 2),
@@ -27,6 +28,7 @@ export function PreviewResults({ preview }: PreviewResultsProps) {
         <TabButtonGroup tabs={RESULT_TABS} activeTab={tab} onSelect={setTab} />
         <span className="text-[11px] text-fg-subtle">
           {mappedFieldCount(preview.model)} mapeados
+          {conceptCount > 0 && ` · ${conceptCount} conceptos`}
         </span>
       </div>
 
