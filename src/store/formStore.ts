@@ -891,6 +891,27 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         inlineOptions: inline || undefined,
       })),
     ),
+  setFieldDateRange: (fieldId, range) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        dateRange: range || undefined,
+      })),
+    ),
+  setFieldIncludesTime: (fieldId, withTime) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        includesTime: withTime || undefined,
+      })),
+    ),
+  setFieldDateFormat: (fieldId, format) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        dateFormat: format ?? undefined,
+      })),
+    ),
   // null es "los que traiga": la ausencia de la clave es un estado con sentido, no un cero.
   setFieldDecimals: (fieldId, decimals) =>
     set((state) =>

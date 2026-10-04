@@ -1,5 +1,6 @@
 import { RICH_TEXT_FIELD_TYPE } from "../../../../constants/fieldTypes";
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
+import { isDateFieldType } from "../../../../lib/fieldDate/fieldDate";
 import {
   findLabelFor,
   isPresentationalField,
@@ -29,6 +30,7 @@ import { LabelTargetSelect } from "../../../molecules/LabelTargetSelect/LabelTar
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { RichTextEditor } from "../../../molecules/RichTextEditor/RichTextEditor";
 import { CatalogFillsEditor } from "../CatalogFillsEditor/CatalogFillsEditor";
+import { DateOptionsEditor } from "../DateOptionsEditor/DateOptionsEditor";
 import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FieldTooltipEditor } from "../FieldTooltipEditor/FieldTooltipEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
@@ -180,6 +182,8 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       {field.type === "file" && <FileOptionsEditor field={field} />}
 
       {supportsRounding(field.type) && <NumberOptionsEditor field={field} />}
+
+      {isDateFieldType(field.type) && <DateOptionsEditor field={field} />}
 
       {supportsTooltip(field.type) && <FieldTooltipEditor field={field} />}
     </div>

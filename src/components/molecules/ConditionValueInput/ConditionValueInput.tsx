@@ -3,8 +3,13 @@ import {
   operatorTakesList,
   parseConditionList,
 } from "../../../lib/fieldCondition/fieldCondition";
-import type { FieldOption } from "../../../types/field";
-import { FIELD_CLASSES, OPERATOR_VALUE_HINTS } from "./ConditionValueInput.constants";
+import { dateInputMax, dateInputType, isDateFieldType } from "../../../lib/fieldDate/fieldDate";
+import type { CanvasField, FieldOption } from "../../../types/field";
+import {
+  DATE_FIELD_CLASSES,
+  FIELD_CLASSES,
+  OPERATOR_VALUE_HINTS,
+} from "./ConditionValueInput.constants";
 import type { ConditionValueInputProps } from "./ConditionValueInput.types";
 
 export function ConditionValueInput({
@@ -18,6 +23,8 @@ export function ConditionValueInput({
   const isStringBased = operatorIsStringBased(condition.operator);
   const hint = OPERATOR_VALUE_HINTS[condition.operator];
   const isNumeric = observedField?.type === "number" || observedField?.type === "calculated";
+  const dateField: CanvasField | undefined =
+    observedField && isDateFieldType(observedField.type) ? observedField : undefined;
 
   function toggleListEntry(optionId: string): void {
     const selected: string[] = parseConditionList(condition.value);
@@ -58,6 +65,14 @@ export function ConditionValueInput({
             </option>
           ))}
         </select>
+      ) : dateField && !isStringBased ? (
+        <input
+          type={dateInputType(dateField)}
+          max={dateInputMax(dateField)}
+          value={stringValue}
+          onChange={(event) => onChange(event.target.value)}
+          className={DATE_FIELD_CLASSES}
+        />
       ) : isNumeric && !isStringBased ? (
         <input
           type="number"

@@ -1,7 +1,7 @@
 // La rama de texto de buildSchemaFor (lib/zodSchema) es la unica que mete `pattern` en el schema:
-// los campos de opciones van por z.enum o z.string sin regex, y estos cuatro tienen su propio caso.
+// los campos de opciones van por z.enum o z.string sin regex, y estos cinco tienen su propio caso.
 // Una regex rota en uno de estos no viaja, asi que no hay nada que avisar.
-export const TYPES_WITHOUT_PATTERN: string[] = ["number", "calculated", "checkbox", "file"];
+export const TYPES_WITHOUT_PATTERN: string[] = ["number", "calculated", "checkbox", "file", "date"];
 
 export const PRELUDE_WHERE: string = "Script del formulario";
 

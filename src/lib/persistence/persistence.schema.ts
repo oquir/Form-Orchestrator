@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DATE_FORMAT_IDS } from "../../constants/dateFormats";
 import { safeHref } from "../richText/richText.utils";
 import { DRAFT_SCHEMA_VERSION } from "./persistence.constants";
 
@@ -23,6 +24,17 @@ const richTextContentSchema = z.array(
   }),
 );
 
+const dateBoundSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("today") }),
+  z.object({ kind: z.literal("fixed"), date: z.string() }),
+  z.object({
+    kind: z.literal("relative"),
+    amount: z.number(),
+    unit: z.enum(["days", "months", "years"]),
+    direction: z.enum(["past", "future"]),
+  }),
+]);
+
 const fieldValidationRulesSchema = z.object({
   required: z.boolean().optional(),
   minLength: z.number().optional(),
@@ -31,6 +43,8 @@ const fieldValidationRulesSchema = z.object({
   max: z.number().optional(),
   pattern: z.string().optional(),
   message: z.string().optional(),
+  minDate: dateBoundSchema.optional(),
+  maxDate: dateBoundSchema.optional(),
 });
 
 const fieldStylesSchema = z.object({
@@ -156,6 +170,9 @@ const canvasFieldSchema = z.object({
   allowsNegative: z.boolean().optional(),
   decimals: z.number().optional(),
   inlineOptions: z.boolean().optional(),
+  dateRange: z.boolean().optional(),
+  includesTime: z.boolean().optional(),
+  dateFormat: z.enum(DATE_FORMAT_IDS).optional(),
 });
 
 const rowStylesSchema = z.object({

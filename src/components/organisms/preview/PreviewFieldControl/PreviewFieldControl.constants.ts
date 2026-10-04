@@ -4,7 +4,6 @@ export const CONTROL_BASE_CLASSES: string =
 export const CONTROL_IDLE_CLASSES: string = "border-border focus:border-brand-border";
 
 export const CONTROL_INVALID_CLASSES: string = "border-danger-soft focus:border-danger";
-
 export const CHIP_BASE_CLASSES: string =
   "rounded-md border px-2.5 py-1 text-xs transition-colors hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50";
 

@@ -4,7 +4,11 @@ import type {
   FieldValidationOverride,
   FieldValidationRules,
 } from "../../types/field";
+import type { DateBound, DateBoundSide } from "../../types/fieldDate";
 import type { RepeatableGroup } from "../../types/formStructure";
+import { boundExpression, boundMessage, isCompleteBound } from "../dateBound/dateBound";
+
+import { includesTime, isDateRangeField } from "../fieldDate/fieldDate";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { effectiveMaxLength } from "../fieldLength/fieldLength";
 import {
@@ -12,6 +16,17 @@ import {
   isMultiValueField,
   isOptionBasedField,
 } from "../fieldOptions/fieldOptions";
+import {
+  DATE_VALUE_MESSAGE,
+  DATE_VALUE_PATTERN,
+  DATETIME_VALUE_MESSAGE,
+  DATETIME_VALUE_PATTERN,
+  RANGE_END_INVALID,
+  RANGE_END_MISSING,
+  RANGE_ORDER_MESSAGE,
+  RANGE_START_INVALID,
+  RANGE_START_MISSING,
+} from "./zodSchema.constants";
 
 // Genera el schema de Zod como texto, que es lo unico que viaja en el export. El consumidor lo
 // ejecuta con new Function, asi que lo de aca tiene que ser una expresion valida por si sola.
@@ -55,6 +70,59 @@ function mergeValidationRules(
   return merged;
 }
 
+function dateSchema(pattern: string, invalidMessage: string, missingMessage?: string): string {
+  const missing: string =
+    missingMessage === undefined ? "" : `.min(1, { message: ${JSON.stringify(missingMessage)} })`;
+
+  return `z.string()${missing}.regex(new RegExp(${JSON.stringify(pattern)}), { message: ${JSON.stringify(invalidMessage)} })`;
+}
+
+// Un limite como refine. Se compara solo la fecha -- los diez primeros caracteres --, asi que con
+// hora el limite es por dia: "no posterior a hoy" acepta hoy a las 11 de la noche.
+function boundRefine(
+  accessor: string,
+  bound: DateBound | undefined,
+  side: DateBoundSide,
+  subject: string,
+): string {
+  if (!isCompleteBound(bound)) return "";
+
+  const operator: string = side === "min" ? ">=" : "<=";
+  const message: string = JSON.stringify(boundMessage(bound, side, subject));
+
+  return `.refine((v) => ${accessor}.slice(0, 10) ${operator} ${boundExpression(bound)}, { message: ${message} })`;
+}
+
+// Las dos puntas son obligatorias dentro del rango aunque el campo sea opcional: un rango opcional
+// sin llenar llega como undefined y pasa por el .optional(), pero uno a medias es un error. El orden
+// se compara como texto, que con AAAA-MM-DD y AAAA-MM-DDTHH:mm da lo mismo que comparar fechas.
+// Los limites van a la punta que pueden romper: con el orden ya exigido, si la inicial no es
+// anterior al minimo la final tampoco, y si la final no pasa del maximo la inicial tampoco.
+function dateRangeSchema(pattern: string, v: FieldValidationRules): string {
+  const start: string = dateSchema(pattern, RANGE_START_INVALID, RANGE_START_MISSING);
+  const end: string = dateSchema(pattern, RANGE_END_INVALID, RANGE_END_MISSING);
+  const bounds: string =
+    boundRefine("v.desde", v.minDate, "min", "La fecha inicial") +
+    boundRefine("v.hasta", v.maxDate, "max", "La fecha final");
+
+  return `z.object({ desde: ${start}, hasta: ${end} }).refine((r) => r.desde <= r.hasta, { message: ${JSON.stringify(RANGE_ORDER_MESSAGE)} })${bounds}`;
+}
+
+function dateFieldSchema(field: CanvasField, v: FieldValidationRules): string {
+  const withTime: boolean = includesTime(field);
+  const pattern: string = withTime ? DATETIME_VALUE_PATTERN : DATE_VALUE_PATTERN;
+
+  if (isDateRangeField(field)) return dateRangeSchema(pattern, v);
+
+  const base: string = dateSchema(pattern, withTime ? DATETIME_VALUE_MESSAGE : DATE_VALUE_MESSAGE);
+
+  return (
+    base +
+    boundRefine("v", v.minDate, "min", "La fecha") +
+    boundRefine("v", v.maxDate, "max", "La fecha")
+  );
+}
+
 function buildSchemaFor(field: CanvasField, v: FieldValidationRules): string {
   let schema: string;
 
@@ -90,6 +158,9 @@ function buildSchemaFor(field: CanvasField, v: FieldValidationRules): string {
     }
     case "checkbox":
       schema = "z.boolean()";
+      break;
+    case "date":
+      schema = dateFieldSchema(field, v);
       break;
     case "file": {
       const config = field.fileConfig ?? { acceptedFormats: [], maxSizeMB: 10 };

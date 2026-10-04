@@ -1,4 +1,5 @@
 import type { CatalogColumn } from "./catalog";
+import type { DateBound, DateFormatId } from "./fieldDate";
 import type { RichTextContent } from "./richText";
 
 // Lo que una condicion puede cambiar. Vive aparte de FieldValidations para que un override no
@@ -11,6 +12,9 @@ export interface FieldValidationRules {
   max?: number;
   pattern?: string;
   message?: string;
+  // Solo campos fecha: lo mas temprano y lo mas tarde que se acepta. Ver lib/dateBound.
+  minDate?: DateBound;
+  maxDate?: DateBound;
 }
 
 // Cuando `when` se cumple, estas reglas se fusionan sobre las de base. Lo que el override no
@@ -163,4 +167,13 @@ export interface CanvasField {
   // Dibujar las opciones en una sola linea en vez de una debajo de otra. Solo presentacion, y solo
   // para radio_group y checkbox_group; ver lib/fieldOptions.
   inlineOptions?: boolean;
+  // Un campo fecha que pide un rango en vez de una sola fecha: el valor pasa a ser
+  // { desde, hasta }. Cambia la forma del valor, no solo como se ve; ver lib/fieldDate.
+  dateRange?: boolean;
+  // Un campo fecha que pide tambien la hora, en una sola fecha o en las dos puntas del rango: el
+  // valor pasa de AAAA-MM-DD a AAAA-MM-DDTHH:mm. Solo cuando el municipio lo pide.
+  includesTime?: boolean;
+  // Como se ve la fecha y como viaja a la API. Por dentro el valor sigue en AAAA-MM-DD; el formato
+  // se aplica solo en el input y en el payload. Ausente = el input del navegador. Ver lib/dateFormat.
+  dateFormat?: DateFormatId;
 }

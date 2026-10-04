@@ -8,7 +8,7 @@ import { buildNode, buildPathIndex } from "./payloadMapping.utils";
 // Cruza el contrato de la API con lo que el usuario mapeo, para poder mostrar la cobertura y
 // avisar de desajustes de tipo, rutas huerfanas y hojas que pone el host.
 
-export { fieldMatchesSchemaType } from "./payloadMapping.utils";
+export { fieldMatchesLeaf } from "./payloadMapping.utils";
 
 export function buildMappingTree(schema: SchemaNode, fields: CanvasField[]): MappingNode {
   const index: Map<string, CanvasField> = buildPathIndex(fields);

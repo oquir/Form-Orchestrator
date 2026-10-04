@@ -11,6 +11,7 @@ import type {
   FieldValidationOverride,
   FieldValidations,
 } from "./field";
+import type { DateFormatId } from "./fieldDate";
 import type { FieldTypeDef } from "./fieldTypes";
 import type { FormStep, IntroModalState, RepeatableGroup, RowStyles } from "./formStructure";
 import type {
@@ -149,6 +150,10 @@ export interface FormState extends BanksSlice {
   setFieldAllowsNegative: (fieldId: string, allows: boolean) => void;
   setFieldDecimals: (fieldId: string, decimals: number | null) => void;
   setFieldInlineOptions: (fieldId: string, inline: boolean) => void;
+  setFieldDateRange: (fieldId: string, range: boolean) => void;
+  setFieldIncludesTime: (fieldId: string, withTime: boolean) => void;
+  // null vuelve al input del navegador.
+  setFieldDateFormat: (fieldId: string, format: DateFormatId | null) => void;
   updateFieldTooltip: (fieldId: string, updates: Partial<FieldTooltip> | null) => void;
   addFieldOption: (fieldId: string) => void;
   removeFieldOption: (fieldId: string, optionId: string) => void;

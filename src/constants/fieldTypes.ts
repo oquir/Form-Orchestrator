@@ -27,6 +27,7 @@ export const PRESENTATIONAL_FIELD_TYPES: string[] = ["label", "rich_text"];
 export const TOOLTIP_CAPABLE_FIELD_TYPES: string[] = [
   "text",
   "number",
+  "date",
   "select",
   "checkbox",
   "calculated",
@@ -37,9 +38,11 @@ export const TOOLTIP_CAPABLE_FIELD_TYPES: string[] = [
 
 export const RICH_TEXT_FIELD_TYPE = "rich_text";
 
+export const DATE_FIELD_TYPE = "date";
 export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "text", label: "Texto", category: "basico" },
   { type: "number", label: "Número", category: "basico" },
+  { type: "date", label: "Fecha", category: "basico" },
   { type: "select", label: "Select", category: "basico" },
   { type: "textarea", label: "Área de texto", category: "basico" },
   { type: "checkbox", label: "Checkbox", category: "basico" },

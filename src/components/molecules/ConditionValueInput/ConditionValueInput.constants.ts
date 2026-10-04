@@ -3,6 +3,9 @@ import type { ConditionOperator } from "../../../types/field";
 export const FIELD_CLASSES: string =
   "rounded-md border border-border bg-field px-2 py-1 text-xs text-fg outline-none focus:border-brand-border";
 
+// El icono del calendario lo pinta el navegador: sin color-scheme oscuro queda negro sobre negro.
+export const DATE_FIELD_CLASSES: string = `${FIELD_CLASSES} dark:[color-scheme:dark]`;
+
 export const OPERATOR_VALUE_HINTS: Partial<Record<ConditionOperator, string>> = {
   startsWith: "Se compara sobre el valor como texto.",
   endsWith: "Se compara sobre el valor como texto. Ej: 2 para un NIT terminado en 2.",

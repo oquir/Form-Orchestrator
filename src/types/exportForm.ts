@@ -8,6 +8,7 @@ import type {
   FieldOption,
   TooltipPosition,
 } from "./field";
+import type { DateFormatId } from "./fieldDate";
 import type { DraftPayload } from "./persistenceTypes";
 import type { RichTextContent } from "./richText";
 import type { FormType } from "./setup";
@@ -97,6 +98,13 @@ export interface ExportedField {
   allowsNegative?: boolean;
   decimals?: number;
   inlineOptions?: boolean;
+  // Solo aparece en un campo fecha que pide rango: su valor es { desde, hasta } y no un texto.
+  dateRange?: boolean;
+  // Solo aparece en un campo fecha que pide hora: su valor es AAAA-MM-DDTHH:mm, sin huso.
+  includesTime?: boolean;
+  // Solo en un campo fecha con formato. El consumidor lo usa en dos bordes: para mostrar la fecha y
+  // al armar el payload. Valida y compara siempre sobre AAAA-MM-DD; ver lib/dateFormat.
+  dateFormat?: DateFormatId;
   // Tope de longitud para el input. En texto son caracteres y en numero digitos de la parte
   // entera; la regla completa esta en lib/fieldLength. Va ademas del schema, no en lugar del: el
   // schema es lo que valida y esto es lo que frena el tecleo antes de que el valor exista.

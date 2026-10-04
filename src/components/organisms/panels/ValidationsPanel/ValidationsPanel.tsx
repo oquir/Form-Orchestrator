@@ -1,3 +1,4 @@
+import { isDateFieldType } from "../../../../lib/fieldDate/fieldDate";
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { supportsMaxLength } from "../../../../lib/fieldLength/fieldLength";
 import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
@@ -5,12 +6,14 @@ import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldValidations } from "../../../../types/field";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
+import { DateBoundInput } from "../../../molecules/DateBoundInput/DateBoundInput";
 import { GeneratedSchemaPreview } from "../../../molecules/GeneratedSchemaPreview/GeneratedSchemaPreview";
 import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ValidationOverridesEditor } from "../ValidationOverridesEditor/ValidationOverridesEditor";
 import {
   BASIC_RULES_DESCRIPTION,
+  DATE_BOUNDS_DESCRIPTION,
   FORMAT_DESCRIPTION,
   MAX_DIGITS_DESCRIPTION,
 } from "./ValidationsPanel.constants";
@@ -135,6 +138,23 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
               }
             />
           )}
+        </PanelSection>
+      )}
+
+      {isDateFieldType(field.type) && (
+        <PanelSection title="Fechas permitidas" description={DATE_BOUNDS_DESCRIPTION}>
+          <DateBoundInput
+            id="min-date"
+            label="No antes de"
+            bound={v.minDate}
+            onChange={(minDate) => updateFieldValidations(field.id, { minDate })}
+          />
+          <DateBoundInput
+            id="max-date"
+            label="No después de"
+            bound={v.maxDate}
+            onChange={(maxDate) => updateFieldValidations(field.id, { maxDate })}
+          />
         </PanelSection>
       )}
 

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { operatorNeedsValue, operatorsForFieldType } from "../../lib/fieldCondition/fieldCondition";
+import { operatorNeedsValue, operatorsForField } from "../../lib/fieldCondition/fieldCondition";
 import { buildFieldGraph, describeCycle, wouldCreateCycle } from "../../lib/fieldGraph/fieldGraph";
 import { useFormStore } from "../../store/formStore";
 import type { CanvasField, ConditionOperator, FieldRule, RuleCondition } from "../../types/field";
@@ -12,7 +12,7 @@ import type { UseFieldRulesParams } from "./useFieldRules.types";
 // impiden armar una dependencia circular desde la interfaz.
 
 function conditionOn(target: CanvasField, id: string): RuleCondition {
-  const operators: ConditionOperator[] = operatorsForFieldType(target.type);
+  const operators: ConditionOperator[] = operatorsForField(target);
 
   return {
     id,

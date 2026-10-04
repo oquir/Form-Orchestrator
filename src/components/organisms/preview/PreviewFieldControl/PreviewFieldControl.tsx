@@ -1,9 +1,17 @@
 import { fillsColumn } from "../../../../lib/catalogFill/catalogFill";
+import {
+  dateFormatOf,
+  dateInputMax,
+  includesTime,
+  isDateRangeField,
+} from "../../../../lib/fieldDate/fieldDate";
 import { maxLengthOf } from "../../../../lib/fieldLength/fieldLength";
 import { showsOptionsInline } from "../../../../lib/fieldOptions/fieldOptions";
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
 import type { CatalogOption } from "../../../../types/catalog";
 import { RichTextView } from "../../../atoms/RichTextView/RichTextView";
+import { PreviewDateInput } from "../PreviewDateInput/PreviewDateInput";
+import { PreviewDateRangeInput } from "../PreviewDateRangeInput/PreviewDateRangeInput";
 import { PreviewNumberInput } from "../PreviewNumberInput/PreviewNumberInput";
 import { PreviewSearchSelect } from "../PreviewSearchSelect/PreviewSearchSelect";
 import {
@@ -67,6 +75,35 @@ export function PreviewFieldControl({
           value={value}
           disabled={disabled}
           inputId={inputId}
+          className={controlClasses}
+          onChange={onChange}
+        />
+      );
+
+    // El valor es el texto que entrega el input, tal cual (AAAA-MM-DD, o AAAA-MM-DDTHH:mm con hora):
+    // es lo que valida el schema y lo que viaja en el payload. El dd/mm/aaaa en pantalla lo pone el
+    // navegador segun su idioma.
+    case "date":
+      return isDateRangeField(field) ? (
+        <PreviewDateRangeInput
+          label={field.label}
+          value={value}
+          disabled={disabled}
+          inputId={inputId}
+          format={dateFormatOf(field)}
+          withTime={includesTime(field)}
+          max={dateInputMax(field)}
+          className={controlClasses}
+          onChange={onChange}
+        />
+      ) : (
+        <PreviewDateInput
+          id={inputId}
+          format={dateFormatOf(field)}
+          withTime={includesTime(field)}
+          value={toInputValue(value)}
+          max={dateInputMax(field)}
+          disabled={disabled}
           className={controlClasses}
           onChange={onChange}
         />

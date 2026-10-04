@@ -1,4 +1,4 @@
-import { ArrowDown2, Calculator, Check, Import, Magnifier } from "reicon-react";
+import { ArrowDown2, Calculator, Calendar, Check, Import, Magnifier } from "reicon-react";
 import {
   allowsManualOptions,
   isOptionBasedField,
@@ -11,6 +11,7 @@ import {
   MOCK_CONTROL_CLASSES,
 } from "./FieldPreviewControl.constants";
 import type { FieldPreviewControlProps } from "./FieldPreviewControl.types";
+import { dateMockText } from "./FieldPreviewControl.utils";
 
 export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
   if (field.type === "search_select") {
@@ -168,6 +169,13 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
       return (
         <div className={MOCK_CONTROL_CLASSES}>
           <span>0</span>
+        </div>
+      );
+    case "date":
+      return (
+        <div className={MOCK_CONTROL_CLASSES}>
+          <span>{dateMockText(field)}</span>
+          <Calendar size={14} weight="Filled" />
         </div>
       );
     case "file": {

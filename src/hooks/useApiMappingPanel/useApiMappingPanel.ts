@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PAYLOAD_SCHEMA } from "../../constants/payloadSchema";
 import { isPresentationalField } from "../../lib/fieldKind/fieldKind";
 import { isOptionBasedField } from "../../lib/fieldOptions/fieldOptions";
-import { fieldMatchesSchemaType } from "../../lib/payloadMapping/payloadMapping";
+import { fieldMatchesLeaf } from "../../lib/payloadMapping/payloadMapping";
 import { flattenSelectableLeaves, resolveLeaf } from "../../lib/payloadSchema/payloadSchema";
 import { findGroupForField, getAllFields, useFormStore } from "../../store/formStore";
 import type { CanvasField } from "../../types/field";
@@ -32,7 +32,7 @@ export function useApiMappingPanel({ field }: UseApiMappingPanelParams): UseApiM
   const isOrphan = Boolean(path) && resolvedLeaf === null;
   const isHostPath = Boolean(resolvedLeaf?.providedByHost);
   const showTypeMismatch = Boolean(
-    resolvedType && !isHostPath && !fieldMatchesSchemaType(field.type, resolvedType),
+    resolvedType && !isHostPath && !fieldMatchesLeaf(field, resolvedType),
   );
 
   const dataSourceCandidates: CanvasField[] = getAllFields(

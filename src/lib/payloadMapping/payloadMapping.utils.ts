@@ -1,10 +1,12 @@
 import { NUMERIC_FIELD_TYPES } from "../../constants/fieldTypes";
 import type { CanvasField } from "../../types/field";
+import type { DateCapableField } from "../../types/fieldDate";
 import type { LeafBindingStatus, MappingNode } from "../../types/payloadMapping";
 import type { SchemaNode, SchemaNodeType } from "../../types/payloadSchema";
+import { isDateRangeField } from "../fieldDate/fieldDate";
 
-// Vive aca y no en payloadMapping.ts porque buildNode la necesita; ese archivo la reexporta para
-// quien la pida desde afuera, asi el ciclo de imports queda en un solo sentido.
+// Viven aca y no en payloadMapping.ts porque buildNode las necesita; ese archivo reexporta
+// fieldMatchesLeaf para quien la pida desde afuera, asi el ciclo de imports queda en un solo sentido.
 export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNodeType): boolean {
   switch (schemaType) {
     case "number":
@@ -19,6 +21,12 @@ export function fieldMatchesSchemaType(fieldType: string, schemaType: SchemaNode
     default:
       return true;
   }
+}
+
+// Lo mismo, pero mirando el campo y no solo su tipo: un rango de fechas es un objeto
+// { desde, hasta }, y ninguna hoja escalar del contrato lo puede recibir.
+export function fieldMatchesLeaf(field: DateCapableField, schemaType: SchemaNodeType): boolean {
+  return !isDateRangeField(field) && fieldMatchesSchemaType(field.type, schemaType);
 }
 
 export function buildPathIndex(fields: CanvasField[]): Map<string, CanvasField> {
@@ -71,7 +79,7 @@ export function buildNode(
         kind: "mapped",
         fieldId: matchedField.id,
         fieldLabel: matchedField.label,
-        typeMismatch: !fieldMatchesSchemaType(matchedField.type, node.type),
+        typeMismatch: !fieldMatchesLeaf(matchedField, node.type),
       }
     : { kind: "unmapped" };
 

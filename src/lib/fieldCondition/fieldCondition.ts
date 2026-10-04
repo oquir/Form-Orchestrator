@@ -1,4 +1,6 @@
 import type { ConditionOperator } from "../../types/field";
+import type { DateCapableField } from "../../types/fieldDate";
+import { isDateRangeField } from "../fieldDate/fieldDate";
 import {
   LIST_OPERATORS,
   OPERATORS_WITHOUT_VALUE,
@@ -32,6 +34,13 @@ export function parseConditionList(value: string | number | boolean | undefined)
     .filter((entry) => entry.length > 0);
 }
 
+// Un rango de fechas no se compara con un valor: es un objeto, y el ejecutor compara texto contra
+// texto, asi que "es igual a" nunca se cumpliria. Lo unico que se le puede preguntar es si esta
+// lleno. Quien tenga el campo a mano pregunta aca y no por el tipo solo.
+export function operatorsForField(field: DateCapableField): ConditionOperator[] {
+  return isDateRangeField(field) ? ["isEmpty", "isNotEmpty"] : operatorsForFieldType(field.type);
+}
+
 export function operatorsForFieldType(type: string): ConditionOperator[] {
   switch (type) {
     case "checkbox":
@@ -58,6 +67,10 @@ export function operatorsForFieldType(type: string): ConditionOperator[] {
       return ["equals", "notEquals", "in", "isEmpty", "isNotEmpty"];
     case "checkbox_group":
       return ["contains", "isEmpty", "isNotEmpty"];
+    // Antes y despues de una fecha quedan afuera: greaterThan y lessThan comparan como numero en el
+    // ejecutor, y un AAAA-MM-DD ahi da NaN, asi que nunca se cumplirian.
+    case "date":
+      return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
     case "file":
       return ["isEmpty", "isNotEmpty"];
     default:

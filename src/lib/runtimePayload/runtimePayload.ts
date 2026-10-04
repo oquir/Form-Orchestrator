@@ -1,10 +1,13 @@
 import type { ExportedField } from "../../types/exportForm";
 import type { RuntimeModel, RuntimeSnapshot } from "../../types/formRuntime";
+import { formatDateForPayload } from "../fieldDate/fieldDate";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { ARRAY_MARKER, setDeepValue } from "./runtimePayload.utils";
 
 // Arma el objeto que se le mandaria a la API a partir de lo que el usuario lleva escrito.
 // Solo entra lo mapeado y visible: un campo oculto no viaja, aunque tenga valor de antes.
+// Una fecha con formato sale en ese formato: es el unico punto donde el valor deja de ser
+// AAAA-MM-DD, y el consumidor tiene que convertirla en este mismo lugar.
 export function buildPayload(
   model: RuntimeModel,
   snapshot: RuntimeSnapshot,
@@ -15,7 +18,7 @@ export function buildPayload(
     const path: string | null = mappedPath(field);
     if (path === null || !snapshot.root.visible[field.name]) continue;
 
-    setDeepValue(payload, path, snapshot.root.values[field.name]);
+    setDeepValue(payload, path, formatDateForPayload(field, snapshot.root.values[field.name]));
   }
 
   for (const [groupId, fields] of model.groupFields) {
@@ -25,7 +28,11 @@ export function buildPayload(
         if (path === null || !scope.visible[field.name]) continue;
 
         // El "[]" de la ruta del grupo se cambia por la posicion real de la repeticion.
-        setDeepValue(payload, path.replace(ARRAY_MARKER, `[${index}]`), scope.values[field.name]);
+        setDeepValue(
+          payload,
+          path.replace(ARRAY_MARKER, `[${index}]`),
+          formatDateForPayload(field, scope.values[field.name]),
+        );
       }
     });
   }

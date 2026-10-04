@@ -2,6 +2,7 @@ import { Xmark } from "reicon-react";
 import { OPERATOR_LABELS } from "../../../constants/conditions";
 import {
   operatorNeedsValue,
+  operatorsForField,
   operatorsForFieldType,
 } from "../../../lib/fieldCondition/fieldCondition";
 import type { CanvasField } from "../../../types/field";
@@ -39,7 +40,9 @@ export function RuleConditionRow({
         <div className="min-w-0">
           <ConditionOperatorSelect
             operator={condition.operator}
-            availableOperators={operatorsForFieldType(observed?.type ?? "text")}
+            availableOperators={
+              observed ? operatorsForField(observed) : operatorsForFieldType("text")
+            }
             operatorLabels={OPERATOR_LABELS}
             onChange={(operator) =>
               onUpdate({
