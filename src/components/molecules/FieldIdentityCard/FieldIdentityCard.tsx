@@ -20,7 +20,7 @@ export function FieldIdentityCard({ field, linkedLabel }: FieldIdentityCardProps
       )}
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium leading-snug text-fg-strong">
+        <p className="break-words text-sm font-medium leading-snug text-fg-strong">
           {visibleLabel || <span className="italic text-fg-subtle">Sin texto</span>}
         </p>
         <p className="mt-0.5 text-[11px] text-fg-muted">
