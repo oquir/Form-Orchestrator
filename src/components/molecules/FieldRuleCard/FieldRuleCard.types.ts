@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import type { CanvasField, FieldRule } from "../../../types/field";
 import type { UseFieldRulesResult } from "../../../types/fieldRulesReturn";
 
@@ -8,4 +9,5 @@ export interface FieldRuleCardProps {
   rules: UseFieldRulesResult;
   candidates: CanvasField[];
   knownNames: Set<string>;
+  nameInputRef?: Ref<HTMLInputElement>;
 }

@@ -21,12 +21,16 @@ export function ModalShell({
   footer,
   onClose,
   maxWidthClassName = "max-w-md",
+  dialogRef,
+  onKeyDown,
 }: ModalShellProps) {
   const titleId: string = useId();
 
   return (
     <div className={OVERLAY_CLASSES}>
       <div
+        ref={dialogRef}
+        onKeyDown={onKeyDown}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
