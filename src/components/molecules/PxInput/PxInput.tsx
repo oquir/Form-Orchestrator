@@ -20,7 +20,7 @@ export function PxInput({ id, label, value, onChange }: PxInputProps) {
   return (
     <div>
       <Label htmlFor={id}>{label}</Label>
-      <div className="flex items-center rounded-md border border-slate-200 pr-2.5 focus-within:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:focus-within:border-orange-400">
+      <div className="flex items-center rounded-md border border-slate-200 pr-2.5 focus-within:border-brand dark:border-neutral-700 dark:bg-neutral-800">
         <input
           id={id}
           type="number"

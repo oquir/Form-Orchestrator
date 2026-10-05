@@ -23,7 +23,7 @@ export function ColorPickerField({
   return (
     <div ref={containerRef} className="relative">
       <Label htmlFor={id}>{label}</Label>
-      <div className="flex items-center gap-2 rounded-md border border-slate-200 px-1.5 py-1 focus-within:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:focus-within:border-orange-400">
+      <div className="flex items-center gap-2 rounded-md border border-slate-200 px-1.5 py-1 focus-within:border-brand dark:border-neutral-700 dark:bg-neutral-800">
         <button
           type="button"
           onClick={() => setIsOpen((open) => !open)}
