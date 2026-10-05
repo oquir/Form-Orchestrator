@@ -86,7 +86,7 @@ export function Canvas() {
             />
             <div className="relative z-10 flex min-h-110 w-full max-w-140 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900">
               <div className="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-neutral-800">
-                <span className="h-2.5 w-2.5 rounded-full bg-orange-400" />
+                <span className="h-2.5 w-2.5 rounded-full bg-brand" />
                 <span className="text-xs font-semibold text-slate-500 dark:text-neutral-400">
                   Modal de entrada
                 </span>
