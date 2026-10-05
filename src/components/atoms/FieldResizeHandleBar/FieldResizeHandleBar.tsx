@@ -18,8 +18,8 @@ export function FieldResizeHandleBar({
       <span
         className={`h-full w-1.5 rounded-full shadow-sm ring-1 transition-colors ${
           isResizing
-            ? "bg-orange-500 ring-orange-500"
-            : "bg-slate-200 ring-slate-300/60 hover:bg-orange-400 hover:ring-orange-300 dark:bg-neutral-600 dark:ring-neutral-500/60 dark:hover:bg-orange-500"
+            ? "bg-brand ring-brand"
+            : "bg-slate-200 ring-slate-300/60 hover:bg-brand hover:ring-brand/50 dark:bg-neutral-600 dark:ring-neutral-500/60 dark:hover:bg-brand"
         }`}
       />
     </div>
