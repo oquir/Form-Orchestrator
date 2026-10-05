@@ -73,7 +73,7 @@ export function FieldOptionsEditor({ field }: FieldOptionsEditorProps) {
         <button
           type="button"
           onClick={() => addFieldOption(field.id)}
-          className="mt-2 text-xs font-medium text-orange-600 hover:cursor-pointer hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400"
+          className="mt-2 text-xs font-medium text-brand-fg hover:cursor-pointer hover:text-brand-hover"
         >
           + Agregar opción
         </button>
