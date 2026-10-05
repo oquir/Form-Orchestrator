@@ -64,7 +64,10 @@ export function PreviewField({
     <div style={style} className="flex min-w-0 flex-col gap-1">
       {showLabel && (
         <div className="flex items-center gap-1">
-          <label htmlFor={`preview-${field.name}`} className="min-w-0 break-words text-xs font-medium text-fg-soft">
+          <label
+            htmlFor={`preview-${field.name}`}
+            className="min-w-0 wrap-break-word text-xs font-medium text-fg-soft"
+          >
             {field.label}
             {isRequiredBySchema(field, scope.values) && (
               <span className="ml-0.5 text-danger">*</span>
