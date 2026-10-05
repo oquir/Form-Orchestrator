@@ -10,7 +10,7 @@ export function Input({ className = "", disabled, tone = "default", ...rest }: I
   return (
     <input
       disabled={disabled}
-      className={`w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-sm focus:border-orange-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:focus:border-orange-400 ${toneClasses} ${className}`}
+      className={`w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-sm focus:border-brand focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 ${toneClasses} ${className}`}
       {...rest}
     />
   );
