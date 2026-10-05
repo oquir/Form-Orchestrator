@@ -23,14 +23,14 @@ export function RowZoneOverlay({ columns, placement }: RowZoneOverlayProps) {
           style={{ gridColumn: `${placement.colStart} / span ${placement.colSpan}` }}
           className={`flex items-center justify-center rounded-md border-2 shadow-lg ${
             placement.isValid
-              ? "border-orange-500 bg-orange-400/30 dark:border-orange-400 dark:bg-orange-400/25"
+              ? "border-brand bg-brand/30 dark:bg-brand/25"
               : "border-red-500 bg-red-400/30 dark:border-red-400 dark:bg-red-400/25"
           }`}
         >
           <span
             className={`rounded px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap ${
               placement.isValid
-                ? "bg-orange-500 text-white dark:bg-orange-400 dark:text-neutral-900"
+                ? "bg-brand text-on-brand"
                 : "bg-red-500 text-white dark:bg-red-400 dark:text-neutral-900"
             }`}
           >
