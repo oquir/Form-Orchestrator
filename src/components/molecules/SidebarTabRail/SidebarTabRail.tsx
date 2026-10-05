@@ -21,7 +21,7 @@ export function SidebarTabRail({
             aria-label={tab.label}
             className={`flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:cursor-pointer ${
               activeTab === tab.id
-                ? "bg-orange-600 text-white dark:bg-orange-500 dark:text-white"
+                ? "bg-brand text-on-brand"
                 : "text-slate-500 hover:bg-slate-200 dark:text-neutral-400 dark:hover:bg-neutral-800"
             }`}
           >
