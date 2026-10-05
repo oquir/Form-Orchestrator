@@ -8,9 +8,9 @@ export function PanelSection({ title, description, aside, children }: PanelSecti
   return (
     // En oscuro, un velo negro y no un token: la tarjeta tiene que quedar apenas mas oscura que el
     // panel, y entre surface (neutral-900) y surface-sunken (neutral-950) no hay paso intermedio. En
-    // claro el velo no sirve: negro al 5% sobre blanco da un gris neutro que al lado de la escala
-    // slate del resto se lee amarillento. Ahi va surface-raised (slate-100), gris frio como todo.
-    <section className="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-3 dark:bg-black/25">
+    // claro la tarjeta es blanca como el panel y la separa solo el borde: border-strong, porque el
+    // border normal (slate-200) sobre blanco casi no se ve.
+    <section className="flex flex-col gap-3 rounded-lg border border-border-strong bg-surface p-3 dark:border-border dark:bg-black/25">
       {/* relative ancla la burbuja de la descripcion: toma el ancho de esta fila, el de la tarjeta. */}
       <div className="relative flex items-center justify-between gap-2">
         <h3 className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">
