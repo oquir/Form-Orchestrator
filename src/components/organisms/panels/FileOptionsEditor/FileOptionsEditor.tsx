@@ -34,7 +34,7 @@ export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
                   title={preset.tokens.join(", ")}
                   className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors hover:cursor-pointer ${
                     isActive
-                      ? "border-orange-500 bg-orange-50 text-orange-700 dark:border-orange-500 dark:bg-orange-500/10 dark:text-orange-400"
+                      ? "border-brand bg-brand-surface text-brand-fg"
                       : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-600"
                   }`}
                 >
@@ -57,7 +57,7 @@ export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
               .filter(Boolean);
             updateFieldFileConfig(field.id, { acceptedFormats: next });
           }}
-          className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+          className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 outline-none focus:border-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
         />
         <p className="text-[10px] text-slate-400 dark:text-neutral-500">
           Tocá los presets o editá manualmente (MIME, extensión o wildcard). Vacío = todos.
@@ -81,7 +81,7 @@ export function FileOptionsEditor({ field }: FileOptionsEditorProps) {
             if (Number.isNaN(parsed) || parsed <= 0) return;
             updateFieldFileConfig(field.id, { maxSizeMB: parsed });
           }}
-          className="w-24 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 outline-none focus:border-orange-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+          className="w-24 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 outline-none focus:border-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
         />
       </div>
     </PanelSection>
