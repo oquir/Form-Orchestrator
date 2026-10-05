@@ -74,9 +74,7 @@ export function CanvasFieldChip({
       className={`group/field relative min-w-0 ${isDragging ? "opacity-40" : ""}`}
     >
       <div
-        className={`relative group/tooltip ${
-          isOver ? "rounded-md outline-2 outline-orange-400 dark:outline-orange-500" : ""
-        }`}
+        className={`relative group/tooltip ${isOver ? "rounded-md outline-2 outline-brand" : ""}`}
         style={{ marginTop, marginBottom }}
       >
         <FieldDragHandle
@@ -97,7 +95,7 @@ export function CanvasFieldChip({
             isUltraCompact,
           )} ${
             selected
-              ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
+              ? "border-brand ring-1 ring-brand"
               : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
           }`}
         >
