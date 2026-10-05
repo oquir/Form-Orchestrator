@@ -12,7 +12,7 @@ export function SelectableOptionCard({
       onClick={onClick}
       className={`rounded-md border px-3 py-2 text-left transition-colors hover:cursor-pointer ${
         selected
-          ? "border-orange-600 ring-1 ring-orange-600 dark:border-orange-500 dark:ring-orange-500"
+          ? "border-brand ring-1 ring-brand"
           : "border-slate-200 hover:border-slate-300 dark:border-neutral-700 dark:hover:border-neutral-600"
       }`}
     >
