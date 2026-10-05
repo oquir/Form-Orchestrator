@@ -117,7 +117,7 @@ export function PreviewFieldControl({
             disabled={disabled}
             checked={Boolean(value)}
             onChange={(event) => onChange(event.target.checked)}
-            className="accent-orange-500"
+            className="accent-brand"
           />
           {field.title || "Acepto"}
         </label>
@@ -202,7 +202,7 @@ export function PreviewFieldControl({
                 disabled={disabled}
                 checked={toInputValue(value) === option.id}
                 onChange={() => onChange(option.id)}
-                className="accent-orange-500"
+                className="accent-brand"
               />
               {option.label}
             </label>
@@ -224,7 +224,7 @@ export function PreviewFieldControl({
                 disabled={disabled}
                 checked={selected.includes(option.id)}
                 onChange={() => onChange(toggleInList(selected, option.id))}
-                className="accent-orange-500"
+                className="accent-brand"
               />
               {option.label}
             </label>

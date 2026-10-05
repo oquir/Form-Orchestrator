@@ -52,7 +52,7 @@ export function RowColumnsMenu({ rowId, columns, isOpen, onToggle, onClose }: Ro
               max={MAX_ROW_COLUMNS}
               value={columns}
               onChange={(event) => updateRowColumns(rowId, Number.parseInt(event.target.value, 10))}
-              className="flex-1 accent-orange-500 cursor-grab active:cursor-grabbing"
+              className="flex-1 accent-brand cursor-grab active:cursor-grabbing"
             />
           </div>
           <p className="text-[10px] text-fg-subtle">
