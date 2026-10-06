@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type ClipboardEvent, useEffect, useRef, useState } from "react";
 import { serializeRichText } from "../../lib/richText/richText";
 import { safeHref } from "../../lib/richText/richText.utils";
 import type { RichTextCommand, RichTextContent } from "../../types/richText";
@@ -30,7 +30,7 @@ export function useRichTextEditor({
   // Se pinta al montar y cuando value llega distinto de lo que ya se muestra: deshacer o rehacer. El
   // eco de lo que se acaba de escribir no se repinta, porque eso moveria el cursor al final. Sin el
   // repintado, deshacer dejaria el texto viejo en pantalla y el siguiente blur lo volveria a escribir
-  // en el store, pisando lo deshecho. Cambiar de campo sigue remontando: el panel pasa key={field.id}.
+  // en el store, pisando lo deshecho. Cambiar de campo sigue remontando: el panel le pasa una key por campo.
   useEffect(() => {
     if (!editorRef.current || value === shown.current) return;
 
@@ -44,6 +44,20 @@ export function useRichTextEditor({
     const content: RichTextContent = serializeRichText(editorRef.current);
     shown.current = content;
     onChange(content);
+  }
+
+  // Pegar siempre entra como texto plano, igual que Ctrl+Shift+V. El HTML del portapapeles mete en
+  // el DOM del editor estilos, clases y atributos que el serializador no guarda pero que siguen
+  // ahi hasta remontar, y con ellos el editor dejaba de mostrar lo que el modelo tiene. El formato
+  // se pone despues con los botones. insertText respeta el deshacer nativo del contentEditable.
+  function pastePlainText(event: ClipboardEvent<HTMLDivElement>): void {
+    event.preventDefault();
+
+    const text: string = event.clipboardData.getData("text/plain").replace(/\r\n?/g, "\n");
+    if (text === "") return;
+
+    document.execCommand("insertText", false, text);
+    emit();
   }
 
   function runCommand(command: RichTextCommand): void {
@@ -102,6 +116,7 @@ export function useRichTextEditor({
     error,
     setLinkValue,
     emit,
+    pastePlainText,
     runCommand,
     openLinkInput,
     applyLink,

@@ -76,6 +76,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         aria-label="Contenido con formato"
         onInput={editor.emit}
         onBlur={editor.emit}
+        onPaste={editor.pastePlainText}
         className={EDITOR_CLASSES}
       />
 
@@ -83,8 +84,8 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         <span className={ERROR_CLASSES}>{editor.error}</span>
       ) : (
         <span className={HINT_CLASSES}>
-          El texto pegado conserva negrita, cursiva, subrayado y enlaces; el resto del formato se
-          descarta.
+          El texto pegado entra sin formato; la negrita, la cursiva, el subrayado y los enlaces se
+          ponen con los botones.
         </span>
       )}
     </div>
