@@ -59,10 +59,16 @@ export function parseCatalogPaste(raw: string, keys: CatalogPasteKeys): CatalogP
   const items: unknown[] | null = findArray(parsed);
   if (!items) return { entries: [], error: "No encontré ninguna lista dentro del JSON." };
 
+  // Un id repetido se queda con la primera fila: el id es lo que identifica la opcion -- en el
+  // select, en el payload y como key de React, que repetida deja opciones fantasma en pantalla --.
+  // Casi siempre es la columna del id mal nombrada, por ejemplo la del departamento en un volcado
+  // de ciudades.
   const entries: CatalogEntry[] = [];
+  const seenIds = new Set<string>();
   for (const item of items) {
     const id: string | undefined = readKey(item, keys.id);
-    if (id === undefined) continue;
+    if (id === undefined || seenIds.has(id)) continue;
+    seenIds.add(id);
 
     const parentId: string | undefined = keys.parent ? readKey(item, keys.parent) : undefined;
     const code: string | undefined = keys.code ? readKey(item, keys.code) : undefined;
