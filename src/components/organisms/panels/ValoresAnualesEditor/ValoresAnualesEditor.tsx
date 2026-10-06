@@ -166,7 +166,7 @@ export function ValoresAnualesEditor() {
 
           <p className={HINT_CLASSES}>
             Una fila a la que le falte cualquiera de las tres se descarta: media fila daría un 0 que
-            pasa por dato bueno.
+            pasa por dato bueno. Si un año viene repetido, vale su primera fila.
           </p>
 
           {error && <p className={ERROR_CLASSES}>{error}</p>}

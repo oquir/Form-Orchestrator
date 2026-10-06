@@ -48,6 +48,8 @@ export function valoresEnUso(stored: StoredValores): ValorAnual[] {
 // Se pega la respuesta del endpoint y se dice como se llama cada columna, igual que un catalogo:
 // esto es una lista plana y no hay forma de adivinar cual clave es el ano. Una fila a la que le
 // falte cualquiera de las tres se descarta; media fila daria un valor de 0 que pasa por dato bueno.
+// Un ano repetido se queda con su primera fila completa, en el orden en que se pego: la tabla
+// tiene una fila por ano, y el ano es la key de React de cada fila.
 export function parseValoresPaste(raw: string, keys: ValoresParseKeys): ValoresParseResult {
   if (raw.trim() === "") return { valores: null, error: "Pegá la respuesta del endpoint." };
 
@@ -62,6 +64,7 @@ export function parseValoresPaste(raw: string, keys: ValoresParseKeys): ValoresP
   if (!items) return { valores: null, error: "No se encontró ninguna lista dentro del JSON." };
 
   const valores: ValorAnual[] = [];
+  const anios = new Set<number>();
 
   for (const item of items) {
     const fila = {
@@ -71,7 +74,10 @@ export function parseValoresPaste(raw: string, keys: ValoresParseKeys): ValoresP
     };
 
     const result = valorAnualSchema.safeParse(fila);
-    if (result.success) valores.push(result.data);
+    if (!result.success || anios.has(result.data.anio)) continue;
+
+    anios.add(result.data.anio);
+    valores.push(result.data);
   }
 
   if (valores.length === 0) {
