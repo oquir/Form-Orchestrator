@@ -33,7 +33,10 @@ export function PreviewResults({ preview }: PreviewResultsProps) {
       {issues.length > 0 && (
         <ul className="flex shrink-0 list-none flex-col gap-1 rounded-md border border-warning-border bg-warning-surface p-2">
           {issues.map((issue) => (
-            <li key={`${issue.kind}-${issue.field ?? ""}`} className="text-[11px] text-warning">
+            <li
+              key={`${issue.kind}|${issue.field ?? ""}|${issue.message}`}
+              className="text-[11px] text-warning"
+            >
               {issue.field ? `${issue.field}: ` : ""}
               {issue.message}
             </li>
