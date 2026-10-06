@@ -130,6 +130,7 @@ Settled:
 - `HISTORY_LIMIT = 100`; steps are references, so the memory cost is negligible. **Not persisted** — a reload starts empty.
 - **Ctrl+Z inside an editable target is left alone** (`isEditableTarget`): inputs and CodeMirror keep their own text history. Ignored with the simulator open.
 - **`RichTextEditor` repaints when `value` arrives different from what it shows** (reference compare against what it last painted or emitted; the panels store the emitted object as is). It used to paint only on mount, so after an undo it kept the stale text and the next blur wrote it back, silently undoing the undo. `ScriptEditor` already synced external changes.
+- **The field script gets one CodeMirror per field** (`key={field.id}` on `FieldScriptEditor`'s `ScriptInput`). The external-value sync is a transaction that enters CodeMirror's own history, so with one shared editor a Ctrl+Z inside it wrote the previous field's script into the new one (verified in Edge). Never route a *different document* through that sync.
 - Verified with a tsx script against the real store: bursts, no-op writes, a change right after an undo, multi-delete, move-to-step, intro steps with `setupConfig`, clearing on setup/draft restore, view reconciliation.
 
 ## Reordering rows (drag the row itself)
@@ -310,7 +311,7 @@ Standalone, never bound to input. Bold/italic/underline/links only — no lists,
 
 **Content is stored structured, never as HTML** (`RichTextContent`, `src/types/richText.ts`) — an HTML blob would be executable markup, same class of risk as the `validations.pattern` injection. Do not "simplify" to HTML.
 
-**The serializer is the sanitizer** (`serializeRichText`, DOM walk with a whitelist: `b/strong/i/em/u/ins/a/br`, drops `script`/`style`/`iframe` subtrees, flattens everything else to text, reads inline `font-weight`/`style`/`text-decoration` for paste-from-Word).
+**The serializer is the sanitizer** (`serializeRichText`, DOM walk with a whitelist: `b/strong/i/em/u/ins/a/br`, drops `script`/`style`/`iframe` subtrees, flattens everything else to text, reads inline `font-weight`/`style`/`text-decoration` for HTML that still gets in, e.g. dropped). **Pasting is always plain text** (`pastePlainText`, like Ctrl+Shift+V): pasted HTML was breaking the editor; formatting is applied afterwards with the buttons.
 
 **`safeHref`** allows only `http:`/`https:`/`mailto:` (prefixes `https://` if no scheme) — runs at insert, serialize, **and again on draft load** (localStorage is devtools-editable). Keep all three.
 
@@ -345,7 +346,7 @@ Settled:
 - **`eval` is the contract, not a shortcut** — `ExportedField.validations` carries only Zod strings; the consumer has no other validation path. `hydrateZodSchema` wraps in try/catch → `RuntimeIssue`.
 - `hydrateFieldSchemas` keys by schema *string* (a field can have >1 schema depending on override state; a name key can't answer).
 - `required` is sniffed from the schema string (no trailing `.optional()`); `checkbox` excluded (never gets `.optional()` appended).
-- Runtime issues deduplicated (`dedupeIssues`) — a broken group script would otherwise report once per repetition.
+- Runtime issues deduplicated (`dedupeIssues`) — a broken group script would otherwise report once per repetition. It runs again over `validateRuntime`'s final list, which adds sources after the snapshot's dedupe, because `PreviewResults` keys each warning by the same `kind|field|message`.
 - Preview state is **local to the component tree**, never the Zustand store (answers are throwaway).
 - Hidden fields are neither rendered nor validated.
 - **Validation is per step and gates navigation** — no "validate everything" button. `stepErrorKeys` expands group rows to per-repetition keys; errors revealed only for reached fields (`revealed`), but the results panel shows everything live.
@@ -507,6 +508,7 @@ Settled:
 - **`default`/`custom` is a per-catalog switch, not a modal prompt** — flipping to `default` keeps the pasted data. A global "which mode?" modal was rejected as either annoying or an unfindable one-time setting.
 - `isSimulatedCatalog` takes the bank as an argument, so the "simulado" badge is actually true.
 - **No HTTP** — deferred (CORS/auth/offline cost); pasting gets the same data for free.
+- **A repeated id (catálogos) or year (UVT/SMMLV, fechas) keeps its first row on paste** — the user's call over rejecting the paste. That value is also its row's React key; repeated, it left ghost options/rows. Almost always a mis-named id column.
 
 ### Fechas máximas de presentación — the second simulator-only bank
 
