@@ -16,7 +16,7 @@ import type {
 import type { DeclaracionKind } from "../../types/maxDates";
 import type { FormType } from "../../types/setup";
 import { computeDerivedValues, type DerivedResult } from "../runtimeDerived/runtimeDerived";
-import { buildScope, emptyItem, groupColumns } from "./formRuntime.utils";
+import { buildScope, dedupeIssues, emptyItem, groupColumns } from "./formRuntime.utils";
 
 // El corazon del simulador. Solo consume el JSON exportado, nunca el store: si algo no se puede
 // hacer con lo que hay aca, el aplicativo que consuma el export tampoco podra.
@@ -158,23 +158,6 @@ export function resolveRuntime(
     cycle: cycles.length > 0 ? [...new Set(cycles)] : null,
     issues: dedupeIssues(issues),
   };
-}
-
-// Un script roto dentro de un grupo falla una vez por repeticion, y el mismo calculo pasa por tres
-// pasadas: sin esto, un error se listaria cuarenta y cinco veces sobre quince actividades.
-function dedupeIssues(issues: RuntimeIssue[]): RuntimeIssue[] {
-  const seen = new Set<string>();
-  const unique: RuntimeIssue[] = [];
-
-  for (const issue of issues) {
-    const key: string = `${issue.kind}|${issue.field ?? ""}|${issue.message}`;
-    if (seen.has(key)) continue;
-
-    seen.add(key);
-    unique.push(issue);
-  }
-
-  return unique;
 }
 
 // Un ambito por repeticion, no una bolsa comun: cada fila del grupo resuelve a sus hermanas de

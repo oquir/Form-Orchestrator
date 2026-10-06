@@ -16,7 +16,7 @@ import type {
 import type { GroupCheckResult } from "../../types/groupCheck";
 import type { ScriptRunResult } from "../../types/scriptRuntime";
 import { isPresentationalField } from "../fieldKind/fieldKind";
-import { groupColumns } from "../formRuntime/formRuntime.utils";
+import { dedupeIssues, groupColumns } from "../formRuntime/formRuntime.utils";
 import { coerceValues, runFieldScript } from "../scriptRuntime/scriptRuntime";
 import { firstZodMessage, hydrateFieldSchemas } from "../zodHydrate/zodHydrate";
 import { checkKey, coerceValue, effectiveSchemaSource, fieldKey } from "./runtimeValidation.utils";
@@ -45,7 +45,7 @@ export function validateRuntime(
 
   return {
     errors,
-    issues: [...issues, ...snapshot.issues, ...cycleIssues(snapshot), ...checkIssues],
+    issues: dedupeIssues([...issues, ...snapshot.issues, ...cycleIssues(snapshot), ...checkIssues]),
   };
 }
 
