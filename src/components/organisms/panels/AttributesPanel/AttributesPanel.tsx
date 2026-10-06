@@ -86,9 +86,11 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
           )}
         </div>
 
+        {/* Las keys de estos hermanos no pueden repetirse: con RichTextEditor y FieldNameInput en
+            key={field.id}, React dejaba el editor viejo huerfano en el DOM en cada cambio de campo. */}
         {isRichText && (
           <RichTextEditor
-            key={field.id}
+            key={`content-${field.id}`}
             value={field.content}
             onChange={(content) => setFieldContent(field.id, content)}
           />
@@ -102,7 +104,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
           />
         )}
 
-        <FieldNameInput key={field.id} field={field} />
+        <FieldNameInput key={`name-${field.id}`} field={field} />
       </PanelSection>
 
       <PanelSection
