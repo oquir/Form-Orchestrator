@@ -52,7 +52,11 @@ export function CatalogFillsEditor({ field }: CatalogFillsEditorProps) {
 
       <ul className="flex list-none flex-col gap-1.5">
         {fills.map((fill, index) => (
-          <li key={`${fill.column}-${fill.field}`} className="flex items-center gap-1.5">
+          <li
+            // biome-ignore lint/suspicious/noArrayIndexKey: un relleno no tiene id y dos pueden ser iguales ("Agregar" siempre crea el mismo); la fila no guarda estado propio
+            key={index}
+            className="flex items-center gap-1.5"
+          >
             <select
               value={fill.column}
               onChange={(event) =>
