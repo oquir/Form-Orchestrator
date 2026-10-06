@@ -27,8 +27,9 @@ export function safeHref(raw: string | null | undefined): string | undefined {
   return undefined;
 }
 
-// Word y Google Docs no pegan <b> ni <i>: pegan spans con font-weight y text-decoration. Sin
-// esto, pegar desde alli entraria como texto plano y el usuario perderia todo el formato.
+// Pegar ya entra siempre como texto plano (pastePlainText), pero el HTML todavia llega al editor
+// al soltar un texto arrastrado desde Word o Google Docs, y esos no traen <b> ni <i>: traen spans
+// con font-weight y text-decoration. Sin esto, ese formato se perderia al serializar.
 export function marksFromStyle(style: StyleLike | undefined): MarkState {
   if (!style) return {};
 
