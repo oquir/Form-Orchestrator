@@ -6,7 +6,7 @@ import type {
 import { generarFechasPorDefecto } from "../maxDates/maxDates";
 import { MAX_DATES_KEY } from "./maxDatesBank.constants";
 import { fechasMaximasSchema, storedMaxDatesSchema } from "./maxDatesBank.schema";
-import { candidateObjects } from "./maxDatesBank.utils";
+import { candidateObjects, primeraReglaPorAnio } from "./maxDatesBank.utils";
 
 // Donde viven las fechas maximas mientras se prueba. Es el banco de catalogos otra vez: datos que
 // el consumidor saca de su propio endpoint, que el simulador necesita para poder probar y que NO
@@ -64,7 +64,16 @@ export function parseMaxDatesPaste(raw: string): MaxDatesParseResult {
 
   for (const candidate of candidateObjects(parsed)) {
     const result = fechasMaximasSchema.safeParse(candidate);
-    if (result.success) return { fechas: result.data, error: null };
+    if (!result.success) continue;
+
+    const fechas: FechasMaximasPresentacion = {
+      ...result.data,
+      ica: primeraReglaPorAnio(result.data.ica),
+      reteica: primeraReglaPorAnio(result.data.reteica),
+      autoretencionIca: primeraReglaPorAnio(result.data.autoretencionIca),
+    };
+
+    return { fechas, error: null };
   }
 
   return {
