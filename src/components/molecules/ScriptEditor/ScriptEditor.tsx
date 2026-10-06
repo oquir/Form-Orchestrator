@@ -79,8 +79,10 @@ export function ScriptEditor({
     };
   }, []);
 
-  // Cambios que vienen de afuera -- deshacer, cargar un borrador, cambiar de campo seleccionado.
-  // La comparacion es lo que impide pisar el documento mientras alguien escribe.
+  // Cambios que vienen de afuera -- deshacer, cargar un borrador. La comparacion es lo que impide
+  // pisar el documento mientras alguien escribe. Este dispatch entra al historial de CodeMirror, asi
+  // que otro documento (el script de otro campo) no puede llegar por aca: viene con un editor nuevo
+  // por key, o un Ctrl+Z adentro devolveria el texto anterior sobre el campo nuevo.
   useEffect(() => {
     const view: EditorView | null = viewRef.current;
     if (!view || view.state.doc.toString() === value) return;
