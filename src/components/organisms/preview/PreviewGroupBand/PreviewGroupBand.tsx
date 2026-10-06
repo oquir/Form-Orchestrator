@@ -14,10 +14,12 @@ export function PreviewGroupBand({ groupId, rows, preview }: PreviewGroupBandPro
   // El error de una comprobacion es del grupo entero, no de una fila, asi que se dibuja arriba de
   // las repeticiones. Como cualquier otro error, solo aparece una vez revelado: nadie ve rojo en
   // una pantalla a la que todavia no llego.
-  const checkErrors: string[] = (group?.checks ?? []).flatMap((check) => {
+  const checkErrors: { id: string; message: string }[] = (group?.checks ?? []).flatMap((check) => {
     const key: string = checkKey(groupId, check.id);
 
-    return preview.revealed[key] && preview.errors[key] ? [preview.errors[key]] : [];
+    return preview.revealed[key] && preview.errors[key]
+      ? [{ id: check.id, message: preview.errors[key] }]
+      : [];
   });
 
   return (
@@ -42,9 +44,9 @@ export function PreviewGroupBand({ groupId, rows, preview }: PreviewGroupBandPro
 
       {checkErrors.length > 0 && (
         <ul className="mb-3 flex list-none flex-col gap-1 rounded-md border border-danger-border bg-danger-surface p-2.5">
-          {checkErrors.map((message) => (
-            <li key={message} className="text-[11px] text-danger">
-              {message}
+          {checkErrors.map((checkError) => (
+            <li key={checkError.id} className="text-[11px] text-danger">
+              {checkError.message}
             </li>
           ))}
         </ul>
