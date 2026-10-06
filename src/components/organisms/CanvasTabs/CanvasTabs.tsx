@@ -8,7 +8,6 @@ import { resolveTransferState } from "./CanvasTabs.utils";
 export function CanvasTabs() {
   const formSteps = useFormStore((state) => state.formSteps);
   const introSteps = useFormStore((state) => state.introModal.steps);
-  const hasIntroModal = useFormStore((state) => state.setupConfig.hasIntroModal);
   const activeCanvas = useFormStore((state) => state.activeCanvas);
   const setActiveCanvas = useFormStore((state) => state.setActiveCanvas);
   const addFormStep = useFormStore((state) => state.addFormStep);
@@ -26,7 +25,7 @@ export function CanvasTabs() {
   return (
     <div className="flex flex-col gap-3">
       <nav aria-label="Steps del formulario">
-        {hasIntroModal && <span className={GROUP_CAPTION_CLASSES}>Formulario</span>}
+        <span className={GROUP_CAPTION_CLASSES}>Formulario</span>
         {/* Con todos los chips del mismo ancho entran 8 por fila, asi que el tope solo entra en
             juego pasados ~40 steps: el panel no rueda nunca, pero esta grilla si puede, y es el
             unico lugar de todo el panel donde eso pasa. Ojo: la X de eliminar cuelga 6px por
@@ -70,43 +69,41 @@ export function CanvasTabs() {
         </div>
       </nav>
 
-      {hasIntroModal && (
-        <nav aria-label="Steps del modal de entrada" className="border-t border-border pt-3">
-          <span className={GROUP_CAPTION_CLASSES}>Modal de entrada</span>
-          <ul className="flex list-none flex-wrap items-center gap-2">
-            {introSteps.map((step, index) => {
-              const isActive: boolean =
-                activeCanvas.type === "introStep" && activeCanvas.stepId === step.stepId;
+      <nav aria-label="Steps del modal de entrada" className="border-t border-border pt-3">
+        <span className={GROUP_CAPTION_CLASSES}>Modal de entrada</span>
+        <ul className="flex list-none flex-wrap items-center gap-2">
+          {introSteps.map((step, index) => {
+            const isActive: boolean =
+              activeCanvas.type === "introStep" && activeCanvas.stepId === step.stepId;
 
-              return (
-                <li key={step.stepId}>
-                  <StepTabChip
-                    index={index + 1}
-                    label={step.title}
-                    active={isActive}
-                    canvasTarget={{ type: "introStep", stepId: step.stepId }}
-                    transferState={isActive ? "idle" : transferState}
-                    onSelect={() => setActiveCanvas({ type: "introStep", stepId: step.stepId })}
-                    onRemove={() => removeIntroModalStep(step.stepId)}
-                    removeTitle="Eliminar paso"
-                    removeIconSize={12}
-                  />
-                </li>
-              );
-            })}
-            <li>
-              <DashedAddButton
-                onClick={addIntroModalStep}
-                title="Agregar paso al modal introductorio"
-                aria-label="Agregar paso al modal introductorio"
-                className={ADD_BUTTON_CLASSES}
-              >
-                <Plus size={14} weight="Filled" />
-              </DashedAddButton>
-            </li>
-          </ul>
-        </nav>
-      )}
+            return (
+              <li key={step.stepId}>
+                <StepTabChip
+                  index={index + 1}
+                  label={step.title}
+                  active={isActive}
+                  canvasTarget={{ type: "introStep", stepId: step.stepId }}
+                  transferState={isActive ? "idle" : transferState}
+                  onSelect={() => setActiveCanvas({ type: "introStep", stepId: step.stepId })}
+                  onRemove={() => removeIntroModalStep(step.stepId)}
+                  removeTitle="Eliminar paso"
+                  removeIconSize={12}
+                />
+              </li>
+            );
+          })}
+          <li>
+            <DashedAddButton
+              onClick={addIntroModalStep}
+              title="Agregar paso al modal introductorio"
+              aria-label="Agregar paso al modal introductorio"
+              className={ADD_BUTTON_CLASSES}
+            >
+              <Plus size={14} weight="Filled" />
+            </DashedAddButton>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }
