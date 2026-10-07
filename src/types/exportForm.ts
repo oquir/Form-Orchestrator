@@ -97,6 +97,10 @@ export interface ExportedField {
   // Solo aparece cuando vale false. Si no viene, el campo admite negativos.
   allowsNegative?: boolean;
   decimals?: number;
+  // Solo en un campo numerico que los declare, ya recortados. Se dibujan al lado del input y nunca
+  // entran en el valor; ver lib/fieldAffix.
+  prefix?: string;
+  suffix?: string;
   inlineOptions?: boolean;
   // Solo aparece en un campo fecha que pide rango: su valor es { desde, hasta } y no un texto.
   dateRange?: boolean;

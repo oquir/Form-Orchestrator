@@ -12,6 +12,7 @@ import type {
 import type { CanvasField, CatalogFill, FieldCondition, FieldDataSource } from "../../types/field";
 import type { CanvasRow, FormStep, RepeatableGroup } from "../../types/formStructure";
 import { resolveFieldStyles, resolveRowStyles } from "../cssStyles/cssStyles";
+import { affixOf } from "../fieldAffix/fieldAffix";
 import { operatorTakesList, parseConditionList } from "../fieldCondition/fieldCondition";
 import {
   exportableDateFormat,
@@ -204,6 +205,8 @@ export function mapRows(
       formatted: exportableFormatting(field),
       allowsNegative: exportableAllowsNegative(field),
       decimals: exportableDecimals(field),
+      prefix: affixOf(field, "prefix"),
+      suffix: affixOf(field, "suffix"),
       inlineOptions: exportableInlineOptions(field),
       dateRange: exportableDateRange(field),
       includesTime: exportableIncludesTime(field),

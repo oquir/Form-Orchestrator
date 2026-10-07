@@ -18,14 +18,31 @@ export const INLINE_CAPABLE_FIELD_TYPES: string[] = ["radio_group", "checkbox_gr
 // de verdad a un campo de solo lectura es alwaysDisabled.
 export const NUMERIC_FIELD_TYPES: string[] = ["number", "calculated"];
 
-// Los que admiten un tope de longitud. Los dos primeros lo cuentan en caracteres y los dos ultimos
-// en digitos de la parte entera, que no es lo mismo; la regla vive en lib/fieldLength.
-export const LENGTH_CAPABLE_FIELD_TYPES: string[] = ["text", "textarea", "number", "calculated"];
+export const TEL_FIELD_TYPE = "tel";
+
+export const EMAIL_FIELD_TYPE = "email";
+
+// Texto que trae su propio formato: sin un patron del autor validan contra el del tipo. Ver
+// lib/fieldContact.
+export const CONTACT_FIELD_TYPES: string[] = [TEL_FIELD_TYPE, EMAIL_FIELD_TYPE];
+
+// Los que admiten un tope de longitud. Los de texto lo cuentan en caracteres y los numericos en
+// digitos de la parte entera, que no es lo mismo; la regla vive en lib/fieldLength.
+export const LENGTH_CAPABLE_FIELD_TYPES: string[] = [
+  "text",
+  "textarea",
+  TEL_FIELD_TYPE,
+  EMAIL_FIELD_TYPE,
+  "number",
+  "calculated",
+];
 
 export const PRESENTATIONAL_FIELD_TYPES: string[] = ["label", "rich_text"];
 
 export const TOOLTIP_CAPABLE_FIELD_TYPES: string[] = [
   "text",
+  TEL_FIELD_TYPE,
+  EMAIL_FIELD_TYPE,
   "number",
   "date",
   "select",
@@ -42,6 +59,8 @@ export const DATE_FIELD_TYPE = "date";
 export const FIELD_TYPES: FieldTypeDef[] = [
   { type: "text", label: "Texto", category: "basico" },
   { type: "number", label: "Número", category: "basico" },
+  { type: TEL_FIELD_TYPE, label: "Teléfono", category: "basico" },
+  { type: EMAIL_FIELD_TYPE, label: "Correo", category: "basico" },
   { type: "date", label: "Fecha", category: "basico" },
   { type: "select", label: "Select", category: "basico" },
   { type: "textarea", label: "Área de texto", category: "basico" },

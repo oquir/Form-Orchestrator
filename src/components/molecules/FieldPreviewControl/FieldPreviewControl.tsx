@@ -6,12 +6,17 @@ import {
   Calendar,
   CloudUpload,
   Database,
+  Envelope,
   Magnifier,
+  Phone,
 } from "reicon-react";
+import { affixOf } from "../../../lib/fieldAffix/fieldAffix";
+import { phoneKindOf } from "../../../lib/fieldContact/fieldContact";
 import { showsOptionsInline } from "../../../lib/fieldOptions/fieldOptions";
-import type { FieldOption } from "../../../types/field";
+import type { CanvasField, FieldOption } from "../../../types/field";
 import { RichTextView } from "../../atoms/RichTextView/RichTextView";
 import {
+  AFFIX_CLASSES,
   CHECKBOX_CLASSES,
   CHECKBOX_ON_CLASSES,
   DROPZONE_CLASSES,
@@ -24,6 +29,7 @@ import {
   OPTION_INLINE_CLASSES,
   OPTION_LIST_CLASSES,
   OPTION_ROW_CLASSES,
+  PHONE_SAMPLES,
   PLACEHOLDER_OPTION_CLASSES,
   RADIO_CLASSES,
   RADIO_ON_CLASSES,
@@ -67,6 +73,20 @@ function ghostNote(note: OptionsNote, classes: string) {
 function optionLabel(option: FieldOption, isPlaceholder: boolean) {
   return (
     <span className={isPlaceholder ? PLACEHOLDER_OPTION_CLASSES : "truncate"}>{option.label}</span>
+  );
+}
+
+// El texto de muestra entre el prefijo y el sufijo, apagados como en el simulador.
+function withAffixes(field: CanvasField, sample: string) {
+  const prefix: string | undefined = affixOf(field, "prefix");
+  const suffix: string | undefined = affixOf(field, "suffix");
+
+  return (
+    <span className="flex min-w-0 items-center gap-1.5">
+      {prefix && <span className={AFFIX_CLASSES}>{prefix}</span>}
+      <span className="truncate">{sample}</span>
+      {suffix && <span className={AFFIX_CLASSES}>{suffix}</span>}
+    </span>
   );
 }
 
@@ -208,7 +228,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     case "number":
       return (
         <div className={INPUT_CLASSES}>
-          <span className="truncate">0</span>
+          {withAffixes(field, "0")}
           <span className={SPINNER_CLASSES}>
             <AngleUp2 size={10} />
             <AngleDown2 size={10} />
@@ -219,8 +239,24 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     case "calculated":
       return (
         <div className={READONLY_INPUT_CLASSES}>
-          <span className="truncate">Valor calculado</span>
+          {withAffixes(field, "Valor calculado")}
           <Calculator size={14} className="shrink-0" />
+        </div>
+      );
+
+    case "tel":
+      return (
+        <div className={INPUT_CLASSES}>
+          <span className="truncate">{PHONE_SAMPLES[phoneKindOf(field)]}</span>
+          <Phone size={14} className="shrink-0 text-fg-muted" />
+        </div>
+      );
+
+    case "email":
+      return (
+        <div className={INPUT_CLASSES}>
+          <span className="truncate">correo@ejemplo.com</span>
+          <Envelope size={14} className="shrink-0 text-fg-muted" />
         </div>
       );
 

@@ -17,8 +17,6 @@ import type {
 } from "../../types/formStructure";
 import {
   CALCULATED_WITHOUT_NEGATIVE,
-  CORREO_MESSAGE,
-  CORREO_PATTERN,
   DECIMALS_BY_FIELD,
   DOCUMENTO_MESSAGE,
   DOCUMENTO_PATTERN,
@@ -26,12 +24,12 @@ import {
   INGRESOS_ACTIVIDADES_MESSAGE,
   INGRESOS_ACTIVIDADES_SCRIPT,
   INTERES_MORA_SCRIPT,
+  MONEY_PREFIX,
   NIT_MESSAGE,
   NIT_PATTERN,
   SALDO_NETO,
   SANCION_EXTEMPORANEIDAD_SCRIPT,
-  TELEFONO_MESSAGE,
-  TELEFONO_PATTERN,
+  SUFFIX_BY_FIELD,
   TEMPLATE_DECIMALS,
   TIPO_DOCUMENTO_NIT,
   TIPO_SANCION_OTRA,
@@ -186,7 +184,8 @@ function buildActividadesStep(): FormStepTemplate {
           {
             name: "tarifa_x_mil",
             type: "number",
-            label: "Tarifa X1000",
+            // La unidad la pone el sufijo X1000 (SUFFIX_BY_FIELD); repetida aca se leeria dos veces.
+            label: "Tarifa",
             colSpan: 5,
             path: "actividades[].tarifaXMil",
             alwaysDisabled: true,
@@ -347,25 +346,22 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
             },
           ]),
           buildRow([
+            // Sin patron propio: el tipo trae el de fabrica. Ver lib/fieldContact.
             {
               name: "telefono_celular",
-              type: "text",
+              type: "tel",
               label: "Teléfono celular",
               colSpan: 8,
               path: "contribuyente.telefono",
               required: true,
-              pattern: TELEFONO_PATTERN,
-              message: TELEFONO_MESSAGE,
             },
             {
               name: "correo_electronico",
-              type: "text",
+              type: "email",
               label: "Correo electrónico",
               colSpan: 8,
               path: "contribuyente.correo",
               required: true,
-              pattern: CORREO_PATTERN,
-              message: CORREO_MESSAGE,
             },
           ]),
           buildRow([
@@ -971,14 +967,14 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
           buildRow([
             {
               name: "celular_responsable",
-              type: "text",
+              type: "tel",
               label: "Celular",
               colSpan: 6,
               path: "responsableLegal.celular",
             },
             {
               name: "correo_responsable",
-              type: "text",
+              type: "email",
               label: "Correo electrónico",
               colSpan: 5,
               path: "responsableLegal.correoElectronico",
@@ -999,6 +995,8 @@ export function getIndustriaComercioFormTemplate(): FormStepTemplate[] {
       clampedCalculated: CALCULATED_WITHOUT_NEGATIVE,
       decimals: TEMPLATE_DECIMALS,
       decimalsByField: DECIMALS_BY_FIELD,
+      moneyPrefix: MONEY_PREFIX,
+      suffixByField: SUFFIX_BY_FIELD,
     },
   );
 }

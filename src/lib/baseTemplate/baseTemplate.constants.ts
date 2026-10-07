@@ -2,8 +2,8 @@ export const TIPO_DOCUMENTO_NIT: string = "2";
 
 // Solo digitos, con un largo entre min y max, y ademas descarta los valores de mentira que la
 // gente escribe para pasar de pantalla. Tres piezas:
-//   (?!0)            no arranca en cero: ni un documento ni un telefono colombiano lo hacen, y de
-//                    paso mata los 0000000 y los 0000001, que el chequeo de repetidos no alcanza.
+//   (?!0)            no arranca en cero: ningun documento colombiano lo hace, y de paso mata los
+//                    0000000 y los 0000001, que el chequeo de repetidos no alcanza.
 //   (?!([0-9])\1+$)  no son todos el mismo digito: 1111111, 99999999, etc. La captura pide un
 //                    digito y \1+ exige que lo que sigue hasta el final sea ese mismo.
 //   [0-9]{min,max}   la longitud, dentro del patron y no en minLength/maxLength, para que un valor
@@ -13,9 +13,10 @@ export const TIPO_DOCUMENTO_NIT: string = "2";
 // antes de llegar al RegExp. Por eso mismo los digitos van como [0-9] y no como \d: donde se
 // puede evitar una barra invertida, se evita.
 //
-// Se arma con una funcion en vez de repetir el texto en cada constante: los tres patrones solo se
+// Se arma con una funcion en vez de repetir el texto en cada constante: los dos patrones solo se
 // diferencian en el largo, y copiarlos es la manera de que en un mes uno tenga el lookahead y
-// otro no.
+// otro no. El telefono y el correo ya no estan aca: sus patrones los traen los tipos tel y email
+// (lib/fieldContact).
 function digitosSinRellenos(min: number, max: number): string {
   return `^(?!0)(?!([0-9])\\1+$)[0-9]{${min},${max}}$`;
 }
@@ -25,30 +26,7 @@ export const DOCUMENTO_PATTERN: string = digitosSinRellenos(6, 10);
 // Un NIT son 9 digitos: el decimo es el digito de verificacion, y ese va en su propio campo.
 export const NIT_PATTERN: string = digitosSinRellenos(6, 9);
 
-// Un celular colombiano son 10 digitos; el piso en 7 deja pasar los fijos viejos, que es lo que
-// mas de un contribuyente sigue escribiendo aca.
-export const TELEFONO_PATTERN: string = digitosSinRellenos(7, 10);
-
-// El patron de correo de la spec de HTML5, partido en sus dos mitades para poder leerlo. Lleva dos
-// cambios respecto del original:
-//   - Va anclado con ^ y $. Zod valida con .test(), que busca en cualquier parte del texto: sin
-//     anclas "hola juan@x.com chau" pasaria como correo valido.
-//   - Las clases incluyen A-Z. El original es solo minusculas y aca no hay forma de agregar la
-//     bandera `i`, porque el consumidor arma el RegExp con new RegExp(patron) y sin banderas;
-//     sin esto "Juan@Gmail.com" quedaria rechazado.
-// La bandera /g del original tampoco viaja, y es mejor asi: un regex con /g guarda lastIndex entre
-// llamadas y con .test() daria valido y no valido alternadamente sobre el mismo texto.
-const CORREO_LOCAL: string = "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]";
-
-const CORREO_ETIQUETA: string = "[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?";
-
-export const CORREO_PATTERN: string = `^${CORREO_LOCAL}+(?:\\.${CORREO_LOCAL}+)*@(?:${CORREO_ETIQUETA}\\.)+${CORREO_ETIQUETA}$`;
-
 export const DOCUMENTO_MESSAGE: string = "Ingrese un documento válido";
-
-export const CORREO_MESSAGE: string = "Ingrese un correo válido";
-
-export const TELEFONO_MESSAGE: string = "Ingrese un teléfono válido";
 
 // El mensaje cuelga del .regex(), y la variante de NIT tiene un solo regex: este texto sale igual
 // si escribieron diez digitos, letras o todos iguales. Por eso nombra el DV sin afirmar que ese
@@ -98,6 +76,17 @@ export const TEMPLATE_DECIMALS: number = 0;
 // pareja -- 4,0 / 7,5 / 6,0 -- en vez de saltar entre enteros y decimales.
 export const DECIMALS_BY_FIELD: Record<string, number> = {
   tarifa_x_mil: 1,
+};
+
+// El prefijo de todo renglon de plata, que son los numericos fuera de FIELDS_WITHOUT_ROUNDING.
+export const MONEY_PREFIX: string = "$";
+
+// La unidad de los que no llevan plata y tienen una. El DV y los establecimientos no la tienen.
+// La tarifa dice X1000 y no ‰, igual que en el buscador de actividades: el por mil se confunde
+// con un por ciento.
+export const SUFFIX_BY_FIELD: Record<string, string> = {
+  tarifa_x_mil: "X1000",
+  generacion_energia_kw: "kW",
 };
 
 // Los ids de EXTEMPORANEIDAD y OTRA dentro del catalogo tipos_sancion, escritos a mano porque el

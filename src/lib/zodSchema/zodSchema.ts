@@ -4,10 +4,11 @@ import type {
   FieldValidationOverride,
   FieldValidationRules,
 } from "../../types/field";
+import type { PatternRule } from "../../types/fieldContact";
 import type { DateBound, DateBoundSide } from "../../types/fieldDate";
 import type { RepeatableGroup } from "../../types/formStructure";
 import { boundExpression, boundMessage, isCompleteBound } from "../dateBound/dateBound";
-
+import { effectivePattern } from "../fieldContact/fieldContact";
 import { includesTime, isDateRangeField } from "../fieldDate/fieldDate";
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { effectiveMaxLength } from "../fieldLength/fieldLength";
@@ -180,9 +181,13 @@ function buildSchemaFor(field: CanvasField, v: FieldValidationRules): string {
       // aplicar como maxLength nativo, y leerlo distinto en cada lado los pondria a discrepar.
       const chars: number | undefined = effectiveMaxLength(v.maxLength);
       if (chars !== undefined) schema += `.max(${chars})`;
-      if (v.pattern) {
-        const source: string = JSON.stringify(v.pattern);
-        const message: string = v.message ? `, { message: ${JSON.stringify(v.message)} }` : "";
+      // Un telefono o un correo sin patron propio igual sale con el de su tipo: ver lib/fieldContact.
+      const format: PatternRule | undefined = effectivePattern(field, v);
+      if (format) {
+        const source: string = JSON.stringify(format.pattern);
+        const message: string = format.message
+          ? `, { message: ${JSON.stringify(format.message)} }`
+          : "";
         schema += `.regex(new RegExp(${source})${message})`;
       }
     }

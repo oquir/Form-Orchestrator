@@ -42,14 +42,17 @@ export interface FieldSpec {
   inlineOptions?: boolean;
 }
 
-// Las tres reglas numericas de la plantilla, cada una con su alcance propio. El formato no lleva
-// lista porque va en todos; las otras dos si, y por lados opuestos: el redondeo nombra a los que
-// quedan afuera y el signo a los calculados que quedan adentro.
+// Las reglas numericas de la plantilla, cada una con su alcance propio. El formato no lleva
+// lista porque va en todos; el redondeo y el signo si, y por lados opuestos: el redondeo nombra a
+// los que quedan afuera y el signo a los calculados que quedan adentro. El prefijo de plata reusa
+// la lista del redondeo, que es justamente la de los que no llevan plata.
 export interface NumericDefaults {
   roundingExceptions: string[];
   clampedCalculated: string[];
   decimals: number;
   decimalsByField: Record<string, number>;
+  moneyPrefix: string;
+  suffixByField: Record<string, string>;
 }
 
 // Como FieldDataSource, pero apuntando a los campos por nombre: los uuid recien existen despues

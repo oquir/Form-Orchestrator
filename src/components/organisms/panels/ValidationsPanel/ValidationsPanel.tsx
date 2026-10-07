@@ -1,9 +1,11 @@
+import { builtInFormatOf, isContactField } from "../../../../lib/fieldContact/fieldContact";
 import { isDateFieldType } from "../../../../lib/fieldDate/fieldDate";
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
 import { supportsMaxLength } from "../../../../lib/fieldLength/fieldLength";
 import { buildZodSchema } from "../../../../lib/zodSchema/zodSchema";
 import { getAllFields, useFormStore } from "../../../../store/formStore";
 import type { CanvasField, FieldValidations } from "../../../../types/field";
+import type { PatternRule } from "../../../../types/fieldContact";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
 import { DateBoundInput } from "../../../molecules/DateBoundInput/DateBoundInput";
@@ -13,6 +15,7 @@ import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import { ValidationOverridesEditor } from "../ValidationOverridesEditor/ValidationOverridesEditor";
 import {
   BASIC_RULES_DESCRIPTION,
+  BUILT_IN_FORMAT_DESCRIPTION,
   DATE_BOUNDS_DESCRIPTION,
   FORMAT_DESCRIPTION,
   MAX_DIGITS_DESCRIPTION,
@@ -28,7 +31,13 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
     (candidate) => candidate.id !== field.id && !isPresentationalField(candidate.type),
   );
   const isNumeric = field.type === "number" || field.type === "calculated";
-  const isTextLike = field.type === "text" || field.type === "textarea" || field.type === "select";
+  const isTextLike =
+    field.type === "text" ||
+    field.type === "textarea" ||
+    field.type === "select" ||
+    isContactField(field.type);
+  // Telefono y correo ya validan sin patron: lo vacio no es "sin formato" sino "el de fabrica".
+  const builtInFormat: PatternRule | undefined = builtInFormatOf(field);
   // La longitud se declara una sola vez pero se cuenta distinto, asi que son dos controles: en
   // texto son caracteres y en numero digitos de la parte entera. Un select queda afuera de los dos
   // -- su valor es el id de una opcion y buildZodSchema ni mira la longitud.
@@ -159,13 +168,20 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
       )}
 
       {isTextLike && (
-        <PanelSection title="Formato y mensaje" description={FORMAT_DESCRIPTION}>
+        <PanelSection
+          title="Formato y mensaje"
+          description={
+            builtInFormat
+              ? `${FORMAT_DESCRIPTION}\n${BUILT_IN_FORMAT_DESCRIPTION}`
+              : FORMAT_DESCRIPTION
+          }
+        >
           <LabeledInput
             id="pattern"
             label="Expresión regular"
             value={v.pattern ?? ""}
             onChange={(event) => updateFieldValidations(field.id, { pattern: event.target.value })}
-            placeholder="^[0-9]+-[0-9]$"
+            placeholder={builtInFormat ? "La del tipo" : "^[0-9]+-[0-9]$"}
             tone="code"
           />
 
@@ -174,7 +190,7 @@ export function ValidationsPanel({ field }: { field: CanvasField }) {
             label="Mensaje de error"
             value={v.message ?? ""}
             onChange={(event) => updateFieldValidations(field.id, { message: event.target.value })}
-            placeholder="Formato inválido"
+            placeholder={builtInFormat?.message ?? "Formato inválido"}
           />
         </PanelSection>
       )}

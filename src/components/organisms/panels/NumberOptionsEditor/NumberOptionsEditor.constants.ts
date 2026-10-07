@@ -4,7 +4,7 @@
 export const DECIMAL_CHOICES: number[] = [0, 1, 2, 3, 4];
 
 export const NUMBER_DESCRIPTION: string =
-  "Cómo se escribe, se muestra y se guarda el número. Redondear, fijar decimales y prohibir negativos cambian el valor que viaja en el payload; separar miles solo cambia cómo se ve.";
+  "Cómo se escribe, se muestra y se guarda el número. Redondear, fijar decimales y prohibir negativos cambian el valor que viaja en el payload; separar miles, el prefijo y el sufijo solo cambian cómo se ve.";
 
 export const ROUNDING_DESCRIPTION: string =
   "Aproxima al múltiplo de mil más cercano: 499 baja a 0 y 500 sube a 1.000. Cambia el valor, no solo cómo se ve, así que es el número redondeado el que se guarda y el que viaja en el payload. Si lo escribe el usuario se aplica al salir del campo; si lo produce un script o una regla, apenas se calcula.";

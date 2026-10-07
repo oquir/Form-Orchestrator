@@ -1,4 +1,5 @@
 import type { FieldOption } from "../../../types/field";
+import type { PhoneKind } from "../../../types/fieldContact";
 import type { OptionsNote } from "./FieldPreviewControl.types";
 
 // Cada tipo se dibuja como el control real que va a ver el contribuyente, para reconocerlo de un
@@ -23,6 +24,14 @@ export const SELECT_CHEVRON_CLASSES: string =
   "-mr-3 flex h-full shrink-0 items-center border-l border-border-strong px-2 text-fg-muted";
 
 export const SPINNER_CLASSES: string = "flex shrink-0 flex-col text-fg-subtle";
+
+export const AFFIX_CLASSES: string = "shrink-0 text-fg-muted";
+
+// Sin espacios, como lo exige el patron: el ejemplo del lienzo no puede ser algo que no valida.
+export const PHONE_SAMPLES: Record<PhoneKind, string> = {
+  celular: "3001234567",
+  fijo: "6011234567",
+};
 
 // El radio va siempre en fila en el lienzo: en columna se confundia con la lista del checkbox group.
 export const OPTION_INLINE_CLASSES: string = "flex flex-wrap items-center gap-x-4 gap-y-1.5";

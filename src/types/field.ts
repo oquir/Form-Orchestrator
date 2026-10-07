@@ -1,4 +1,5 @@
 import type { CatalogColumn } from "./catalog";
+import type { PhoneKind } from "./fieldContact";
 import type { DateBound, DateFormatId } from "./fieldDate";
 import type { RichTextContent } from "./richText";
 
@@ -164,6 +165,13 @@ export interface CanvasField {
   // Cuantos decimales muestra y deja teclear. Ausente = los que traiga, hasta el tope de la lib.
   // Recorta el valor ademas de rellenarlo al mostrar; ver lib/fieldRounding.
   decimals?: number;
+  // Texto fijo antes y despues del numero ($, X1000, kW). Solo presentacion, como `formatted`: el
+  // valor sigue siendo el numero y el prefijo nunca entra en el. Ver lib/fieldAffix.
+  prefix?: string;
+  suffix?: string;
+  // Solo telefono: que numero pide, y con eso que patron de fabrica valida. Ausente es celular, y
+  // por eso el store solo guarda "fijo". Ver lib/fieldContact.
+  phoneKind?: PhoneKind;
   // Dibujar las opciones en una sola linea en vez de una debajo de otra. Solo presentacion, y solo
   // para radio_group y checkbox_group; ver lib/fieldOptions.
   inlineOptions?: boolean;

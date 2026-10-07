@@ -920,6 +920,22 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         decimals: decimals ?? undefined,
       })),
     ),
+  // Se guarda lo tecleado sin recortar; vaciarlo borra la clave. Ver lib/fieldAffix.
+  setFieldAffix: (fieldId, side, text) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        [side]: text === "" ? undefined : text,
+      })),
+    ),
+  // Celular es el default y no se guarda, igual que admitir negativos: solo "fijo" deja la clave.
+  setFieldPhoneKind: (fieldId, kind) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        phoneKind: kind === "fijo" ? kind : undefined,
+      })),
+    ),
   // Esta guarda el false y borra el true, al reves que las dos de arriba: aca lo que hay que
   // decir es la restriccion, porque admitir negativos es el default.
   setFieldAllowsNegative: (fieldId, allows) =>

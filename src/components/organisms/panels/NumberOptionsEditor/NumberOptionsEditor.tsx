@@ -1,7 +1,10 @@
+import { MAX_AFFIX_LENGTH } from "../../../../constants/fieldAffix";
 import { allowsNegative } from "../../../../lib/fieldSign/fieldSign";
 import { useFormStore } from "../../../../store/formStore";
 import { InfoHint } from "../../../atoms/InfoHint/InfoHint";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
+import { TwoColumnFieldGroup } from "../../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
+import { LabeledInput } from "../../../molecules/LabeledInput/LabeledInput";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
 import {
   DECIMAL_CHOICES,
@@ -20,6 +23,7 @@ export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
   const setFieldFormatted = useFormStore((state) => state.setFieldFormatted);
   const setFieldAllowsNegative = useFormStore((state) => state.setFieldAllowsNegative);
   const setFieldDecimals = useFormStore((state) => state.setFieldDecimals);
+  const setFieldAffix = useFormStore((state) => state.setFieldAffix);
 
   return (
     <PanelSection title="Número" description={NUMBER_DESCRIPTION}>
@@ -85,6 +89,25 @@ export function NumberOptionsEditor({ field }: NumberOptionsEditorProps) {
           <InfoHint text={NEGATIVE_DESCRIPTION} label="Ayuda sobre Admite negativos" />
         </div>
       </div>
+
+      <TwoColumnFieldGroup>
+        <LabeledInput
+          id="field-prefix"
+          label="Prefijo"
+          placeholder="$"
+          maxLength={MAX_AFFIX_LENGTH}
+          value={field.prefix ?? ""}
+          onChange={(event) => setFieldAffix(field.id, "prefix", event.target.value)}
+        />
+        <LabeledInput
+          id="field-suffix"
+          label="Sufijo"
+          placeholder="X1000"
+          maxLength={MAX_AFFIX_LENGTH}
+          value={field.suffix ?? ""}
+          onChange={(event) => setFieldAffix(field.id, "suffix", event.target.value)}
+        />
+      </TwoColumnFieldGroup>
     </PanelSection>
   );
 }

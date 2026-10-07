@@ -5,6 +5,7 @@ import {
   operatorsForField,
   operatorsForFieldType,
 } from "../../../lib/fieldCondition/fieldCondition";
+import { isContactField } from "../../../lib/fieldContact/fieldContact";
 import { useFormStore } from "../../../store/formStore";
 import type { CanvasField, ConditionOperator, FieldValidationOverride } from "../../../types/field";
 import { TwoColumnFieldGroup } from "../../atoms/TwoColumnFieldGroup/TwoColumnFieldGroup";
@@ -33,7 +34,11 @@ export function ValidationOverrideCard({
     : operatorsForFieldType("text");
 
   const isNumeric = field.type === "number" || field.type === "calculated";
-  const isTextLike = field.type === "text" || field.type === "textarea" || field.type === "select";
+  const isTextLike =
+    field.type === "text" ||
+    field.type === "textarea" ||
+    field.type === "select" ||
+    isContactField(field.type);
 
   function setRule(updates: Partial<FieldValidationOverride["validations"]>): void {
     updateOverride(field.id, override.id, { validations: updates });

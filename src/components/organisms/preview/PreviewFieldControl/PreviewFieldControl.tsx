@@ -1,4 +1,5 @@
 import { fillsColumn } from "../../../../lib/catalogFill/catalogFill";
+import { affixOf } from "../../../../lib/fieldAffix/fieldAffix";
 import {
   dateFormatOf,
   dateInputMax,
@@ -10,6 +11,7 @@ import { showsOptionsInline } from "../../../../lib/fieldOptions/fieldOptions";
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
 import type { CatalogOption } from "../../../../types/catalog";
 import { RichTextView } from "../../../atoms/RichTextView/RichTextView";
+import { PreviewAffixFrame } from "../PreviewAffixFrame/PreviewAffixFrame";
 import { PreviewDateInput } from "../PreviewDateInput/PreviewDateInput";
 import { PreviewDateRangeInput } from "../PreviewDateRangeInput/PreviewDateRangeInput";
 import { PreviewNumberInput } from "../PreviewNumberInput/PreviewNumberInput";
@@ -68,15 +70,44 @@ export function PreviewFieldControl({
     // que recibimos ya viene atado a su grupo y su repeticion, asi que esto funciona igual
     // adentro de un grupo repetible.
     case "number":
-    case "calculated":
-      return (
+    case "calculated": {
+      const prefix: string | undefined = affixOf(field, "prefix");
+      const suffix: string | undefined = affixOf(field, "suffix");
+      const numberInput = (className: string) => (
         <PreviewNumberInput
           field={field}
           value={value}
           disabled={disabled}
           inputId={inputId}
-          className={controlClasses}
+          className={className}
           onChange={onChange}
+        />
+      );
+
+      // Sin afijos queda el input de siempre: el marco solo aparece cuando hay algo que enmarcar.
+      return prefix || suffix ? (
+        <PreviewAffixFrame prefix={prefix} suffix={suffix} invalid={invalid}>
+          {numberInput}
+        </PreviewAffixFrame>
+      ) : (
+        numberInput(controlClasses)
+      );
+    }
+
+    // type tel y email no validan nada por si solos fuera de un <form>; lo que traen es el teclado
+    // del celular. El formato lo valida el schema, con el patron de fabrica del tipo.
+    case "tel":
+    case "email":
+      return (
+        <input
+          id={inputId}
+          type={field.type}
+          autoComplete="off"
+          maxLength={maxLengthOf(field)}
+          disabled={disabled}
+          value={toInputValue(value)}
+          onChange={(event) => onChange(event.target.value)}
+          className={controlClasses}
         />
       );
 

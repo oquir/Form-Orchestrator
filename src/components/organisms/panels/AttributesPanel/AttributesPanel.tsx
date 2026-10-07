@@ -1,5 +1,6 @@
 import { RICH_TEXT_FIELD_TYPE } from "../../../../constants/fieldTypes";
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
+import { isPhoneField } from "../../../../lib/fieldContact/fieldContact";
 import { isDateFieldType } from "../../../../lib/fieldDate/fieldDate";
 import {
   findLabelFor,
@@ -35,6 +36,7 @@ import { FieldOptionsEditor } from "../FieldOptionsEditor/FieldOptionsEditor";
 import { FieldTooltipEditor } from "../FieldTooltipEditor/FieldTooltipEditor";
 import { FileOptionsEditor } from "../FileOptionsEditor/FileOptionsEditor";
 import { NumberOptionsEditor } from "../NumberOptionsEditor/NumberOptionsEditor";
+import { PhoneOptionsEditor } from "../PhoneOptionsEditor/PhoneOptionsEditor";
 import {
   GENERAL_DESCRIPTION,
   LAYOUT_DESCRIPTION,
@@ -186,6 +188,8 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
       {supportsRounding(field.type) && <NumberOptionsEditor field={field} />}
 
       {isDateFieldType(field.type) && <DateOptionsEditor field={field} />}
+
+      {isPhoneField(field.type) && <PhoneOptionsEditor field={field} />}
 
       {supportsTooltip(field.type) && <FieldTooltipEditor field={field} />}
     </div>

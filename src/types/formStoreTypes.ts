@@ -11,6 +11,8 @@ import type {
   FieldValidationOverride,
   FieldValidations,
 } from "./field";
+import type { AffixSide } from "./fieldAffix";
+import type { PhoneKind } from "./fieldContact";
 import type { DateFormatId } from "./fieldDate";
 import type { FieldTypeDef } from "./fieldTypes";
 import type { FormStep, IntroModalState, RepeatableGroup, RowStyles } from "./formStructure";
@@ -149,6 +151,8 @@ export interface FormState extends BanksSlice {
   setFieldFormatted: (fieldId: string, formatted: boolean) => void;
   setFieldAllowsNegative: (fieldId: string, allows: boolean) => void;
   setFieldDecimals: (fieldId: string, decimals: number | null) => void;
+  setFieldAffix: (fieldId: string, side: AffixSide, text: string) => void;
+  setFieldPhoneKind: (fieldId: string, kind: PhoneKind) => void;
   setFieldInlineOptions: (fieldId: string, inline: boolean) => void;
   setFieldDateRange: (fieldId: string, range: boolean) => void;
   setFieldIncludesTime: (fieldId: string, withTime: boolean) => void;
