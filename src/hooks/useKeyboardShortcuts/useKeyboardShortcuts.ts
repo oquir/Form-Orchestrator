@@ -1,10 +1,13 @@
 import { useEffect } from "react";
 import { CANVAS_TOOLS } from "../../constants/canvasTool";
 import { ZOOM_DEFAULT } from "../../constants/canvasZoom";
+import { STEP_NAVIGATION_OFFSETS } from "../../constants/stepNavigation";
 import { zoomIn, zoomOut } from "../../lib/canvasZoom/canvasZoom";
 import { saveDraft } from "../../lib/persistence/persistence";
+import { adjacentStep, orderedSteps } from "../../lib/stepNavigation/stepNavigation";
 import { getActiveRows, getAllFields, useFormStore } from "../../store/formStore";
 import type { FormState } from "../../types/formStoreTypes";
+import type { CanvasTarget } from "../../types/placement";
 import type { CanvasTool, CanvasToolItem } from "../../types/ui";
 import { isEditableTarget, isPointerOverCanvas } from "./useKeyboardShortcuts.utils";
 
@@ -93,6 +96,26 @@ export function useKeyboardShortcuts() {
       }
 
       if (state.isSimulatorOpen) return;
+
+      // Ctrl + flecha: el paso anterior o el siguiente, de a uno. Solo Ctrl: Alt + flecha es atras y
+      // adelante del navegador, Ctrl+Alt + flecha gira la pantalla en muchos equipos con graficos
+      // Intel, y Cmd + flecha es atras en el Mac. Dentro de un input queda el salto por palabras.
+      const stepOffset: 1 | -1 | undefined = STEP_NAVIGATION_OFFSETS[event.key];
+
+      if (stepOffset !== undefined && event.ctrlKey && !event.metaKey && !event.altKey) {
+        if (event.shiftKey || !state.setupConfig.isComplete) return;
+        if (isEditableTarget(event.target)) return;
+
+        event.preventDefault();
+        // A mitad de un arrastre no: cambiar de paso desmontaria la fila o el campo que cuelga del
+        // puntero. Para llevarlo a otro paso esta soltarlo sobre su pestana.
+        if (state.rowDrag !== null || state.draggingFieldId !== null) return;
+
+        const steps: CanvasTarget[] = orderedSteps(state.formSteps, state.introModal.steps);
+        const next: CanvasTarget | null = adjacentStep(steps, state.activeCanvas, stepOffset);
+        if (next) state.setActiveCanvas(next);
+        return;
+      }
 
       // Deshacer y rehacer el formulario. Dentro de un input o del editor de scripts manda el
       // historial de texto de cada uno: el del formulario no se mete a mitad de una palabra.

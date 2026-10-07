@@ -1,5 +1,7 @@
 import { useDroppable } from "@dnd-kit/core";
+import { useEffect, useRef } from "react";
 import { Xmark } from "reicon-react";
+import { STEP_NAVIGATION_HINT } from "../../../constants/stepNavigation";
 import type { StepTabChipProps } from "./StepTabChip.types";
 import { transferClasses } from "./StepTabChip.utils";
 
@@ -22,6 +24,13 @@ export function StepTabChip({
     data: { canvasTarget },
     disabled: transferState !== "ready",
   });
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  // Con Ctrl + flecha el paso cambia sin pasar por esta grilla, que pasados ~40 pasos rueda: la
+  // pestana activa se trae a la vista. "nearest" no mueve nada si ya se ve, como tras un clic.
+  useEffect(() => {
+    if (active) buttonRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [active]);
 
   // Todas las pestanas son su numero, la activa incluida: la activa se distingue por el relleno de
   // marca y su halo, no por expandirse con el titulo. Expandirla movia la grilla entera cada vez
@@ -38,9 +47,10 @@ export function StepTabChip({
       className={`relative shrink-0 rounded-md ${transferClasses(transferState, isOver)} ${className}`}
     >
       <button
+        ref={buttonRef}
         type="button"
         onClick={onSelect}
-        title={label}
+        title={`${label}\n${STEP_NAVIGATION_HINT}`}
         aria-label={label}
         aria-current={active ? "step" : undefined}
         className={`flex h-7 w-7 items-center justify-center rounded-md text-[11px] font-semibold tabular-nums transition-colors hover:cursor-pointer ${chipClasses}`}
