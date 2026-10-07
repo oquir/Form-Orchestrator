@@ -24,6 +24,7 @@ export function PreviewField({
   const style: CSSProperties = {
     ...(field.styles as CSSProperties),
     gridColumn: `${field.colStart} / span ${field.colSpan}`,
+    gridRow: 1,
   };
 
   if (field.type === "label") {

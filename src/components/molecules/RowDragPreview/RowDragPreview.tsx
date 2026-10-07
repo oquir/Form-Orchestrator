@@ -34,6 +34,7 @@ export function RowDragPreview({ row, width, scale }: RowDragPreviewProps) {
           key={field.id}
           style={{
             gridColumn: `${field.colStart} / span ${field.colSpan}`,
+            gridRow: 1,
             marginTop: field.styles.marginTop,
             marginBottom: field.styles.marginBottom,
             backgroundColor: field.styles.backgroundColor,

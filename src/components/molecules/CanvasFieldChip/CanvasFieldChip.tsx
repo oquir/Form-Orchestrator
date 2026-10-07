@@ -68,7 +68,7 @@ export function CanvasFieldChip({
     <div
       ref={setRefs}
       data-field-id={field.id}
-      style={{ gridColumn: `${field.colStart} / span ${field.colSpan}` }}
+      style={{ gridColumn: `${field.colStart} / span ${field.colSpan}`, gridRow: 1 }}
       // El grupo lleva nombre: la fila es antecesora del chip, y un `group` a secas dejaria que
       // pasar por encima de la fila encendiera de golpe el cromo de todos sus campos.
       className={`group/field relative min-w-0 ${isDragging ? "opacity-40" : ""}`}
