@@ -387,7 +387,7 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
       // sin esto planLanding la duplicaria en vez de moverla.
       const landed: CanvasRow[] = planLanding(strip(targetRows), moving, createEmptyRow);
       const notice: string | null = crossingNotice(
-        collectCrossingRefs(rowsAcrossFrom(state, target), moving),
+        collectCrossingRefs(rowsAcrossFrom(state, target), moving, target.type === "introStep"),
       );
 
       return {
@@ -428,7 +428,7 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
       if (targetRows.some((candidate) => candidate.id === rowId)) return state;
 
       const notice: string | null = crossingNotice(
-        collectCrossingRefs(rowsAcrossFrom(state, target), row.fields),
+        collectCrossingRefs(rowsAcrossFrom(state, target), row.fields, target.type === "introStep"),
       );
       const strip = (rows: CanvasRow[]): CanvasRow[] =>
         rows.filter((candidate) => candidate.id !== rowId);

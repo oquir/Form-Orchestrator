@@ -98,29 +98,31 @@ export function planLanding(
   return result;
 }
 
-// Referencias por id que quedan con un extremo en el modal de entrada y el otro en el formulario.
-// Siguen funcionando en runtime -el modal se responde antes que el formulario, asi que el valor ya
-// esta ahi-, pero LogicPanel solo ofrece candidatos de formSteps y dejan de poder editarse desde el
-// panel. Por eso se avisa en vez de borrarlas: el dato es valido, lo corto es el selector.
-export function collectCrossingRefs(otherSideRows: CanvasRow[], moving: CanvasField[]): string[] {
+// Lo que una mudanza deja a contramano: un campo del modal de entrada que depende de uno del
+// formulario. El modal se responde antes, asi que esa dependencia siempre veria el campo vacio, y
+// los paneles no la ofrecen (dependencyCandidates). Al reves no se avisa: el formulario puede
+// depender del modal, que ya tiene el valor. Se avisa en vez de borrar porque el autor decide a que
+// reasignarla, y borrarla en silencio cambiaria el formulario sin que lo note.
+export function collectCrossingRefs(
+  otherSideRows: CanvasRow[],
+  moving: CanvasField[],
+  landsInIntro: boolean,
+): string[] {
   const otherFields: CanvasField[] = otherSideRows.flatMap((row) => row.fields);
-  const otherIds = new Set<string>(otherFields.map((field) => field.id));
-  const movingIds = new Set<string>(moving.map((field) => field.id));
+  // Se mira siempre desde el modal, que es el unico lado que no puede depender del otro.
+  const introFields: CanvasField[] = landsInIntro ? moving : otherFields;
+  const formIds = new Set<string>((landsInIntro ? otherFields : moving).map((field) => field.id));
   const labels = new Set<string>();
 
-  for (const field of moving) {
-    if (referencedIds(field).some((id) => otherIds.has(id))) labels.add(field.label);
-  }
-
-  for (const field of otherFields) {
-    if (referencedIds(field).some((id) => movingIds.has(id))) labels.add(field.label);
+  for (const field of introFields) {
+    if (referencedIds(field).some((id) => formIds.has(id))) labels.add(field.label);
   }
 
   return [...labels];
 }
 
-// Las mismas fuentes por id que removeField limpia al borrar un campo. Las referencias de un
-// script van por nombre y no por id, asi que no entran aqui: el nombre viaja con el campo.
+// Las mismas fuentes por id que removeFieldsEverywhere limpia al borrar un campo. Las referencias de
+// un script van por nombre y no por id, asi que no entran aqui: el nombre viaja con el campo.
 function referencedIds(field: CanvasField): string[] {
   const ids: string[] = [];
 

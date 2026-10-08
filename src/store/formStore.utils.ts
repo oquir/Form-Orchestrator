@@ -37,7 +37,7 @@ export function findFieldById(rows: CanvasRow[], fieldId: string | null): Canvas
 export function crossingNotice(labels: string[]): string | null {
   if (labels.length === 0) return null;
 
-  return `Quedaron enlaces cruzados entre el modal de entrada y el formulario (${labels.join(", ")}). Siguen funcionando al llenar el formulario, pero el panel de Lógica no los va a ofrecer para editar.`;
+  return `Quedaron campos del modal de entrada que dependen de campos del formulario (${labels.join(", ")}). El modal se llena primero, así que esa dependencia siempre va a ver el campo vacío: cámbiala en Lógica, Validaciones o Mapeo API.`;
 }
 
 export function allRows(state: StateSlice): CanvasRow[] {
