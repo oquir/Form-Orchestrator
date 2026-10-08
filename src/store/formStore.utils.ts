@@ -5,7 +5,10 @@ import {
   getIndustriaComercioFormTemplate,
   getIndustriaComercioIntroTemplate,
 } from "../lib/baseTemplate/baseTemplate";
+import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { collectFieldNames, slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
+import { pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
+import { pruneOverridesReferencing } from "../lib/fieldValidationOverride/fieldValidationOverride";
 import type { CanvasField, FieldOption } from "../types/field";
 import type {
   CanvasRow,
@@ -173,6 +176,49 @@ export function mapFieldEverywhere(
       })),
     },
   };
+}
+
+// Borra los campos y limpia todo lo que les apuntaba, o quedarian referencias colgando que el export
+// sacaria con el uuid en lugar del nombre: condiciones, reglas, validaciones condicionales, el padre
+// del catalogo y la etiqueta externa. La etiqueta sobrevive sin vinculo en vez de borrarse, igual
+// que un hueco en la fila se conserva. Lo usan borrar campos y borrar un paso, que se lleva los suyos.
+export function removeFieldsEverywhere(slice: StateSlice, fieldIds: string[]): StateSlice {
+  if (fieldIds.length === 0) return slice;
+
+  const removed: Set<string> = new Set<string>(fieldIds);
+  const references = (id: string | undefined): boolean => id !== undefined && removed.has(id);
+  const applyTo = (rows: CanvasRow[]): CanvasRow[] =>
+    rows.map((row) => ({
+      ...row,
+      fields: row.fields
+        .filter((field) => !removed.has(field.id))
+        .map((field) => ({
+          ...field,
+          enableWhen: references(field.enableWhen?.fieldId) ? undefined : field.enableWhen,
+          visibleWhen: references(field.visibleWhen?.fieldId) ? undefined : field.visibleWhen,
+          labelFor: references(field.labelFor) ? undefined : field.labelFor,
+          dataSource: fieldIds.reduce(pruneDataSourceReferencing, field.dataSource),
+          validations: {
+            ...field.validations,
+            overrides: fieldIds.reduce(pruneOverridesReferencing, field.validations.overrides),
+          },
+          logic: {
+            ...field.logic,
+            rules: fieldIds.reduce(pruneRulesReferencing, field.logic.rules),
+          },
+        })),
+    }));
+
+  return {
+    formSteps: slice.formSteps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+    introModal: {
+      steps: slice.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
+    },
+  };
+}
+
+export function stepFieldIds(step: { rows: CanvasRow[] }): string[] {
+  return step.rows.flatMap((row) => row.fields.map((field) => field.id));
 }
 
 export function createOptions(optionCount: number): FieldOption[] {

@@ -6,10 +6,9 @@ import { GRID_BASE_COLUMNS, MAX_ROW_COLUMNS, MIN_ROW_COLUMNS } from "../constant
 import { HISTORY_BURST_MS, HISTORY_LIMIT } from "../constants/history";
 import { sameIdSet, toggleId, withoutIds } from "../lib/canvasSelection/canvasSelection";
 import { clampZoom } from "../lib/canvasZoom/canvasZoom";
-import { pruneDataSourceReferencing } from "../lib/fieldDataSource/fieldDataSource";
 import { slugifyFieldName, uniqueFieldName } from "../lib/fieldName/fieldName";
 import { allowsManualOptions, isOptionBasedField } from "../lib/fieldOptions/fieldOptions";
-import { createFieldRule, moveRule, pruneRulesReferencing } from "../lib/fieldRule/fieldRule";
+import { createFieldRule, moveRule } from "../lib/fieldRule/fieldRule";
 import { createEmptyTooltip } from "../lib/fieldTooltip/fieldTooltip";
 import {
   canTransfer,
@@ -17,10 +16,7 @@ import {
   planLanding,
   transferGroup,
 } from "../lib/fieldTransfer/fieldTransfer";
-import {
-  createValidationOverride,
-  pruneOverridesReferencing,
-} from "../lib/fieldValidationOverride/fieldValidationOverride";
+import { createValidationOverride } from "../lib/fieldValidationOverride/fieldValidationOverride";
 import { createBurstGate, sameDocument, toHistorySnapshot } from "../lib/history/history";
 import {
   clampGroupBounds,
@@ -66,8 +62,10 @@ import {
   mapFieldEverywhere,
   mapRowEverywhere,
   reconcileViewAfterHistory,
+  removeFieldsEverywhere,
   rowsAcrossFrom,
   rowsOfTarget,
+  stepFieldIds,
 } from "./formStore.utils";
 
 // El unico store de la aplicacion. Sostiene los dos lienzos a la vez -formSteps y las pantallas
@@ -207,14 +205,24 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         selectedFieldIds: NO_SELECTION,
       };
     }),
+  // Un paso se lleva sus campos, asi que lo que los miraba desde otros pasos -o desde el modal- se
+  // limpia igual que al borrarlos uno por uno. Sin esto el export sacaba la condicion con el uuid
+  // del campo muerto y el consumidor la evaluaba contra nada, sin que la revision lo notara.
   removeFormStep: (stepId) =>
     set((state) => {
       if (state.formSteps.length <= 1) return state;
+      const removedStep: FormStep | undefined = state.formSteps.find(
+        (step) => step.stepId === stepId,
+      );
+      if (!removedStep) return state;
       const remainingSteps = state.formSteps.filter((step) => step.stepId !== stepId);
       const wasActive =
         state.activeCanvas.type === "formStep" && state.activeCanvas.stepId === stepId;
       return {
-        formSteps: remainingSteps,
+        ...removeFieldsEverywhere(
+          { formSteps: remainingSteps, introModal: state.introModal },
+          stepFieldIds(removedStep),
+        ),
         activeCanvas: wasActive
           ? { type: "formStep", stepId: remainingSteps[0].stepId }
           : state.activeCanvas,
@@ -255,13 +263,22 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         selectedFieldIds: NO_SELECTION,
       };
     }),
+  // Misma limpieza que al borrar un paso del formulario: desde que el formulario puede depender del
+  // modal, borrar "Año gravable" dejaria condiciones apuntando a un campo que ya no existe.
   removeIntroModalStep: (stepId) =>
     set((state) => {
+      const removedStep: IntroModalStep | undefined = state.introModal.steps.find(
+        (step) => step.stepId === stepId,
+      );
+      if (!removedStep) return state;
       const remainingSteps = state.introModal.steps.filter((step) => step.stepId !== stepId);
       const wasActive =
         state.activeCanvas.type === "introStep" && state.activeCanvas.stepId === stepId;
       return {
-        introModal: { steps: remainingSteps },
+        ...removeFieldsEverywhere(
+          { formSteps: state.formSteps, introModal: { steps: remainingSteps } },
+          stepFieldIds(removedStep),
+        ),
         setupConfig: {
           ...state.setupConfig,
           hasIntroModal: remainingSteps.length > 0,
@@ -312,22 +329,22 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
   removeRow: (rowId) =>
     set((state) => {
       // Los campos de la fila se van con ella, asi que tampoco pueden seguir seleccionados: con un
-      // conjunto, un id colgando haria mentir al contador de la barra del lienzo.
-      const removed: Set<string> = new Set<string>(
-        (findRowById(state, rowId)?.fields ?? []).map((field) => field.id),
-      );
+      // conjunto, un id colgando haria mentir al contador de la barra del lienzo. Y lo que los
+      // miraba desde otras filas se limpia igual que si se borraran uno por uno.
+      const fieldIds: string[] = (findRowById(state, rowId)?.fields ?? []).map((field) => field.id);
+      const pruned: StateSlice = removeFieldsEverywhere(state, fieldIds);
 
       return {
-        formSteps: state.formSteps.map((step) =>
+        formSteps: pruned.formSteps.map((step) =>
           pruneEmptyGroups({ ...step, rows: step.rows.filter((row) => row.id !== rowId) }),
         ),
         introModal: {
-          steps: state.introModal.steps.map((step) => ({
+          steps: pruned.introModal.steps.map((step) => ({
             ...step,
             rows: step.rows.filter((row) => row.id !== rowId),
           })),
         },
-        selectedFieldIds: withoutIds(state.selectedFieldIds, removed),
+        selectedFieldIds: withoutIds(state.selectedFieldIds, new Set<string>(fieldIds)),
       };
     }),
   // Reordenar es solo cambiar de sitio dentro de `rows[]`: el orden de las filas no se guarda en
@@ -556,44 +573,15 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         selectedFieldIds: [newField.id],
       };
     }),
-  // Borrar un campo obliga a limpiar todo lo que le apuntaba, o quedarian referencias colgando:
-  // condiciones, reglas y la etiqueta externa que lo tuviera como destino. La etiqueta sobrevive
-  // sin vinculo en vez de borrarse, igual que un hueco en la fila se conserva.
-  //
   // Varios a la vez se borran en una sola pasada: un solo estado nuevo, y una condicion que apuntaba
-  // a cualquiera de los borrados se limpia igual que si fuera el unico.
+  // a cualquiera de los borrados se limpia igual que si fuera el unico (removeFieldsEverywhere).
   removeFields: (fieldIds) =>
     set((state) => {
       const removed: Set<string> = new Set<string>(fieldIds);
       if (removed.size === 0) return state;
 
-      const references = (id: string | undefined): boolean => id !== undefined && removed.has(id);
-      const applyTo = (rows: CanvasRow[]) =>
-        rows.map((row) => ({
-          ...row,
-          fields: row.fields
-            .filter((field) => !removed.has(field.id))
-            .map((field) => ({
-              ...field,
-              enableWhen: references(field.enableWhen?.fieldId) ? undefined : field.enableWhen,
-              visibleWhen: references(field.visibleWhen?.fieldId) ? undefined : field.visibleWhen,
-              labelFor: references(field.labelFor) ? undefined : field.labelFor,
-              dataSource: fieldIds.reduce(pruneDataSourceReferencing, field.dataSource),
-              validations: {
-                ...field.validations,
-                overrides: fieldIds.reduce(pruneOverridesReferencing, field.validations.overrides),
-              },
-              logic: {
-                ...field.logic,
-                rules: fieldIds.reduce(pruneRulesReferencing, field.logic.rules),
-              },
-            })),
-        }));
       return {
-        formSteps: state.formSteps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
-        introModal: {
-          steps: state.introModal.steps.map((step) => ({ ...step, rows: applyTo(step.rows) })),
-        },
+        ...removeFieldsEverywhere(state, fieldIds),
         selectedFieldIds: withoutIds(state.selectedFieldIds, removed),
       };
     }),
