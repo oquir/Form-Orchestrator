@@ -1,5 +1,6 @@
+import { useDependencyCandidates } from "../../../../hooks/useDependencyCandidates/useDependencyCandidates";
 import { isPresentationalField } from "../../../../lib/fieldKind/fieldKind";
-import { getAllFields, useFormStore } from "../../../../store/formStore";
+import { useFormStore } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { PanelSection } from "../../../molecules/PanelSection/PanelSection";
@@ -9,13 +10,9 @@ import { FieldScriptEditor } from "../FieldScriptEditor/FieldScriptEditor";
 import { HINT_CLASSES, READ_ONLY_DESCRIPTION } from "./LogicPanel.constants";
 
 export function LogicPanel({ field }: { field: CanvasField }) {
-  const formSteps = useFormStore((state) => state.formSteps);
   const updateField = useFormStore((state) => state.updateField);
 
-  const allFields: CanvasField[] = getAllFields(formSteps.flatMap((step) => step.rows));
-  const otherFields: CanvasField[] = allFields.filter(
-    (candidate) => candidate.id !== field.id && !isPresentationalField(candidate.type),
-  );
+  const otherFields: CanvasField[] = useDependencyCandidates(field.id);
   const isAlwaysDisabled = Boolean(field.alwaysDisabled);
 
   // Un campo presentacional no tiene valor: se puede ocultar, pero no habilitar,
