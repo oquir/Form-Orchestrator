@@ -209,7 +209,7 @@ Settled:
 - A row lands appended at the end of the target step; reposition afterward by dragging.
 - Target step is stripped of any pre-existing linked label before planting, to avoid duplicating it.
 - `activeCanvas` follows the move and the field stays selected.
-- **Crossing references are reported, never pruned** (`TransferNotice`) — they still evaluate at runtime by name, but `LogicPanel`'s candidate list is `formSteps`-only so they stop being editable there. Script refs are excluded (travel by name, which moves with the field).
+- **Backward references are reported, never pruned** (`TransferNotice`) — only those a move leaves on an intro field pointing at a form field, the one direction the pickers refuse (see "Conditions"). A form field watching an intro field is legal and stays silent. Script refs are excluded (travel by name, which moves with the field).
 - Tab droppable is `disabled` unless a transfer is in flight (same structural guard as the group band).
 - **Collision detection is `pointerWithin` first, `rectIntersection` fallback** (`pointerFirstCollision`) — dnd-kit's default compared the row-wide overlay against each tab, so the widest covered tab always won regardless of pointer position. Rect fallback still forgives gaps between rows.
 - Over a tab the row preview collapses to a compact chip (`hoveredTransferTarget`) so the tab strip stays visible, and switches to `centerOverlayOnCursor`.
@@ -280,7 +280,7 @@ Settled:
 
 Settled:
 - **Only a known name is substituted, and an unknown `{{x}}` is an error, not a warning** (typo, deleted or renamed field). `validateFieldScript` checks it *before* syntax — the leftover `{{x}}` is almost always also the syntax error, and "Unexpected token '{'" says nothing — and the export review blocks on it, reported alone. The old "warning, because it might be destructuring" reasoning died with the single brace.
-- **Editors judge refs against the same names as the export**: `useKnownFieldNames()` (both canvases), used by the field script, rule effects, group checks and the prelude. They used to see `formSteps` only, which falsely flagged `{periodo_anio}` on renglones 31/37. `candidates`/dependencies/cycle stay `formSteps`-only.
+- **Editors judge refs against the same names as the export**: `useKnownFieldNames()` (both canvases), used by the field script, rule effects, group checks and the prelude. They used to see `formSteps` only, which falsely flagged `{periodo_anio}` on renglones 31/37. `candidates`/dependencies/cycle come from `useDependencyCandidates` (see "Conditions").
 - **Any `{{x}}` in the prelude is an error, field or not** (`validatePrelude` takes no names); with one present the syntax check is skipped, and `checkPrelude` treats the prelude as broken (`isValid`, not just `error === null`) so field scripts aren't composed with it.
 - **Autocomplete**: `{{` opens the field list and closes with `}}` respecting what closeBrackets already inserted. A single `{` no longer opens it (it popped on every JS block, and Enter then accepted a field). **Ctrl+Space anywhere offers helpers + fields**, a field inserted already wrapped; plain typing offers helpers only, for the same Enter reason.
 - **The "+ Insertar campo…" select is gone** from `ScriptInput` (and so from the field script, rule effects and group checks, sidebar and right-click alike) — the autocomplete covers it.
@@ -636,7 +636,8 @@ Settled:
 - **A hidden field's Zod schema still exports unchanged** (`buildZodSchema` knows nothing about `visibleWhen`) — the consumer must drop hidden fields from its resolver itself. Same coordinated-consumer arrangement as `logic.script`.
 - Visibility is editable even when `alwaysDisabled` is on (hiding a read-only field is legitimate); the enable editor itself is hidden in that case.
 - `wouldCreateCycle` walks **every** edge kind (a cycle can span condition and script edges).
-- `LogicPanel`'s candidate list is `formSteps`-only — a form-step field cannot condition on an intro-modal field (untouched limit, not a decision; revisit if needed).
+- **Who can depend on whom follows the fill order** (`dependencyCandidates` in `src/lib/fieldCandidates/`, read through `useDependencyCandidates`): a form-step field sees intro-modal fields first, then form fields; an intro field sees only intro fields. One list feeds every picker — conditions, rules, the script's dependencies/cycle, validation overrides (Validaciones) and the catalog parent (Mapeo API). The other direction is what the old `formSteps`-only list allowed by accident: the modal showed a field watching one nobody had filled yet, hidden and so unvalidated, and let the taxpayer through without año gravable (verified with a tsx script). Runtime, export and consumer needed no change — `buildRuntimeModel` already puts intro fields in the same root scope.
+- **Deleting a step or a row prunes what pointed at its fields**, exactly like `removeFields` (`removeFieldsEverywhere` in `formStore.utils.ts`). Before, `removeFormStep`/`removeIntroModalStep`/`removeRow` dropped the fields and left the conditions behind: the export wrote the dead uuid as the field name, the consumer evaluated it against nothing (a hidden field stayed hidden forever, a conditional `required` vanished) and the export review saw nothing. Ctrl+Z brings the step and the conditions back together.
 
 ## Opening an exported form (`builderDraft`)
 
