@@ -214,6 +214,7 @@ const stepSchema = z.object({
   stepId: z.string(),
   title: z.string(),
   subtitle: z.string().optional(),
+  hidden: z.boolean().optional(),
   rows: z.array(canvasRowSchema),
   groups: z.array(repeatableGroupSchema).optional(),
 });

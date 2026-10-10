@@ -152,6 +152,9 @@ export interface ExportedStep {
   stepId: string;
   title: string;
   subtitle?: string;
+  // Solo aparece en true. El consumidor no lo muestra ni lo navega, pero calcula sus campos y los
+  // manda en el payload como cualquier otro.
+  hidden?: boolean;
   rows: ExportedRow[];
   groups?: ExportedRepeatableGroup[];
 }

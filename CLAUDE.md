@@ -50,6 +50,16 @@ Settled:
 - **`SaveButton` is compact and its timestamp is its `title`.** It first sat above a second line with the hour; in a three-button action row there is no second line, and text that comes and goes would shift the buttons beside it. The hour is still readable as a row of the "Formulario" block.
 - **`TransferNotice` carries its own `m-3`, as the default of a `className` prop.** The body has no padding of its own — each block brings it — and a padded wrapper would leave dead space at the top whenever there is no notice, which is nearly always. The prop exists because the collapsed chip mounts the notice too, hanging below it with absolute position instead of a margin: "Mover a paso" keeps writing `transferNotice` while the panel is folded, and without it those crossing references would be lost in silence.
 
+## Hidden steps (`step.hidden`)
+
+A form step can be hidden (`FormStep.hidden?: true`, toggle + (i) in the "Paso activo" block, `setFormStepHidden`): the taxpayer never sees it and "Siguiente" skips it, but its fields **keep computing and keep travelling in the payload** (calculated ones with their value, the rest empty). Motivating case: municipalities that want ICA step 7 gone, which would zero `total_a_pagar_con_aporte_voluntario` if its fields were deleted.
+
+Settled:
+- **Not `visibleWhen` on each field** — a hidden field neither validates nor travels in the payload; a hidden step only stops being shown and navigated.
+- Form steps only (the intro modal is navigated differently). The chip's `title` says "(oculto)"; the step stays editable on the canvas.
+- No required fields belong there — nobody can fill them. Navigation never gates on them (validation is per step), though the simulator's results panel would list them.
+- Exported as `hidden: true` (absent otherwise) and declared as `step.hidden` in `requires`. Additive key: one `persistence.schema.ts` line, no version bump.
+
 ## Step navigation shortcut (Ctrl + ← / →)
 
 Builder-only (never the consumer): Ctrl+← / Ctrl+→ moves to the previous / next step, one at a time, in `useKeyboardShortcuts`. Pure order in `src/lib/stepNavigation/` (`orderedSteps`, `adjacentStep`); keys and the chips' `title` hint in `constants/stepNavigation.ts`.

@@ -86,6 +86,7 @@ export interface FormState extends BanksSlice {
   setActiveCanvas: (target: CanvasTarget) => void;
   updateFormStepTitle: (stepId: string, title: string) => void;
   updateFormStepSubtitle: (stepId: string, subtitle: string) => void;
+  setFormStepHidden: (stepId: string, hidden: boolean) => void;
   addFormStep: () => void;
   removeFormStep: (stepId: string) => void;
   updateIntroModalStepTitle: (stepId: string, title: string) => void;

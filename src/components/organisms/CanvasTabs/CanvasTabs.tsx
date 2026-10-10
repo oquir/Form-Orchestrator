@@ -42,7 +42,7 @@ export function CanvasTabs() {
                 <li key={step.stepId}>
                   <StepTabChip
                     index={index + 1}
-                    label={step.title}
+                    label={step.hidden ? `${step.title} (oculto)` : step.title}
                     active={isActive}
                     canvasTarget={{ type: "formStep", stepId: step.stepId }}
                     // Soltar en el paso donde ya esta no es una mudanza, asi que ni se ofrece.

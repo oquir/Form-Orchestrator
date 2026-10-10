@@ -14,7 +14,8 @@ export function usePreviewNavigation(preview: FormPreviewApi): UsePreviewNavigat
   const [stepIndex, setStepIndex] = useState<number>(0);
   const [submitted, setSubmitted] = useState<boolean>(false);
 
-  const steps: ExportedStep[] = preview.model.steps;
+  // Un paso oculto no se navega, pero sus campos siguen en el modelo: calculan y viajan igual.
+  const steps: ExportedStep[] = preview.model.steps.filter((s) => !s.hidden);
   const introSteps: ExportedStep[] = preview.model.introSteps;
   // Si borran pasos en el lienzo el indice puede quedar mas alto que la lista.
   const current: number = Math.max(0, Math.min(stepIndex, steps.length - 1));

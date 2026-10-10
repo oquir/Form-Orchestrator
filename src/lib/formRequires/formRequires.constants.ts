@@ -42,6 +42,7 @@ export const STEP_KEYS: KeyTable<ExportedStep> = {
   stepId: "core",
   title: "core",
   subtitle: "feature",
+  hidden: "feature",
   rows: "core",
   groups: "feature",
 };

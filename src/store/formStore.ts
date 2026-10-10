@@ -192,6 +192,15 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         step.stepId === stepId ? { ...step, subtitle } : step,
       ),
     })),
+  // Se borra en vez de guardar false, igual que las demas banderas opcionales del modelo.
+  setFormStepHidden: (stepId, hidden) =>
+    set((state) => ({
+      formSteps: state.formSteps.map((step) => {
+        if (step.stepId !== stepId) return step;
+        const { hidden: _previous, ...rest } = step;
+        return hidden ? { ...rest, hidden: true } : rest;
+      }),
+    })),
   addFormStep: () =>
     set((state) => {
       const newStep: FormStep = {

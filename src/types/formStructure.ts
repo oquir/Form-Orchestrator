@@ -33,6 +33,9 @@ export interface FormStep {
   stepId: string;
   title: string;
   subtitle?: string;
+  // Un paso oculto no se muestra ni se navega, pero sus campos siguen calculando y viajando en el
+  // payload: es lo que permite "quitar" el paso 7 sin dejar en cero el total que depende de el.
+  hidden?: boolean;
   rows: CanvasRow[];
   groups?: RepeatableGroup[];
 }
