@@ -925,12 +925,12 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         [side]: text === "" ? undefined : text,
       })),
     ),
-  // Celular es el default y no se guarda, igual que admitir negativos: solo "fijo" deja la clave.
+  // Celular es el default y no se guarda, igual que admitir negativos: solo fijo y fax dejan la clave.
   setFieldPhoneKind: (fieldId, kind) =>
     set((state) =>
       mapFieldEverywhere(state, fieldId, (field) => ({
         ...field,
-        phoneKind: kind === "fijo" ? kind : undefined,
+        phoneKind: kind === "celular" ? undefined : kind,
       })),
     ),
   // Esta guarda el false y borra el true, al reves que las dos de arriba: aca lo que hay que

@@ -170,7 +170,7 @@ export interface CanvasField {
   prefix?: string;
   suffix?: string;
   // Solo telefono: que numero pide, y con eso que patron de fabrica valida. Ausente es celular, y
-  // por eso el store solo guarda "fijo". Ver lib/fieldContact.
+  // por eso el store solo guarda "fijo" o "fax". Ver lib/fieldContact.
   phoneKind?: PhoneKind;
   // Dibujar las opciones en una sola linea en vez de una debajo de otra. Solo presentacion, y solo
   // para radio_group y checkbox_group; ver lib/fieldOptions.

@@ -4,5 +4,6 @@ export interface PatternRule {
   message?: string;
 }
 
-// Que numero pide un campo telefono. Cada uno trae su propio patron de fabrica.
-export type PhoneKind = "celular" | "fijo";
+// Que numero pide un campo telefono. Cada uno trae su propio patron de fabrica. El fax acepta un
+// celular o un fijo, con una extension opcional al final.
+export type PhoneKind = "celular" | "fijo" | "fax";

@@ -14,6 +14,19 @@ const CELULAR_PATTERN: string = "^(?!([0-9])\\1+$)3[0-9]{9}$";
 // error seria peor que dejar pasar uno que no existe.
 const FIJO_PATTERN: string = "^60[1-8][0-9]{7}$";
 
+// Fax: un celular o un fijo, y al final una extension opcional. No hay norma colombiana para su
+// largo; los conmutadores usan de 3 a 5 digitos y 6 cubre los grandes sin dejar pasar un segundo
+// numero entero. Si un municipio pide otra cosa, una expresion propia en Validaciones la reemplaza.
+export const MAX_EXTENSION_DIGITS: number = 6;
+
+// La extension se escribe con "ext", "ext." o "x", en mayuscula o minuscula y con o sin espacios:
+// 6011234567 ext 123, 6011234567 Ext. 123, 3001234567x45. Las mayusculas van como clases porque el
+// consumidor arma el RegExp sin banderas, asi que no hay `i`. El celular se repite sin sus anclas:
+// el lookahead mira solo los 10 digitos del numero, no la extension.
+const EXTENSION_PATTERN: string = `(?:\\s*(?:[eE][xX][tT]\\.?|[xX])\\s*[0-9]{1,${MAX_EXTENSION_DIGITS}})?`;
+
+const FAX_PATTERN: string = `^(?:(?!([0-9])\\1{9})3[0-9]{9}|60[1-8][0-9]{7})${EXTENSION_PATTERN}$`;
+
 // El mensaje dice la regla y no solo que algo esta mal: los fijos de 7 digitos se siguen
 // escribiendo, y "invalido" a secas no explica que ahora llevan el 60X adelante.
 export const PHONE_FORMATS: Record<PhoneKind, PatternRule> = {
@@ -24,6 +37,10 @@ export const PHONE_FORMATS: Record<PhoneKind, PatternRule> = {
   fijo: {
     pattern: FIJO_PATTERN,
     message: "Ingrese un fijo válido: 10 dígitos que empiezan por 60, como 6011234567",
+  },
+  fax: {
+    pattern: FAX_PATTERN,
+    message: `Ingrese un celular o fijo de 10 dígitos y, si tiene extensión, agréguela al final con "ext" (hasta ${MAX_EXTENSION_DIGITS} dígitos), como 6011234567 ext 123`,
   },
 };
 

@@ -31,6 +31,7 @@ export const AFFIX_CLASSES: string = "shrink-0 text-fg-muted";
 export const PHONE_SAMPLES: Record<PhoneKind, string> = {
   celular: "3001234567",
   fijo: "6011234567",
+  fax: "6011234567 ext 123",
 };
 
 // El radio va siempre en fila en el lienzo: en columna se confundia con la lista del checkbox group.

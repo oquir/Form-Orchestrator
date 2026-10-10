@@ -7,7 +7,8 @@ import type { ContactField } from "./fieldContact.types";
 // Telefono y correo: texto con un formato de fabrica. No son otro valor -- siguen siendo un string,
 // se mapean a hojas string y se validan con z.string() -- sino un patron que viene puesto, mas el
 // type del input, que en el celular abre el teclado que corresponde. El telefono ademas elige que
-// numero pide, celular o fijo, y cada uno trae su patron.
+// numero pide -- celular, fijo o fax, que es cualquiera de los dos
+// con extension --, y cada uno trae su patron.
 //
 // El patron de fabrica no se guarda en el campo: sale de aca al armar el schema. Asi un borrador
 // viejo o uno recien soltado validan igual, y corregir el patron alcanza a todos los formularios
