@@ -21,6 +21,7 @@ export function PreviewSearchSelect({
   disabled,
   invalid,
   showsTarifa,
+  placeholder,
   onChange,
 }: PreviewSearchSelectProps) {
   const search = usePreviewSearchSelect({ options, value, onChange });
@@ -35,7 +36,7 @@ export function PreviewSearchSelect({
         className={`${TRIGGER_BASE_CLASSES} ${invalid ? TRIGGER_INVALID_CLASSES : TRIGGER_IDLE_CLASSES}`}
       >
         <span className={`truncate ${search.selected ? "text-fg" : "text-fg-muted"}`}>
-          {search.selected ? optionText(search.selected) : "Buscar…"}
+          {search.selected ? optionText(search.selected) : (placeholder ?? "Buscar…")}
         </span>
         <Magnifier size={14} weight="Filled" />
       </button>

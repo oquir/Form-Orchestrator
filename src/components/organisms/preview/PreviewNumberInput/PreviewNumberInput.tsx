@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { maxLengthOf } from "../../../../lib/fieldLength/fieldLength";
+import { placeholderOf } from "../../../../lib/fieldPlaceholder/fieldPlaceholder";
 import { applyDecimals, applyRounding } from "../../../../lib/fieldRounding/fieldRounding";
 import { allowsNegative, clampNegative } from "../../../../lib/fieldSign/fieldSign";
 import {
@@ -35,6 +36,7 @@ export function PreviewNumberInput({
       type="text"
       inputMode="decimal"
       autoComplete="off"
+      placeholder={placeholderOf(field)}
       disabled={disabled}
       value={draft ?? formatForDisplay(field, value)}
       onFocus={() => setDraft(toEditableText(value))}

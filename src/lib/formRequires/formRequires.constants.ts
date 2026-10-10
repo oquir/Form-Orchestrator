@@ -89,6 +89,7 @@ export const FIELD_KEYS: KeyTable<ExportedField> = {
   decimals: "feature",
   prefix: "feature",
   suffix: "feature",
+  placeholder: "feature",
   inlineOptions: "feature",
   dateRange: "feature",
   includesTime: "feature",

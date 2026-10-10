@@ -8,6 +8,7 @@ import {
 } from "../../../../lib/fieldDate/fieldDate";
 import { maxLengthOf } from "../../../../lib/fieldLength/fieldLength";
 import { showsOptionsInline } from "../../../../lib/fieldOptions/fieldOptions";
+import { placeholderOf } from "../../../../lib/fieldPlaceholder/fieldPlaceholder";
 import { catalogOptions } from "../../../../lib/mockCatalog/mockCatalog";
 import type { CatalogOption } from "../../../../types/catalog";
 import { RichTextView } from "../../../atoms/RichTextView/RichTextView";
@@ -42,6 +43,7 @@ export function PreviewFieldControl({
   const controlClasses = `${CONTROL_BASE_CLASSES} ${invalid ? CONTROL_INVALID_CLASSES : CONTROL_IDLE_CLASSES}`;
   const options: CatalogOption[] = catalogOptions(field, scopeValues, catalogBank);
   const inputId = `preview-${field.name}`;
+  const placeholder: string | undefined = placeholderOf(field);
 
   switch (field.type) {
     case "rich_text":
@@ -56,6 +58,7 @@ export function PreviewFieldControl({
           id={inputId}
           rows={3}
           maxLength={maxLengthOf(field)}
+          placeholder={placeholder}
           disabled={disabled}
           value={toInputValue(value)}
           onChange={(event) => onChange(event.target.value)}
@@ -104,6 +107,7 @@ export function PreviewFieldControl({
           type={field.type}
           autoComplete="off"
           maxLength={maxLengthOf(field)}
+          placeholder={placeholder}
           disabled={disabled}
           value={toInputValue(value)}
           onChange={(event) => onChange(event.target.value)}
@@ -179,6 +183,7 @@ export function PreviewFieldControl({
           disabled={disabled}
           invalid={invalid}
           showsTarifa={fillsColumn(field, "tarifa")}
+          placeholder={placeholder}
           onChange={onChange}
         />
       );
@@ -192,7 +197,7 @@ export function PreviewFieldControl({
           onChange={(event) => onChange(event.target.value)}
           className={controlClasses}
         >
-          <option value="">Seleccionar…</option>
+          <option value="">{placeholder ?? "Seleccionar…"}</option>
           {options.map((option) => (
             <option key={option.id} value={option.id}>
               {option.label}
@@ -270,6 +275,7 @@ export function PreviewFieldControl({
           id={inputId}
           type="text"
           maxLength={maxLengthOf(field)}
+          placeholder={placeholder}
           disabled={disabled}
           value={toInputValue(value)}
           onChange={(event) => onChange(event.target.value)}

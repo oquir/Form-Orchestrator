@@ -169,6 +169,9 @@ export interface CanvasField {
   // valor sigue siendo el numero y el prefijo nunca entra en el. Ver lib/fieldAffix.
   prefix?: string;
   suffix?: string;
+  // El texto gris del campo vacio. Solo presentacion: nunca entra en el valor. Ver
+  // lib/fieldPlaceholder.
+  placeholder?: string;
   // Solo telefono: que numero pide, y con eso que patron de fabrica valida. Ausente es celular, y
   // por eso el store solo guarda "fijo" o "fax". Ver lib/fieldContact.
   phoneKind?: PhoneKind;

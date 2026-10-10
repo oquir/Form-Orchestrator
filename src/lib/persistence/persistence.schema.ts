@@ -171,6 +171,7 @@ const canvasFieldSchema = z.object({
   decimals: z.number().optional(),
   prefix: z.string().optional(),
   suffix: z.string().optional(),
+  placeholder: z.string().optional(),
   phoneKind: z.enum(["celular", "fijo", "fax"]).optional(),
   inlineOptions: z.boolean().optional(),
   dateRange: z.boolean().optional(),

@@ -22,6 +22,7 @@ import {
 import { isPresentationalField } from "../fieldKind/fieldKind";
 import { exportableMaxLength } from "../fieldLength/fieldLength";
 import { exportableInlineOptions, exportableOptions } from "../fieldOptions/fieldOptions";
+import { placeholderOf } from "../fieldPlaceholder/fieldPlaceholder";
 import { exportableDecimals, exportableRounding } from "../fieldRounding/fieldRounding";
 import { compileScript } from "../fieldScript/fieldScript";
 import { exportableAllowsNegative } from "../fieldSign/fieldSign";
@@ -207,6 +208,7 @@ export function mapRows(
       decimals: exportableDecimals(field),
       prefix: affixOf(field, "prefix"),
       suffix: affixOf(field, "suffix"),
+      placeholder: placeholderOf(field),
       inlineOptions: exportableInlineOptions(field),
       dateRange: exportableDateRange(field),
       includesTime: exportableIncludesTime(field),

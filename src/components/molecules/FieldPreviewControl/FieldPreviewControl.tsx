@@ -13,6 +13,7 @@ import {
 import { affixOf } from "../../../lib/fieldAffix/fieldAffix";
 import { phoneKindOf } from "../../../lib/fieldContact/fieldContact";
 import { showsOptionsInline } from "../../../lib/fieldOptions/fieldOptions";
+import { placeholderOf } from "../../../lib/fieldPlaceholder/fieldPlaceholder";
 import type { CanvasField, FieldOption } from "../../../types/field";
 import { RichTextView } from "../../atoms/RichTextView/RichTextView";
 import {
@@ -108,6 +109,8 @@ function checkMark() {
 
 export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
   const options: PreviewOptions = previewOptions(field);
+  // Si el autor puso un placeholder, el lienzo muestra ese en vez del texto de muestra del tipo.
+  const placeholder: string | undefined = placeholderOf(field);
 
   switch (field.type) {
     case "label":
@@ -120,7 +123,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
       return (
         <div className={INPUT_CLASSES}>
           <span className="truncate">
-            {options.note ? SELECT_NOTE_TEXT[options.note] : "Seleccionar…"}
+            {placeholder ?? (options.note ? SELECT_NOTE_TEXT[options.note] : "Seleccionar…")}
           </span>
           <span className={SELECT_CHEVRON_CLASSES}>
             <AngleDown2 size={14} />
@@ -135,7 +138,8 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
           <span className="flex min-w-0 items-center gap-2">
             <Magnifier size={14} className="shrink-0 text-fg-muted" />
             <span className="truncate">
-              {options.note ? SELECT_NOTE_TEXT[options.note] : "Buscar y seleccionar…"}
+              {placeholder ??
+                (options.note ? SELECT_NOTE_TEXT[options.note] : "Buscar y seleccionar…")}
             </span>
           </span>
           <span className={SELECT_CHEVRON_CLASSES}>
@@ -209,7 +213,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     case "textarea":
       return (
         <div className={TEXTAREA_CLASSES}>
-          <span>Escribe aquí…</span>
+          <span>{placeholder ?? "Escribe aquí…"}</span>
           <svg
             aria-hidden="true"
             viewBox="0 0 10 10"
@@ -228,7 +232,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     case "number":
       return (
         <div className={INPUT_CLASSES}>
-          {withAffixes(field, "0")}
+          {withAffixes(field, placeholder ?? "0")}
           <span className={SPINNER_CLASSES}>
             <AngleUp2 size={10} />
             <AngleDown2 size={10} />
@@ -239,7 +243,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     case "calculated":
       return (
         <div className={READONLY_INPUT_CLASSES}>
-          {withAffixes(field, "Valor calculado")}
+          {withAffixes(field, placeholder ?? "Valor calculado")}
           <Calculator size={14} className="shrink-0" />
         </div>
       );
@@ -247,7 +251,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     case "tel":
       return (
         <div className={INPUT_CLASSES}>
-          <span className="truncate">{PHONE_SAMPLES[phoneKindOf(field)]}</span>
+          <span className="truncate">{placeholder ?? PHONE_SAMPLES[phoneKindOf(field)]}</span>
           <Phone size={14} className="shrink-0 text-fg-muted" />
         </div>
       );
@@ -255,7 +259,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     case "email":
       return (
         <div className={INPUT_CLASSES}>
-          <span className="truncate">correo@ejemplo.com</span>
+          <span className="truncate">{placeholder ?? "correo@ejemplo.com"}</span>
           <Envelope size={14} className="shrink-0 text-fg-muted" />
         </div>
       );
@@ -287,7 +291,7 @@ export function FieldPreviewControl({ field }: FieldPreviewControlProps) {
     default:
       return (
         <div className={INPUT_CLASSES}>
-          <span className="truncate">Texto de ejemplo</span>
+          <span className="truncate">{placeholder ?? "Texto de ejemplo"}</span>
         </div>
       );
   }

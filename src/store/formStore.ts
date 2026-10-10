@@ -925,6 +925,14 @@ const createFormState: StateCreator<FormState, [["temporal", unknown]], []> = (s
         [side]: text === "" ? undefined : text,
       })),
     ),
+  // Igual que los afijos: se guarda lo tecleado y un texto vacio borra la clave.
+  setFieldPlaceholder: (fieldId, text) =>
+    set((state) =>
+      mapFieldEverywhere(state, fieldId, (field) => ({
+        ...field,
+        placeholder: text === "" ? undefined : text,
+      })),
+    ),
   // Celular es el default y no se guarda, igual que admitir negativos: solo fijo y fax dejan la clave.
   setFieldPhoneKind: (fieldId, kind) =>
     set((state) =>

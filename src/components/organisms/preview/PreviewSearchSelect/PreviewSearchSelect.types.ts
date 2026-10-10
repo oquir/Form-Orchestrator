@@ -8,5 +8,6 @@ export interface PreviewSearchSelectProps {
   disabled: boolean;
   invalid: boolean;
   showsTarifa: boolean;
+  placeholder?: string;
   onChange: (value: unknown) => void;
 }

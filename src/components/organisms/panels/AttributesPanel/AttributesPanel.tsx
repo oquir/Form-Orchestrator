@@ -1,3 +1,4 @@
+import { MAX_PLACEHOLDER_LENGTH } from "../../../../constants/fieldPlaceholder";
 import { RICH_TEXT_FIELD_TYPE } from "../../../../constants/fieldTypes";
 import { GRID_BASE_COLUMNS } from "../../../../constants/grid";
 import { isPhoneField } from "../../../../lib/fieldContact/fieldContact";
@@ -12,6 +13,7 @@ import {
   isOptionBasedField,
   supportsInlineOptions,
 } from "../../../../lib/fieldOptions/fieldOptions";
+import { supportsPlaceholder } from "../../../../lib/fieldPlaceholder/fieldPlaceholder";
 import { supportsRounding } from "../../../../lib/fieldRounding/fieldRounding";
 import { supportsTooltip } from "../../../../lib/fieldTooltip/fieldTooltip";
 import { getFreeRuns, getMaxSpanAt } from "../../../../lib/rowLayout/rowLayout";
@@ -22,6 +24,9 @@ import {
   useFormStore,
 } from "../../../../store/formStore";
 import type { CanvasField } from "../../../../types/field";
+import { InfoHint } from "../../../atoms/InfoHint/InfoHint";
+import { Input } from "../../../atoms/Input/Input";
+import { Label } from "../../../atoms/Label/Label";
 import { ToggleSwitch } from "../../../atoms/ToggleSwitch/ToggleSwitch";
 import { FieldIdentityCard } from "../../../molecules/FieldIdentityCard/FieldIdentityCard";
 import { FieldNameInput } from "../../../molecules/FieldNameInput/FieldNameInput";
@@ -41,6 +46,8 @@ import {
   GENERAL_DESCRIPTION,
   LAYOUT_DESCRIPTION,
   OPTIONS_SOURCE_DESCRIPTION,
+  PLACEHOLDER_DESCRIPTION,
+  PLACEHOLDER_EXAMPLE,
   SOURCE_BADGE_CLASSES,
   SOURCE_LINK_CLASSES,
 } from "./AttributesPanel.constants";
@@ -51,6 +58,7 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
   const setFieldLabelFor = useFormStore((state) => state.setFieldLabelFor);
   const setFieldContent = useFormStore((state) => state.setFieldContent);
   const setFieldInlineOptions = useFormStore((state) => state.setFieldInlineOptions);
+  const setFieldPlaceholder = useFormStore((state) => state.setFieldPlaceholder);
   const activeRows = useFormStore(getActiveRows);
   const row = useFormStore((state) => findRowContainingField(state, field.id));
   const rowColumns = row?.columns ?? GRID_BASE_COLUMNS;
@@ -87,6 +95,22 @@ export function AttributesPanel({ field }: { field: CanvasField }) {
             </span>
           )}
         </div>
+
+        {supportsPlaceholder(field.type) && (
+          <div className="relative">
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="field-placeholder">Placeholder</Label>
+              <InfoHint text={PLACEHOLDER_DESCRIPTION} label="Ayuda sobre Placeholder" />
+            </div>
+            <Input
+              id="field-placeholder"
+              value={field.placeholder ?? ""}
+              maxLength={MAX_PLACEHOLDER_LENGTH}
+              placeholder={PLACEHOLDER_EXAMPLE}
+              onChange={(event) => setFieldPlaceholder(field.id, event.target.value)}
+            />
+          </div>
+        )}
 
         {/* Las keys de estos hermanos no pueden repetirse: con RichTextEditor y FieldNameInput en
             key={field.id}, React dejaba el editor viejo huerfano en el DOM en cada cambio de campo. */}

@@ -37,6 +37,19 @@ export const LENGTH_CAPABLE_FIELD_TYPES: string[] = [
   "calculated",
 ];
 
+// Los que muestran una caja vacia donde cabe un placeholder. La fecha no: su caja ya muestra el
+// formato. Ver lib/fieldPlaceholder.
+export const PLACEHOLDER_CAPABLE_FIELD_TYPES: string[] = [
+  "text",
+  "textarea",
+  TEL_FIELD_TYPE,
+  EMAIL_FIELD_TYPE,
+  "number",
+  "calculated",
+  "select",
+  "search_select",
+];
+
 export const PRESENTATIONAL_FIELD_TYPES: string[] = ["label", "rich_text"];
 
 export const TOOLTIP_CAPABLE_FIELD_TYPES: string[] = [

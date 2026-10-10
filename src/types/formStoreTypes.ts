@@ -154,6 +154,7 @@ export interface FormState extends BanksSlice {
   setFieldDecimals: (fieldId: string, decimals: number | null) => void;
   setFieldAffix: (fieldId: string, side: AffixSide, text: string) => void;
   setFieldPhoneKind: (fieldId: string, kind: PhoneKind) => void;
+  setFieldPlaceholder: (fieldId: string, text: string) => void;
   setFieldInlineOptions: (fieldId: string, inline: boolean) => void;
   setFieldDateRange: (fieldId: string, range: boolean) => void;
   setFieldIncludesTime: (fieldId: string, withTime: boolean) => void;

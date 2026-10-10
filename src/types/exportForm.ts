@@ -102,6 +102,9 @@ export interface ExportedField {
   // entran en el valor; ver lib/fieldAffix.
   prefix?: string;
   suffix?: string;
+  // El texto gris del campo vacio, ya recortado. Solo presentacion: el consumidor lo pone como
+  // placeholder del input (o como primera opcion de un select) y nunca lo toma como valor.
+  placeholder?: string;
   inlineOptions?: boolean;
   // Solo aparece en un campo fecha que pide rango: su valor es { desde, hasta } y no un texto.
   dateRange?: boolean;
