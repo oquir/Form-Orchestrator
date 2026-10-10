@@ -46,9 +46,10 @@ export interface ExportedValidations {
   zodSchemaWhen?: ExportedValidationVariant[];
 }
 
-// `compiled` es cuerpo de funcion listo para new Function, precedido del preludio del formulario
-// si lo hay. `source` viaja solo para poder reeditarlo: ejecutarlo seria un error, porque {{campo}}
-// no es JS. `reads` son los nombres que lee, para poder ordenar el calculo sin volver a parsear.
+// `compiled` es cuerpo de funcion listo para new Function, sin el preludio del formulario: ese
+// viaja una sola vez en formSchema.prelude y quien ejecuta lo antepone. `source` viaja solo para
+// poder reeditarlo: ejecutarlo seria un error, porque {{campo}} no es JS. `reads` son los nombres
+// que lee, para poder ordenar el calculo sin volver a parsear.
 export interface ExportedScript {
   source: string;
   compiled: string;
@@ -158,8 +159,13 @@ export interface ExportedStep {
 export interface ProjectMeta {
   formId: string;
   formType: FormType | null;
+  // Fija en "1.0.0" y no dice nada: sigue porque el consumidor ya la tipa. Lo que dice si un
+  // consumidor puede con este formulario es `requires`.
   version: string;
   createdAt: string;
+  // Lo que un consumidor tiene que saber hacer para ejecutar ESTE formulario sin perder nada en
+  // silencio. Si no reconoce alguna palabra, no lo carga. Ver lib/formRequires.
+  requires: string[];
 }
 
 export interface ExportedIntroModal {

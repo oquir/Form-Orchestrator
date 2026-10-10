@@ -1,7 +1,13 @@
 import { GRID_BASE_COLUMNS } from "../../constants/grid";
-import type { FormExport, FormExportFile } from "../../types/exportForm";
+import type {
+  ExportedFormSchema,
+  ExportedSetupConfig,
+  FormExport,
+  FormExportFile,
+} from "../../types/exportForm";
 import type { CanvasRow, FormStep, IntroModalStep } from "../../types/formStructure";
 import type { SetupConfig } from "../../types/setup";
+import { collectRequires } from "../formRequires/formRequires";
 import { buildDraftPayload } from "../persistence/persistence";
 import { buildNameIndex, mapFormStep, mapRows } from "./exportForm.utils";
 
@@ -26,31 +32,36 @@ export function buildFormExport(
   const knownNames: Set<string> = new Set(names.values());
   const prelude: string = formScript.trim();
 
+  const exportedSetup: ExportedSetupConfig = {
+    hasIntroModal: setupConfig.hasIntroModal,
+    introModal: setupConfig.hasIntroModal
+      ? {
+          steps: introModalSteps.map((step) => ({
+            stepId: step.stepId,
+            title: step.title,
+            subtitle: step.subtitle || undefined,
+            rows: mapRows(step.rows, names, knownNames),
+          })),
+        }
+      : undefined,
+  };
+  const formSchema: ExportedFormSchema = {
+    gridBaseColumns: GRID_BASE_COLUMNS,
+    prelude: prelude.length > 0 ? prelude : undefined,
+    steps: formSteps.map((step) => mapFormStep(step, names, knownNames)),
+  };
+
   return {
     projectMeta: {
       formId: `frm_${Date.now()}`,
       formType: setupConfig.formType,
       version: "1.0.0",
       createdAt: new Date().toISOString(),
+      // Al final, porque se calcula sobre lo que ya quedo armado: juzga lo que viaja.
+      requires: collectRequires(exportedSetup, formSchema),
     },
-    setupConfig: {
-      hasIntroModal: setupConfig.hasIntroModal,
-      introModal: setupConfig.hasIntroModal
-        ? {
-            steps: introModalSteps.map((step) => ({
-              stepId: step.stepId,
-              title: step.title,
-              subtitle: step.subtitle || undefined,
-              rows: mapRows(step.rows, names, knownNames),
-            })),
-          }
-        : undefined,
-    },
-    formSchema: {
-      gridBaseColumns: GRID_BASE_COLUMNS,
-      prelude: prelude.length > 0 ? prelude : undefined,
-      steps: formSteps.map((step) => mapFormStep(step, names, knownNames)),
-    },
+    setupConfig: exportedSetup,
+    formSchema,
   };
 }
 
