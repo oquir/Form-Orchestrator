@@ -11,6 +11,8 @@ import { checkKey, fieldKey } from "../runtimeValidation/runtimeValidation.utils
 
 // Piezas de apoyo del runtime: recorridos del export y armado de los ambitos.
 
+// stepFields y allSteps no tienen uso en el builder, pero FrontAutoliquidable las usa desde su
+// copia del runtime: borrarlas aca rompe al consumidor en la proxima copia.
 export function stepFields(step: ExportedStep): ExportedField[] {
   return step.rows.flatMap((row) => row.fields);
 }
