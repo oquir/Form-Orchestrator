@@ -16,7 +16,3 @@ export function createGroupCheck(): GroupCheck {
 export function enabledChecks(checks: GroupCheck[] | undefined): GroupCheck[] {
   return (checks ?? []).filter((check) => check.enabled && check.script.trim().length > 0);
 }
-
-export function hasChecks(checks: GroupCheck[] | undefined): boolean {
-  return (checks?.length ?? 0) > 0;
-}
