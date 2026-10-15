@@ -1,4 +1,4 @@
-import { LENGTH_CAPABLE_FIELD_TYPES, NUMERIC_FIELD_TYPES } from "../../constants/fieldTypes";
+import { LENGTH_CAPABLE_FIELD_TYPES } from "../../constants/fieldTypes";
 import type { AuthoredLengthField, LengthLimitedField } from "./fieldLength.types";
 
 // Cuanto se puede escribir en un campo. Una sola declaracion del autor -- validations.maxLength --
@@ -18,10 +18,6 @@ import type { AuthoredLengthField, LengthLimitedField } from "./fieldLength.type
 
 export function supportsMaxLength(type: string): boolean {
   return LENGTH_CAPABLE_FIELD_TYPES.includes(type);
-}
-
-export function countsDigits(type: string): boolean {
-  return NUMERIC_FIELD_TYPES.includes(type);
 }
 
 // Un tope de cero no es una regla sino un numero a medio escribir en el panel: en un texto dejaria
