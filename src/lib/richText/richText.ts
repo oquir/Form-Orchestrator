@@ -86,14 +86,6 @@ export function isEmptyRichText(content: RichTextContent | undefined): boolean {
   return content.every((paragraph) => paragraph.children.every((leaf) => leaf.text.trim() === ""));
 }
 
-export function richTextToPlainText(content: RichTextContent | undefined): string {
-  if (!content) return "";
-
-  return content
-    .map((paragraph) => paragraph.children.map((leaf) => leaf.text).join(""))
-    .join("\n");
-}
-
 export function emptyRichText(): RichTextContent {
   return [{ type: "paragraph", children: [{ text: "" }] }];
 }
