@@ -261,7 +261,7 @@ Settled:
 
 **A field's value is computed in exactly one place: `logic.script`**, JS with `{{campo}}` to read other fields. Replaced a self-contained formula language + rules editor + an unexecuted `logic.typeScript` textarea — three mechanisms for one question.
 
-`src/lib/fieldScript/fieldScript.ts`: `compileScript`, `validateFieldScript`, `validatePrelude`, `buildScriptFunction`, `composeScriptBody`, `preludeLineOffset`, `normalizeScriptResult`, `fieldRefText`, `unknownRefsMessage`, `findScriptRefs`. **No function throws** — errors travel in the result since the editor calls them on every keystroke.
+`src/lib/fieldScript/fieldScript.ts`: `compileScript`, `validateFieldScript`, `validatePrelude`, `buildScriptFunction`, `composeScriptBody`, `normalizeScriptResult`, `fieldRefText`, `unknownRefsMessage`, `findScriptRefs`. **No function throws** — errors travel in the result since the editor calls them on every keystroke.
 
 Contract (identical for a script and a rule effect):
 - `return` gives the value; **`return undefined` means "leave what the user typed"** (not `computed`, stays editable).
