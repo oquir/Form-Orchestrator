@@ -7,7 +7,6 @@ export interface UseGroupChecksEditorParams {
 
 export interface UseGroupChecksEditorResult {
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
   toggleOpen: () => void;
   checks: GroupCheck[];
   activeCount: number;

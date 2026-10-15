@@ -38,7 +38,6 @@ export function useGroupChecksEditor({
 
   return {
     isOpen,
-    setIsOpen,
     toggleOpen: () => setIsOpen((prev) => !prev),
     checks,
     activeCount,
