@@ -76,14 +76,6 @@ export function composeScriptBody(code: string, prelude?: string): string {
   return shared.length === 0 ? code : `${shared}\n${code}`;
 }
 
-// Cuantas lineas mete el preludio por delante. El editor las resta para no subrayar la linea
-// equivocada del script del campo.
-export function preludeLineOffset(prelude?: string): number {
-  const shared: string = prelude?.trim() ?? "";
-
-  return shared.length === 0 ? 0 : shared.split("\n").length;
-}
-
 export function buildScriptFunction(body: string): ScriptFunctionResult {
   try {
     return { fn: new Function(...SCRIPT_PARAM_NAMES, body) as ScriptFunction, error: null };
