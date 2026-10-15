@@ -18,9 +18,3 @@ export function anioDeTexto(fecha: string): number {
 
   return Number.isFinite(anio) && anio > 0 ? anio : 0;
 }
-
-// Los anos que la tabla cubre, del mas nuevo al mas viejo. Es lo que el panel muestra y lo que
-// permite ver de un vistazo que falta el ano en curso.
-export function aniosCubiertos(valores: ValorAnual[]): number[] {
-  return valores.map((valor) => valor.anio).sort((a, b) => b - a);
-}
