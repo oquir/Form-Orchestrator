@@ -40,10 +40,6 @@ export function groupFields(rows: CanvasRow[], groupId: string): CanvasField[] {
   return groupRows(rows, groupId).flatMap((row) => row.fields);
 }
 
-export function findGroupIdForRow(rows: CanvasRow[], rowId: string): string | undefined {
-  return rows.find((row) => row.id === rowId)?.groupId;
-}
-
 export function findGroupIdForField(rows: CanvasRow[], fieldId: string): string | undefined {
   return rows.find((row) => row.fields.some((field) => field.id === fieldId))?.groupId;
 }
