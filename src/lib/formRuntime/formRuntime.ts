@@ -29,7 +29,6 @@ export function buildRuntimeModel(exported: FormExport): RuntimeModel {
   const introSteps: ExportedStep[] = exported.setupConfig.introModal?.steps ?? [];
   const fieldsByName: Map<string, ExportedField> = new Map();
   const groupsById: Map<string, ExportedRepeatableGroup> = new Map();
-  const groupIdByFieldName: Map<string, string> = new Map();
   const groupFields: Map<string, ExportedField[]> = new Map();
   const externalLabels: Map<string, string> = new Map();
   const rootFields: ExportedField[] = [];
@@ -46,7 +45,6 @@ export function buildRuntimeModel(exported: FormExport): RuntimeModel {
         if (field.labelFor) externalLabels.set(field.labelFor, field.label);
 
         if (row.groupId) {
-          groupIdByFieldName.set(field.name, row.groupId);
           groupFields.set(row.groupId, [...(groupFields.get(row.groupId) ?? []), field]);
           continue;
         }
@@ -60,12 +58,10 @@ export function buildRuntimeModel(exported: FormExport): RuntimeModel {
     steps,
     introSteps,
     hasIntroModal: exported.setupConfig.hasIntroModal && introSteps.length > 0,
-    gridBaseColumns: exported.formSchema.gridBaseColumns,
     prelude: exported.formSchema.prelude ?? "",
     declaracion: declaracionDe(exported.projectMeta.formType),
     fieldsByName,
     groupsById,
-    groupIdByFieldName,
     rootFields,
     groupFields,
     externalLabels,

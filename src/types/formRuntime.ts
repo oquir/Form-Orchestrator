@@ -47,14 +47,12 @@ export interface RuntimeModel {
   steps: ExportedStep[];
   introSteps: ExportedStep[];
   hasIntroModal: boolean;
-  gridBaseColumns: number;
   prelude: string;
   // Que declaracion es, leido de projectMeta.formType. Decide cual de las tres listas de la tabla
   // de vencimientos aplica.
   declaracion: DeclaracionKind;
   fieldsByName: Map<string, ExportedField>;
   groupsById: Map<string, ExportedRepeatableGroup>;
-  groupIdByFieldName: Map<string, string>;
   rootFields: ExportedField[];
   groupFields: Map<string, ExportedField[]>;
   externalLabels: Map<string, string>;
